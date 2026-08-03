@@ -1,14 +1,14 @@
-name: Disparar recordatorios
+name: Disparar avisos
 
 # Alternativa gratuita a Vercel Cron (que en el plan Hobby limita la
 # frecuencia de los cron jobs). Pedido cada minuto — GitHub Actions lo
 # acepta en la sintaxis, pero lo cumple en modo "best effort": puede
 # retrasarse varios minutos en horas de mucha carga, sin garantía real de
-# cadencia por debajo de ~5 min. La ventana de tolerancia del endpoint (ver
-# isReminderPending) está pensada justo para absorber ese margen sin
-# duplicar ni saltarse recordatorios. Requiere el secreto CRON_SECRET_HEADER
-# configurado en Settings → Secrets and variables → Actions de este
-# repositorio, con el mismo valor que CRON_SECRET en Vercel.
+# cadencia por debajo de ~5 min. Las ventanas de tolerancia de cada endpoint
+# (isReminderPending / phase_alert_sent) están pensadas justo para absorber
+# ese margen sin duplicar ni saltarse avisos. Requiere el secreto
+# CRON_SECRET_HEADER configurado en Settings → Secrets and variables →
+# Actions de este repositorio, con el mismo valor que CRON_SECRET en Vercel.
 on:
   schedule:
     - cron: "* * * * *"
@@ -21,4 +21,8 @@ jobs:
       - name: Llamar al endpoint de recordatorios
         run: |
           curl -sf -X GET "${{ vars.APP_URL }}/api/cron/reminders" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET_HEADER }}"
+      - name: Llamar al endpoint de fases de sesión
+        run: |
+          curl -sf -X GET "${{ vars.APP_URL }}/api/cron/session-phases" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET_HEADER }}"

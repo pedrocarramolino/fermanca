@@ -37,20 +37,57 @@ const serwist = new Serwist({
 
 serwist.addEventListeners();
 
-// Recordatorios (Fase 9): el evento 'push' no es parte de Serwist, se
-// escucha aparte. El payload lo manda el endpoint de cron (JSON con
-// title/body/url) vía web-push.
+// El evento 'push' no es parte de Serwist, se escucha aparte. El payload lo
+// manda el servidor (endpoints de cron) vía web-push — el mismo shape que
+// PushPayload en src/core/infrastructure/push/send-push.ts, duplicado aquí
+// porque este archivo se compila aparte con esbuild (ver comentario de
+// arriba), no importa módulos del resto de la app.
 interface ReminderPushPayload {
+  kind: "reminder";
   title: string;
   body: string;
   url?: string;
 }
 
+interface SessionPhasePushPayload {
+  kind: "session-phase";
+  title: string;
+  body: string;
+  sessionId: string;
+  hasNextPhase: boolean;
+}
+
+type IncomingPushPayload = ReminderPushPayload | SessionPhasePushPayload;
+
+interface ShowNotificationOptions extends NotificationOptions {
+  actions?: { action: string; title: string }[];
+}
+
 self.addEventListener("push", (event: PushEvent) => {
-  const payload: ReminderPushPayload = event.data?.json() ?? {
+  const payload: IncomingPushPayload = event.data?.json() ?? {
+    kind: "reminder",
     title: "PracticeFlow",
     body: "Tienes un recordatorio.",
   };
+
+  if (payload.kind === "session-phase") {
+    const options: ShowNotificationOptions = {
+      body: payload.body,
+      icon: "/icons/icon-192x192.png",
+      badge: "/icons/icon-192x192.png",
+      tag: "practiceflow-session-phase",
+      data: {
+        type: "session-phase",
+        sessionId: payload.sessionId,
+        url: `/session/${payload.sessionId}`,
+      },
+      actions: payload.hasNextPhase
+        ? [{ action: "next-phase", title: "Siguiente fase" }]
+        : undefined,
+    };
+    event.waitUntil(self.registration.showNotification(payload.title, options));
+    return;
+  }
 
   event.waitUntil(
     self.registration.showNotification(payload.title, {

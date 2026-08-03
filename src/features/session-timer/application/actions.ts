@@ -14,11 +14,11 @@ async function requireUserId() {
 }
 
 /**
- * Cierra todos los bloques que quedaron atrás (completados) y abre el
- * siguiente (activo). `completedBlocks` puede tener más de uno: si la
- * pestaña estuvo en segundo plano el tiempo suficiente, el usuario puede
- * volver habiéndose saltado varios bloques de golpe, y todos deben quedar
- * marcados, no solo el último.
+ * Cierra el bloque activo (completado) y abre el siguiente. Se llama solo
+ * tras confirmación explícita del usuario (ver useSessionRuntime) — los
+ * bloques ya no se saltan solos por tiempo, así que `completedBlocks` es
+ * siempre de uno en la práctica, pero se deja como array por si algún día
+ * hace falta cerrar varios de golpe.
  */
 export async function transitionBlock(input: {
   completedBlocks: { id: string; actualDurationSeconds: number }[];
@@ -62,6 +62,15 @@ export async function getFreshBlocks(sessionId: string) {
     actualDurationSeconds: block.actualDurationSeconds,
     note: block.note,
   }));
+}
+
+/** El cliente lo llama justo al mostrar su propio aviso local (app en
+ * segundo plano pero con JS aún corriendo), para que el cron de push
+ * (/api/cron/session-phases) no lo duplique unos segundos después. */
+export async function markPhaseAlertSent(blockId: string) {
+  const { userId, client } = await requireUserId();
+  const repo = new SupabaseSessionRepository(client);
+  await repo.markPhaseAlertSent(blockId as SessionBlockId, userId);
 }
 
 export async function saveBlockNote(blockId: string, note: string) {

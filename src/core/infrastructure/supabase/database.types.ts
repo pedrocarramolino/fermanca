@@ -131,6 +131,7 @@ export interface Database {
           started_at: string | null;
           ended_at: string | null;
           note: string | null;
+          phase_alert_sent: boolean;
         };
         Insert: {
           id?: string;
@@ -145,6 +146,7 @@ export interface Database {
           started_at?: string | null;
           ended_at?: string | null;
           note?: string | null;
+          phase_alert_sent?: boolean;
         };
         Update: Partial<Database["public"]["Tables"]["session_blocks"]["Insert"]>;
         Relationships: [

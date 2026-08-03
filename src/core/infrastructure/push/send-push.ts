@@ -23,11 +23,23 @@ function ensureConfigured() {
   configured = true;
 }
 
-export interface PushPayload {
+export interface ReminderPushPayload {
+  kind: "reminder";
   title: string;
   body: string;
   url?: string;
 }
+
+export interface SessionPhasePushPayload {
+  kind: "session-phase";
+  title: string;
+  body: string;
+  sessionId: string;
+  /** Controla si el SW añade el botón de acción "Siguiente fase". */
+  hasNextPhase: boolean;
+}
+
+export type PushPayload = ReminderPushPayload | SessionPhasePushPayload;
 
 /** `expired: true` cuando el servicio push responde 404/410 — la
  * suscripción ya no es válida y hay que borrarla, no reintentar. */

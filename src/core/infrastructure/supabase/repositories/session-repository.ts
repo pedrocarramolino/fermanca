@@ -148,6 +148,15 @@ export class SupabaseSessionRepository implements SessionRepository {
     return blockToDomain(data);
   }
 
+  async markPhaseAlertSent(id: SessionBlockId, ownerId: UserId): Promise<void> {
+    void ownerId; // RLS ya exige que el bloque pertenezca a una sesión del usuario.
+    const { error } = await this.client
+      .from("session_blocks")
+      .update({ phase_alert_sent: true })
+      .eq("id", id);
+    if (error) throw error;
+  }
+
   async finish(
     id: SessionId,
     ownerId: UserId,

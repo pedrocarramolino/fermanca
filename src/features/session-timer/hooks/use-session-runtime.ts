@@ -3,7 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { resolveRuntimeState, type RuntimeBlock } from "@/core/domain/session-runtime";
 import { playNotificationSound, vibrate } from "@/features/session-timer/application/sounds";
-import { transitionBlock, finishSession } from "@/features/session-timer/application/actions";
+import {
+  transitionBlock,
+  finishSession,
+  markPhaseAlertSent,
+} from "@/features/session-timer/application/actions";
 import type { SoundChoice } from "@/core/domain/user-settings";
 import type { SessionBlockStatus } from "@/core/domain/session";
 
@@ -103,6 +107,11 @@ export function useSessionRuntime({
       void navigator.serviceWorker.ready.then((registration) =>
         registration.showNotification("Fase completada", options),
       );
+      // El cron de push (/api/cron/session-phases) es la red de seguridad
+      // para cuando el móvil está bloqueado y este código nunca llega a
+      // ejecutarse; si SÍ se ejecuta, avisamos al servidor para que el cron
+      // no vuelva a enviar el mismo aviso por su cuenta.
+      if (activeBlock) void markPhaseAlertSent(activeBlock.id);
     }
   }
 

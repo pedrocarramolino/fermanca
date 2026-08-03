@@ -29,6 +29,10 @@ export interface SessionRepository {
       Pick<SessionBlock, "status" | "actualDurationSeconds" | "startedAt" | "endedAt" | "note">
     >,
   ): Promise<SessionBlock>;
+  /** El cliente lo llama al mostrar su propio aviso local (app en segundo
+   * plano pero con JS aún corriendo), para que el cron de push no duplique
+   * el aviso — ver /api/cron/session-phases. */
+  markPhaseAlertSent(id: SessionBlockId, ownerId: UserId): Promise<void>;
   finish(
     id: SessionId,
     ownerId: UserId,
