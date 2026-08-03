@@ -34,6 +34,17 @@ async function originUrl() {
   return `${proto}://${host}`;
 }
 
+/**
+ * `next` viene de un query param controlado por quien construye el enlace
+ * de login, no del propio usuario — "/login?next=//evil.com" pasa
+ * `startsWith("/")` (es una URL protocol-relative) y el navegador la
+ * resuelve como "https://evil.com". Bloquear también "//" evita ese
+ * open redirect tras un login legítimo.
+ */
+function safeRedirectPath(next: string): string {
+  return next.startsWith("/") && !next.startsWith("//") ? next : "/";
+}
+
 export async function signIn(
   _prevState: AuthActionState,
   formData: FormData,
@@ -53,7 +64,7 @@ export async function signIn(
   }
 
   const next = String(formData.get("next") ?? "/");
-  redirect(next.startsWith("/") ? next : "/");
+  redirect(safeRedirectPath(next));
 }
 
 export async function signUp(

@@ -1,9 +1,22 @@
+import { timingSafeEqual } from "crypto";
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/core/infrastructure/supabase/service-client";
 import { SupabasePushSubscriptionRepository } from "@/core/infrastructure/supabase/repositories/push-subscription-repository";
 import { sendPush } from "@/core/infrastructure/push/send-push";
 import { isReminderPending, localTimeParts } from "@/core/domain/reminder-schedule";
 import type { DayOfWeek } from "@/core/domain/reminder";
+
+/** Comparación en tiempo constante — evita filtrar el secreto carácter a
+ * carácter por temporización, y falla explícitamente si CRON_SECRET no
+ * está configurado (en vez de comparar contra el literal "Bearer undefined"). */
+function isAuthorized(request: Request): boolean {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return false;
+
+  const expected = Buffer.from(`Bearer ${secret}`);
+  const actual = Buffer.from(request.headers.get("authorization") ?? "");
+  return expected.length === actual.length && timingSafeEqual(expected, actual);
+}
 
 /**
  * Pensado para llamarse cada minuto (Vercel Cron de pago) o cada ~5 minutos
@@ -12,8 +25,7 @@ import type { DayOfWeek } from "@/core/domain/reminder";
  * que ninguna de las dos cadencias se salte recordatorios ni los duplique.
  */
 export async function GET(request: Request) {
-  const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!isAuthorized(request)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 

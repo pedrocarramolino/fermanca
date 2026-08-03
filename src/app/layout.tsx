@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 import { RegisterServiceWorker } from "@/components/register-service-worker";
 import { InstallPromptBanner } from "@/components/install-prompt-banner";
+import { BottomNav } from "@/components/bottom-nav";
 import { ThemeProvider } from "@/components/theme-provider";
 import { createClient } from "@/core/infrastructure/supabase/server";
 import { SupabaseUserSettingsRepository } from "@/core/infrastructure/supabase/repositories/user-settings-repository";
@@ -75,6 +76,7 @@ export default async function RootLayout({
       <body>
         <ThemeProvider defaultTheme={settings?.theme ?? "system"}>
           {children}
+          {userId && <BottomNav />}
           <RegisterServiceWorker />
           <InstallPromptBanner />
         </ThemeProvider>

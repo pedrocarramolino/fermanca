@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { AppHeader } from "@/components/app-header";
 import { createClient } from "@/core/infrastructure/supabase/server";
 import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/repositories/session-repository";
 import {
@@ -40,13 +38,8 @@ export default async function StatisticsPage() {
   const categories = foldIntoOthers(categoryBreakdown(sessions), 7);
 
   return (
-    <main className="mx-auto flex min-h-svh max-w-4xl flex-col gap-6 p-8">
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon-sm" render={<Link href="/" />} nativeButton={false}>
-          <ArrowLeft className="size-4" />
-        </Button>
-        <h1 className="text-lg font-medium">Estadísticas</h1>
-      </div>
+    <main className="mx-auto flex min-h-svh max-w-4xl flex-col gap-6 p-8 pb-32">
+      <AppHeader />
 
       <div className="grid gap-4 sm:grid-cols-3">
         <StatTile
