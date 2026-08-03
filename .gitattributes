@@ -1,0 +1,3 @@
+# Normaliza los finales de línea a LF en el repositorio (evita los avisos de
+# Git en Windows al hacer `git add` — CRLF local, LF en el repo).
+* text=auto eol=lf
