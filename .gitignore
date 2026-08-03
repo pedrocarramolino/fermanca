@@ -47,3 +47,6 @@ next-env.d.ts
 # supabase CLI local state (created by `supabase link`/`supabase start`)
 /supabase/.temp
 /supabase/.branches
+
+.vercel
+.env*
