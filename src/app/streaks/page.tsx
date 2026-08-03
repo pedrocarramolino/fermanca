@@ -1,0 +1,62 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { createClient } from "@/core/infrastructure/supabase/server";
+import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/repositories/session-repository";
+import {
+  activityHeatmap,
+  bestStreakDays,
+  currentStreakDays,
+  practiceSecondsByDay,
+  weeklyCompliance,
+} from "@/core/domain/streaks";
+import { StatTile } from "@/features/statistics/components/stat-tile";
+import { ActivityHeatmap } from "@/features/streaks/components/activity-heatmap";
+import type { UserId } from "@/core/domain/ids";
+
+export const metadata: Metadata = { title: "Rachas" };
+
+const MAX_SESSIONS_FOR_STREAKS = 1000;
+const HEATMAP_WEEKS = 26;
+
+export default async function StreaksPage() {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getClaims();
+  const userId = data?.claims.sub as UserId;
+
+  const repo = new SupabaseSessionRepository(supabase);
+  const sessions = await repo.listByOwner(userId, { limit: MAX_SESSIONS_FOR_STREAKS });
+
+  const now = new Date();
+  const byDay = practiceSecondsByDay(sessions);
+  const compliance = weeklyCompliance(byDay, now);
+  const heatmapWeeks = activityHeatmap(byDay, HEATMAP_WEEKS, now);
+
+  return (
+    <main className="mx-auto flex min-h-svh max-w-2xl flex-col gap-6 p-8">
+      <div className="flex items-center gap-3">
+        <Button variant="ghost" size="icon-sm" render={<Link href="/" />} nativeButton={false}>
+          <ArrowLeft className="size-4" />
+        </Button>
+        <h1 className="text-lg font-medium">Rachas</h1>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <StatTile label="Racha actual" value={`${currentStreakDays(byDay, now)} días`} />
+        <StatTile label="Mejor racha histórica" value={`${bestStreakDays(byDay)} días`} />
+        <StatTile label="Cumplimiento semanal" value={`${compliance.percentage}%`} />
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Calendario de actividad</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ActivityHeatmap weeks={heatmapWeeks} />
+        </CardContent>
+      </Card>
+    </main>
+  );
+}

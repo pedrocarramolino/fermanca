@@ -1,0 +1,53 @@
+"use client";
+
+import { useActionState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { updatePassword, type AuthActionState } from "@/features/auth/application/actions";
+
+const initialState: AuthActionState = { error: null, fieldErrors: null };
+
+export function ResetPasswordForm() {
+  const [state, formAction, isPending] = useActionState(updatePassword, initialState);
+
+  return (
+    <form action={formAction} className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="password">Nueva contraseña</Label>
+        <Input
+          id="password"
+          name="password"
+          type="password"
+          autoComplete="new-password"
+          required
+          aria-invalid={!!state.fieldErrors?.password}
+        />
+        {state.fieldErrors?.password && (
+          <p className="text-destructive text-sm">{state.fieldErrors.password}</p>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
+        <Input
+          id="confirmPassword"
+          name="confirmPassword"
+          type="password"
+          autoComplete="new-password"
+          required
+          aria-invalid={!!state.fieldErrors?.confirmPassword}
+        />
+        {state.fieldErrors?.confirmPassword && (
+          <p className="text-destructive text-sm">{state.fieldErrors.confirmPassword}</p>
+        )}
+      </div>
+
+      {state.error && <p className="text-destructive text-sm">{state.error}</p>}
+
+      <Button type="submit" disabled={isPending} className="w-full">
+        {isPending ? "Guardando…" : "Guardar nueva contraseña"}
+      </Button>
+    </form>
+  );
+}

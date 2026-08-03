@@ -1,0 +1,113 @@
+"use server";
+
+import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+import { createClient } from "@/core/infrastructure/supabase/server";
+import { SupabaseCategoryRepository } from "@/core/infrastructure/supabase/repositories/category-repository";
+import { SupabaseTemplateRepository } from "@/core/infrastructure/supabase/repositories/template-repository";
+import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/repositories/session-repository";
+import type { NewTemplateBlock } from "@/core/domain/repositories/template-repository";
+import type { NewSessionBlock } from "@/core/domain/repositories/session-repository";
+import type { CategoryId, TemplateId, UserId } from "@/core/domain/ids";
+import { UnauthorizedError } from "@/core/domain/errors";
+
+export interface DraftBlockInput {
+  categoryId: string;
+  name: string;
+  durationSeconds: number;
+  color: string;
+  position: number;
+}
+
+async function requireUserId(): Promise<{
+  userId: UserId;
+  client: Awaited<ReturnType<typeof createClient>>;
+}> {
+  const client = await createClient();
+  const { data } = await client.auth.getClaims();
+  const sub = data?.claims.sub;
+  if (!sub) throw new UnauthorizedError();
+  return { userId: sub as UserId, client };
+}
+
+function toNewTemplateBlocks(blocks: DraftBlockInput[]): NewTemplateBlock[] {
+  return blocks.map((block) => ({
+    categoryId: block.categoryId as CategoryId,
+    name: block.name,
+    durationSeconds: block.durationSeconds,
+    color: block.color,
+    position: block.position,
+  }));
+}
+
+function toNewSessionBlocks(blocks: DraftBlockInput[]): NewSessionBlock[] {
+  return blocks.map((block) => ({
+    categoryId: block.categoryId as CategoryId,
+    name: block.name,
+    color: block.color,
+    position: block.position,
+    plannedDurationSeconds: block.durationSeconds,
+  }));
+}
+
+export async function createCustomCategory(name: string, color: string) {
+  const { userId, client } = await requireUserId();
+  const repo = new SupabaseCategoryRepository(client);
+  const category = await repo.createCustom({ ownerId: userId, name, color });
+  revalidatePath("/");
+  return category;
+}
+
+export async function deleteCustomCategory(id: string) {
+  const { userId, client } = await requireUserId();
+  const repo = new SupabaseCategoryRepository(client);
+  await repo.deleteCustom(id as CategoryId, userId);
+  revalidatePath("/");
+}
+
+export async function saveAsNewTemplate(name: string, blocks: DraftBlockInput[]) {
+  const { userId, client } = await requireUserId();
+  const repo = new SupabaseTemplateRepository(client);
+  const template = await repo.create({
+    ownerId: userId,
+    name,
+    blocks: toNewTemplateBlocks(blocks),
+  });
+  revalidatePath("/");
+  return template;
+}
+
+export async function updateTemplateBlocks(
+  templateId: string,
+  name: string,
+  blocks: DraftBlockInput[],
+) {
+  const { userId, client } = await requireUserId();
+  const repo = new SupabaseTemplateRepository(client);
+  const template = await repo.update(templateId as TemplateId, userId, {
+    name,
+    blocks: toNewTemplateBlocks(blocks),
+  });
+  revalidatePath("/");
+  return template;
+}
+
+export async function deleteTemplate(id: string) {
+  const { userId, client } = await requireUserId();
+  const repo = new SupabaseTemplateRepository(client);
+  await repo.delete(id as TemplateId, userId);
+  revalidatePath("/");
+}
+
+export async function startSession(templateId: string | null, blocks: DraftBlockInput[]) {
+  const { userId, client } = await requireUserId();
+  const repo = new SupabaseSessionRepository(client);
+  const plannedDurationSeconds = blocks.reduce((total, b) => total + b.durationSeconds, 0);
+  const session = await repo.start({
+    ownerId: userId,
+    templateId: templateId as TemplateId | null,
+    plannedDurationSeconds,
+    blocks: toNewSessionBlocks(blocks),
+  });
+  redirect(`/session/${session.id}`);
+}
