@@ -11,18 +11,16 @@ import { useNotificationPermission } from "@/features/session-timer/hooks/use-no
 import { isAudioUnlocked, unlockAudio } from "@/features/session-timer/application/sounds";
 import { getFreshBlocks } from "@/features/session-timer/application/actions";
 import { TimerDisplay } from "@/features/session-timer/components/timer-display";
-import { BlockTransitionOverlay } from "@/features/session-timer/components/block-transition-overlay";
+import { PhaseCompleteCard } from "@/features/session-timer/components/phase-complete-card";
 import { QuickNoteField } from "@/features/session-timer/components/quick-note-field";
 import { SessionSummary } from "@/features/session-timer/components/session-summary";
 
 export function SessionRunner({
   sessionId,
-  startedAt,
   blocks,
   playbackSettings,
 }: {
   sessionId: string;
-  startedAt: string;
   blocks: RuntimeBlockInput[];
   playbackSettings: PlaybackSettings;
 }) {
@@ -32,12 +30,12 @@ export function SessionRunner({
 
   const runtime = useSessionRuntime({
     sessionId,
-    startedAt: new Date(startedAt),
     blocks,
     playbackSettings,
     notificationsEnabled: permission === "granted",
   });
   const noteableBlock = runtime.lastCompletedBlock;
+  const finished = runtime.status === "finished";
 
   useEffect(() => {
     void unlockAudio().then(() => setAudioReady(isAudioUnlocked()));
@@ -47,18 +45,18 @@ export function SessionRunner({
     // Las notas guardadas durante la sesión (QuickNoteField) nunca tocan el
     // estado local `blocks`: al terminar, releemos de la BD para que el
     // resumen las muestre sin esperar a una recarga de página.
-    if (runtime.finished) {
+    if (finished) {
       void getFreshBlocks(sessionId).then((result) =>
-        setFreshBlocks(result.map((block) => ({ ...block, alreadyCompleted: true }))),
+        setFreshBlocks(result.map((block) => ({ ...block, status: "completed", startedAt: null }))),
       );
     }
-  }, [runtime.finished, sessionId]);
+  }, [finished, sessionId]);
 
   function handleUnlockAudio() {
     void unlockAudio().then(() => setAudioReady(isAudioUnlocked()));
   }
 
-  if (runtime.finished) {
+  if (finished) {
     return <SessionSummary sessionId={sessionId} blocks={freshBlocks ?? blocks} />;
   }
 
@@ -68,12 +66,20 @@ export function SessionRunner({
 
   return (
     <main className="mx-auto flex min-h-svh max-w-md flex-col items-center justify-center gap-8 p-8">
-      <TimerDisplay
-        blockName={runtime.activeBlock.name}
-        color={runtime.activeBlock.color}
-        remainingSeconds={runtime.remainingSeconds}
-        nextBlockName={runtime.nextBlock?.name ?? null}
-      />
+      {runtime.status === "awaiting-confirmation" ? (
+        <PhaseCompleteCard
+          completedBlock={runtime.activeBlock}
+          nextBlock={runtime.nextBlock}
+          onConfirm={runtime.confirmNextPhase}
+        />
+      ) : (
+        <TimerDisplay
+          blockName={runtime.activeBlock.name}
+          color={runtime.activeBlock.color}
+          remainingSeconds={runtime.remainingSeconds}
+          nextBlockName={runtime.nextBlock?.name ?? null}
+        />
+      )}
 
       {noteableBlock && (
         <QuickNoteField
@@ -94,8 +100,6 @@ export function SessionRunner({
           Activar sonido
         </Button>
       )}
-
-      <BlockTransitionOverlay transition={runtime.transition} />
     </main>
   );
 }

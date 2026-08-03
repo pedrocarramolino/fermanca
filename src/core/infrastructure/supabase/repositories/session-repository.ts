@@ -96,14 +96,21 @@ export class SupabaseSessionRepository implements SessionRepository {
       .single();
     if (sessionError) throw sessionError;
 
+    // El primer bloque arranca solo, como siempre; los siguientes esperan
+    // confirmación explícita del usuario (ver useSessionRuntime), así que
+    // se quedan 'pending' sin started_at hasta que les toque. Todas las
+    // filas llevan las mismas columnas explícitas — un insert masivo con
+    // columnas distintas por fila confunde a PostgREST.
     const { error: blocksError } = await this.client.from("session_blocks").insert(
-      input.blocks.map((block) => ({
+      input.blocks.map((block, index) => ({
         session_id: sessionRow.id,
         category_id: block.categoryId,
         name: block.name,
         color: block.color,
         position: block.position,
         planned_duration_seconds: block.plannedDurationSeconds,
+        status: index === 0 ? ("active" as const) : ("pending" as const),
+        started_at: index === 0 ? sessionRow.started_at : null,
       })),
     );
     if (blocksError) throw blocksError;

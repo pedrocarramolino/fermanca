@@ -63,9 +63,40 @@ self.addEventListener("push", (event: PushEvent) => {
   );
 });
 
+interface NotificationClickData {
+  url?: string;
+  type?: string;
+  sessionId?: string;
+}
+
 self.addEventListener("notificationclick", (event: NotificationEvent) => {
   event.notification.close();
-  const url = (event.notification.data as { url?: string } | undefined)?.url ?? "/";
+  const data = event.notification.data as NotificationClickData | undefined;
+  const url = data?.url ?? "/";
+
+  // Fase de sesión (Fase 12): el botón "Siguiente fase" no navega — la
+  // sesión en marcha vive en memoria en la pestaña abierta, así que se le
+  // manda un mensaje para que confirme el avance ella misma. Si no hay
+  // ninguna pestaña abierta no hay estado que avanzar: se abre la app en la
+  // sesión y el usuario confirma a mano desde ahí.
+  if (data?.type === "session-phase" && event.action === "next-phase") {
+    event.waitUntil(
+      (async () => {
+        const clientsList = await self.clients.matchAll({
+          type: "window",
+          includeUncontrolled: true,
+        });
+        const existing = clientsList.find((c) => "focus" in c);
+        if (existing) {
+          existing.postMessage({ type: "CONFIRM_NEXT_PHASE", sessionId: data.sessionId });
+          await existing.focus();
+          return;
+        }
+        await self.clients.openWindow(url);
+      })(),
+    );
+    return;
+  }
 
   event.waitUntil(
     (async () => {

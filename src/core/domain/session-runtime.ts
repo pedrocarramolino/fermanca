@@ -1,10 +1,13 @@
 /**
- * Cálculo puro de "qué bloque toca ahora" a partir de timestamps reales
- * (Date.now()), no de conteo de ticks de setInterval. Esto es lo que hace
- * que el temporizador sobreviva a que el navegador limite/pause los
- * intervalos en segundo plano: al volver, basta con reevaluar esta función
- * con la hora actual para saber exactamente dónde debería estar la sesión,
- * sin arrastrar el error acumulado de los ticks perdidos.
+ * Cálculo puro de "cómo va el bloque activo" a partir de cuándo empezó
+ * realmente (timestamp real, no conteo de ticks de setInterval) — sobrevive
+ * a que el navegador limite/pause los intervalos en segundo plano: al
+ * volver, basta con reevaluar esta función con la hora actual.
+ *
+ * A diferencia de versiones anteriores, el avance entre bloques NO es
+ * automático por tiempo: cuando el bloque activo agota su duración, el
+ * estado pasa a "awaiting-confirmation" y se queda ahí — quien llama decide
+ * cuándo confirmar el siguiente bloque (ver useSessionRuntime).
  */
 
 export interface RuntimeBlock {
@@ -19,31 +22,37 @@ export interface RuntimeStateRunning {
   remainingInActiveBlock: number;
 }
 
+export interface RuntimeStateAwaitingConfirmation {
+  status: "awaiting-confirmation";
+  activeBlockIndex: number;
+}
+
 export interface RuntimeStateFinished {
   status: "finished";
 }
 
-export type RuntimeState = RuntimeStateRunning | RuntimeStateFinished;
+export type RuntimeState =
+  RuntimeStateRunning | RuntimeStateAwaitingConfirmation | RuntimeStateFinished;
 
 export function resolveRuntimeState(
   blocks: RuntimeBlock[],
-  startedAt: Date,
+  activeBlockIndex: number,
+  activeBlockStartedAt: Date,
   now: Date,
 ): RuntimeState {
-  let remainingElapsed = Math.max(0, (now.getTime() - startedAt.getTime()) / 1000);
+  if (activeBlockIndex >= blocks.length) return { status: "finished" };
 
-  for (let index = 0; index < blocks.length; index++) {
-    const duration = blocks[index]!.plannedDurationSeconds;
-    if (remainingElapsed < duration) {
-      return {
-        status: "running",
-        activeBlockIndex: index,
-        elapsedInActiveBlock: remainingElapsed,
-        remainingInActiveBlock: duration - remainingElapsed,
-      };
-    }
-    remainingElapsed -= duration;
+  const duration = blocks[activeBlockIndex]!.plannedDurationSeconds;
+  const elapsed = Math.max(0, (now.getTime() - activeBlockStartedAt.getTime()) / 1000);
+
+  if (elapsed < duration) {
+    return {
+      status: "running",
+      activeBlockIndex,
+      elapsedInActiveBlock: elapsed,
+      remainingInActiveBlock: duration - elapsed,
+    };
   }
 
-  return { status: "finished" };
+  return { status: "awaiting-confirmation", activeBlockIndex };
 }

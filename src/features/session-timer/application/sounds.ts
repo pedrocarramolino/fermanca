@@ -58,7 +58,38 @@ function tone(
   osc.stop(start + duration + 0.05);
 }
 
-export function playNotificationSound(sound: SoundChoice, volumePercent: number) {
+/** Pareja de pitidos agudos tipo despertador digital, repetida durante
+ * `durationMs` en vez de sonar una sola vez — para que un aviso de fase o
+ * sesión terminada no pase desapercibido. Todos los osciladores se
+ * programan de golpe con `delay`, así que el patrón suena preciso aunque
+ * el hilo de JS esté ocupado mientras tanto. */
+function alarmPattern(ctx: AudioContext, v: number, durationMs: number) {
+  const beepDuration = 0.12;
+  const beepGap = 0.1;
+  const pairGap = 0.35;
+  const unitDuration = beepDuration * 2 + beepGap + pairGap;
+  const repeats = Math.max(1, Math.round(durationMs / 1000 / unitDuration));
+
+  for (let i = 0; i < repeats; i++) {
+    const base = i * unitDuration;
+    tone(ctx, { freq: 1500, duration: beepDuration, type: "square", peak: 0.55 * v, delay: base });
+    tone(ctx, {
+      freq: 1500,
+      duration: beepDuration,
+      type: "square",
+      peak: 0.55 * v,
+      delay: base + beepDuration + beepGap,
+    });
+  }
+}
+
+const DEFAULT_ALARM_DURATION_MS = 3000;
+
+export function playNotificationSound(
+  sound: SoundChoice,
+  volumePercent: number,
+  durationMs?: number,
+) {
   if (sound === "none") return;
   const ctx = getAudioContext();
   if (!ctx) return;
@@ -78,6 +109,9 @@ export function playNotificationSound(sound: SoundChoice, volumePercent: number)
       break;
     case "piano":
       tone(ctx, { freq: 523.25, duration: 0.7, type: "triangle", peak: 0.45 * v });
+      break;
+    case "alarm":
+      alarmPattern(ctx, v, durationMs ?? DEFAULT_ALARM_DURATION_MS);
       break;
   }
 }

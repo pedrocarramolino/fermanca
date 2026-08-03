@@ -8,7 +8,7 @@ type Row = Database["public"]["Tables"]["user_settings"]["Row"];
 
 const DEFAULTS: Omit<UserSettings, "ownerId"> = {
   theme: "system",
-  sound: "classic",
+  sound: "alarm",
   volume: 80,
   vibrationEnabled: true,
   visualAlertDurationMs: 3000,

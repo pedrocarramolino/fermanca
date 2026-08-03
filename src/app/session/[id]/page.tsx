@@ -24,7 +24,8 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
     plannedDurationSeconds: block.plannedDurationSeconds,
     actualDurationSeconds: block.actualDurationSeconds,
     note: block.note,
-    alreadyCompleted: block.status === "completed",
+    status: block.status,
+    startedAt: block.startedAt?.toISOString() ?? null,
   }));
 
   if (session.status !== "in_progress") {
@@ -43,7 +44,6 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
   return (
     <SessionRunner
       sessionId={session.id}
-      startedAt={session.startedAt.toISOString()}
       blocks={runtimeBlocks}
       playbackSettings={{
         sound: settings.sound,

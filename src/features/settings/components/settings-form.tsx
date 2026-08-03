@@ -31,6 +31,7 @@ const SOUND_LABELS: Record<SoundChoice, string> = {
   bell: "Campana",
   metronome: "Metrónomo",
   piano: "Piano",
+  alarm: "Alarma",
   none: "Ninguno",
 };
 
@@ -104,7 +105,7 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
 
   async function testSound() {
     await unlockAudio();
-    playNotificationSound(sound, volume);
+    playNotificationSound(sound, volume, visualAlertDurationMs);
   }
 
   return (
@@ -236,11 +237,11 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Aviso visual</CardTitle>
+          <CardTitle className="text-base">Duración del aviso</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-2">
-            <Label>Duración en pantalla</Label>
+            <Label>Cuánto tiempo repite la alarma al terminar una fase</Label>
             <Select value={String(visualAlertDurationMs)} onValueChange={handleVisualAlertChange}>
               <SelectTrigger className="w-full">
                 <SelectValue>{`${visualAlertDurationMs / 1000} s`}</SelectValue>

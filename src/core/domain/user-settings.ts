@@ -1,7 +1,7 @@
 import type { UserId } from "@/core/domain/ids";
 
 export type ThemePreference = "light" | "dark" | "system";
-export type SoundChoice = "classic" | "bell" | "metronome" | "piano" | "none";
+export type SoundChoice = "classic" | "bell" | "metronome" | "piano" | "alarm" | "none";
 
 export interface UserSettings {
   ownerId: UserId;

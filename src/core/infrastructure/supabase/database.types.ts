@@ -13,7 +13,7 @@ export type CategoryKind = "system" | "custom";
 export type SessionStatus = "in_progress" | "completed" | "abandoned";
 export type SessionBlockStatus = "pending" | "active" | "completed" | "skipped";
 export type ThemePreference = "light" | "dark" | "system";
-export type SoundChoice = "classic" | "bell" | "metronome" | "piano" | "none";
+export type SoundChoice = "classic" | "bell" | "metronome" | "piano" | "alarm" | "none";
 
 export interface Database {
   public: {
