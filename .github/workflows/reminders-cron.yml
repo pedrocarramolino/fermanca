@@ -1,16 +1,17 @@
 name: Disparar recordatorios
 
 # Alternativa gratuita a Vercel Cron (que en el plan Hobby limita la
-# frecuencia de los cron jobs). GitHub Actions permite "* * * * *" pero solo
-# lo cumple a partir de cada 5 minutos como mínimo realista, y de forma
-# "best effort" (puede retrasarse en horas de mucha carga) — la ventana de
-# tolerancia del endpoint (ver isReminderPending) está pensada justo para
-# esto. Requiere el secreto CRON_SECRET_HEADER configurado en
-# Settings → Secrets and variables → Actions de este repositorio, con el
-# mismo valor que CRON_SECRET en Vercel.
+# frecuencia de los cron jobs). Pedido cada minuto — GitHub Actions lo
+# acepta en la sintaxis, pero lo cumple en modo "best effort": puede
+# retrasarse varios minutos en horas de mucha carga, sin garantía real de
+# cadencia por debajo de ~5 min. La ventana de tolerancia del endpoint (ver
+# isReminderPending) está pensada justo para absorber ese margen sin
+# duplicar ni saltarse recordatorios. Requiere el secreto CRON_SECRET_HEADER
+# configurado en Settings → Secrets and variables → Actions de este
+# repositorio, con el mismo valor que CRON_SECRET en Vercel.
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "* * * * *"
   workflow_dispatch: {}
 
 jobs:

@@ -32,10 +32,11 @@ Variables), con el mismo valor que usas en local salvo donde se indica lo contra
 3. Añade las variables de entorno del paso 2.
 4. Despliega.
 
-`vercel.json` ya define el cron (`/api/cron/reminders`, cada minuto) — se activa solo al
-desplegar. **En el plan Hobby, Vercel no garantiza esa frecuencia exacta**; si no tienes Pro,
-usa la alternativa gratuita ya incluida: `.github/workflows/reminders-cron.yml` (cada 5 min).
-Para activarla, en el repositorio de GitHub configura:
+El plan Hobby de Vercel **no admite cron jobs más frecuentes que una vez al día**, así que
+`vercel.json` no define ninguno (un `crons` con `* * * * *` hace fallar el despliegue en Hobby).
+Los recordatorios dependen por completo de la alternativa gratuita ya incluida:
+`.github/workflows/reminders-cron.yml` (pedido cada minuto, best-effort — ver comentario en el
+propio archivo). Actívala configurando en el repositorio de GitHub:
 
 - Variable de repo (`Settings → Secrets and variables → Actions → Variables`): `APP_URL` con la
   URL desplegada (p. ej. `https://practiceflow.vercel.app`).

@@ -66,11 +66,12 @@ navegador esté cerrado. Piezas:
   `Authorization: Bearer ...`).
 - Necesita que algo llame a ese endpoint cada minuto (o cada ~5 min, la ventana de tolerancia
   de `isReminderPending` lo cubre sin duplicar envíos):
-  - **Vercel Cron** (`vercel.json`, ya incluido) — en el plan Hobby, Vercel limita la
-    frecuencia real de los cron jobs; con Pro funciona cada minuto tal cual.
-  - **GitHub Actions** (`.github/workflows/reminders-cron.yml`, gratis) — alternativa si no
-    tienes Vercel Pro. Configura en el repo: variable `APP_URL` (la URL desplegada) y secreto
-    `CRON_SECRET_HEADER` (mismo valor que `CRON_SECRET` en Vercel).
+  - **GitHub Actions** (`.github/workflows/reminders-cron.yml`, gratis) — mecanismo activo por
+    defecto, pedido cada minuto en modo best-effort. Configura en el repo: variable `APP_URL`
+    (la URL desplegada) y secreto `CRON_SECRET_HEADER` (mismo valor que `CRON_SECRET` en Vercel).
+  - **Vercel Cron** — el plan Hobby no admite cron jobs más frecuentes que uno al día, así que
+    `vercel.json` no define ninguno. Con Vercel Pro puedes añadir un `crons` con `* * * * *` en
+    `vercel.json` y desactivar el workflow de GitHub Actions si prefieres esa vía.
 - **iPhone/Safari**: solo recibe push si el usuario instala la PWA en la pantalla de inicio
   primero — es una restricción de iOS, no de esta app.
 
