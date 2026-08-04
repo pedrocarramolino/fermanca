@@ -22,21 +22,16 @@ async function requireUserId() {
 }
 
 export async function createReminder(timeOfDay: string, daysOfWeek: DayOfWeek[]) {
-  try {
-    const { userId, client } = await requireUserId();
-    const repo = new SupabaseReminderRepository(client);
-    const reminder = await repo.create(userId, { timeOfDay, daysOfWeek, enabled: true });
+  const { userId, client } = await requireUserId();
+  const repo = new SupabaseReminderRepository(client);
+  const reminder = await repo.create(userId, { timeOfDay, daysOfWeek, enabled: true });
 
-    const timezone = (await new SupabaseUserSettingsRepository(client).get(userId)).timezone;
-    const scheduleId = await createReminderSchedule(reminder.id, timeOfDay, daysOfWeek, timezone);
-    if (scheduleId) await repo.setQstashScheduleId(reminder.id, userId, scheduleId);
+  const timezone = (await new SupabaseUserSettingsRepository(client).get(userId)).timezone;
+  const scheduleId = await createReminderSchedule(reminder.id, timeOfDay, daysOfWeek, timezone);
+  if (scheduleId) await repo.setQstashScheduleId(reminder.id, userId, scheduleId);
 
-    revalidatePath("/reminders");
-    return reminder;
-  } catch (error) {
-    console.error("DEBUG createReminder failed:", error);
-    throw error;
-  }
+  revalidatePath("/reminders");
+  return reminder;
 }
 
 export async function setReminderEnabled(id: string, enabled: boolean) {
