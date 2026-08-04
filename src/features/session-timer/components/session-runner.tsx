@@ -50,7 +50,17 @@ export function SessionRunner({
   }
 
   if (finished) {
-    return <SessionSummary sessionId={sessionId} blocks={freshBlocks ?? blocks} />;
+    // El runtime ya conoce la duración real de cada bloque cerrado (se
+    // calculó localmente al confirmar cada fase) — se superpone sobre
+    // freshBlocks/blocks para no depender de que ese refetch haya llegado
+    // ya, ni de lo que traiga la prop `blocks` original (nunca se actualiza
+    // sola al confirmar una fase).
+    const summaryBlocks = (freshBlocks ?? blocks).map((block) =>
+      runtime.completedDurations[block.id] != null
+        ? { ...block, actualDurationSeconds: runtime.completedDurations[block.id]! }
+        : block,
+    );
+    return <SessionSummary sessionId={sessionId} blocks={summaryBlocks} />;
   }
 
   if (!runtime.activeBlock) {

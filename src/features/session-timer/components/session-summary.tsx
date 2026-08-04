@@ -22,10 +22,7 @@ export function SessionSummary({
   const [saved, setSaved] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  const totalSeconds = blocks.reduce(
-    (total, block) => total + (block.actualDurationSeconds || block.plannedDurationSeconds),
-    0,
-  );
+  const totalSeconds = blocks.reduce((total, block) => total + block.actualDurationSeconds, 0);
 
   function handleSaveNote() {
     startTransition(async () => {
@@ -58,9 +55,7 @@ export function SessionSummary({
                   />
                   <span className="flex-1">{block.name}</span>
                   <span className="text-muted-foreground font-mono tabular-nums">
-                    {formatDurationShort(
-                      block.actualDurationSeconds || block.plannedDurationSeconds,
-                    )}
+                    {formatDurationShort(block.actualDurationSeconds)}
                   </span>
                 </div>
                 {block.note && (

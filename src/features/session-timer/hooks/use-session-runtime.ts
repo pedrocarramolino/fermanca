@@ -56,6 +56,11 @@ export function useSessionRuntime({
   const [activeBlockIndex, setActiveBlockIndex] = useState(initial.index);
   const [activeBlockStartedAt, setActiveBlockStartedAt] = useState(initial.startedAt);
   const [lastCompletedBlock, setLastCompletedBlock] = useState<RuntimeBlockInput | null>(null);
+  // Duración real de cada bloque ya cerrado, por id — el resumen final la usa
+  // directamente en vez de fiarse de un refetch (que puede llegar antes de
+  // que transitionBlock termine de guardar) o de la prop `blocks` original
+  // (que nunca se actualiza localmente al confirmar una fase).
+  const [completedDurations, setCompletedDurations] = useState<Record<string, number>>({});
   // Tiempo extra pedido al terminar una fase, por id de bloque — se suma a
   // plannedDurationSeconds solo para el cálculo de este runtime, la duración
   // "de verdad" del bloque no cambia hasta que el servidor confirma.
@@ -143,7 +148,9 @@ export function useSessionRuntime({
     );
 
     setLastCompletedBlock(completedBlock);
-    void transitionBlock({
+    setCompletedDurations((prev) => ({ ...prev, [completedBlock.id]: actualDurationSeconds }));
+
+    const transition = transitionBlock({
       completedBlocks: [{ id: completedBlock.id, actualDurationSeconds }],
       nextBlockId: nextBlock?.id ?? null,
       nextBlockPlannedDurationSeconds: nextBlock?.plannedDurationSeconds,
@@ -157,7 +164,11 @@ export function useSessionRuntime({
     if (nextBlock) {
       isTransitioningRef.current = false;
     } else {
-      void finishSession(sessionId, null);
+      // Encadenado, no en paralelo con transitionBlock: finishSession suma
+      // actual_duration_seconds tal cual está en BD en ese momento — si se
+      // lanzara a la vez, podría leer el bloque justo cerrado todavía con su
+      // valor por defecto (0) y guardar un total corto.
+      void transition.then(() => finishSession(sessionId, null));
       // activeBlockIndex ya queda >= blocks.length, así que
       // resolveRuntimeState pasará a "finished" en el próximo tick — no
       // hace falta liberar isTransitioningRef, el runner desmonta este hook.
@@ -202,6 +213,7 @@ export function useSessionRuntime({
     remainingSeconds: runtimeState.status === "running" ? runtimeState.remainingInActiveBlock : 0,
     elapsedSeconds: runtimeState.status === "running" ? runtimeState.elapsedInActiveBlock : 0,
     lastCompletedBlock,
+    completedDurations,
     confirmNextPhase,
     addExtraTime,
   };
