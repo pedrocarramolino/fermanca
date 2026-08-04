@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 import { RegisterServiceWorker } from "@/components/register-service-worker";
 import { InstallPromptBanner } from "@/components/install-prompt-banner";
+import { LaunchAnimation } from "@/components/launch-animation";
 import { BottomNav } from "@/components/bottom-nav";
 import { ThemeProvider } from "@/components/theme-provider";
 import {
@@ -78,6 +79,7 @@ export default async function RootLayout({
           {userId && <BottomNav />}
           <RegisterServiceWorker />
           <InstallPromptBanner />
+          <LaunchAnimation />
         </ThemeProvider>
       </body>
     </html>
