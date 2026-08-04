@@ -62,6 +62,23 @@ export async function transitionBlock(input: {
 }
 
 /**
+ * El usuario pide más tiempo para la fase que acaba de terminar en vez de
+ * pasar a la siguiente — cancela el aviso QStash ya vencido (si sigue sin
+ * entregarse) y programa uno nuevo para el plazo ampliado, para que el
+ * aviso de fin de fase siga llegando aunque el móvil esté bloqueado.
+ */
+export async function extendActiveBlock(blockId: string, extraSeconds: number) {
+  const { userId, client } = await requireUserId();
+  const repo = new SupabaseSessionRepository(client);
+
+  const pendingMessageId = await repo.getBlockQstashMessageId(blockId as SessionBlockId);
+  if (pendingMessageId) await cancelQstashMessage(pendingMessageId);
+
+  const messageId = await scheduleSessionPhaseAlert(blockId, extraSeconds);
+  await repo.extendBlock(blockId as SessionBlockId, userId, extraSeconds, messageId);
+}
+
+/**
  * Relee los bloques desde la BD tal cual quedaron. Se usa justo cuando la
  * sesión en vivo termina, para que las notas guardadas durante la marcha
  * (que el estado local del cliente nunca vio) aparezcan en el resumen sin

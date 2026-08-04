@@ -8,10 +8,7 @@ import { SupabaseUserSettingsRepository } from "@/core/infrastructure/supabase/r
 import { UnauthorizedError } from "@/core/domain/errors";
 import type { DayOfWeek } from "@/core/domain/reminder";
 import type { ReminderId, UserId } from "@/core/domain/ids";
-import {
-  createReminderSchedule,
-  deleteQstashSchedule,
-} from "@/core/infrastructure/qstash/client";
+import { createReminderSchedule, deleteQstashSchedule } from "@/core/infrastructure/qstash/client";
 
 async function requireUserId() {
   const client = await createClient();

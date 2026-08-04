@@ -15,19 +15,19 @@ cuidado la primera vez: revisa cada paso, no hay automatización mágica aquí.
 Todas las de `.env.local.example`, configuradas en Vercel (Project Settings → Environment
 Variables), con el mismo valor que usas en local salvo donde se indica lo contrario:
 
-| Variable                        | Notas                                                                                                    |
-| ------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`      | Igual que en local.                                                                                      |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Igual que en local.                                                                                      |
-| `SUPABASE_SECRET_KEY`           | Nunca la expongas en el cliente — solo `NEXT_PUBLIC_*` llega al navegador.                               |
-| `NEXT_PUBLIC_VAPID_PUBLIC_KEY`  | Igual que en local — si la cambias, los usuarios ya suscritos pierden el push y tendrán que reactivarlo. |
-| `VAPID_PRIVATE_KEY`             | Igual que en local.                                                                                      |
-| `VAPID_SUBJECT`                 | `mailto:` de contacto real.                                                                              |
-| `QSTASH_URL`                    | Panel de Upstash → QStash → tu región → "Quickstart". Incluye la región en la URL.                      |
-| `QSTASH_TOKEN`                   | Igual, del mismo bloque "Quickstart".                                                                    |
-| `QSTASH_CURRENT_SIGNING_KEY`     | Igual.                                                                                                   |
-| `QSTASH_NEXT_SIGNING_KEY`        | Igual.                                                                                                   |
-| `APP_URL`                        | Origen público de la app (p. ej. `https://practiceflow.vercel.app`) — QStash necesita una URL absoluta a la que llamar. |
+| Variable                        | Notas                                                                                                                   |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Igual que en local.                                                                                                     |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Igual que en local.                                                                                                     |
+| `SUPABASE_SECRET_KEY`           | Nunca la expongas en el cliente — solo `NEXT_PUBLIC_*` llega al navegador.                                              |
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY`  | Igual que en local — si la cambias, los usuarios ya suscritos pierden el push y tendrán que reactivarlo.                |
+| `VAPID_PRIVATE_KEY`             | Igual que en local.                                                                                                     |
+| `VAPID_SUBJECT`                 | `mailto:` de contacto real.                                                                                             |
+| `QSTASH_URL`                    | Panel de Upstash → QStash → tu región → "Quickstart". Incluye la región en la URL.                                      |
+| `QSTASH_TOKEN`                  | Igual, del mismo bloque "Quickstart".                                                                                   |
+| `QSTASH_CURRENT_SIGNING_KEY`    | Igual.                                                                                                                  |
+| `QSTASH_NEXT_SIGNING_KEY`       | Igual.                                                                                                                  |
+| `APP_URL`                       | Origen público de la app (p. ej. `https://practiceflow.vercel.app`) — QStash necesita una URL absoluta a la que llamar. |
 
 ## 3. Configurar el proyecto en Vercel
 

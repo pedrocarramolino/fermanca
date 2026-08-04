@@ -185,6 +185,31 @@ export class SupabaseSessionRepository implements SessionRepository {
     if (error) throw error;
   }
 
+  async extendBlock(
+    id: SessionBlockId,
+    ownerId: UserId,
+    extraSeconds: number,
+    qstashMessageId: string,
+  ): Promise<void> {
+    void ownerId; // RLS ya exige que el bloque pertenezca a una sesión del usuario.
+    const { data: current, error: readError } = await this.client
+      .from("session_blocks")
+      .select("planned_duration_seconds")
+      .eq("id", id)
+      .single();
+    if (readError) throw readError;
+
+    const { error } = await this.client
+      .from("session_blocks")
+      .update({
+        planned_duration_seconds: current.planned_duration_seconds + extraSeconds,
+        phase_alert_sent: false,
+        qstash_message_id: qstashMessageId,
+      })
+      .eq("id", id);
+    if (error) throw error;
+  }
+
   async finish(
     id: SessionId,
     ownerId: UserId,

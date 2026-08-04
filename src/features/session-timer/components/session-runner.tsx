@@ -64,6 +64,7 @@ export function SessionRunner({
           completedBlock={runtime.activeBlock}
           nextBlock={runtime.nextBlock}
           onConfirm={runtime.confirmNextPhase}
+          onAddTime={runtime.addExtraTime}
         />
       ) : (
         <TimerDisplay

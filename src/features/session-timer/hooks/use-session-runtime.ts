@@ -3,7 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { resolveRuntimeState, type RuntimeBlock } from "@/core/domain/session-runtime";
 import { playNotificationSound, vibrate } from "@/features/session-timer/application/sounds";
-import { transitionBlock, finishSession } from "@/features/session-timer/application/actions";
+import {
+  transitionBlock,
+  finishSession,
+  extendActiveBlock,
+} from "@/features/session-timer/application/actions";
 import type { SoundChoice } from "@/core/domain/user-settings";
 import type { SessionBlockStatus } from "@/core/domain/session";
 
@@ -52,6 +56,22 @@ export function useSessionRuntime({
   const [activeBlockIndex, setActiveBlockIndex] = useState(initial.index);
   const [activeBlockStartedAt, setActiveBlockStartedAt] = useState(initial.startedAt);
   const [lastCompletedBlock, setLastCompletedBlock] = useState<RuntimeBlockInput | null>(null);
+  // Tiempo extra pedido al terminar una fase, por id de bloque — se suma a
+  // plannedDurationSeconds solo para el cálculo de este runtime, la duración
+  // "de verdad" del bloque no cambia hasta que el servidor confirma.
+  const [extraSecondsByBlockId, setExtraSecondsByBlockId] = useState<Record<string, number>>({});
+  const effectiveBlocks =
+    Object.keys(extraSecondsByBlockId).length === 0
+      ? blocks
+      : blocks.map((block) =>
+          extraSecondsByBlockId[block.id]
+            ? {
+                ...block,
+                plannedDurationSeconds:
+                  block.plannedDurationSeconds + extraSecondsByBlockId[block.id]!,
+              }
+            : block,
+        );
 
   // Evita volver a sonar/vibrar al recargar la página sobre un bloque que ya
   // estaba esperando confirmación desde antes.
@@ -70,9 +90,14 @@ export function useSessionRuntime({
     };
   }, []);
 
-  const runtimeState = resolveRuntimeState(blocks, activeBlockIndex, activeBlockStartedAt, now);
-  const activeBlock = blocks[activeBlockIndex] ?? null;
-  const nextBlock = blocks[activeBlockIndex + 1] ?? null;
+  const runtimeState = resolveRuntimeState(
+    effectiveBlocks,
+    activeBlockIndex,
+    activeBlockStartedAt,
+    now,
+  );
+  const activeBlock = effectiveBlocks[activeBlockIndex] ?? null;
+  const nextBlock = effectiveBlocks[activeBlockIndex + 1] ?? null;
   const awaitingConfirmationIndex =
     runtimeState.status === "awaiting-confirmation" ? runtimeState.activeBlockIndex : -1;
 
@@ -135,6 +160,20 @@ export function useSessionRuntime({
     }
   }
 
+  /** El usuario pide más tiempo para la fase que acaba de terminar, en vez
+   * de pasar a la siguiente — reactiva el estado "running" con el plazo
+   * ampliado y reprograma el aviso QStash para el nuevo momento. */
+  function addExtraTime(seconds: number) {
+    if (runtimeState.status !== "awaiting-confirmation" || !activeBlock) return;
+    const blockId = activeBlock.id;
+    setExtraSecondsByBlockId((prev) => ({ ...prev, [blockId]: (prev[blockId] ?? 0) + seconds }));
+    // Para que vuelva a sonar/vibrar cuando se agote también el tiempo extra.
+    announcedIndexRef.current = null;
+    void extendActiveBlock(blockId, seconds).catch((error: unknown) => {
+      console.error("No se pudo ampliar el tiempo de la fase", error);
+    });
+  }
+
   const confirmNextPhaseRef = useRef(confirmNextPhase);
   useEffect(() => {
     confirmNextPhaseRef.current = confirmNextPhase;
@@ -160,5 +199,6 @@ export function useSessionRuntime({
     elapsedSeconds: runtimeState.status === "running" ? runtimeState.elapsedInActiveBlock : 0,
     lastCompletedBlock,
     confirmNextPhase,
+    addExtraTime,
   };
 }

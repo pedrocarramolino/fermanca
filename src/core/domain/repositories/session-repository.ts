@@ -33,6 +33,15 @@ export interface SessionRepository {
    * bloque, si tiene uno programado. */
   getBlockQstashMessageId(id: SessionBlockId): Promise<string | null>;
   setBlockQstashMessageId(id: SessionBlockId, messageId: string | null): Promise<void>;
+  /** Amplía la duración planeada del bloque activo (el usuario pide más
+   * tiempo al terminar la fase) y reactiva el aviso de fin de fase para el
+   * nuevo plazo. */
+  extendBlock(
+    id: SessionBlockId,
+    ownerId: UserId,
+    extraSeconds: number,
+    qstashMessageId: string,
+  ): Promise<void>;
   finish(
     id: SessionId,
     ownerId: UserId,

@@ -5,10 +5,12 @@ export function PhaseCompleteCard({
   completedBlock,
   nextBlock,
   onConfirm,
+  onAddTime,
 }: {
   completedBlock: RuntimeBlockInput;
   nextBlock: RuntimeBlockInput | null;
   onConfirm: () => void;
+  onAddTime: (seconds: number) => void;
 }) {
   return (
     <div
@@ -35,6 +37,20 @@ export function PhaseCompleteCard({
       <Button type="button" size="lg" onClick={onConfirm}>
         {nextBlock ? "Siguiente fase" : "Finalizar sesión"}
       </Button>
+
+      <div className="flex flex-col items-center gap-2">
+        <p className="text-muted-foreground text-xs">
+          ¿Te ha faltado tiempo en {completedBlock.name}?
+        </p>
+        <div className="flex gap-2">
+          <Button type="button" variant="outline" size="sm" onClick={() => onAddTime(120)}>
+            +2 min
+          </Button>
+          <Button type="button" variant="outline" size="sm" onClick={() => onAddTime(300)}>
+            +5 min
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
