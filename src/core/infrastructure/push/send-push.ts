@@ -39,7 +39,16 @@ export interface SessionPhasePushPayload {
   hasNextPhase: boolean;
 }
 
-export type PushPayload = ReminderPushPayload | SessionPhasePushPayload;
+export interface FriendRequestPushPayload {
+  kind: "friend-request";
+  title: string;
+  body: string;
+}
+
+export type PushPayload =
+  | ReminderPushPayload
+  | SessionPhasePushPayload
+  | FriendRequestPushPayload;
 
 /** `expired: true` cuando el servicio push responde 404/410 — la
  * suscripción ya no es válida y hay que borrarla, no reintentar. */

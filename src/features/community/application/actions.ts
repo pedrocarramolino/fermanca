@@ -6,6 +6,8 @@ import { createServiceClient } from "@/core/infrastructure/supabase/service-clie
 import { SupabaseProfileRepository } from "@/core/infrastructure/supabase/repositories/profile-repository";
 import { SupabaseFriendshipRepository } from "@/core/infrastructure/supabase/repositories/friendship-repository";
 import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/repositories/session-repository";
+import { SupabasePushSubscriptionRepository } from "@/core/infrastructure/supabase/repositories/push-subscription-repository";
+import { sendPush } from "@/core/infrastructure/push/send-push";
 import { UnauthorizedError } from "@/core/domain/errors";
 import { currentStreakDays, practiceSecondsByDay } from "@/core/domain/streaks";
 import { monthlySeries, weeklySeries } from "@/core/domain/session-statistics";
@@ -62,6 +64,31 @@ export async function listFriends(): Promise<Friend[]> {
   return friends;
 }
 
+/** El que recibe la solicitud no tiene ninguna sesión abierta en este
+ * request — sus suscripciones solo se pueden leer con la clave de
+ * servicio, igual que en los avisos de recordatorio/fin de fase. */
+async function notifyFriendRequest(addresseeId: UserId, requesterUsername: string) {
+  const serviceClient = createServiceClient();
+  const { data: subscriptions, error } = await serviceClient
+    .from("push_subscriptions")
+    .select("*")
+    .eq("owner_id", addresseeId);
+  if (error) throw error;
+
+  const pushRepo = new SupabasePushSubscriptionRepository(serviceClient);
+  for (const sub of subscriptions) {
+    const result = await sendPush(
+      { endpoint: sub.endpoint, p256dh: sub.p256dh, auth: sub.auth },
+      {
+        kind: "friend-request",
+        title: "Nueva solicitud de amistad",
+        body: `${requesterUsername} quiere ser tu amigo en PracticeFlow.`,
+      },
+    );
+    if (result.expired) await pushRepo.deleteByEndpoint(sub.endpoint);
+  }
+}
+
 export async function sendFriendRequestByCode(inviteCode: string) {
   const { userId, client } = await requireUserId();
   const code = inviteCode.trim().toUpperCase();
@@ -86,6 +113,15 @@ export async function sendFriendRequestByCode(inviteCode: string) {
   }
 
   await friendshipRepo.create(userId, targetProfile.ownerId);
+
+  const myProfile = await new SupabaseProfileRepository(client).getByOwnerId(userId);
+  if (myProfile) {
+    await notifyFriendRequest(targetProfile.ownerId, myProfile.username).catch((error: unknown) => {
+      // El aviso es un extra, no debe tumbar la solicitud si falla.
+      console.error("No se pudo enviar el aviso de solicitud de amistad", error);
+    });
+  }
+
   revalidatePath("/community");
 }
 

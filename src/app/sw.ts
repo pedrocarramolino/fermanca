@@ -57,7 +57,16 @@ interface SessionPhasePushPayload {
   hasNextPhase: boolean;
 }
 
-type IncomingPushPayload = ReminderPushPayload | SessionPhasePushPayload;
+interface FriendRequestPushPayload {
+  kind: "friend-request";
+  title: string;
+  body: string;
+}
+
+type IncomingPushPayload =
+  | ReminderPushPayload
+  | SessionPhasePushPayload
+  | FriendRequestPushPayload;
 
 interface ShowNotificationOptions extends NotificationOptions {
   actions?: { action: string; title: string }[];
@@ -94,6 +103,19 @@ self.addEventListener("push", (event: PushEvent) => {
       requireInteraction: true,
     };
     event.waitUntil(self.registration.showNotification(payload.title, options));
+    return;
+  }
+
+  if (payload.kind === "friend-request") {
+    event.waitUntil(
+      self.registration.showNotification(payload.title, {
+        body: payload.body,
+        icon: "/icons/icon-192x192.png",
+        badge: "/icons/icon-192x192.png",
+        data: { url: "/community" },
+        tag: "practiceflow-friend-request",
+      }),
+    );
     return;
   }
 
