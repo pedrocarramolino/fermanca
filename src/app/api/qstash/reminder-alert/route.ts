@@ -46,8 +46,8 @@ export async function POST(request: Request) {
       { endpoint: sub.endpoint, p256dh: sub.p256dh, auth: sub.auth },
       {
         kind: "reminder",
-        title: "Hora de practicar",
-        body: "Tienes un recordatorio de práctica ahora mismo.",
+        title: "¡A practicar!",
+        body: "Es la hora que marcaste para tu sesión de hoy.",
         url: "/",
       },
     );
