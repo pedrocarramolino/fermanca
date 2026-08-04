@@ -144,6 +144,7 @@ export function useSessionRuntime({
     void transitionBlock({
       completedBlocks: [{ id: completedBlock.id, actualDurationSeconds }],
       nextBlockId: nextBlock?.id ?? null,
+      nextBlockPlannedDurationSeconds: nextBlock?.plannedDurationSeconds,
       now: confirmedAt.toISOString(),
     }).catch((error: unknown) => {
       console.error("No se pudo guardar la transición de bloque", error);

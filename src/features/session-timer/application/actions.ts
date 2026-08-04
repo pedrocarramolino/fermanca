@@ -4,6 +4,10 @@ import { createClient } from "@/core/infrastructure/supabase/server";
 import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/repositories/session-repository";
 import { UnauthorizedError } from "@/core/domain/errors";
 import type { SessionBlockId, SessionId, UserId } from "@/core/domain/ids";
+import {
+  cancelQstashMessage,
+  scheduleSessionPhaseAlert,
+} from "@/core/infrastructure/qstash/client";
 
 async function requireUserId() {
   const client = await createClient();
@@ -23,12 +27,19 @@ async function requireUserId() {
 export async function transitionBlock(input: {
   completedBlocks: { id: string; actualDurationSeconds: number }[];
   nextBlockId: string | null;
+  nextBlockPlannedDurationSeconds?: number;
   now: string;
 }) {
   const { userId, client } = await requireUserId();
   const repo = new SupabaseSessionRepository(client);
 
   for (const block of input.completedBlocks) {
+    // Se confirmó a mano antes de que llegara el aviso programado — se
+    // cancela para que no llegue después un push de una fase que ya se
+    // cerró.
+    const pendingMessageId = await repo.getBlockQstashMessageId(block.id as SessionBlockId);
+    if (pendingMessageId) await cancelQstashMessage(pendingMessageId);
+
     await repo.updateBlock(block.id as SessionBlockId, userId, {
       status: "completed",
       endedAt: new Date(input.now),
@@ -40,6 +51,13 @@ export async function transitionBlock(input: {
       status: "active",
       startedAt: new Date(input.now),
     });
+    if (input.nextBlockPlannedDurationSeconds != null) {
+      const messageId = await scheduleSessionPhaseAlert(
+        input.nextBlockId,
+        input.nextBlockPlannedDurationSeconds,
+      );
+      await repo.setBlockQstashMessageId(input.nextBlockId as SessionBlockId, messageId);
+    }
   }
 }
 

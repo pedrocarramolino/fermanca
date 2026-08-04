@@ -75,4 +75,28 @@ export class SupabaseReminderRepository implements ReminderRepository {
       .eq("owner_id", ownerId);
     if (error) throw error;
   }
+
+  async getQstashScheduleId(id: ReminderId, ownerId: UserId): Promise<string | null> {
+    const { data, error } = await this.client
+      .from("reminders")
+      .select("qstash_schedule_id")
+      .eq("id", id)
+      .eq("owner_id", ownerId)
+      .maybeSingle();
+    if (error) throw error;
+    return data?.qstash_schedule_id ?? null;
+  }
+
+  async setQstashScheduleId(
+    id: ReminderId,
+    ownerId: UserId,
+    scheduleId: string | null,
+  ): Promise<void> {
+    const { error } = await this.client
+      .from("reminders")
+      .update({ qstash_schedule_id: scheduleId })
+      .eq("id", id)
+      .eq("owner_id", ownerId);
+    if (error) throw error;
+  }
 }

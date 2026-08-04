@@ -23,7 +23,11 @@ Variables), con el mismo valor que usas en local salvo donde se indica lo contra
 | `NEXT_PUBLIC_VAPID_PUBLIC_KEY`  | Igual que en local — si la cambias, los usuarios ya suscritos pierden el push y tendrán que reactivarlo. |
 | `VAPID_PRIVATE_KEY`             | Igual que en local.                                                                                      |
 | `VAPID_SUBJECT`                 | `mailto:` de contacto real.                                                                              |
-| `CRON_SECRET`                   | Genera uno nuevo para producción, no reutilices el de desarrollo.                                        |
+| `QSTASH_URL`                    | Panel de Upstash → QStash → tu región → "Quickstart". Incluye la región en la URL.                      |
+| `QSTASH_TOKEN`                   | Igual, del mismo bloque "Quickstart".                                                                    |
+| `QSTASH_CURRENT_SIGNING_KEY`     | Igual.                                                                                                   |
+| `QSTASH_NEXT_SIGNING_KEY`        | Igual.                                                                                                   |
+| `APP_URL`                        | Origen público de la app (p. ej. `https://practiceflow.vercel.app`) — QStash necesita una URL absoluta a la que llamar. |
 
 ## 3. Configurar el proyecto en Vercel
 
@@ -32,16 +36,9 @@ Variables), con el mismo valor que usas en local salvo donde se indica lo contra
 3. Añade las variables de entorno del paso 2.
 4. Despliega.
 
-El plan Hobby de Vercel **no admite cron jobs más frecuentes que una vez al día**, así que
-`vercel.json` no define ninguno (un `crons` con `* * * * *` hace fallar el despliegue en Hobby).
-Los recordatorios dependen por completo de la alternativa gratuita ya incluida:
-`.github/workflows/reminders-cron.yml` (pedido cada minuto, best-effort — ver comentario en el
-propio archivo). Actívala configurando en el repositorio de GitHub:
-
-- Variable de repo (`Settings → Secrets and variables → Actions → Variables`): `APP_URL` con la
-  URL desplegada (p. ej. `https://practiceflow.vercel.app`).
-- Secreto (`Settings → Secrets and variables → Actions → Secrets`): `CRON_SECRET_HEADER` con el
-  mismo valor que `CRON_SECRET` en Vercel.
+Los recordatorios y los avisos de fin de fase no dependen de ningún cron del lado de Vercel —
+QStash entrega cada aviso en el instante exacto programado (ver README, sección "Recordatorios y
+avisos de fase"), así que esto funciona igual en el plan Hobby que en Pro.
 
 ## 4. Configurar Supabase Auth para el dominio de producción
 
@@ -67,7 +64,7 @@ certificado esté activo antes de probar recordatorios/instalación).
 - [ ] `npm run build` local pasa sin errores (ya verificado en este repo).
 - [ ] Instalar la PWA (banner de instalación o menú del navegador) y comprobar que abre en modo
       standalone.
-- [ ] Activar notificaciones en `/recordatorios`, crear un recordatorio, y confirmar (esperando
-      al cron o llamando manualmente al endpoint con el bearer token) que llega la notificación.
+- [ ] Activar notificaciones en `/recordatorios`, crear un recordatorio para dentro de un par de
+      minutos, y confirmar que llega la notificación a su hora exacta.
 - [ ] Poner el dispositivo en modo avión y navegar a una ruta nunca visitada → debe verse
       `offline.html`, no el error nativo del navegador.

@@ -8,6 +8,10 @@ import { SupabaseUserSettingsRepository } from "@/core/infrastructure/supabase/r
 import { UnauthorizedError } from "@/core/domain/errors";
 import type { DayOfWeek } from "@/core/domain/reminder";
 import type { ReminderId, UserId } from "@/core/domain/ids";
+import {
+  createReminderSchedule,
+  deleteQstashSchedule,
+} from "@/core/infrastructure/qstash/client";
 
 async function requireUserId() {
   const client = await createClient();
@@ -21,6 +25,11 @@ export async function createReminder(timeOfDay: string, daysOfWeek: DayOfWeek[])
   const { userId, client } = await requireUserId();
   const repo = new SupabaseReminderRepository(client);
   const reminder = await repo.create(userId, { timeOfDay, daysOfWeek, enabled: true });
+
+  const timezone = (await new SupabaseUserSettingsRepository(client).get(userId)).timezone;
+  const scheduleId = await createReminderSchedule(reminder.id, timeOfDay, daysOfWeek, timezone);
+  if (scheduleId) await repo.setQstashScheduleId(reminder.id, userId, scheduleId);
+
   revalidatePath("/reminders");
   return reminder;
 }
@@ -28,14 +37,32 @@ export async function createReminder(timeOfDay: string, daysOfWeek: DayOfWeek[])
 export async function setReminderEnabled(id: string, enabled: boolean) {
   const { userId, client } = await requireUserId();
   const repo = new SupabaseReminderRepository(client);
-  await repo.update(id as ReminderId, userId, { enabled });
+  const previousScheduleId = await repo.getQstashScheduleId(id as ReminderId, userId);
+  const reminder = await repo.update(id as ReminderId, userId, { enabled });
+
+  if (enabled) {
+    const timezone = (await new SupabaseUserSettingsRepository(client).get(userId)).timezone;
+    const scheduleId = await createReminderSchedule(
+      reminder.id,
+      reminder.timeOfDay,
+      reminder.daysOfWeek,
+      timezone,
+    );
+    await repo.setQstashScheduleId(id as ReminderId, userId, scheduleId);
+  } else if (previousScheduleId) {
+    await deleteQstashSchedule(previousScheduleId);
+    await repo.setQstashScheduleId(id as ReminderId, userId, null);
+  }
+
   revalidatePath("/reminders");
 }
 
 export async function deleteReminder(id: string) {
   const { userId, client } = await requireUserId();
   const repo = new SupabaseReminderRepository(client);
+  const scheduleId = await repo.getQstashScheduleId(id as ReminderId, userId);
   await repo.delete(id as ReminderId, userId);
+  if (scheduleId) await deleteQstashSchedule(scheduleId);
   revalidatePath("/reminders");
 }
 

@@ -7,6 +7,7 @@ import type {
   SessionRepository,
 } from "@/core/domain/repositories/session-repository";
 import type { Database } from "@/core/infrastructure/supabase/database.types";
+import { scheduleSessionPhaseAlert } from "@/core/infrastructure/qstash/client";
 
 type SessionRow = Database["public"]["Tables"]["sessions"]["Row"];
 type SessionBlockRow = Database["public"]["Tables"]["session_blocks"]["Row"];
@@ -101,19 +102,37 @@ export class SupabaseSessionRepository implements SessionRepository {
     // se quedan 'pending' sin started_at hasta que les toque. Todas las
     // filas llevan las mismas columnas explícitas — un insert masivo con
     // columnas distintas por fila confunde a PostgREST.
-    const { error: blocksError } = await this.client.from("session_blocks").insert(
-      input.blocks.map((block, index) => ({
-        session_id: sessionRow.id,
-        category_id: block.categoryId,
-        name: block.name,
-        color: block.color,
-        position: block.position,
-        planned_duration_seconds: block.plannedDurationSeconds,
-        status: index === 0 ? ("active" as const) : ("pending" as const),
-        started_at: index === 0 ? sessionRow.started_at : null,
-      })),
-    );
+    const { data: blockRows, error: blocksError } = await this.client
+      .from("session_blocks")
+      .insert(
+        input.blocks.map((block, index) => ({
+          session_id: sessionRow.id,
+          category_id: block.categoryId,
+          name: block.name,
+          color: block.color,
+          position: block.position,
+          planned_duration_seconds: block.plannedDurationSeconds,
+          status: index === 0 ? ("active" as const) : ("pending" as const),
+          started_at: index === 0 ? sessionRow.started_at : null,
+        })),
+      )
+      .select("id, position, planned_duration_seconds");
     if (blocksError) throw blocksError;
+
+    // Se programa después del insert (no antes) porque el id del bloque lo
+    // genera la base de datos y hace falta para el cuerpo del mensaje.
+    const firstBlock = blockRows.find((row) => row.position === 0);
+    if (firstBlock) {
+      const messageId = await scheduleSessionPhaseAlert(
+        firstBlock.id,
+        firstBlock.planned_duration_seconds,
+      );
+      const { error: messageIdError } = await this.client
+        .from("session_blocks")
+        .update({ qstash_message_id: messageId })
+        .eq("id", firstBlock.id);
+      if (messageIdError) throw messageIdError;
+    }
 
     const created = await this.getById(sessionRow.id as SessionId, input.ownerId);
     if (!created) throw new Error("No se pudo crear la sesión.");
@@ -153,6 +172,24 @@ export class SupabaseSessionRepository implements SessionRepository {
     const { error } = await this.client
       .from("session_blocks")
       .update({ phase_alert_sent: true })
+      .eq("id", id);
+    if (error) throw error;
+  }
+
+  async getBlockQstashMessageId(id: SessionBlockId): Promise<string | null> {
+    const { data, error } = await this.client
+      .from("session_blocks")
+      .select("qstash_message_id")
+      .eq("id", id)
+      .maybeSingle();
+    if (error) throw error;
+    return data?.qstash_message_id ?? null;
+  }
+
+  async setBlockQstashMessageId(id: SessionBlockId, messageId: string | null): Promise<void> {
+    const { error } = await this.client
+      .from("session_blocks")
+      .update({ qstash_message_id: messageId })
       .eq("id", id);
     if (error) throw error;
   }

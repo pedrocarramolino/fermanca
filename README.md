@@ -54,24 +54,25 @@ Scripts disponibles:
 | `npm run format` / `format:check` | Prettier                                             |
 | `npm run build:sw`                | Compila `src/app/sw.ts` → `public/sw.js` con esbuild |
 
-## Recordatorios (Web Push)
+## Recordatorios y avisos de fase (Web Push)
 
-Los recordatorios se entregan como notificaciones push reales (no "locales" en el sentido
-estricto — no existe esa API fiable multiplataforma en la web), para que lleguen aunque el
-navegador esté cerrado. Piezas:
+Los recordatorios y los avisos de fin de fase se entregan como notificaciones push reales (no
+"locales" en el sentido estricto — no existe esa API fiable multiplataforma en la web), para que
+lleguen aunque el navegador esté cerrado o el móvil bloqueado. Piezas:
 
 - `src/app/sw.ts` — maneja los eventos `push` y `notificationclick`.
-- `src/app/api/cron/reminders/route.ts` — comprueba qué recordatorios tocan ahora (por zona
-  horaria de cada usuario) y envía el push. Protegido por `CRON_SECRET` (cabecera
-  `Authorization: Bearer ...`).
-- Necesita que algo llame a ese endpoint cada minuto (o cada ~5 min, la ventana de tolerancia
-  de `isReminderPending` lo cubre sin duplicar envíos):
-  - **GitHub Actions** (`.github/workflows/reminders-cron.yml`, gratis) — mecanismo activo por
-    defecto, pedido cada minuto en modo best-effort. Configura en el repo: variable `APP_URL`
-    (la URL desplegada) y secreto `CRON_SECRET_HEADER` (mismo valor que `CRON_SECRET` en Vercel).
-  - **Vercel Cron** — el plan Hobby no admite cron jobs más frecuentes que uno al día, así que
-    `vercel.json` no define ninguno. Con Vercel Pro puedes añadir un `crons` con `* * * * *` en
-    `vercel.json` y desactivar el workflow de GitHub Actions si prefieres esa vía.
+- **QStash (Upstash)** sustituye a cualquier cron por sondeo: en vez de preguntar cada minuto "¿ya
+  toca?", se programa una llamada que QStash entrega en el instante exacto.
+  - `src/core/infrastructure/qstash/client.ts` — programa el mensaje diferido de fin de fase
+    (`scheduleSessionPhaseAlert`, se dispara solo una vez, delay = duración planeada del bloque) y
+    el Schedule cron-recurrente de cada recordatorio (`createReminderSchedule`, con
+    `CRON_TZ=<zona>` embebido en la expresión para respetar la hora local del usuario).
+  - `src/app/api/qstash/session-phase-alert/route.ts` y `src/app/api/qstash/reminder-alert/route.ts`
+    — los webhooks que QStash invoca; verifican la firma `Upstash-Signature` con
+    `src/core/infrastructure/qstash/verify.ts` en vez de un secreto estático.
+  - Variables necesarias (panel de QStash → región → "Quickstart"): `QSTASH_URL`, `QSTASH_TOKEN`,
+    `QSTASH_CURRENT_SIGNING_KEY`, `QSTASH_NEXT_SIGNING_KEY`, más `APP_URL` (origen público de la
+    app, para que QStash sepa a qué URL llamar).
 - **iPhone/Safari**: solo recibe push si el usuario instala la PWA en la pantalla de inicio
   primero — es una restricción de iOS, no de esta app.
 

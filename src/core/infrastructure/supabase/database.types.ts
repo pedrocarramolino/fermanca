@@ -132,6 +132,7 @@ export interface Database {
           ended_at: string | null;
           note: string | null;
           phase_alert_sent: boolean;
+          qstash_message_id: string | null;
         };
         Insert: {
           id?: string;
@@ -147,6 +148,7 @@ export interface Database {
           ended_at?: string | null;
           note?: string | null;
           phase_alert_sent?: boolean;
+          qstash_message_id?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["session_blocks"]["Insert"]>;
         Relationships: [
@@ -165,7 +167,7 @@ export interface Database {
           time_of_day: string;
           days_of_week: number[];
           enabled: boolean;
-          last_triggered_on: string | null;
+          qstash_schedule_id: string | null;
           created_at: string;
         };
         Insert: {
@@ -174,7 +176,7 @@ export interface Database {
           time_of_day: string;
           days_of_week?: number[];
           enabled?: boolean;
-          last_triggered_on?: string | null;
+          qstash_schedule_id?: string | null;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["reminders"]["Insert"]>;
