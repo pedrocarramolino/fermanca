@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { updatePassword, type AuthActionState } from "@/features/auth/application/actions";
 
@@ -15,10 +15,9 @@ export function ResetPasswordForm() {
     <form action={formAction} className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
         <Label htmlFor="password">Nueva contraseña</Label>
-        <Input
+        <PasswordInput
           id="password"
           name="password"
-          type="password"
           autoComplete="new-password"
           required
           aria-invalid={!!state.fieldErrors?.password}
@@ -30,10 +29,9 @@ export function ResetPasswordForm() {
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
-        <Input
+        <PasswordInput
           id="confirmPassword"
           name="confirmPassword"
-          type="password"
           autoComplete="new-password"
           required
           aria-invalid={!!state.fieldErrors?.confirmPassword}

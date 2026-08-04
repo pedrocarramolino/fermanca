@@ -217,5 +217,16 @@ function translateAuthError(message: string): string {
     "Database error saving new user":
       "Ese nombre de usuario se ha registrado justo antes que el tuyo. Prueba con otro.",
   };
-  return known[message] ?? message;
+  if (known[message]) return known[message];
+
+  // Supabase mete el correo dentro del mensaje ("Email address "x@y" is
+  // invalid"), así que no hay forma de que coincida con el diccionario
+  // exacto de arriba — lo detecta por patrón. No es solo un formato
+  // raro: Supabase también rechaza así dominios de prueba conocidos
+  // (p. ej. example.com), algo que la validación de zod no puede saber.
+  if (/email address .* is invalid/i.test(message)) {
+    return "Ese correo no es válido para crear una cuenta. Prueba con otro (algunos dominios de prueba, como example.com, no están permitidos).";
+  }
+
+  return message;
 }

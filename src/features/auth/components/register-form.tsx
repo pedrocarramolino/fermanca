@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { signUp, type AuthActionState } from "@/features/auth/application/actions";
 
@@ -53,10 +54,9 @@ export function RegisterForm() {
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="password">Contraseña</Label>
-        <Input
+        <PasswordInput
           id="password"
           name="password"
-          type="password"
           autoComplete="new-password"
           required
           aria-invalid={!!state.fieldErrors?.password}
@@ -68,10 +68,9 @@ export function RegisterForm() {
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
-        <Input
+        <PasswordInput
           id="confirmPassword"
           name="confirmPassword"
-          type="password"
           autoComplete="new-password"
           required
           aria-invalid={!!state.fieldErrors?.confirmPassword}
