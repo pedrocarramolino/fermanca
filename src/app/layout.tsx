@@ -7,10 +7,11 @@ import { RegisterServiceWorker } from "@/components/register-service-worker";
 import { InstallPromptBanner } from "@/components/install-prompt-banner";
 import { BottomNav } from "@/components/bottom-nav";
 import { ThemeProvider } from "@/components/theme-provider";
-import { createClient } from "@/core/infrastructure/supabase/server";
-import { SupabaseUserSettingsRepository } from "@/core/infrastructure/supabase/repositories/user-settings-repository";
+import {
+  getAuthenticatedUser,
+  getCurrentUserSettings,
+} from "@/core/infrastructure/supabase/current-user";
 import { accentOverrideCss, isAccentPreset } from "@/features/settings/lib/accent-presets";
-import type { UserId } from "@/core/domain/ids";
 import type { UserSettings } from "@/core/domain/user-settings";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
@@ -45,9 +46,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
-  const userId = data?.claims.sub as UserId | undefined;
+  const { userId } = await getAuthenticatedUser();
 
   // El layout raíz envuelve TODA la app, incluidas las páginas públicas de
   // login/registro: un fallo aquí (p. ej. Supabase caído) no debe tumbar la
@@ -56,7 +55,7 @@ export default async function RootLayout({
   let settings: UserSettings | null = null;
   if (userId) {
     try {
-      settings = await new SupabaseUserSettingsRepository(supabase).get(userId);
+      settings = await getCurrentUserSettings();
     } catch {
       settings = null;
     }

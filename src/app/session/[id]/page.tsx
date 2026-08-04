@@ -1,20 +1,26 @@
 import { notFound } from "next/navigation";
-import { createClient } from "@/core/infrastructure/supabase/server";
+import {
+  getAuthenticatedUser,
+  getCurrentUserSettings,
+} from "@/core/infrastructure/supabase/current-user";
 import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/repositories/session-repository";
-import { SupabaseUserSettingsRepository } from "@/core/infrastructure/supabase/repositories/user-settings-repository";
-import type { SessionId, UserId } from "@/core/domain/ids";
+import type { SessionId } from "@/core/domain/ids";
 import { SessionRunner } from "@/features/session-timer/components/session-runner";
 import { SessionSummary } from "@/features/session-timer/components/session-summary";
 import type { RuntimeBlockInput } from "@/features/session-timer/hooks/use-session-runtime";
 
 export default async function SessionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
-  const userId = data?.claims.sub as UserId;
+  const { supabase, userId } = await getAuthenticatedUser();
 
   const sessionRepo = new SupabaseSessionRepository(supabase);
-  const session = await sessionRepo.getById(id as SessionId, userId);
+  // En paralelo, no en cascada: los ajustes no dependen de la sesión, y si
+  // el layout raíz ya los pidió (getCurrentUserSettings está cacheada por
+  // petición), esto ni siquiera vuelve a consultar la base de datos.
+  const [session, settings] = await Promise.all([
+    sessionRepo.getById(id as SessionId, userId),
+    getCurrentUserSettings(),
+  ]);
   if (!session) notFound();
 
   const runtimeBlocks: RuntimeBlockInput[] = session.blocks.map((block) => ({
@@ -37,9 +43,6 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
       />
     );
   }
-
-  const settingsRepo = new SupabaseUserSettingsRepository(supabase);
-  const settings = await settingsRepo.get(userId);
 
   return (
     <SessionRunner

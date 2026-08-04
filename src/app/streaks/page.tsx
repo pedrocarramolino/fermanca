@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { AppHeader } from "@/components/app-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { createClient } from "@/core/infrastructure/supabase/server";
+import { getAuthenticatedUser } from "@/core/infrastructure/supabase/current-user";
 import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/repositories/session-repository";
 import {
   activityHeatmap,
@@ -12,7 +12,6 @@ import {
 } from "@/core/domain/streaks";
 import { StatTile } from "@/features/statistics/components/stat-tile";
 import { ActivityHeatmap } from "@/features/streaks/components/activity-heatmap";
-import type { UserId } from "@/core/domain/ids";
 
 export const metadata: Metadata = { title: "Rachas" };
 
@@ -20,9 +19,7 @@ const MAX_SESSIONS_FOR_STREAKS = 1000;
 const HEATMAP_WEEKS = 26;
 
 export default async function StreaksPage() {
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
-  const userId = data?.claims.sub as UserId;
+  const { supabase, userId } = await getAuthenticatedUser();
 
   const repo = new SupabaseSessionRepository(supabase);
   const sessions = await repo.listByOwner(userId, { limit: MAX_SESSIONS_FOR_STREAKS });

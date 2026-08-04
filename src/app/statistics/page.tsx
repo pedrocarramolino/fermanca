@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { AppHeader } from "@/components/app-header";
-import { createClient } from "@/core/infrastructure/supabase/server";
+import { getAuthenticatedUser } from "@/core/infrastructure/supabase/current-user";
 import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/repositories/session-repository";
 import {
   averageSessionSeconds,
@@ -16,7 +16,6 @@ import { StatTile } from "@/features/statistics/components/stat-tile";
 import { WeeklyChart } from "@/features/statistics/components/weekly-chart";
 import { MonthlyTrendChart } from "@/features/statistics/components/monthly-trend-chart";
 import { CategoryBreakdownChart } from "@/features/statistics/components/category-breakdown-chart";
-import type { UserId } from "@/core/domain/ids";
 
 export const metadata: Metadata = { title: "Estadísticas" };
 
@@ -25,9 +24,7 @@ export const metadata: Metadata = { title: "Estadísticas" };
 const MAX_SESSIONS_FOR_STATS = 1000;
 
 export default async function StatisticsPage() {
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
-  const userId = data?.claims.sub as UserId;
+  const { supabase, userId } = await getAuthenticatedUser();
 
   const repo = new SupabaseSessionRepository(supabase);
   const sessions = await repo.listByOwner(userId, { limit: MAX_SESSIONS_FOR_STATS });

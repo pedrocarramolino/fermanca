@@ -1,14 +1,11 @@
 import { AppHeader } from "@/components/app-header";
 import { SessionBuilder } from "@/features/session-builder/components/session-builder";
-import { createClient } from "@/core/infrastructure/supabase/server";
+import { getAuthenticatedUser } from "@/core/infrastructure/supabase/current-user";
 import { SupabaseCategoryRepository } from "@/core/infrastructure/supabase/repositories/category-repository";
 import { SupabaseTemplateRepository } from "@/core/infrastructure/supabase/repositories/template-repository";
-import type { UserId } from "@/core/domain/ids";
 
 export default async function Home() {
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
-  const userId = data?.claims.sub as UserId;
+  const { supabase, userId } = await getAuthenticatedUser();
 
   const categoryRepo = new SupabaseCategoryRepository(supabase);
   const templateRepo = new SupabaseTemplateRepository(supabase);

@@ -1,17 +1,14 @@
 import type { Metadata } from "next";
 import { AppHeader } from "@/components/app-header";
-import { createClient } from "@/core/infrastructure/supabase/server";
+import { getAuthenticatedUser } from "@/core/infrastructure/supabase/current-user";
 import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/repositories/session-repository";
 import { HISTORY_PAGE_SIZE } from "@/features/history/application/constants";
 import { HistoryList } from "@/features/history/components/history-list";
-import type { UserId } from "@/core/domain/ids";
 
 export const metadata: Metadata = { title: "Historial" };
 
 export default async function HistoryPage() {
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
-  const userId = data?.claims.sub as UserId;
+  const { supabase, userId } = await getAuthenticatedUser();
 
   const repo = new SupabaseSessionRepository(supabase);
   const sessions = await repo.listByOwner(userId, { limit: HISTORY_PAGE_SIZE });
