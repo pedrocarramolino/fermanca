@@ -127,8 +127,12 @@ export function useSessionRuntime({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [runtimeState.status, awaitingConfirmationIndex]);
 
+  /** También se puede llamar con el bloque todavía "running" — el botón de
+   * "terminar fase ahora" del cronómetro deja que el usuario cierre la fase
+   * antes de que se agote el tiempo, sin esperar a la pantalla de
+   * confirmación. */
   function confirmNextPhase() {
-    if (isTransitioningRef.current || runtimeState.status !== "awaiting-confirmation") return;
+    if (isTransitioningRef.current || runtimeState.status === "finished") return;
     const completedBlock = activeBlock;
     if (!completedBlock) return;
 

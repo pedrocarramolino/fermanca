@@ -67,12 +67,17 @@ export function SessionRunner({
           onAddTime={runtime.addExtraTime}
         />
       ) : (
-        <TimerDisplay
-          blockName={runtime.activeBlock.name}
-          color={runtime.activeBlock.color}
-          remainingSeconds={runtime.remainingSeconds}
-          nextBlockName={runtime.nextBlock?.name ?? null}
-        />
+        <div className="flex flex-col items-center gap-4">
+          <TimerDisplay
+            blockName={runtime.activeBlock.name}
+            color={runtime.activeBlock.color}
+            remainingSeconds={runtime.remainingSeconds}
+            nextBlockName={runtime.nextBlock?.name ?? null}
+          />
+          <Button type="button" variant="outline" size="sm" onClick={runtime.confirmNextPhase}>
+            Terminar fase ahora
+          </Button>
+        </div>
       )}
 
       {noteableBlock && (
