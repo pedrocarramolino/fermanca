@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Flame, History, Home, LineChart } from "lucide-react";
+import { Bell, Flame, Home, LineChart, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { href: "/", label: "Inicio", icon: Home },
   { href: "/statistics", label: "Estadísticas", icon: LineChart },
-  { href: "/history", label: "Historial", icon: History },
+  { href: "/community", label: "Comunidad", icon: Users },
   { href: "/streaks", label: "Rachas", icon: Flame },
   { href: "/reminders", label: "Recordatorios", icon: Bell },
 ] as const;

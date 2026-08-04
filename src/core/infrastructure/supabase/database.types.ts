@@ -14,6 +14,7 @@ export type SessionStatus = "in_progress" | "completed" | "abandoned";
 export type SessionBlockStatus = "pending" | "active" | "completed" | "skipped";
 export type ThemePreference = "light" | "dark" | "system";
 export type SoundChoice = "classic" | "bell" | "metronome" | "piano" | "alarm" | "none";
+export type FriendshipStatus = "pending" | "accepted";
 
 export interface Database {
   public: {
@@ -226,6 +227,44 @@ export interface Database {
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["push_subscriptions"]["Insert"]>;
+        Relationships: [];
+      };
+      profiles: {
+        Row: {
+          owner_id: string;
+          username: string;
+          invite_code: string;
+          created_at: string;
+        };
+        Insert: {
+          owner_id: string;
+          username: string;
+          invite_code: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
+        Relationships: [];
+      };
+      friendships: {
+        Row: {
+          id: string;
+          requester_id: string;
+          addressee_id: string;
+          status: FriendshipStatus;
+          low_id: string;
+          high_id: string;
+          created_at: string;
+          responded_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          requester_id: string;
+          addressee_id: string;
+          status?: FriendshipStatus;
+          created_at?: string;
+          responded_at?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["friendships"]["Insert"]>;
         Relationships: [];
       };
     };

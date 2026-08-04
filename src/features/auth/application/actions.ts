@@ -3,6 +3,8 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { createClient } from "@/core/infrastructure/supabase/server";
+import { createServiceClient } from "@/core/infrastructure/supabase/service-client";
+import { SupabaseProfileRepository } from "@/core/infrastructure/supabase/repositories/profile-repository";
 import {
   forgotPasswordSchema,
   resetPasswordSchema,
@@ -45,20 +47,47 @@ function safeRedirectPath(next: string): string {
   return next.startsWith("/") && !next.startsWith("//") ? next : "/";
 }
 
+/** El campo de login acepta email o nombre de usuario — si no hay "@" se
+ * resuelve a través del perfil con la clave de servicio (auth.users no es
+ * consultable con la clave pública, ni falta que hace: el resto de la app
+ * nunca necesita ver el email de otro usuario). */
+async function resolveEmail(identifier: string): Promise<string | null> {
+  if (identifier.includes("@")) return identifier;
+
+  const serviceClient = createServiceClient();
+  const profile = await new SupabaseProfileRepository(serviceClient).getByUsername(identifier);
+  if (!profile) return null;
+
+  const { data, error } = await serviceClient.auth.admin.getUserById(profile.ownerId);
+  if (error || !data.user?.email) return null;
+  return data.user.email;
+}
+
 export async function signIn(
   _prevState: AuthActionState,
   formData: FormData,
 ): Promise<AuthActionState> {
   const parsed = signInSchema.safeParse({
-    email: formData.get("email"),
+    identifier: formData.get("identifier"),
     password: formData.get("password"),
   });
   if (!parsed.success) {
     return { error: null, fieldErrors: fieldErrorsFrom(parsed.error.issues) };
   }
 
+  const email = await resolveEmail(parsed.data.identifier);
+  if (!email) {
+    return {
+      error: translateAuthError("Invalid login credentials"),
+      fieldErrors: initialFieldErrors,
+    };
+  }
+
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword(parsed.data);
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password: parsed.data.password,
+  });
   if (error) {
     return { error: translateAuthError(error.message), fieldErrors: initialFieldErrors };
   }
@@ -73,6 +102,7 @@ export async function signUp(
 ): Promise<AuthActionState> {
   const parsed = signUpSchema.safeParse({
     email: formData.get("email"),
+    username: formData.get("username"),
     password: formData.get("password"),
     confirmPassword: formData.get("confirmPassword"),
   });
@@ -80,11 +110,29 @@ export async function signUp(
     return { error: null, fieldErrors: fieldErrorsFrom(parsed.error.issues) };
   }
 
+  // Comprobación previa para un mensaje de error claro — la restricción
+  // única (case-insensitive) en BD es la garantía real, pero si dejamos
+  // que sea ella la que falle, el alta entera revienta dentro del trigger
+  // y Supabase solo da un mensaje genérico de error de base de datos.
+  const serviceClient = createServiceClient();
+  const existing = await new SupabaseProfileRepository(serviceClient).getByUsername(
+    parsed.data.username,
+  );
+  if (existing) {
+    return {
+      error: null,
+      fieldErrors: { username: "Ese nombre de usuario ya está en uso." },
+    };
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
-    options: { emailRedirectTo: `${await originUrl()}/auth/callback` },
+    options: {
+      emailRedirectTo: `${await originUrl()}/auth/callback`,
+      data: { username: parsed.data.username },
+    },
   });
   if (error) {
     return { error: translateAuthError(error.message), fieldErrors: initialFieldErrors };
@@ -162,6 +210,12 @@ function translateAuthError(message: string): string {
     "Email not confirmed": "Confirma tu correo antes de iniciar sesión.",
     "email rate limit exceeded":
       "Se han enviado demasiados correos. Inténtalo de nuevo en unos minutos.",
+    // El trigger que crea el perfil aborta el alta entera si el nombre de
+    // usuario ya se coló (carrera con otro registro simultáneo) — la
+    // comprobación previa en signUp() evita esto casi siempre, este es solo
+    // el mensaje para el caso residual.
+    "Database error saving new user":
+      "Ese nombre de usuario se ha registrado justo antes que el tuyo. Prueba con otro.",
   };
   return known[message] ?? message;
 }

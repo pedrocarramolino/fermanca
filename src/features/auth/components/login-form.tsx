@@ -17,17 +17,17 @@ export function LoginForm({ next }: { next?: string }) {
       <input type="hidden" name="next" value={next ?? "/"} />
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="email">Correo</Label>
+        <Label htmlFor="identifier">Correo o nombre de usuario</Label>
         <Input
-          id="email"
-          name="email"
-          type="email"
-          autoComplete="email"
+          id="identifier"
+          name="identifier"
+          type="text"
+          autoComplete="username"
           required
-          aria-invalid={!!state.fieldErrors?.email}
+          aria-invalid={!!state.fieldErrors?.identifier}
         />
-        {state.fieldErrors?.email && (
-          <p className="text-destructive text-sm">{state.fieldErrors.email}</p>
+        {state.fieldErrors?.identifier && (
+          <p className="text-destructive text-sm">{state.fieldErrors.identifier}</p>
         )}
       </div>
 

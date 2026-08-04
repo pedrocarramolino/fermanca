@@ -12,6 +12,12 @@ export default function Loading() {
         <Skeleton className="h-9 w-24" />
       </div>
       <Skeleton className="h-9 w-40" />
+      <div className="flex flex-col gap-2">
+        <Skeleton className="h-4 w-32" />
+        <Skeleton className="h-16 rounded-lg" />
+        <Skeleton className="h-16 rounded-lg" />
+        <Skeleton className="h-16 rounded-lg" />
+      </div>
     </main>
   );
 }

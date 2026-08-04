@@ -34,6 +34,24 @@ export function RegisterForm() {
       </div>
 
       <div className="flex flex-col gap-2">
+        <Label htmlFor="username">Nombre de usuario</Label>
+        <Input
+          id="username"
+          name="username"
+          type="text"
+          autoComplete="username"
+          required
+          aria-invalid={!!state.fieldErrors?.username}
+        />
+        <p className="text-muted-foreground text-xs">
+          Con esto te encuentran tus amigos en Comunidad, y también sirve para iniciar sesión.
+        </p>
+        {state.fieldErrors?.username && (
+          <p className="text-destructive text-sm">{state.fieldErrors.username}</p>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-2">
         <Label htmlFor="password">Contraseña</Label>
         <Input
           id="password"

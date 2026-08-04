@@ -13,3 +13,4 @@ export type TemplateBlockId = Brand<string, "TemplateBlockId">;
 export type SessionId = Brand<string, "SessionId">;
 export type SessionBlockId = Brand<string, "SessionBlockId">;
 export type ReminderId = Brand<string, "ReminderId">;
+export type FriendshipId = Brand<string, "FriendshipId">;
