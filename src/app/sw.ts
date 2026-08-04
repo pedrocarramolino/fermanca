@@ -61,6 +61,7 @@ type IncomingPushPayload = ReminderPushPayload | SessionPhasePushPayload;
 
 interface ShowNotificationOptions extends NotificationOptions {
   actions?: { action: string; title: string }[];
+  vibrate?: number[];
 }
 
 self.addEventListener("push", (event: PushEvent) => {
@@ -84,6 +85,13 @@ self.addEventListener("push", (event: PushEvent) => {
       actions: payload.hasNextPhase
         ? [{ action: "next-phase", title: "Siguiente fase" }]
         : undefined,
+      // El sonido de la notificación lo decide el sistema operativo — la Web
+      // Push API no permite adjuntar un audio propio. Esto es lo más cerca
+      // que se puede llegar a un "aviso de alarma": vibración con patrón
+      // propio (Android la respeta; iOS puede ignorarla) y que la
+      // notificación no desaparezca sola hasta que se toque.
+      vibrate: [300, 150, 300, 150, 300, 150, 600],
+      requireInteraction: true,
     };
     event.waitUntil(self.registration.showNotification(payload.title, options));
     return;
