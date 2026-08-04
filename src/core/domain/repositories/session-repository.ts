@@ -29,10 +29,6 @@ export interface SessionRepository {
       Pick<SessionBlock, "status" | "actualDurationSeconds" | "startedAt" | "endedAt" | "note">
     >,
   ): Promise<SessionBlock>;
-  /** El cliente lo llama al mostrar su propio aviso local (app en segundo
-   * plano pero con JS aún corriendo), para que el aviso programado por
-   * QStash no lo duplique — ver /api/qstash/session-phase-alert. */
-  markPhaseAlertSent(id: SessionBlockId, ownerId: UserId): Promise<void>;
   /** Id del mensaje QStash pendiente para el aviso de fin de fase de este
    * bloque, si tiene uno programado. */
   getBlockQstashMessageId(id: SessionBlockId): Promise<string | null>;

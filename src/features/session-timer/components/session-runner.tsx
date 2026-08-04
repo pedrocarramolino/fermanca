@@ -7,7 +7,6 @@ import {
   type PlaybackSettings,
   type RuntimeBlockInput,
 } from "@/features/session-timer/hooks/use-session-runtime";
-import { useNotificationPermission } from "@/features/session-timer/hooks/use-notification-permission";
 import { isAudioUnlocked, unlockAudio } from "@/features/session-timer/application/sounds";
 import { getFreshBlocks } from "@/features/session-timer/application/actions";
 import { TimerDisplay } from "@/features/session-timer/components/timer-display";
@@ -24,16 +23,10 @@ export function SessionRunner({
   blocks: RuntimeBlockInput[];
   playbackSettings: PlaybackSettings;
 }) {
-  const { permission, request: requestNotifications } = useNotificationPermission();
   const [audioReady, setAudioReady] = useState(false);
   const [freshBlocks, setFreshBlocks] = useState<RuntimeBlockInput[] | null>(null);
 
-  const runtime = useSessionRuntime({
-    sessionId,
-    blocks,
-    playbackSettings,
-    notificationsEnabled: permission === "granted",
-  });
+  const runtime = useSessionRuntime({ sessionId, blocks, playbackSettings });
   const noteableBlock = runtime.lastCompletedBlock;
   const finished = runtime.status === "finished";
 
@@ -87,12 +80,6 @@ export function SessionRunner({
           blockId={noteableBlock.id}
           blockName={noteableBlock.name}
         />
-      )}
-
-      {permission === "default" && (
-        <Button type="button" variant="outline" size="sm" onClick={requestNotifications}>
-          Activar avisos aunque cambie de pestaña
-        </Button>
       )}
 
       {!audioReady && (

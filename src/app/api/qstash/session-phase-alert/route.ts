@@ -7,11 +7,12 @@ import { verifyQstashSignature } from "@/core/infrastructure/qstash/verify";
 /**
  * QStash llama aquí una sola vez, en el instante exacto en que un bloque
  * debería terminar (programado por SupabaseSessionRepository.start()/
- * transitionBlock con delay = duración planeada) — sustituye al sondeo por
- * cron. phase_alert_sent sigue de cinturón de seguridad: si el cliente ya
- * mostró su propio aviso local justo antes (markPhaseAlertSent), o si la
- * fase se confirmó a mano y el mensaje no llegó a cancelarse a tiempo, aquí
- * no se hace nada.
+ * transitionBlock con delay = duración planeada) — es la única vía por la
+ * que se envía la notificación de fin de fase, tanto con la app en primer
+ * plano como con el móvil bloqueado. phase_alert_sent es el cinturón de
+ * seguridad: si la fase se confirmó a mano y el mensaje no llegó a
+ * cancelarse a tiempo, o si QStash reintenta la entrega, aquí no se hace
+ * nada.
  */
 export async function POST(request: Request) {
   const rawBody = await request.text();

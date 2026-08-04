@@ -82,15 +82,6 @@ export async function getFreshBlocks(sessionId: string) {
   }));
 }
 
-/** El cliente lo llama justo al mostrar su propio aviso local (app en
- * segundo plano pero con JS aún corriendo), para que el cron de push
- * (/api/cron/session-phases) no lo duplique unos segundos después. */
-export async function markPhaseAlertSent(blockId: string) {
-  const { userId, client } = await requireUserId();
-  const repo = new SupabaseSessionRepository(client);
-  await repo.markPhaseAlertSent(blockId as SessionBlockId, userId);
-}
-
 export async function saveBlockNote(blockId: string, note: string) {
   const { userId, client } = await requireUserId();
   const repo = new SupabaseSessionRepository(client);

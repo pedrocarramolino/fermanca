@@ -3,11 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { resolveRuntimeState, type RuntimeBlock } from "@/core/domain/session-runtime";
 import { playNotificationSound, vibrate } from "@/features/session-timer/application/sounds";
-import {
-  transitionBlock,
-  finishSession,
-  markPhaseAlertSent,
-} from "@/features/session-timer/application/actions";
+import { transitionBlock, finishSession } from "@/features/session-timer/application/actions";
 import type { SoundChoice } from "@/core/domain/user-settings";
 import type { SessionBlockStatus } from "@/core/domain/session";
 
@@ -30,13 +26,6 @@ export interface PlaybackSettings {
 
 const TICK_MS = 250;
 
-/** `actions` es válido en `ServiceWorkerRegistration.showNotification()` pero
- * lib.dom.d.ts no lo modela en `NotificationOptions` (solo aplica ahí, no al
- * constructor `new Notification()`). */
-interface ShowNotificationOptions extends NotificationOptions {
-  actions?: { action: string; title: string }[];
-}
-
 function findActiveIndex(blocks: RuntimeBlockInput[]): number {
   const index = blocks.findIndex((b) => b.status === "active");
   return index === -1 ? 0 : index;
@@ -46,12 +35,10 @@ export function useSessionRuntime({
   sessionId,
   blocks,
   playbackSettings,
-  notificationsEnabled,
 }: {
   sessionId: string;
   blocks: RuntimeBlockInput[];
   playbackSettings: PlaybackSettings;
-  notificationsEnabled: boolean;
 }) {
   const [initial] = useState(() => {
     const index = findActiveIndex(blocks);
@@ -66,8 +53,8 @@ export function useSessionRuntime({
   const [activeBlockStartedAt, setActiveBlockStartedAt] = useState(initial.startedAt);
   const [lastCompletedBlock, setLastCompletedBlock] = useState<RuntimeBlockInput | null>(null);
 
-  // Evita volver a sonar/vibrar/notificar al recargar la página sobre un
-  // bloque que ya estaba esperando confirmación desde antes.
+  // Evita volver a sonar/vibrar al recargar la página sobre un bloque que ya
+  // estaba esperando confirmación desde antes.
   const announcedIndexRef = useRef<number | null>(initial.alreadyAwaiting ? initial.index : null);
   const isTransitioningRef = useRef(false);
 
@@ -89,6 +76,9 @@ export function useSessionRuntime({
   const awaitingConfirmationIndex =
     runtimeState.status === "awaiting-confirmation" ? runtimeState.activeBlockIndex : -1;
 
+  // La notificación del sistema la manda siempre QStash (ver
+  // /api/qstash/session-phase-alert), aunque la pestaña esté abierta y en
+  // primer plano — aquí solo se da la señal audible/háptica local.
   function announcePhaseComplete() {
     playNotificationSound(
       playbackSettings.sound,
@@ -96,23 +86,6 @@ export function useSessionRuntime({
       playbackSettings.visualAlertDurationMs,
     );
     vibrate(playbackSettings.vibrationEnabled);
-
-    if (notificationsEnabled && document.hidden && "serviceWorker" in navigator) {
-      const options: ShowNotificationOptions = {
-        body: nextBlock ? `Toca para pasar a "${nextBlock.name}".` : "Sesión completada.",
-        tag: "practiceflow-session-phase",
-        data: { type: "session-phase", sessionId, url: `/session/${sessionId}` },
-        actions: nextBlock ? [{ action: "next-phase", title: "Siguiente fase" }] : undefined,
-      };
-      void navigator.serviceWorker.ready.then((registration) =>
-        registration.showNotification("Fase completada", options),
-      );
-      // El cron de push (/api/cron/session-phases) es la red de seguridad
-      // para cuando el móvil está bloqueado y este código nunca llega a
-      // ejecutarse; si SÍ se ejecuta, avisamos al servidor para que el cron
-      // no vuelva a enviar el mismo aviso por su cuenta.
-      if (activeBlock) void markPhaseAlertSent(activeBlock.id);
-    }
   }
 
   useEffect(() => {
