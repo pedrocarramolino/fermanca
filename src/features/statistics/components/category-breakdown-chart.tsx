@@ -13,7 +13,9 @@ export function CategoryBreakdownChart({ stats }: { stats: CategoryStat[] }) {
           <CardTitle className="text-base">Tiempo por categoría</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground text-sm">Todavía no hay datos suficientes.</p>
+          <p className="border-border text-muted-foreground rounded-lg border border-dashed p-6 text-center text-sm">
+            Todavía no hay datos suficientes.
+          </p>
         </CardContent>
       </Card>
     );
