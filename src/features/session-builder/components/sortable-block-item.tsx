@@ -2,6 +2,7 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useTranslations } from "next-intl";
 import { GripVertical, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatDurationShort } from "@/core/domain/duration";
@@ -14,6 +15,7 @@ export function SortableBlockItem({
   block: DraftBlock;
   onRemove: (localId: string) => void;
 }) {
+  const t = useTranslations("BlockList");
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: block.localId,
   });
@@ -27,7 +29,7 @@ export function SortableBlockItem({
     >
       <button
         type="button"
-        aria-label={`Reordenar ${block.name}`}
+        aria-label={t("reorder", { name: block.name })}
         className="text-muted-foreground hover:text-foreground cursor-grab touch-none active:cursor-grabbing"
         {...attributes}
         {...listeners}
@@ -53,7 +55,7 @@ export function SortableBlockItem({
         type="button"
         variant="ghost"
         size="icon-sm"
-        aria-label={`Eliminar ${block.name}`}
+        aria-label={t("remove", { name: block.name })}
         onClick={() => onRemove(block.localId)}
       >
         <X className="size-4" />

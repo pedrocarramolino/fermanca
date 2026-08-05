@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   DndContext,
   KeyboardSensor,
@@ -27,6 +28,7 @@ export function BlockList({
   onReorder: (blocks: DraftBlock[]) => void;
   onRemove: (localId: string) => void;
 }) {
+  const t = useTranslations("BlockList");
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
@@ -46,7 +48,7 @@ export function BlockList({
   if (blocks.length === 0) {
     return (
       <p className="border-border text-muted-foreground rounded-lg border border-dashed p-6 text-center text-sm">
-        Todavía no has añadido ningún bloque.
+        {t("empty")}
       </p>
     );
   }

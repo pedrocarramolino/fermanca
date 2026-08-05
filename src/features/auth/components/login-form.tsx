@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -11,6 +12,7 @@ import { signIn, type AuthActionState } from "@/features/auth/application/action
 const initialState: AuthActionState = { error: null, fieldErrors: null };
 
 export function LoginForm({ next }: { next?: string }) {
+  const t = useTranslations("Auth.login");
   const [state, formAction, isPending] = useActionState(signIn, initialState);
 
   return (
@@ -18,7 +20,7 @@ export function LoginForm({ next }: { next?: string }) {
       <input type="hidden" name="next" value={next ?? "/"} />
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="identifier">Correo o nombre de usuario</Label>
+        <Label htmlFor="identifier">{t("identifier")}</Label>
         <Input
           id="identifier"
           name="identifier"
@@ -34,12 +36,12 @@ export function LoginForm({ next }: { next?: string }) {
 
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="password">Contraseña</Label>
+          <Label htmlFor="password">{t("password")}</Label>
           <Link
             href="/forgot-password"
             className="text-muted-foreground hover:text-foreground text-sm"
           >
-            ¿Olvidaste tu contraseña?
+            {t("forgotPassword")}
           </Link>
         </div>
         <PasswordInput
@@ -57,16 +59,16 @@ export function LoginForm({ next }: { next?: string }) {
       {state.error && <p className="text-destructive text-sm">{state.error}</p>}
 
       <Button type="submit" disabled={isPending} className="w-full">
-        {isPending ? "Entrando…" : "Iniciar sesión"}
+        {isPending ? t("submitting") : t("submit")}
       </Button>
 
       <p className="text-muted-foreground text-center text-sm">
-        ¿No tienes cuenta?{" "}
+        {t("noAccount")}{" "}
         <Link
           href={next ? `/register?next=${encodeURIComponent(next)}` : "/register"}
           className="text-foreground underline underline-offset-4"
         >
-          Regístrate
+          {t("signUp")}
         </Link>
       </p>
     </form>

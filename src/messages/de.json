@@ -1,6 +1,8 @@
 {
   "Common": {
-    "settingsAriaLabel": "Einstellungen"
+    "settingsAriaLabel": "Einstellungen",
+    "showPassword": "Passwort anzeigen",
+    "hidePassword": "Passwort verbergen"
   },
   "Settings": {
     "title": "Einstellungen",
@@ -52,5 +54,114 @@
     "usernameLabel": "Benutzername",
     "confirmDeleting": "Wird gelöscht…",
     "confirmDelete": "Konto endgültig löschen"
+  },
+  "Nav": {
+    "home": "Start",
+    "statistics": "Statistik",
+    "community": "Community",
+    "streaks": "Serien",
+    "reminders": "Erinnerungen"
+  },
+  "Home": {
+    "recentSessions": "Letzte Sitzungen",
+    "viewAll": "Alle anzeigen"
+  },
+  "SessionBuilder": {
+    "title": "Übungssitzung",
+    "savedTemplates": "Gespeicherte Vorlagen",
+    "totalDuration": "Gesamtdauer:",
+    "saveAsTemplate": "Als Vorlage speichern",
+    "saveChangesTo": "Änderungen in \"{name}\" speichern",
+    "saving": "Wird gespeichert…",
+    "start": "Sitzung starten",
+    "starting": "Wird gestartet…"
+  },
+  "AddBlockForm": {
+    "category": "Kategorie",
+    "categoryPlaceholder": "Kategorie wählen",
+    "newCategory": "Neue Kategorie…",
+    "blockName": "Blockname",
+    "minutes": "Minuten",
+    "add": "Hinzufügen"
+  },
+  "NewCategoryDialog": {
+    "title": "Neue Kategorie",
+    "description": "Beispiele: Tonleitern, Improvisation, Atmung, Etüden.",
+    "name": "Name",
+    "color": "Farbe",
+    "creating": "Wird erstellt…",
+    "create": "Kategorie erstellen"
+  },
+  "BlockList": {
+    "empty": "Du hast noch keine Blöcke hinzugefügt.",
+    "reorder": "{name} neu anordnen",
+    "remove": "{name} entfernen"
+  },
+  "TemplateList": {
+    "empty": "Du hast noch keine Vorlagen gespeichert.",
+    "blocksCount": "{count, plural, one {# Block} other {# Blöcke}}",
+    "use": "Verwenden",
+    "rename": "Vorlage {name} umbenennen",
+    "delete": "Vorlage {name} löschen",
+    "renameTitle": "Vorlage umbenennen",
+    "renameSave": "Umbenennen",
+    "renaming": "Wird umbenannt…"
+  },
+  "SaveTemplateDialog": {
+    "createTitle": "Als Vorlage speichern",
+    "save": "Speichern",
+    "saving": "Wird gespeichert…",
+    "name": "Name",
+    "namePlaceholder": "Tägliches Üben"
+  },
+  "SessionHistory": {
+    "statusCompleted": "Abgeschlossen",
+    "statusAbandoned": "Abgebrochen",
+    "statusInProgress": "Läuft",
+    "blocksCount": "{count, plural, one {# Block} other {# Blöcke}}"
+  },
+  "History": {
+    "empty": "Du hast noch keine Sitzung abgeschlossen.",
+    "loading": "Wird geladen…",
+    "loadMore": "Mehr laden"
+  },
+  "Auth": {
+    "login": {
+      "title": "Anmelden",
+      "identifier": "E-Mail oder Benutzername",
+      "password": "Passwort",
+      "forgotPassword": "Passwort vergessen?",
+      "submit": "Anmelden",
+      "submitting": "Wird angemeldet…",
+      "noAccount": "Noch kein Konto?",
+      "signUp": "Registrieren"
+    },
+    "register": {
+      "title": "Konto erstellen",
+      "email": "E-Mail",
+      "username": "Benutzername",
+      "usernameHint": "Damit finden dich deine Freunde in der Community — und du kannst dich damit auch anmelden.",
+      "password": "Passwort",
+      "confirmPassword": "Passwort bestätigen",
+      "acceptTerms": "Ich akzeptiere die <terms>Nutzungsbedingungen</terms> und die <privacy>Datenschutzerklärung</privacy>.",
+      "submit": "Konto erstellen",
+      "submitting": "Konto wird erstellt…",
+      "hasAccount": "Schon ein Konto?",
+      "signIn": "Anmelden"
+    },
+    "forgotPassword": {
+      "title": "Passwort zurücksetzen",
+      "email": "E-Mail",
+      "submit": "Wiederherstellungslink senden",
+      "submitting": "Wird gesendet…",
+      "backToLogin": "Zurück zur Anmeldung"
+    },
+    "resetPassword": {
+      "title": "Neues Passwort wählen",
+      "newPassword": "Neues Passwort",
+      "confirmPassword": "Passwort bestätigen",
+      "submit": "Neues Passwort speichern",
+      "submitting": "Wird gespeichert…"
+    }
   }
 }

@@ -1,6 +1,8 @@
 {
   "Common": {
-    "settingsAriaLabel": "Ajustes"
+    "settingsAriaLabel": "Ajustes",
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña"
   },
   "Settings": {
     "title": "Ajustes",
@@ -52,5 +54,114 @@
     "usernameLabel": "Nombre de usuario",
     "confirmDeleting": "Eliminando…",
     "confirmDelete": "Eliminar cuenta para siempre"
+  },
+  "Nav": {
+    "home": "Inicio",
+    "statistics": "Estadísticas",
+    "community": "Comunidad",
+    "streaks": "Rachas",
+    "reminders": "Recordatorios"
+  },
+  "Home": {
+    "recentSessions": "Últimas sesiones",
+    "viewAll": "Ver todo"
+  },
+  "SessionBuilder": {
+    "title": "Sesión de práctica",
+    "savedTemplates": "Plantillas guardadas",
+    "totalDuration": "Duración total:",
+    "saveAsTemplate": "Guardar como plantilla",
+    "saveChangesTo": "Guardar cambios en \"{name}\"",
+    "saving": "Guardando…",
+    "start": "Comenzar sesión",
+    "starting": "Comenzando…"
+  },
+  "AddBlockForm": {
+    "category": "Categoría",
+    "categoryPlaceholder": "Elige una categoría",
+    "newCategory": "Nueva categoría…",
+    "blockName": "Nombre del bloque",
+    "minutes": "Minutos",
+    "add": "Añadir"
+  },
+  "NewCategoryDialog": {
+    "title": "Nueva categoría",
+    "description": "Ejemplos: Escalas, Improvisación, Respiración, Estudios.",
+    "name": "Nombre",
+    "color": "Color",
+    "creating": "Creando…",
+    "create": "Crear categoría"
+  },
+  "BlockList": {
+    "empty": "Todavía no has añadido ningún bloque.",
+    "reorder": "Reordenar {name}",
+    "remove": "Eliminar {name}"
+  },
+  "TemplateList": {
+    "empty": "Todavía no has guardado ninguna plantilla.",
+    "blocksCount": "{count, plural, one {# bloque} other {# bloques}}",
+    "use": "Usar",
+    "rename": "Renombrar plantilla {name}",
+    "delete": "Eliminar plantilla {name}",
+    "renameTitle": "Renombrar plantilla",
+    "renameSave": "Renombrar",
+    "renaming": "Renombrando…"
+  },
+  "SaveTemplateDialog": {
+    "createTitle": "Guardar como plantilla",
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "name": "Nombre",
+    "namePlaceholder": "Estudio diario"
+  },
+  "SessionHistory": {
+    "statusCompleted": "Completada",
+    "statusAbandoned": "Abandonada",
+    "statusInProgress": "En curso",
+    "blocksCount": "{count, plural, one {# bloque} other {# bloques}}"
+  },
+  "History": {
+    "empty": "Todavía no has completado ninguna sesión.",
+    "loading": "Cargando…",
+    "loadMore": "Cargar más"
+  },
+  "Auth": {
+    "login": {
+      "title": "Inicia sesión",
+      "identifier": "Correo o nombre de usuario",
+      "password": "Contraseña",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "submit": "Iniciar sesión",
+      "submitting": "Entrando…",
+      "noAccount": "¿No tienes cuenta?",
+      "signUp": "Regístrate"
+    },
+    "register": {
+      "title": "Crea tu cuenta",
+      "email": "Correo",
+      "username": "Nombre de usuario",
+      "usernameHint": "Con esto te encuentran tus amigos en Comunidad, y también sirve para iniciar sesión.",
+      "password": "Contraseña",
+      "confirmPassword": "Confirmar contraseña",
+      "acceptTerms": "Acepto los <terms>Términos de servicio</terms> y la <privacy>Política de privacidad</privacy>.",
+      "submit": "Crear cuenta",
+      "submitting": "Creando cuenta…",
+      "hasAccount": "¿Ya tienes cuenta?",
+      "signIn": "Inicia sesión"
+    },
+    "forgotPassword": {
+      "title": "Recupera tu contraseña",
+      "email": "Correo",
+      "submit": "Enviar enlace de recuperación",
+      "submitting": "Enviando…",
+      "backToLogin": "Volver a iniciar sesión"
+    },
+    "resetPassword": {
+      "title": "Elige una nueva contraseña",
+      "newPassword": "Nueva contraseña",
+      "confirmPassword": "Confirmar contraseña",
+      "submit": "Guardar nueva contraseña",
+      "submitting": "Guardando…"
+    }
   }
 }

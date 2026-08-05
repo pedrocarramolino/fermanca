@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { AppHeader } from "@/components/app-header";
 import { SessionBuilder } from "@/features/session-builder/components/session-builder";
 import { SessionHistoryItem } from "@/features/history/components/session-history-item";
@@ -11,6 +12,7 @@ const RECENT_SESSIONS_PREVIEW = 3;
 
 export default async function Home() {
   const { supabase, userId } = await getAuthenticatedUser();
+  const t = await getTranslations("Home");
 
   const categoryRepo = new SupabaseCategoryRepository(supabase);
   const templateRepo = new SupabaseTemplateRepository(supabase);
@@ -30,9 +32,9 @@ export default async function Home() {
       {recentSessions.length > 0 && (
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-foreground text-base font-semibold">Últimas sesiones</h2>
+            <h2 className="text-foreground text-base font-semibold">{t("recentSessions")}</h2>
             <Link href="/history" className="text-sm underline underline-offset-4">
-              Ver todo
+              {t("viewAll")}
             </Link>
           </div>
           <div className="flex flex-col gap-2">

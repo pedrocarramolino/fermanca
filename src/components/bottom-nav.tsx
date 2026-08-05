@@ -2,15 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Bell, Flame, Home, LineChart, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { href: "/", label: "Inicio", icon: Home },
-  { href: "/statistics", label: "Estadísticas", icon: LineChart },
-  { href: "/community", label: "Comunidad", icon: Users },
-  { href: "/streaks", label: "Rachas", icon: Flame },
-  { href: "/reminders", label: "Recordatorios", icon: Bell },
+  { href: "/", key: "home", icon: Home },
+  { href: "/statistics", key: "statistics", icon: LineChart },
+  { href: "/community", key: "community", icon: Users },
+  { href: "/streaks", key: "streaks", icon: Flame },
+  { href: "/reminders", key: "reminders", icon: Bell },
 ] as const;
 
 /**
@@ -21,6 +22,7 @@ const NAV_ITEMS = [
  */
 export function BottomNav() {
   const pathname = usePathname();
+  const t = useTranslations("Nav");
   if (pathname.startsWith("/session/")) return null;
 
   return (
@@ -36,8 +38,9 @@ export function BottomNav() {
           "backdrop-blur-2xl backdrop-saturate-150 dark:shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.08)]",
         )}
       >
-        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+        {NAV_ITEMS.map(({ href, key, icon: Icon }) => {
           const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
+          const label = t(key);
           return (
             <Link
               key={href}

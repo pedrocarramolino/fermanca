@@ -1,12 +1,28 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/core/infrastructure/supabase/server";
 import { createServiceClient } from "@/core/infrastructure/supabase/service-client";
 import { SupabaseUserSettingsRepository } from "@/core/infrastructure/supabase/repositories/user-settings-repository";
 import { UnauthorizedError } from "@/core/domain/errors";
-import type { UserSettings } from "@/core/domain/user-settings";
+import { GUEST_LOCALE_COOKIE } from "@/i18n/request";
+import type { Locale, UserSettings } from "@/core/domain/user-settings";
 import type { UserId } from "@/core/domain/ids";
+
+/**
+ * Para las pantallas de login/registro, que no tienen sesión y por tanto no
+ * pueden leer `user_settings.locale` — una cookie sencilla hace de sustituto
+ * hasta que el visitante se registre (momento en el que ya tendrá su propia
+ * fila de ajustes con el idioma que elija en Ajustes).
+ */
+export async function setGuestLocale(locale: Locale) {
+  (await cookies()).set(GUEST_LOCALE_COOKIE, locale, {
+    maxAge: 60 * 60 * 24 * 365,
+    path: "/",
+    sameSite: "lax",
+  });
+}
 
 export async function updateSettings(
   changes: Partial<Omit<UserSettings, "ownerId">>,

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDurationShort } from "@/core/domain/duration";
@@ -24,6 +25,7 @@ export function SessionBuilder({
   initialCategories: Category[];
   initialTemplates: Template[];
 }) {
+  const t = useTranslations("SessionBuilder");
   const [categories, setCategories] = useState(initialCategories);
   const [templates, setTemplates] = useState(initialTemplates);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
@@ -81,7 +83,7 @@ export function SessionBuilder({
     <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
       <Card>
         <CardHeader>
-          <CardTitle>Sesión de práctica</CardTitle>
+          <CardTitle>{t("title")}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <AddBlockForm
@@ -94,7 +96,7 @@ export function SessionBuilder({
 
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span className="text-muted-foreground text-sm">
-              Duración total:{" "}
+              {t("totalDuration")}{" "}
               <span className="text-foreground font-medium">
                 {formatDurationShort(draft.totalDurationSeconds)}
               </span>
@@ -107,7 +109,7 @@ export function SessionBuilder({
                 disabled={draft.blocks.length === 0}
                 onClick={() => setSaveDialogOpen(true)}
               >
-                Guardar como plantilla
+                {t("saveAsTemplate")}
               </Button>
               {loadedTemplate && (
                 <Button
@@ -116,7 +118,9 @@ export function SessionBuilder({
                   disabled={isSavingChanges || draft.blocks.length === 0}
                   onClick={handleSaveChanges}
                 >
-                  {isSavingChanges ? "Guardando…" : `Guardar cambios en "${loadedTemplate.name}"`}
+                  {isSavingChanges
+                    ? t("saving")
+                    : t("saveChangesTo", { name: loadedTemplate.name })}
                 </Button>
               )}
               <Button
@@ -124,7 +128,7 @@ export function SessionBuilder({
                 disabled={draft.blocks.length === 0 || isStarting}
                 onClick={handleStart}
               >
-                {isStarting ? "Comenzando…" : "Comenzar sesión"}
+                {isStarting ? t("starting") : t("start")}
               </Button>
             </div>
           </div>
@@ -133,7 +137,7 @@ export function SessionBuilder({
 
       <Card>
         <CardHeader>
-          <CardTitle>Plantillas guardadas</CardTitle>
+          <CardTitle>{t("savedTemplates")}</CardTitle>
         </CardHeader>
         <CardContent>
           <TemplateList
@@ -149,6 +153,7 @@ export function SessionBuilder({
         open={saveDialogOpen}
         onOpenChange={setSaveDialogOpen}
         onSave={handleSaveAsNew}
+        title={t("saveAsTemplate")}
       />
     </div>
   );

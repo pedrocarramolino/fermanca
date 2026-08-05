@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +26,7 @@ export function NewCategoryDialog({
   onOpenChange: (open: boolean) => void;
   onCreated: (category: CustomCategory) => void;
 }) {
+  const t = useTranslations("NewCategoryDialog");
   const [name, setName] = useState("");
   const [color, setColor] = useState<string>(DEFAULT_CUSTOM_CATEGORY_COLOR);
   const [isPending, setIsPending] = useState(false);
@@ -47,14 +49,12 @@ export function NewCategoryDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Nueva categoría</DialogTitle>
-          <DialogDescription>
-            Ejemplos: Escalas, Improvisación, Respiración, Estudios.
-          </DialogDescription>
+          <DialogTitle>{t("title")}</DialogTitle>
+          <DialogDescription>{t("description")}</DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="new-category-name">Nombre</Label>
+          <Label htmlFor="new-category-name">{t("name")}</Label>
           <Input
             id="new-category-name"
             value={name}
@@ -64,7 +64,7 @@ export function NewCategoryDialog({
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label>Color</Label>
+          <Label>{t("color")}</Label>
           <div className="flex flex-wrap gap-2">
             {CUSTOM_CATEGORY_COLORS.map((option) => (
               <button
@@ -83,7 +83,7 @@ export function NewCategoryDialog({
 
         <DialogFooter>
           <Button type="button" onClick={handleCreate} disabled={isPending || !name.trim()}>
-            {isPending ? "Creando…" : "Crear categoría"}
+            {isPending ? t("creating") : t("create")}
           </Button>
         </DialogFooter>
       </DialogContent>

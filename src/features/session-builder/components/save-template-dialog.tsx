@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Dialog,
   DialogContent,
@@ -17,9 +18,9 @@ export function SaveTemplateDialog({
   onOpenChange,
   onSave,
   defaultName = "",
-  title = "Guardar como plantilla",
-  saveLabel = "Guardar",
-  savingLabel = "Guardando…",
+  title,
+  saveLabel,
+  savingLabel,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -29,6 +30,7 @@ export function SaveTemplateDialog({
   saveLabel?: string;
   savingLabel?: string;
 }) {
+  const t = useTranslations("SaveTemplateDialog");
   const [name, setName] = useState(defaultName);
   const [isPending, setIsPending] = useState(false);
 
@@ -47,23 +49,23 @@ export function SaveTemplateDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+          <DialogTitle>{title ?? t("createTitle")}</DialogTitle>
         </DialogHeader>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="template-name">Nombre</Label>
+          <Label htmlFor="template-name">{t("name")}</Label>
           <Input
             id="template-name"
             value={name}
             onChange={(event) => setName(event.target.value)}
-            placeholder="Estudio diario"
+            placeholder={t("namePlaceholder")}
             autoFocus
           />
         </div>
 
         <DialogFooter>
           <Button type="button" onClick={handleSave} disabled={isPending || !name.trim()}>
-            {isPending ? savingLabel : saveLabel}
+            {isPending ? (savingLabel ?? t("saving")) : (saveLabel ?? t("save"))}
           </Button>
         </DialogFooter>
       </DialogContent>

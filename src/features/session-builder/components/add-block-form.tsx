@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +32,7 @@ export function AddBlockForm({
     color: string;
   }) => void;
 }) {
+  const t = useTranslations("AddBlockForm");
   const [categoryId, setCategoryId] = useState<string>(categories[0]?.id ?? "");
   const [name, setName] = useState(categories[0]?.name ?? "");
   const [minutes, setMinutes] = useState(10);
@@ -68,12 +70,13 @@ export function AddBlockForm({
   return (
     <div className="border-border flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-end">
       <div className="flex flex-1 flex-col gap-2">
-        <Label>Categoría</Label>
+        <Label>{t("category")}</Label>
         <Select value={categoryId} onValueChange={handleCategoryChange}>
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Elige una categoría">
+            <SelectValue placeholder={t("categoryPlaceholder")}>
               {(value: string | null) =>
-                categories.find((category) => category.id === value)?.name ?? "Elige una categoría"
+                categories.find((category) => category.id === value)?.name ??
+                t("categoryPlaceholder")
               }
             </SelectValue>
           </SelectTrigger>
@@ -90,19 +93,19 @@ export function AddBlockForm({
             ))}
             <SelectItem value={NEW_CATEGORY_VALUE}>
               <Plus className="size-3.5" />
-              Nueva categoría…
+              {t("newCategory")}
             </SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div className="flex flex-1 flex-col gap-2">
-        <Label htmlFor="block-name">Nombre del bloque</Label>
+        <Label htmlFor="block-name">{t("blockName")}</Label>
         <Input id="block-name" value={name} onChange={(event) => setName(event.target.value)} />
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="block-minutes">Minutos</Label>
+        <Label htmlFor="block-minutes">{t("minutes")}</Label>
         <Input
           id="block-minutes"
           type="number"
@@ -115,7 +118,7 @@ export function AddBlockForm({
 
       <Button type="button" onClick={handleAdd} disabled={!categoryId || !name.trim()}>
         <Plus className="size-4" />
-        Añadir
+        {t("add")}
       </Button>
 
       <NewCategoryDialog

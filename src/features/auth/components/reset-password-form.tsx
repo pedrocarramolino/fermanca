@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
@@ -9,12 +10,13 @@ import { updatePassword, type AuthActionState } from "@/features/auth/applicatio
 const initialState: AuthActionState = { error: null, fieldErrors: null };
 
 export function ResetPasswordForm() {
+  const t = useTranslations("Auth.resetPassword");
   const [state, formAction, isPending] = useActionState(updatePassword, initialState);
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <Label htmlFor="password">Nueva contraseña</Label>
+        <Label htmlFor="password">{t("newPassword")}</Label>
         <PasswordInput
           id="password"
           name="password"
@@ -28,7 +30,7 @@ export function ResetPasswordForm() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
+        <Label htmlFor="confirmPassword">{t("confirmPassword")}</Label>
         <PasswordInput
           id="confirmPassword"
           name="confirmPassword"
@@ -44,7 +46,7 @@ export function ResetPasswordForm() {
       {state.error && <p className="text-destructive text-sm">{state.error}</p>}
 
       <Button type="submit" disabled={isPending} className="w-full">
-        {isPending ? "Guardando…" : "Guardar nueva contraseña"}
+        {isPending ? t("submitting") : t("submit")}
       </Button>
     </form>
   );

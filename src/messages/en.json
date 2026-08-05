@@ -1,6 +1,8 @@
 {
   "Common": {
-    "settingsAriaLabel": "Settings"
+    "settingsAriaLabel": "Settings",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
   },
   "Settings": {
     "title": "Settings",
@@ -52,5 +54,114 @@
     "usernameLabel": "Username",
     "confirmDeleting": "Deleting…",
     "confirmDelete": "Delete account forever"
+  },
+  "Nav": {
+    "home": "Home",
+    "statistics": "Statistics",
+    "community": "Community",
+    "streaks": "Streaks",
+    "reminders": "Reminders"
+  },
+  "Home": {
+    "recentSessions": "Recent sessions",
+    "viewAll": "View all"
+  },
+  "SessionBuilder": {
+    "title": "Practice session",
+    "savedTemplates": "Saved templates",
+    "totalDuration": "Total duration:",
+    "saveAsTemplate": "Save as template",
+    "saveChangesTo": "Save changes to \"{name}\"",
+    "saving": "Saving…",
+    "start": "Start session",
+    "starting": "Starting…"
+  },
+  "AddBlockForm": {
+    "category": "Category",
+    "categoryPlaceholder": "Choose a category",
+    "newCategory": "New category…",
+    "blockName": "Block name",
+    "minutes": "Minutes",
+    "add": "Add"
+  },
+  "NewCategoryDialog": {
+    "title": "New category",
+    "description": "Examples: Scales, Improvisation, Breathing, Studies.",
+    "name": "Name",
+    "color": "Color",
+    "creating": "Creating…",
+    "create": "Create category"
+  },
+  "BlockList": {
+    "empty": "You haven't added any blocks yet.",
+    "reorder": "Reorder {name}",
+    "remove": "Remove {name}"
+  },
+  "TemplateList": {
+    "empty": "You haven't saved any templates yet.",
+    "blocksCount": "{count, plural, one {# block} other {# blocks}}",
+    "use": "Use",
+    "rename": "Rename template {name}",
+    "delete": "Delete template {name}",
+    "renameTitle": "Rename template",
+    "renameSave": "Rename",
+    "renaming": "Renaming…"
+  },
+  "SaveTemplateDialog": {
+    "createTitle": "Save as template",
+    "save": "Save",
+    "saving": "Saving…",
+    "name": "Name",
+    "namePlaceholder": "Daily study"
+  },
+  "SessionHistory": {
+    "statusCompleted": "Completed",
+    "statusAbandoned": "Abandoned",
+    "statusInProgress": "In progress",
+    "blocksCount": "{count, plural, one {# block} other {# blocks}}"
+  },
+  "History": {
+    "empty": "You haven't completed any sessions yet.",
+    "loading": "Loading…",
+    "loadMore": "Load more"
+  },
+  "Auth": {
+    "login": {
+      "title": "Sign in",
+      "identifier": "Email or username",
+      "password": "Password",
+      "forgotPassword": "Forgot your password?",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up"
+    },
+    "register": {
+      "title": "Create your account",
+      "email": "Email",
+      "username": "Username",
+      "usernameHint": "This is how your friends find you in Community, and it also works to sign in.",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "acceptTerms": "I accept the <terms>Terms of service</terms> and the <privacy>Privacy policy</privacy>.",
+      "submit": "Create account",
+      "submitting": "Creating account…",
+      "hasAccount": "Already have an account?",
+      "signIn": "Sign in"
+    },
+    "forgotPassword": {
+      "title": "Recover your password",
+      "email": "Email",
+      "submit": "Send recovery link",
+      "submitting": "Sending…",
+      "backToLogin": "Back to sign in"
+    },
+    "resetPassword": {
+      "title": "Choose a new password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm password",
+      "submit": "Save new password",
+      "submitting": "Saving…"
+    }
   }
 }

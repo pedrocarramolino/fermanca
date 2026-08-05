@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatDurationShort } from "@/core/domain/duration";
@@ -19,6 +20,7 @@ export function TemplateList({
   onDeleted: (templateId: string) => void;
   onRenamed: (template: Template) => void;
 }) {
+  const t = useTranslations("TemplateList");
   const [isPending, startTransition] = useTransition();
   const [renamingTemplate, setRenamingTemplate] = useState<Template | null>(null);
 
@@ -31,7 +33,7 @@ export function TemplateList({
   if (templates.length === 0) {
     return (
       <p className="border-border text-muted-foreground rounded-lg border border-dashed p-6 text-center text-sm">
-        Todavía no has guardado ninguna plantilla.
+        {t("empty")}
       </p>
     );
   }
@@ -47,19 +49,19 @@ export function TemplateList({
             <div className="flex min-w-0 flex-col">
               <span className="truncate text-sm font-medium">{template.name}</span>
               <span className="text-muted-foreground text-xs">
-                {template.blocks.length} bloques ·{" "}
+                {t("blocksCount", { count: template.blocks.length })} ·{" "}
                 {formatDurationShort(templateTotalDurationSeconds(template))}
               </span>
             </div>
             <div className="flex shrink-0 items-center gap-1">
               <Button type="button" size="sm" variant="secondary" onClick={() => onUse(template)}>
-                Usar
+                {t("use")}
               </Button>
               <Button
                 type="button"
                 size="icon-sm"
                 variant="ghost"
-                aria-label={`Renombrar plantilla ${template.name}`}
+                aria-label={t("rename", { name: template.name })}
                 onClick={() => setRenamingTemplate(template)}
               >
                 <Pencil className="size-4" />
@@ -68,7 +70,7 @@ export function TemplateList({
                 type="button"
                 size="icon-sm"
                 variant="ghost"
-                aria-label={`Eliminar plantilla ${template.name}`}
+                aria-label={t("delete", { name: template.name })}
                 disabled={isPending}
                 onClick={() =>
                   startTransition(async () => {
@@ -91,9 +93,9 @@ export function TemplateList({
           if (!open) setRenamingTemplate(null);
         }}
         defaultName={renamingTemplate?.name ?? ""}
-        title="Renombrar plantilla"
-        saveLabel="Renombrar"
-        savingLabel="Renombrando…"
+        title={t("renameTitle")}
+        saveLabel={t("renameSave")}
+        savingLabel={t("renaming")}
         onSave={handleRename}
       />
     </>
