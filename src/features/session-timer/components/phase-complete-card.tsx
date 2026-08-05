@@ -43,11 +43,14 @@ export function PhaseCompleteCard({
           ¿Te ha faltado tiempo en {completedBlock.name}?
         </p>
         <div className="flex gap-2">
-          <Button type="button" variant="outline" size="sm" onClick={() => onAddTime(120)}>
-            +2 min
-          </Button>
           <Button type="button" variant="outline" size="sm" onClick={() => onAddTime(300)}>
             +5 min
+          </Button>
+          <Button type="button" variant="outline" size="sm" onClick={() => onAddTime(600)}>
+            +10 min
+          </Button>
+          <Button type="button" variant="outline" size="sm" onClick={() => onAddTime(900)}>
+            +15 min
           </Button>
         </div>
       </div>
