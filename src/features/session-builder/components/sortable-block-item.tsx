@@ -22,7 +22,7 @@ export function SortableBlockItem({
     <li
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className="border-border bg-card flex items-center gap-3 rounded-lg border p-3"
+      className="border-border bg-card hover:bg-muted flex items-center gap-3 rounded-lg border p-3 transition-colors"
       data-dragging={isDragging || undefined}
     >
       <button
@@ -36,7 +36,7 @@ export function SortableBlockItem({
       </button>
 
       <span
-        className="size-3 shrink-0 rounded-full"
+        className="size-2.5 shrink-0 rounded-full"
         style={{ backgroundColor: block.color }}
         aria-hidden
       />

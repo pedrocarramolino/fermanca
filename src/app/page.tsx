@@ -30,7 +30,7 @@ export default async function Home() {
       {recentSessions.length > 0 && (
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-muted-foreground text-sm font-medium">Últimas sesiones</h2>
+            <h2 className="text-foreground text-base font-semibold">Últimas sesiones</h2>
             <Link href="/history" className="text-sm underline underline-offset-4">
               Ver todo
             </Link>

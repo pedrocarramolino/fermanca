@@ -20,7 +20,9 @@ export function TemplateList({
 
   if (templates.length === 0) {
     return (
-      <p className="text-muted-foreground text-sm">Todavía no has guardado ninguna plantilla.</p>
+      <p className="border-border text-muted-foreground rounded-lg border border-dashed p-6 text-center text-sm">
+        Todavía no has guardado ninguna plantilla.
+      </p>
     );
   }
 
@@ -29,7 +31,7 @@ export function TemplateList({
       {templates.map((template) => (
         <li
           key={template.id}
-          className="border-border flex items-center justify-between gap-3 rounded-lg border p-3"
+          className="border-border hover:bg-muted flex items-center justify-between gap-3 rounded-lg border p-3 transition-colors"
         >
           <div className="flex min-w-0 flex-col">
             <span className="truncate text-sm font-medium">{template.name}</span>
