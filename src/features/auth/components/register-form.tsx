@@ -95,7 +95,10 @@ export function RegisterForm() {
             aria-invalid={!!state.fieldErrors?.acceptedTerms}
             className="mt-0.5"
           />
-          <Label htmlFor="acceptedTerms" className="text-muted-foreground text-xs font-normal">
+          <label
+            htmlFor="acceptedTerms"
+            className="text-muted-foreground text-xs leading-normal select-none"
+          >
             Acepto los{" "}
             <Link href="/terms" className="text-foreground underline underline-offset-4">
               Términos de servicio
@@ -105,7 +108,7 @@ export function RegisterForm() {
               Política de privacidad
             </Link>
             .
-          </Label>
+          </label>
         </div>
         {state.fieldErrors?.acceptedTerms && (
           <p className="text-destructive text-sm">{state.fieldErrors.acceptedTerms}</p>
