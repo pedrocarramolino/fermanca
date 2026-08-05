@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { Flame, UserMinus } from "lucide-react";
+import { Flame, Trophy, UserMinus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatDurationShort } from "@/core/domain/duration";
 import { removeFriendship } from "@/features/community/application/actions";
@@ -21,7 +21,7 @@ export function FriendsList({
 
   if (friends.length === 0) {
     return (
-      <p className="text-muted-foreground text-sm">
+      <p className="border-border text-muted-foreground rounded-lg border border-dashed p-6 text-center text-sm">
         Todavía no tienes amigos — pide el código de invitación de alguien y añádelo arriba.
       </p>
     );
@@ -31,13 +31,21 @@ export function FriendsList({
 
   return (
     <ul className="flex flex-col gap-2">
-      {sorted.map((friend) => (
+      {sorted.map((friend, index) => (
         <li
           key={friend.friendshipId}
-          className="border-border flex items-center justify-between gap-3 rounded-lg border p-3"
+          className="border-border hover:bg-muted flex items-center justify-between gap-3 rounded-lg border p-3 transition-colors"
         >
           <div className="flex flex-col gap-1">
-            <span className="font-medium">{friend.username}</span>
+            <span className="flex items-center gap-1.5 font-medium">
+              {index === 0 && friend.weeklySeconds > 0 && (
+                <Trophy
+                  className="size-4 text-amber-500 dark:text-amber-400"
+                  aria-hidden
+                />
+              )}
+              {friend.username}
+            </span>
             <div className="text-muted-foreground flex items-center gap-3 text-sm">
               <span>{formatDurationShort(friend.weeklySeconds)} esta semana</span>
               <span className="flex items-center gap-1">

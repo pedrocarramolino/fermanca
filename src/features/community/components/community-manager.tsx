@@ -40,7 +40,7 @@ export function CommunityManager({
       />
 
       <div className="flex flex-col gap-2">
-        <h2 className="text-muted-foreground text-sm font-medium">Amigos</h2>
+        <h2 className="text-foreground text-base font-semibold">Amigos</h2>
         <FriendsList
           friends={friends}
           onRemoved={(id) => setFriends((prev) => prev.filter((f) => f.friendshipId !== id))}

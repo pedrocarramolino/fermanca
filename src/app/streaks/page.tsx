@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Award, Flame, Percent } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAuthenticatedUser } from "@/core/infrastructure/supabase/current-user";
@@ -28,25 +29,47 @@ export default async function StreaksPage() {
   const byDay = practiceSecondsByDay(sessions);
   const compliance = weeklyCompliance(byDay, now);
   const heatmapWeeks = activityHeatmap(byDay, HEATMAP_WEEKS, now);
+  const hasData = byDay.size > 0;
 
   return (
     <main className="mx-auto flex min-h-svh max-w-2xl flex-col gap-6 p-8 pb-32">
       <AppHeader />
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <StatTile label="Racha actual" value={`${currentStreakDays(byDay, now)} días`} />
-        <StatTile label="Mejor racha histórica" value={`${bestStreakDays(byDay)} días`} />
-        <StatTile label="Cumplimiento semanal" value={`${compliance.percentage}%`} />
-      </div>
+      {hasData ? (
+        <>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <StatTile
+              label="Racha actual"
+              value={`${currentStreakDays(byDay, now)} días`}
+              icon={Flame}
+            />
+            <StatTile
+              label="Mejor racha histórica"
+              value={`${bestStreakDays(byDay)} días`}
+              icon={Award}
+            />
+            <StatTile
+              label="Cumplimiento semanal"
+              value={`${compliance.percentage}%`}
+              icon={Percent}
+            />
+          </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Calendario de actividad</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ActivityHeatmap weeks={heatmapWeeks} />
-        </CardContent>
-      </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Calendario de actividad</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ActivityHeatmap weeks={heatmapWeeks} />
+            </CardContent>
+          </Card>
+        </>
+      ) : (
+        <p className="border-border text-muted-foreground rounded-lg border border-dashed p-6 text-center text-sm">
+          Todavía no has completado ninguna sesión. Empieza una desde el inicio para empezar tu
+          racha.
+        </p>
+      )}
     </main>
   );
 }

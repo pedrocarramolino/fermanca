@@ -23,12 +23,12 @@ export function PendingRequestsList({
 
   return (
     <div className="flex flex-col gap-2">
-      <h2 className="text-muted-foreground text-sm font-medium">Solicitudes pendientes</h2>
+      <h2 className="text-foreground text-base font-semibold">Solicitudes pendientes</h2>
       <ul className="flex flex-col gap-2">
         {requests.map((request) => (
           <li
             key={request.friendshipId}
-            className="border-border flex items-center justify-between gap-3 rounded-lg border p-3"
+            className="border-border hover:bg-muted flex items-center justify-between gap-3 rounded-lg border p-3 transition-colors"
           >
             <span className="font-medium">{request.fromUsername}</span>
             <div className="flex gap-2">
