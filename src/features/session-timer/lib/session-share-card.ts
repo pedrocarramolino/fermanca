@@ -54,7 +54,16 @@ export async function generateSessionShareCardBlob(input: {
   const primary = cssVar("--primary") || "#0d9488";
   const onPrimary = cssVar("--primary-foreground") || "#ffffff";
 
-  ctx.fillStyle = primary;
+  // Degradado diagonal en vez de un color plano — mismo tono de la app (o
+  // el acento que el usuario tenga elegido), sin depender de una segunda
+  // variable de color: color-mix() deriva el extremo oscuro del propio
+  // primary en tiempo real.
+  const background = ctx.createLinearGradient(0, 0, WIDTH, HEIGHT);
+  background.addColorStop(0, `color-mix(in oklch, ${primary} 85%, white)`);
+  background.addColorStop(0.55, primary);
+  background.addColorStop(1, `color-mix(in oklch, ${primary} 55%, black)`);
+
+  ctx.fillStyle = background;
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
   ctx.textAlign = "center";
