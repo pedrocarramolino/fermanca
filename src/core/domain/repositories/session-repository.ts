@@ -1,4 +1,9 @@
-import type { Session, SessionBlock, SessionStatus } from "@/core/domain/session";
+import type {
+  PublicSessionSummary,
+  Session,
+  SessionBlock,
+  SessionStatus,
+} from "@/core/domain/session";
 import type { SessionBlockId, SessionId, TemplateId, UserId } from "@/core/domain/ids";
 
 export type NewSessionBlock = Omit<
@@ -42,6 +47,10 @@ export interface SessionRepository {
     extraSeconds: number,
     qstashMessageId: string,
   ): Promise<void>;
+  /** Sin filtrar por dueño — solo para el enlace público de compartir;
+   * llamar siempre con el cliente de servicio. Nunca expone notas ni de
+   * quién es la sesión, y devuelve null si aún está en curso. */
+  getPublicSummary(id: SessionId): Promise<PublicSessionSummary | null>;
   finish(
     id: SessionId,
     ownerId: UserId,

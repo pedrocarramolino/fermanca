@@ -1,5 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Session, SessionBlock, SessionStatus } from "@/core/domain/session";
+import type {
+  PublicSessionSummary,
+  Session,
+  SessionBlock,
+  SessionStatus,
+} from "@/core/domain/session";
 import type { SessionBlockId, SessionId, TemplateId, UserId } from "@/core/domain/ids";
 import type {
   NewSessionBlock,
@@ -208,6 +213,29 @@ export class SupabaseSessionRepository implements SessionRepository {
       })
       .eq("id", id);
     if (error) throw error;
+  }
+
+  async getPublicSummary(id: SessionId): Promise<PublicSessionSummary | null> {
+    const { data, error } = await this.client
+      .from("sessions")
+      .select("started_at, status, session_blocks(id, name, color, actual_duration_seconds, position)")
+      .eq("id", id)
+      .maybeSingle();
+    if (error) throw error;
+    if (!data || data.status === "in_progress") return null;
+
+    return {
+      startedAt: new Date(data.started_at),
+      status: data.status,
+      blocks: [...data.session_blocks]
+        .sort((a, b) => a.position - b.position)
+        .map((block) => ({
+          id: block.id as SessionBlockId,
+          name: block.name,
+          color: block.color,
+          actualDurationSeconds: block.actual_duration_seconds,
+        })),
+    };
   }
 
   async finish(

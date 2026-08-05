@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDurationShort } from "@/core/domain/duration";
 import { finishSession } from "@/features/session-timer/application/actions";
+import { ShareSessionButton } from "@/features/session-timer/components/share-session-button";
 import type { RuntimeBlockInput } from "@/features/session-timer/hooks/use-session-runtime";
 
 export function SessionSummary({
@@ -38,6 +39,17 @@ export function SessionSummary({
         Has practicado {formatDurationShort(totalSeconds)} en {blocks.length}{" "}
         {blocks.length === 1 ? "bloque" : "bloques"}.
       </p>
+
+      <ShareSessionButton
+        sessionId={sessionId}
+        totalSeconds={totalSeconds}
+        blockCount={blocks.length}
+        blocks={blocks.map((block) => ({
+          name: block.name,
+          color: block.color,
+          actualDurationSeconds: block.actualDurationSeconds,
+        }))}
+      />
 
       <Card className="w-full">
         <CardHeader>

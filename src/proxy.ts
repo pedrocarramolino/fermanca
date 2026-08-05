@@ -6,7 +6,21 @@ import { getSupabaseEnv } from "@/core/infrastructure/supabase/env";
 // aquí. /reset-password se trata aparte: exige sesión (la que deja la
 // propia recuperación de contraseña), así que es una ruta protegida más,
 // no pública.
-const PUBLIC_ROUTES = ["/login", "/register", "/forgot-password"];
+//
+// /terms, /privacy y /compartir son la excepción a "si hay sesión, fuera de
+// aquí": son consultables da igual si has iniciado sesión o no (un usuario
+// registrado también quiere poder leer los términos, o abrir un enlace de
+// compartir sin que lo mande a inicio), así que además de listarlas aquí se
+// excluyen explícitamente de esa segunda condición más abajo.
+const PUBLIC_ROUTES = [
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/terms",
+  "/privacy",
+  "/compartir",
+];
+const PUBLIC_ROUTES_ALWAYS_ACCESSIBLE = ["/terms", "/privacy", "/compartir"];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -42,7 +56,10 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  if (claims && isPublicRoute) {
+  const isAlwaysAccessible = PUBLIC_ROUTES_ALWAYS_ACCESSIBLE.some((route) =>
+    pathname.startsWith(route),
+  );
+  if (claims && isPublicRoute && !isAlwaysAccessible) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 

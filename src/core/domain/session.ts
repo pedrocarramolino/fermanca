@@ -19,6 +19,19 @@ export interface SessionBlock {
   note: string | null;
 }
 
+/** Para el enlace de compartir: nunca incluye notas ni de quién es la
+ * sesión — solo lo mismo que ya se muestra en el detalle de un amigo. */
+export interface PublicSessionSummary {
+  startedAt: Date;
+  status: Extract<SessionStatus, "completed" | "abandoned">;
+  blocks: {
+    id: SessionBlockId;
+    name: string;
+    color: string;
+    actualDurationSeconds: number;
+  }[];
+}
+
 export interface Session {
   id: SessionId;
   ownerId: UserId;

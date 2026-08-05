@@ -3,6 +3,7 @@
 import { createClient } from "@/core/infrastructure/supabase/server";
 import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/repositories/session-repository";
 import { UnauthorizedError } from "@/core/domain/errors";
+import { currentStreakDays, practiceSecondsByDay } from "@/core/domain/streaks";
 import type { SessionBlockId, SessionId, UserId } from "@/core/domain/ids";
 import {
   cancelQstashMessage,
@@ -131,6 +132,17 @@ export async function getFreshBlocks(sessionId: string) {
     actualDurationSeconds: block.actualDurationSeconds,
     note: block.note,
   }));
+}
+
+/** Para el texto del botón de compartir — "racha de N días" es más
+ * motivador que solo el tiempo practicado, así que se calcula aparte
+ * (mismo cálculo que la pantalla de Rachas) en vez de mandarlo desde el
+ * runtime en memoria, que no conoce el resto del historial. */
+export async function getCurrentStreakDays(): Promise<number> {
+  const { userId, client } = await requireUserId();
+  const repo = new SupabaseSessionRepository(client);
+  const sessions = await repo.listByOwner(userId, { limit: 1000 });
+  return currentStreakDays(practiceSecondsByDay(sessions), new Date());
 }
 
 export async function saveBlockNote(blockId: string, note: string) {
