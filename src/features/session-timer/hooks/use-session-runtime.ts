@@ -7,6 +7,8 @@ import {
   transitionBlock,
   finishSession,
   extendActiveBlock,
+  pauseActiveBlock,
+  resumeActiveBlock,
 } from "@/features/session-timer/application/actions";
 import type { SoundChoice } from "@/core/domain/user-settings";
 import type { SessionBlockStatus } from "@/core/domain/session";
@@ -65,6 +67,9 @@ export function useSessionRuntime({
   // plannedDurationSeconds solo para el cálculo de este runtime, la duración
   // "de verdad" del bloque no cambia hasta que el servidor confirma.
   const [extraSecondsByBlockId, setExtraSecondsByBlockId] = useState<Record<string, number>>({});
+  // Mientras está pausado, congelamos el "now" que ve resolveRuntimeState en
+  // el instante de la pausa en vez de dejarlo avanzar con el reloj real.
+  const [pausedAt, setPausedAt] = useState<Date | null>(null);
   const effectiveBlocks =
     Object.keys(extraSecondsByBlockId).length === 0
       ? blocks
@@ -95,11 +100,12 @@ export function useSessionRuntime({
     };
   }, []);
 
+  const effectiveNow = pausedAt ?? now;
   const runtimeState = resolveRuntimeState(
     effectiveBlocks,
     activeBlockIndex,
     activeBlockStartedAt,
-    now,
+    effectiveNow,
   );
   const activeBlock = effectiveBlocks[activeBlockIndex] ?? null;
   const nextBlock = effectiveBlocks[activeBlockIndex + 1] ?? null;
@@ -142,7 +148,10 @@ export function useSessionRuntime({
     if (!completedBlock) return;
 
     isTransitioningRef.current = true;
-    const confirmedAt = new Date();
+    // Si estaba en pausa, la fase "terminó" en el instante en que se pausó,
+    // no ahora — si no, el tiempo en pausa contaría como practicado.
+    const confirmedAt = pausedAt ?? new Date();
+    setPausedAt(null);
     const actualDurationSeconds = Math.round(
       (confirmedAt.getTime() - activeBlockStartedAt.getTime()) / 1000,
     );
@@ -189,6 +198,44 @@ export function useSessionRuntime({
     });
   }
 
+  /** Congela el cronómetro: el bloque activo sigue "running" pero con el
+   * tiempo detenido en el instante de la pausa, y se cancela el aviso de fin
+   * de fase para que no llegue mientras está parado. */
+  function pauseTimer() {
+    if (runtimeState.status !== "running" || pausedAt || !activeBlock) return;
+    setPausedAt(new Date());
+    void pauseActiveBlock(activeBlock.id).catch((error: unknown) => {
+      console.error("No se pudo pausar la fase", error);
+    });
+  }
+
+  /** Desplaza activeBlockStartedAt hacia delante por lo que ha durado la
+   * pausa, para que elapsed/remaining sigan contando como si ese rato no
+   * hubiera pasado, y reprograma el aviso de fin de fase para lo que
+   * quedaba (no para la duración completa de la fase). */
+  function resumeTimer() {
+    if (!pausedAt || !activeBlock) return;
+    const remainingAtPause = resolveRuntimeState(
+      effectiveBlocks,
+      activeBlockIndex,
+      activeBlockStartedAt,
+      pausedAt,
+    );
+    const remainingSeconds =
+      remainingAtPause.status === "running" ? remainingAtPause.remainingInActiveBlock : 0;
+
+    const pauseDurationMs = Date.now() - pausedAt.getTime();
+    const newStartedAt = new Date(activeBlockStartedAt.getTime() + pauseDurationMs);
+
+    setActiveBlockStartedAt(newStartedAt);
+    setPausedAt(null);
+    void resumeActiveBlock(activeBlock.id, newStartedAt.toISOString(), remainingSeconds).catch(
+      (error: unknown) => {
+        console.error("No se pudo reanudar la fase", error);
+      },
+    );
+  }
+
   const confirmNextPhaseRef = useRef(confirmNextPhase);
   useEffect(() => {
     confirmNextPhaseRef.current = confirmNextPhase;
@@ -214,7 +261,10 @@ export function useSessionRuntime({
     elapsedSeconds: runtimeState.status === "running" ? runtimeState.elapsedInActiveBlock : 0,
     lastCompletedBlock,
     completedDurations,
+    isPaused: pausedAt !== null,
     confirmNextPhase,
     addExtraTime,
+    pauseTimer,
+    resumeTimer,
   };
 }

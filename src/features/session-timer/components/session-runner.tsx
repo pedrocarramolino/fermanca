@@ -83,10 +83,21 @@ export function SessionRunner({
             color={runtime.activeBlock.color}
             remainingSeconds={runtime.remainingSeconds}
             nextBlockName={runtime.nextBlock?.name ?? null}
+            isPaused={runtime.isPaused}
           />
-          <Button type="button" variant="outline" size="sm" onClick={runtime.confirmNextPhase}>
-            Terminar fase ahora
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={runtime.isPaused ? runtime.resumeTimer : runtime.pauseTimer}
+            >
+              {runtime.isPaused ? "Reanudar" : "Pausar"}
+            </Button>
+            <Button type="button" variant="outline" size="sm" onClick={runtime.confirmNextPhase}>
+              Terminar fase ahora
+            </Button>
+          </div>
         </div>
       )}
 

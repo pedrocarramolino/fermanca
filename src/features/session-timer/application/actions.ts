@@ -79,6 +79,40 @@ export async function extendActiveBlock(blockId: string, extraSeconds: number) {
 }
 
 /**
+ * El usuario pausa el bloque activo — se cancela el aviso QStash pendiente
+ * para que no llegue un "fin de fase" mientras el cronómetro está parado;
+ * se reprograma al reanudar (ver resumeActiveBlock).
+ */
+export async function pauseActiveBlock(blockId: string) {
+  const { client } = await requireUserId();
+  const repo = new SupabaseSessionRepository(client);
+
+  const pendingMessageId = await repo.getBlockQstashMessageId(blockId as SessionBlockId);
+  if (pendingMessageId) await cancelQstashMessage(pendingMessageId);
+  await repo.setBlockQstashMessageId(blockId as SessionBlockId, null);
+}
+
+/**
+ * Reanuda un bloque pausado: `newStartedAt` ya viene desplazado por el
+ * tiempo que ha estado en pausa (ver useSessionRuntime), así que persistirlo
+ * mantiene el cálculo de elapsed/remaining correcto tras un refresco. El
+ * aviso de fin de fase se reprograma para lo que quedaba, no para la
+ * duración completa de la fase.
+ */
+export async function resumeActiveBlock(
+  blockId: string,
+  newStartedAt: string,
+  remainingSeconds: number,
+) {
+  const { userId, client } = await requireUserId();
+  const repo = new SupabaseSessionRepository(client);
+
+  const messageId = await scheduleSessionPhaseAlert(blockId, remainingSeconds);
+  await repo.updateBlock(blockId as SessionBlockId, userId, { startedAt: new Date(newStartedAt) });
+  await repo.setBlockQstashMessageId(blockId as SessionBlockId, messageId);
+}
+
+/**
  * Relee los bloques desde la BD tal cual quedaron. Se usa justo cuando la
  * sesión en vivo termina, para que las notas guardadas durante la marcha
  * (que el estado local del cliente nunca vio) aparezcan en el resumen sin

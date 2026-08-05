@@ -5,11 +5,13 @@ export function TimerDisplay({
   color,
   remainingSeconds,
   nextBlockName,
+  isPaused,
 }: {
   blockName: string;
   color: string;
   remainingSeconds: number;
   nextBlockName: string | null;
+  isPaused?: boolean;
 }) {
   return (
     <div className="flex flex-col items-center gap-3 text-center">
@@ -27,7 +29,11 @@ export function TimerDisplay({
       </span>
 
       <p className="text-muted-foreground min-h-5 text-sm">
-        {nextBlockName ? `Siguiente: ${nextBlockName}` : "Último bloque"}
+        {isPaused
+          ? "En pausa"
+          : nextBlockName
+            ? `Siguiente: ${nextBlockName}`
+            : "Último bloque"}
       </p>
     </div>
   );
