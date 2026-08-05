@@ -11,13 +11,16 @@ export function RemindersManager({ initialReminders }: { initialReminders: Remin
   return (
     <div className="flex flex-col gap-4">
       <ReminderForm onCreated={(reminder) => setReminders((prev) => [...prev, reminder])} />
-      <ReminderList
-        reminders={reminders}
-        onDeleted={(id) => setReminders((prev) => prev.filter((r) => r.id !== id))}
-        onToggled={(id, enabled) =>
-          setReminders((prev) => prev.map((r) => (r.id === id ? { ...r, enabled } : r)))
-        }
-      />
+      <div className="flex flex-col gap-2">
+        <h2 className="text-foreground text-base font-semibold">Tus recordatorios</h2>
+        <ReminderList
+          reminders={reminders}
+          onDeleted={(id) => setReminders((prev) => prev.filter((r) => r.id !== id))}
+          onToggled={(id, enabled) =>
+            setReminders((prev) => prev.map((r) => (r.id === id ? { ...r, enabled } : r)))
+          }
+        />
+      </div>
     </div>
   );
 }

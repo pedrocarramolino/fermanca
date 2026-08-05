@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createReminder } from "@/features/reminders/application/actions";
@@ -35,39 +36,44 @@ export function ReminderForm({ onCreated }: { onCreated: (reminder: Reminder) =>
   }
 
   return (
-    <div className="border-border flex flex-col gap-3 rounded-lg border p-3">
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="reminder-time">Hora</Label>
-        <Input
-          id="reminder-time"
-          type="time"
-          value={time}
-          onChange={(event) => setTime(event.target.value)}
-          className="w-32"
-        />
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <Label>Días</Label>
-        <div className="flex gap-1">
-          {DAY_LABELS.map(({ value, label }) => (
-            <button
-              key={value}
-              type="button"
-              aria-pressed={days.includes(value)}
-              onClick={() => toggleDay(value)}
-              className="border-border data-[selected]:border-primary data-[selected]:bg-primary data-[selected]:text-primary-foreground flex size-8 items-center justify-center rounded-full border text-sm"
-              data-selected={days.includes(value) || undefined}
-            >
-              {label}
-            </button>
-          ))}
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">Nuevo recordatorio</CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="reminder-time">Hora</Label>
+          <Input
+            id="reminder-time"
+            type="time"
+            value={time}
+            onChange={(event) => setTime(event.target.value)}
+            className="w-32"
+          />
         </div>
-      </div>
 
-      <Button type="button" onClick={handleCreate} disabled={isPending || days.length === 0}>
-        {isPending ? "Añadiendo…" : "Añadir recordatorio"}
-      </Button>
-    </div>
+        <div className="flex flex-col gap-2">
+          <Label>Días</Label>
+          <div className="flex gap-1">
+            {DAY_LABELS.map(({ value, label }) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={days.includes(value)}
+                onClick={() => toggleDay(value)}
+                className="border-border data-[selected]:border-primary data-[selected]:bg-primary data-[selected]:text-primary-foreground flex size-8 items-center justify-center rounded-full border text-sm"
+                data-selected={days.includes(value) || undefined}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <Button type="button" onClick={handleCreate} disabled={isPending || days.length === 0}>
+          {isPending ? "Añadiendo…" : "Añadir recordatorio"}
+        </Button>
+      </CardContent>
+    </Card>
   );
 }

@@ -30,7 +30,11 @@ export function ReminderList({
   const [isPending, startTransition] = useTransition();
 
   if (reminders.length === 0) {
-    return <p className="text-muted-foreground text-sm">Todavía no tienes recordatorios.</p>;
+    return (
+      <p className="border-border text-muted-foreground rounded-lg border border-dashed p-6 text-center text-sm">
+        Todavía no tienes recordatorios.
+      </p>
+    );
   }
 
   return (
@@ -38,7 +42,7 @@ export function ReminderList({
       {reminders.map((reminder) => (
         <li
           key={reminder.id}
-          className="border-border flex items-center justify-between gap-3 rounded-lg border p-3"
+          className="border-border hover:bg-muted flex items-center justify-between gap-3 rounded-lg border p-3 transition-colors"
         >
           <div className="flex items-center gap-3">
             <span className="font-mono text-lg tabular-nums">{reminder.timeOfDay}</span>
