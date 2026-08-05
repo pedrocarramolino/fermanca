@@ -6,10 +6,10 @@ import { useLocale } from "next-intl";
 import { setGuestLocale } from "@/features/settings/application/actions";
 import type { Locale } from "@/core/domain/user-settings";
 
-const OPTIONS: { value: Locale; label: string }[] = [
-  { value: "es", label: "ES" },
-  { value: "en", label: "EN" },
-  { value: "de", label: "DE" },
+const OPTIONS: { value: Locale; flag: string; name: string }[] = [
+  { value: "es", flag: "🇪🇸", name: "Español" },
+  { value: "en", flag: "🇬🇧", name: "English" },
+  { value: "de", flag: "🇩🇪", name: "Deutsch" },
 ];
 
 export function AuthLocaleSwitcher() {
@@ -32,9 +32,10 @@ export function AuthLocaleSwitcher() {
           type="button"
           onClick={() => handleChange(option.value)}
           aria-pressed={locale === option.value}
-          className="text-muted-foreground hover:text-foreground aria-pressed:text-foreground aria-pressed:bg-muted rounded-md px-2 py-1 text-xs font-medium transition-colors"
+          aria-label={option.name}
+          className="opacity-60 hover:opacity-100 aria-pressed:opacity-100 rounded-md px-1.5 py-1 text-lg leading-none transition-opacity"
         >
-          {option.label}
+          {option.flag}
         </button>
       ))}
     </div>
