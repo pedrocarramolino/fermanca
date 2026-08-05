@@ -10,7 +10,7 @@ export default function Loading() {
         <Button variant="ghost" size="icon-sm" render={<Link href="/" />} nativeButton={false}>
           <ArrowLeft className="size-4" />
         </Button>
-        <h1 className="text-lg font-medium">Personalización</h1>
+        <h1 className="text-lg font-medium">Ajustes</h1>
       </div>
       <div className="flex flex-col gap-4">
         <Skeleton className="h-32 rounded-lg" />

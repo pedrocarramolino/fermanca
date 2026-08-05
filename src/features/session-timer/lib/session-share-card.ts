@@ -8,7 +8,7 @@ const MAX_VISIBLE_BLOCKS = 8;
 // imagen la va a ver gente que nunca ha abierto la app, así que tiene que
 // leerse bien pase lo que pase (si el que comparte está en modo oscuro, un
 // panel oscuro-sobre-degradado-oscuro perdería todo el contraste). Solo el
-// fondo sigue el acento elegido en Personalización.
+// fondo sigue el acento elegido en Ajustes.
 const PANEL_BG = "#fcfcfb";
 const PANEL_TEXT = "#111111";
 const PANEL_MUTED = "#6b7280";
@@ -84,7 +84,7 @@ function panelHeightFor(visibleCount: number, hasExtra: boolean): number {
 /**
  * Tarjeta 1080×1920 (proporción de Historia de Instagram): un panel blanco
  * flotante con el resumen, centrado verticalmente sobre un degradado del
- * acento elegido en Personalización — mismo lenguaje visual que las Card
+ * acento elegido en Ajustes — mismo lenguaje visual que las Card
  * del resto de la app, en vez de texto suelto sobre el color. Se adjunta
  * como imagen al compartir; un enlace de texto no sirve de nada en una
  * Historia de Instagram.

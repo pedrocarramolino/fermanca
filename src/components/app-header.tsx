@@ -16,7 +16,7 @@ export function AppHeader() {
         <Button
           variant="ghost"
           size="icon"
-          aria-label="Personalización"
+          aria-label="Ajustes"
           render={<Link href="/settings" />}
           nativeButton={false}
         >
