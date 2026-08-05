@@ -105,6 +105,7 @@ export async function signUp(
     username: formData.get("username"),
     password: formData.get("password"),
     confirmPassword: formData.get("confirmPassword"),
+    acceptedTerms: formData.get("acceptedTerms") === "on",
   });
   if (!parsed.success) {
     return { error: null, fieldErrors: fieldErrorsFrom(parsed.error.issues) };

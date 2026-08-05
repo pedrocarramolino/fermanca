@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +13,7 @@ const initialState: AuthActionState = { error: null, fieldErrors: null };
 
 export function RegisterForm() {
   const [state, formAction, isPending] = useActionState(signUp, initialState);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   if (state.success) {
     return <p className="text-center text-sm">{state.success}</p>;
@@ -82,7 +84,35 @@ export function RegisterForm() {
 
       {state.error && <p className="text-destructive text-sm">{state.error}</p>}
 
-      <Button type="submit" disabled={isPending} className="w-full">
+      <div className="flex flex-col gap-2">
+        <div className="flex items-start gap-2">
+          <Checkbox
+            id="acceptedTerms"
+            name="acceptedTerms"
+            required
+            checked={acceptedTerms}
+            onCheckedChange={setAcceptedTerms}
+            aria-invalid={!!state.fieldErrors?.acceptedTerms}
+            className="mt-0.5"
+          />
+          <Label htmlFor="acceptedTerms" className="text-muted-foreground text-xs font-normal">
+            Acepto los{" "}
+            <Link href="/terms" className="text-foreground underline underline-offset-4">
+              Términos de servicio
+            </Link>{" "}
+            y la{" "}
+            <Link href="/privacy" className="text-foreground underline underline-offset-4">
+              Política de privacidad
+            </Link>
+            .
+          </Label>
+        </div>
+        {state.fieldErrors?.acceptedTerms && (
+          <p className="text-destructive text-sm">{state.fieldErrors.acceptedTerms}</p>
+        )}
+      </div>
+
+      <Button type="submit" disabled={isPending || !acceptedTerms} className="w-full">
         {isPending ? "Creando cuenta…" : "Crear cuenta"}
       </Button>
 

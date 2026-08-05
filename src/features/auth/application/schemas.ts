@@ -22,6 +22,9 @@ export const signUpSchema = z
     username,
     password,
     confirmPassword: z.string().min(1, "Confirma tu contraseña."),
+    acceptedTerms: z.literal(true, {
+      message: "Debes aceptar los términos y la política de privacidad.",
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Las contraseñas no coinciden.",
