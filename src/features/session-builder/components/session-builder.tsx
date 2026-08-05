@@ -50,6 +50,10 @@ export function SessionBuilder({
     if (draft.loadedTemplateId === templateId) draft.clear();
   }
 
+  function handleTemplateRenamed(updated: Template) {
+    setTemplates((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+  }
+
   async function handleSaveAsNew(name: string) {
     const template = await saveAsNewTemplate(name, draft.blocksInput);
     setTemplates((prev) => [template, ...prev]);
@@ -136,6 +140,7 @@ export function SessionBuilder({
             templates={templates}
             onUse={handleUseTemplate}
             onDeleted={handleTemplateDeleted}
+            onRenamed={handleTemplateRenamed}
           />
         </CardContent>
       </Card>

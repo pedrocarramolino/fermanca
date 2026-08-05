@@ -92,6 +92,14 @@ export async function updateTemplateBlocks(
   return template;
 }
 
+export async function renameTemplate(id: string, name: string) {
+  const { userId, client } = await requireUserId();
+  const repo = new SupabaseTemplateRepository(client);
+  const template = await repo.update(id as TemplateId, userId, { name });
+  revalidatePath("/");
+  return template;
+}
+
 export async function deleteTemplate(id: string) {
   const { userId, client } = await requireUserId();
   const repo = new SupabaseTemplateRepository(client);

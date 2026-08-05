@@ -17,11 +17,17 @@ export function SaveTemplateDialog({
   onOpenChange,
   onSave,
   defaultName = "",
+  title = "Guardar como plantilla",
+  saveLabel = "Guardar",
+  savingLabel = "Guardando…",
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (name: string) => Promise<void>;
   defaultName?: string;
+  title?: string;
+  saveLabel?: string;
+  savingLabel?: string;
 }) {
   const [name, setName] = useState(defaultName);
   const [isPending, setIsPending] = useState(false);
@@ -41,7 +47,7 @@ export function SaveTemplateDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Guardar como plantilla</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
 
         <div className="flex flex-col gap-2">
@@ -57,7 +63,7 @@ export function SaveTemplateDialog({
 
         <DialogFooter>
           <Button type="button" onClick={handleSave} disabled={isPending || !name.trim()}>
-            {isPending ? "Guardando…" : "Guardar"}
+            {isPending ? savingLabel : saveLabel}
           </Button>
         </DialogFooter>
       </DialogContent>
