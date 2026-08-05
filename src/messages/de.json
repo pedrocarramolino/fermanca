@@ -1,0 +1,56 @@
+{
+  "Common": {
+    "settingsAriaLabel": "Einstellungen"
+  },
+  "Settings": {
+    "title": "Einstellungen",
+    "theme": {
+      "title": "Design",
+      "light": "Hell",
+      "dark": "Dunkel",
+      "system": "System"
+    },
+    "accent": {
+      "title": "Akzentfarbe"
+    },
+    "sound": {
+      "title": "Timer-Ton",
+      "label": "Ton",
+      "test": "Ton testen",
+      "volume": "Lautstärke: {volume}%",
+      "options": {
+        "classic": "Klassisch",
+        "bell": "Glocke",
+        "metronome": "Metronom",
+        "piano": "Klavier",
+        "alarm": "Alarm",
+        "none": "Kein Ton"
+      }
+    },
+    "vibration": {
+      "title": "Vibration",
+      "label": "Beim Wechsel eines Blocks vibrieren",
+      "test": "Vibration testen"
+    },
+    "alert": {
+      "title": "Dauer des Hinweises",
+      "label": "Wie lange der Alarm wiederholt, wenn eine Phase endet"
+    },
+    "language": {
+      "title": "Sprache",
+      "es": "Español",
+      "en": "English",
+      "de": "Deutsch"
+    }
+  },
+  "DeleteAccount": {
+    "title": "Gefahrenzone",
+    "description": "Löscht dein Konto und alle deine Daten dauerhaft: Sitzungen, Vorlagen, Freunde und Erinnerungen eingeschlossen.",
+    "cta": "Konto löschen",
+    "dialogTitle": "Konto wirklich löschen?",
+    "dialogDescription": "Dies löscht dein Konto und alle deine Daten dauerhaft — das kann nicht rückgängig gemacht werden. Gib <strong>{username}</strong> ein, um zu bestätigen.",
+    "usernameLabel": "Benutzername",
+    "confirmDeleting": "Wird gelöscht…",
+    "confirmDelete": "Konto endgültig löschen"
+  }
+}

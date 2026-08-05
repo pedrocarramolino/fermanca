@@ -2,6 +2,7 @@ import type { UserId } from "@/core/domain/ids";
 
 export type ThemePreference = "light" | "dark" | "system";
 export type SoundChoice = "classic" | "bell" | "metronome" | "piano" | "alarm" | "none";
+export type Locale = "es" | "en" | "de";
 
 export interface UserSettings {
   ownerId: UserId;
@@ -15,4 +16,5 @@ export interface UserSettings {
   accentColor: string | null;
   /** IANA (p. ej. "Europe/Madrid"). Se detecta sola en el navegador. */
   timezone: string;
+  locale: Locale;
 }

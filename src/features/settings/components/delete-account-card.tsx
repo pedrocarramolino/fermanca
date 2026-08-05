@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { AlertTriangle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   Dialog,
   DialogContent,
@@ -18,6 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import { deleteMyAccount } from "@/features/settings/application/actions";
 
 export function DeleteAccountCard({ username }: { username: string }) {
+  const t = useTranslations("DeleteAccount");
   const [open, setOpen] = useState(false);
   const [confirmText, setConfirmText] = useState("");
   const [isPending, startTransition] = useTransition();
@@ -38,16 +40,13 @@ export function DeleteAccountCard({ username }: { username: string }) {
         <CardHeader>
           <CardTitle className="text-destructive flex items-center gap-1.5 text-base">
             <AlertTriangle className="size-4" aria-hidden />
-            Zona de peligro
+            {t("title")}
           </CardTitle>
-          <CardDescription>
-            Elimina tu cuenta y todos tus datos de forma permanente: sesiones, plantillas,
-            amigos y recordatorios incluidos.
-          </CardDescription>
+          <CardDescription>{t("description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <Button type="button" variant="destructive" onClick={() => setOpen(true)}>
-            Eliminar cuenta
+            {t("cta")}
           </Button>
         </CardContent>
       </Card>
@@ -61,15 +60,17 @@ export function DeleteAccountCard({ username }: { username: string }) {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>¿Eliminar tu cuenta?</DialogTitle>
+            <DialogTitle>{t("dialogTitle")}</DialogTitle>
             <DialogDescription>
-              Esto borra tu cuenta y todos tus datos para siempre — no se puede deshacer. Escribe{" "}
-              <strong className="text-foreground">{username}</strong> para confirmar.
+              {t.rich("dialogDescription", {
+                username,
+                strong: (chunks) => <strong className="text-foreground">{chunks}</strong>,
+              })}
             </DialogDescription>
           </DialogHeader>
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="confirm-username">Nombre de usuario</Label>
+            <Label htmlFor="confirm-username">{t("usernameLabel")}</Label>
             <Input
               id="confirm-username"
               value={confirmText}
@@ -86,7 +87,7 @@ export function DeleteAccountCard({ username }: { username: string }) {
               disabled={!canConfirm || isPending}
               onClick={handleDelete}
             >
-              {isPending ? "Eliminando…" : "Eliminar cuenta para siempre"}
+              {isPending ? t("confirmDeleting") : t("confirmDelete")}
             </Button>
           </DialogFooter>
         </DialogContent>

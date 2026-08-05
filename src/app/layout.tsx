@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Geist, Geist_Mono } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 import { RegisterServiceWorker } from "@/components/register-service-worker";
@@ -62,9 +64,12 @@ export default async function RootLayout({
     }
   }
 
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
     <html
-      lang="es"
+      lang={locale}
       className={cn("font-sans", geist.variable, geistMono.variable)}
       suppressHydrationWarning
     >
@@ -74,13 +79,15 @@ export default async function RootLayout({
         )}
       </head>
       <body>
-        <ThemeProvider defaultTheme={settings?.theme ?? "system"}>
-          {children}
-          {userId && <BottomNav />}
-          <RegisterServiceWorker />
-          <InstallPromptBanner />
-          <LaunchAnimation />
-        </ThemeProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <ThemeProvider defaultTheme={settings?.theme ?? "system"}>
+            {children}
+            {userId && <BottomNav />}
+            <RegisterServiceWorker />
+            <InstallPromptBanner />
+            <LaunchAnimation />
+          </ThemeProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

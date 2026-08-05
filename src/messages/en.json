@@ -1,0 +1,56 @@
+{
+  "Common": {
+    "settingsAriaLabel": "Settings"
+  },
+  "Settings": {
+    "title": "Settings",
+    "theme": {
+      "title": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "accent": {
+      "title": "Accent color"
+    },
+    "sound": {
+      "title": "Timer sound",
+      "label": "Sound",
+      "test": "Test sound",
+      "volume": "Volume: {volume}%",
+      "options": {
+        "classic": "Classic",
+        "bell": "Bell",
+        "metronome": "Metronome",
+        "piano": "Piano",
+        "alarm": "Alarm",
+        "none": "None"
+      }
+    },
+    "vibration": {
+      "title": "Vibration",
+      "label": "Vibrate when a block changes",
+      "test": "Test vibration"
+    },
+    "alert": {
+      "title": "Alert duration",
+      "label": "How long the alarm repeats when a phase ends"
+    },
+    "language": {
+      "title": "Language",
+      "es": "Español",
+      "en": "English",
+      "de": "Deutsch"
+    }
+  },
+  "DeleteAccount": {
+    "title": "Danger zone",
+    "description": "Permanently delete your account and all your data: sessions, templates, friends and reminders included.",
+    "cta": "Delete account",
+    "dialogTitle": "Delete your account?",
+    "dialogDescription": "This deletes your account and all your data forever — it can't be undone. Type <strong>{username}</strong> to confirm.",
+    "usernameLabel": "Username",
+    "confirmDeleting": "Deleting…",
+    "confirmDelete": "Delete account forever"
+  }
+}

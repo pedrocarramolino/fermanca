@@ -3,7 +3,18 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { Check, Contrast, Palette, Play, Smartphone, Timer, Vibrate, Volume2 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import {
+  Check,
+  Contrast,
+  Globe,
+  Palette,
+  Play,
+  Smartphone,
+  Timer,
+  Vibrate,
+  Volume2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -24,26 +35,14 @@ import {
   unlockAudio,
   vibrate,
 } from "@/features/session-timer/application/sounds";
-import type { SoundChoice, ThemePreference, UserSettings } from "@/core/domain/user-settings";
-
-const SOUND_LABELS: Record<SoundChoice, string> = {
-  classic: "Clásico",
-  bell: "Campana",
-  metronome: "Metrónomo",
-  piano: "Piano",
-  alarm: "Alarma",
-  none: "Ninguno",
-};
+import type { Locale, SoundChoice, ThemePreference, UserSettings } from "@/core/domain/user-settings";
 
 const VISUAL_ALERT_OPTIONS = [1500, 3000, 5000, 8000];
-
-const THEME_OPTIONS: { value: ThemePreference; label: string }[] = [
-  { value: "light", label: "Claro" },
-  { value: "dark", label: "Oscuro" },
-  { value: "system", label: "Sistema" },
-];
+const THEME_VALUES: ThemePreference[] = ["light", "dark", "system"];
+const LOCALE_VALUES: Locale[] = ["es", "en", "de"];
 
 export function SettingsForm({ initialSettings }: { initialSettings: UserSettings }) {
+  const t = useTranslations("Settings");
   const router = useRouter();
   const mounted = useMounted();
   const { theme, setTheme } = useTheme();
@@ -56,6 +55,25 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
     initialSettings.visualAlertDurationMs,
   );
   const [accentColor, setAccentColor] = useState(initialSettings.accentColor);
+  const [locale, setLocale] = useState(initialSettings.locale);
+
+  const SOUND_LABELS: Record<SoundChoice, string> = {
+    classic: t("sound.options.classic"),
+    bell: t("sound.options.bell"),
+    metronome: t("sound.options.metronome"),
+    piano: t("sound.options.piano"),
+    alarm: t("sound.options.alarm"),
+    none: t("sound.options.none"),
+  };
+
+  const THEME_OPTIONS: { value: ThemePreference; label: string }[] = THEME_VALUES.map(
+    (value) => ({ value, label: t(`theme.${value}`) }),
+  );
+
+  const LOCALE_OPTIONS: { value: Locale; label: string }[] = LOCALE_VALUES.map((value) => ({
+    value,
+    label: t(`language.${value}`),
+  }));
 
   function handleThemeChange(value: ThemePreference) {
     setTheme(value);
@@ -103,6 +121,16 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
     });
   }
 
+  function handleLocaleChange(value: Locale) {
+    setLocale(value);
+    startTransition(async () => {
+      // El locale se lee en el layout raíz vía next-intl, en el servidor —
+      // sin refresh, los textos no cambiarían hasta la siguiente navegación.
+      await updateSettings({ locale: value });
+      router.refresh();
+    });
+  }
+
   async function testSound() {
     await unlockAudio();
     playNotificationSound(sound, volume, visualAlertDurationMs);
@@ -113,8 +141,32 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-1.5 text-base">
+            <Globe className="size-4" aria-hidden />
+            {t("language.title")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-2">
+            {LOCALE_OPTIONS.map((option) => (
+              <Button
+                key={option.value}
+                type="button"
+                variant={locale === option.value ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleLocaleChange(option.value)}
+              >
+                {option.label}
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-1.5 text-base">
             <Contrast className="size-4" aria-hidden />
-            Tema
+            {t("theme.title")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -138,7 +190,7 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
         <CardHeader>
           <CardTitle className="flex items-center gap-1.5 text-base">
             <Palette className="size-4" aria-hidden />
-            Color de acento
+            {t("accent.title")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -168,13 +220,13 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
         <CardHeader>
           <CardTitle className="flex items-center gap-1.5 text-base">
             <Volume2 className="size-4" aria-hidden />
-            Sonido del temporizador
+            {t("sound.title")}
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <div className="flex items-end gap-2">
             <div className="flex flex-1 flex-col gap-2">
-              <Label>Sonido</Label>
+              <Label>{t("sound.label")}</Label>
               <Select value={sound} onValueChange={handleSoundChange}>
                 <SelectTrigger className="w-full">
                   <SelectValue>{SOUND_LABELS[sound]}</SelectValue>
@@ -195,14 +247,14 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
               variant="outline"
               size="icon"
               onClick={testSound}
-              aria-label="Probar sonido"
+              aria-label={t("sound.test")}
             >
               <Play className="size-4" />
             </Button>
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label>Volumen: {volume}%</Label>
+            <Label>{t("sound.volume", { volume })}</Label>
             <Slider
               value={[volume]}
               min={0}
@@ -221,19 +273,19 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
         <CardHeader>
           <CardTitle className="flex items-center gap-1.5 text-base">
             <Vibrate className="size-4" aria-hidden />
-            Vibración
+            {t("vibration.title")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
-            <Label htmlFor="vibration-switch">Vibrar al cambiar de bloque</Label>
+            <Label htmlFor="vibration-switch">{t("vibration.label")}</Label>
             <div className="flex items-center gap-2">
               <Button
                 type="button"
                 variant="outline"
                 size="icon-sm"
                 onClick={() => vibrate(true)}
-                aria-label="Probar vibración"
+                aria-label={t("vibration.test")}
               >
                 <Smartphone className="size-4" />
               </Button>
@@ -251,12 +303,12 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
         <CardHeader>
           <CardTitle className="flex items-center gap-1.5 text-base">
             <Timer className="size-4" aria-hidden />
-            Duración del aviso
+            {t("alert.title")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-2">
-            <Label>Cuánto tiempo repite la alarma al terminar una fase</Label>
+            <Label>{t("alert.label")}</Label>
             <Select value={String(visualAlertDurationMs)} onValueChange={handleVisualAlertChange}>
               <SelectTrigger className="w-full">
                 <SelectValue>{`${visualAlertDurationMs / 1000} s`}</SelectValue>

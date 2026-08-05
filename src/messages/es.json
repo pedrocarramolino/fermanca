@@ -1,0 +1,56 @@
+{
+  "Common": {
+    "settingsAriaLabel": "Ajustes"
+  },
+  "Settings": {
+    "title": "Ajustes",
+    "theme": {
+      "title": "Tema",
+      "light": "Claro",
+      "dark": "Oscuro",
+      "system": "Sistema"
+    },
+    "accent": {
+      "title": "Color de acento"
+    },
+    "sound": {
+      "title": "Sonido del temporizador",
+      "label": "Sonido",
+      "test": "Probar sonido",
+      "volume": "Volumen: {volume}%",
+      "options": {
+        "classic": "Clásico",
+        "bell": "Campana",
+        "metronome": "Metrónomo",
+        "piano": "Piano",
+        "alarm": "Alarma",
+        "none": "Ninguno"
+      }
+    },
+    "vibration": {
+      "title": "Vibración",
+      "label": "Vibrar al cambiar de bloque",
+      "test": "Probar vibración"
+    },
+    "alert": {
+      "title": "Duración del aviso",
+      "label": "Cuánto tiempo repite la alarma al terminar una fase"
+    },
+    "language": {
+      "title": "Idioma",
+      "es": "Español",
+      "en": "English",
+      "de": "Deutsch"
+    }
+  },
+  "DeleteAccount": {
+    "title": "Zona de peligro",
+    "description": "Elimina tu cuenta y todos tus datos de forma permanente: sesiones, plantillas, amigos y recordatorios incluidos.",
+    "cta": "Eliminar cuenta",
+    "dialogTitle": "¿Eliminar tu cuenta?",
+    "dialogDescription": "Esto borra tu cuenta y todos tus datos para siempre — no se puede deshacer. Escribe <strong>{username}</strong> para confirmar.",
+    "usernameLabel": "Nombre de usuario",
+    "confirmDeleting": "Eliminando…",
+    "confirmDelete": "Eliminar cuenta para siempre"
+  }
+}

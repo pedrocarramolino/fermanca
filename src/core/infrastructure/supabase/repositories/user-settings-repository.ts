@@ -14,6 +14,7 @@ const DEFAULTS: Omit<UserSettings, "ownerId"> = {
   visualAlertDurationMs: 3000,
   accentColor: null,
   timezone: "UTC",
+  locale: "es",
 };
 
 function toDomain(ownerId: UserId, row: Row | null): UserSettings {
@@ -27,6 +28,7 @@ function toDomain(ownerId: UserId, row: Row | null): UserSettings {
     visualAlertDurationMs: row.visual_alert_duration_ms,
     accentColor: row.accent_color,
     timezone: row.timezone,
+    locale: row.locale,
   };
 }
 
@@ -62,6 +64,7 @@ export class SupabaseUserSettingsRepository implements UserSettingsRepository {
         visual_alert_duration_ms: merged.visualAlertDurationMs,
         accent_color: merged.accentColor,
         timezone: merged.timezone,
+        locale: merged.locale,
       })
       .select("*")
       .single();

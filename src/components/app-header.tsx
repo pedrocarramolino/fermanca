@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { Settings } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SignOutButton } from "@/features/auth/components/sign-out-button";
 import { siteConfig } from "@/config/site";
 
-export function AppHeader() {
+export async function AppHeader() {
+  const t = await getTranslations("Common");
+
   return (
     <header className="flex items-center justify-between">
       <span className="flex items-center gap-2 font-semibold tracking-tight">
@@ -16,7 +19,7 @@ export function AppHeader() {
         <Button
           variant="ghost"
           size="icon"
-          aria-label="Ajustes"
+          aria-label={t("settingsAriaLabel")}
           render={<Link href="/settings" />}
           nativeButton={false}
         >
