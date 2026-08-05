@@ -35,7 +35,7 @@ export function AddFriendForm() {
           onChange={(event) => setCode(event.target.value.toUpperCase())}
           placeholder="Código de invitación"
           maxLength={6}
-          className="font-mono tracking-widest uppercase"
+          className="font-mono tracking-widest uppercase placeholder:normal-case placeholder:tracking-normal"
         />
         <Button type="button" onClick={handleSubmit} disabled={isPending || !code.trim()}>
           <UserPlus className="size-4" />

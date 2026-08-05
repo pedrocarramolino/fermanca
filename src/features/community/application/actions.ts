@@ -139,6 +139,55 @@ export async function removeFriendship(friendshipId: string) {
   revalidatePath("/community");
 }
 
+export interface FriendLastSessionBlock {
+  id: string;
+  name: string;
+  color: string;
+  actualDurationSeconds: number;
+}
+
+export interface FriendLastSession {
+  startedAt: string;
+  status: "completed" | "abandoned";
+  blocks: FriendLastSessionBlock[];
+}
+
+/**
+ * Fases y duración real de la última sesión terminada de un amigo — a
+ * diferencia de getFriendProgress, esto sí es detalle de una sesión
+ * concreta, así que deliberadamente NO incluye `note` ni `finalNote`: esas
+ * siguen siendo privadas incluso para amigos aceptados.
+ */
+export async function getFriendLastSession(
+  friendOwnerId: string,
+): Promise<FriendLastSession | null> {
+  const { userId, client } = await requireUserId();
+
+  const friendship = await new SupabaseFriendshipRepository(client).findBetween(
+    userId,
+    friendOwnerId as UserId,
+  );
+  if (!friendship || friendship.status !== "accepted") throw new UnauthorizedError();
+
+  const sessions = await new SupabaseSessionRepository(createServiceClient()).listByOwner(
+    friendOwnerId as UserId,
+    { limit: 5 },
+  );
+  const last = sessions.find((s) => s.status !== "in_progress");
+  if (!last) return null;
+
+  return {
+    startedAt: last.startedAt.toISOString(),
+    status: last.status as "completed" | "abandoned",
+    blocks: last.blocks.map((block) => ({
+      id: block.id,
+      name: block.name,
+      color: block.color,
+      actualDurationSeconds: block.actualDurationSeconds,
+    })),
+  };
+}
+
 export interface FriendProgress {
   weeklySeconds: number;
   monthlySeconds: number;
