@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { AlertTriangle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { deleteMyAccount } from "@/features/settings/application/actions";
 
 export function DeleteAccountCard({ username }: { username: string }) {
@@ -30,9 +32,14 @@ export function DeleteAccountCard({ username }: { username: string }) {
 
   return (
     <>
+      <Separator className="my-2" />
+
       <Card className="ring-destructive/30">
         <CardHeader>
-          <CardTitle className="text-destructive text-base">Zona de peligro</CardTitle>
+          <CardTitle className="text-destructive flex items-center gap-1.5 text-base">
+            <AlertTriangle className="size-4" aria-hidden />
+            Zona de peligro
+          </CardTitle>
           <CardDescription>
             Elimina tu cuenta y todos tus datos de forma permanente: sesiones, plantillas,
             amigos y recordatorios incluidos.

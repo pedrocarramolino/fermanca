@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { Check, Play, Smartphone } from "lucide-react";
+import { Check, Contrast, Palette, Play, Smartphone, Timer, Vibrate, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -112,7 +112,10 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
     <div className="flex flex-col gap-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Tema</CardTitle>
+          <CardTitle className="flex items-center gap-1.5 text-base">
+            <Contrast className="size-4" aria-hidden />
+            Tema
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex gap-2">
@@ -133,7 +136,10 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Color de acento</CardTitle>
+          <CardTitle className="flex items-center gap-1.5 text-base">
+            <Palette className="size-4" aria-hidden />
+            Color de acento
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-3">
@@ -160,7 +166,10 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Sonido del temporizador</CardTitle>
+          <CardTitle className="flex items-center gap-1.5 text-base">
+            <Volume2 className="size-4" aria-hidden />
+            Sonido del temporizador
+          </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <div className="flex items-end gap-2">
@@ -210,7 +219,10 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Vibración</CardTitle>
+          <CardTitle className="flex items-center gap-1.5 text-base">
+            <Vibrate className="size-4" aria-hidden />
+            Vibración
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
@@ -237,7 +249,10 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Duración del aviso</CardTitle>
+          <CardTitle className="flex items-center gap-1.5 text-base">
+            <Timer className="size-4" aria-hidden />
+            Duración del aviso
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-2">
