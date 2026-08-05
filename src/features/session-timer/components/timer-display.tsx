@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { formatDurationClock } from "@/core/domain/duration";
 
 export function TimerDisplay({
@@ -13,6 +16,8 @@ export function TimerDisplay({
   nextBlockName: string | null;
   isPaused?: boolean;
 }) {
+  const t = useTranslations("TimerDisplay");
+
   return (
     <div className="flex flex-col items-center gap-3 text-center">
       <div className="flex items-center gap-2">
@@ -30,10 +35,10 @@ export function TimerDisplay({
 
       <p className="text-muted-foreground min-h-5 text-sm">
         {isPaused
-          ? "En pausa"
+          ? t("paused")
           : nextBlockName
-            ? `Siguiente: ${nextBlockName}`
-            : "Último bloque"}
+            ? t("next", { name: nextBlockName })
+            : t("lastBlock")}
       </p>
     </div>
   );

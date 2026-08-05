@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { AppHeader } from "@/components/app-header";
 import {
   getFriendProgress,
@@ -9,7 +10,10 @@ import {
 import { CommunityManager } from "@/features/community/components/community-manager";
 import type { FriendWithProgress } from "@/features/community/components/friends-list";
 
-export const metadata: Metadata = { title: "Comunidad" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Community");
+  return { title: t("title") };
+}
 
 export default async function CommunityPage() {
   const [profile, pendingRequests, friends] = await Promise.all([

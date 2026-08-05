@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { acceptFriendRequest, removeFriendship } from "@/features/community/application/actions";
@@ -16,6 +17,7 @@ export function PendingRequestsList({
   onAccepted: (friendshipId: string) => void;
   onRemoved: (friendshipId: string) => void;
 }) {
+  const t = useTranslations("Community.pending");
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -23,7 +25,7 @@ export function PendingRequestsList({
 
   return (
     <div className="flex flex-col gap-2">
-      <h2 className="text-foreground text-base font-semibold">Solicitudes pendientes</h2>
+      <h2 className="text-foreground text-base font-semibold">{t("title")}</h2>
       <ul className="flex flex-col gap-2">
         {requests.map((request) => (
           <li
@@ -35,7 +37,7 @@ export function PendingRequestsList({
               <Button
                 type="button"
                 size="icon-sm"
-                aria-label="Aceptar"
+                aria-label={t("accept")}
                 disabled={isPending}
                 onClick={() =>
                   startTransition(async () => {
@@ -54,7 +56,7 @@ export function PendingRequestsList({
                 type="button"
                 variant="outline"
                 size="icon-sm"
-                aria-label="Rechazar"
+                aria-label={t("reject")}
                 disabled={isPending}
                 onClick={() =>
                   startTransition(async () => {

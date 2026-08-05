@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { InviteCodeCard } from "@/features/community/components/invite-code-card";
 import { AddFriendForm } from "@/features/community/components/add-friend-form";
@@ -17,6 +18,7 @@ export function CommunityManager({
   initialPendingRequests: PendingRequest[];
   initialFriends: FriendWithProgress[];
 }) {
+  const t = useTranslations("Community");
   const [pendingRequests, setPendingRequests] = useState(initialPendingRequests);
   const [friends, setFriends] = useState(initialFriends);
 
@@ -26,7 +28,7 @@ export function CommunityManager({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Añadir amigo</CardTitle>
+          <CardTitle className="text-base">{t("addFriendTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           <AddFriendForm />
@@ -40,7 +42,7 @@ export function CommunityManager({
       />
 
       <div className="flex flex-col gap-2">
-        <h2 className="text-foreground text-base font-semibold">Amigos</h2>
+        <h2 className="text-foreground text-base font-semibold">{t("friends.title")}</h2>
         <FriendsList
           friends={friends}
           onRemoved={(id) => setFriends((prev) => prev.filter((f) => f.friendshipId !== id))}

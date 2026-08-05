@@ -1,7 +1,7 @@
 import { siteConfig } from "@/config/site";
 import type { Locale } from "@/core/domain/user-settings";
 
-const INTL_TAG: Record<Locale, string> = {
+export const INTL_TAG: Record<Locale, string> = {
   es: "es-ES",
   en: "en-US",
   de: "de-DE",

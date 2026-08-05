@@ -2,7 +2,8 @@
   "Common": {
     "settingsAriaLabel": "Einstellungen",
     "showPassword": "Passwort anzeigen",
-    "hidePassword": "Passwort verbergen"
+    "hidePassword": "Passwort verbergen",
+    "toggleTheme": "Design wechseln"
   },
   "Settings": {
     "title": "Einstellungen",
@@ -121,6 +122,7 @@
     "blocksCount": "{count, plural, one {# Block} other {# Blöcke}}"
   },
   "History": {
+    "title": "Verlauf",
     "empty": "Du hast noch keine Sitzung abgeschlossen.",
     "loading": "Wird geladen…",
     "loadMore": "Mehr laden"
@@ -163,5 +165,168 @@
       "submit": "Neues Passwort speichern",
       "submitting": "Wird gespeichert…"
     }
+  },
+  "Statistics": {
+    "title": "Statistik",
+    "totalTime": "Gesamte Übungszeit",
+    "sessionsCount": "Abgeschlossene Sitzungen",
+    "avgDuration": "Durchschnittliche Dauer",
+    "weeklyChartTitle": "Stunden pro Woche",
+    "monthlyChartTitle": "Verlauf (Stunden pro Monat)",
+    "categoryChartTitle": "Zeit pro Kategorie",
+    "categoryEmpty": "Noch nicht genug Daten.",
+    "tooltipPracticed": "Geübt",
+    "tooltipTime": "Zeit",
+    "empty": "Du hast noch keine Sitzung abgeschlossen. Starte eine vom Start aus, um hier deine Statistik zu sehen."
+  },
+  "Streaks": {
+    "title": "Serien",
+    "current": "Aktuelle Serie",
+    "best": "Beste Serie insgesamt",
+    "weeklyCompliance": "Wöchentliche Erfüllung",
+    "days": "{count, plural, one {# Tag} other {# Tage}}",
+    "activityCalendar": "Aktivitätskalender",
+    "empty": "Du hast noch keine Sitzung abgeschlossen. Starte eine vom Start aus, um deine Serie zu beginnen.",
+    "noPractice": "keine Übung",
+    "less": "Weniger",
+    "more": "Mehr"
+  },
+  "Reminders": {
+    "title": "Erinnerungen",
+    "pushCardTitle": "Benachrichtigungen auf diesem Gerät",
+    "yourReminders": "Deine Erinnerungen",
+    "push": {
+      "unsupported": "Dieser Browser unterstützt keine Push-Benachrichtigungen. Installiere PracticeFlow auf dem iPhone zuerst auf dem Startbildschirm (Safari → Teilen → Zum Home-Bildschirm).",
+      "enabled": "Benachrichtigungen auf diesem Gerät aktiviert",
+      "disabled": "Benachrichtigungen auf diesem Gerät deaktiviert",
+      "activate": "Aktivieren",
+      "deactivate": "Deaktivieren"
+    },
+    "form": {
+      "title": "Neue Erinnerung",
+      "time": "Uhrzeit",
+      "days": "Tage",
+      "add": "Erinnerung hinzufügen",
+      "adding": "Wird hinzugefügt…"
+    },
+    "list": {
+      "empty": "Du hast noch keine Erinnerungen.",
+      "delete": "Erinnerung löschen"
+    },
+    "day": {
+      "sun": "So",
+      "mon": "Mo",
+      "tue": "Di",
+      "wed": "Mi",
+      "thu": "Do",
+      "fri": "Fr",
+      "sat": "Sa"
+    }
+  },
+  "Community": {
+    "title": "Community",
+    "addFriendTitle": "Freund hinzufügen",
+    "addFriend": {
+      "placeholder": "Einladungscode",
+      "add": "Hinzufügen",
+      "sending": "Wird gesendet…",
+      "success": "Anfrage gesendet!",
+      "genericError": "Die Anfrage konnte nicht gesendet werden."
+    },
+    "pending": {
+      "title": "Ausstehende Anfragen",
+      "accept": "Annehmen",
+      "reject": "Ablehnen"
+    },
+    "friends": {
+      "title": "Freunde",
+      "empty": "Du hast noch keine Freunde — frag jemanden nach seinem Einladungscode und füge ihn oben hinzu.",
+      "thisWeek": "diese Woche",
+      "remove": "{name} nicht mehr befreundet"
+    },
+    "session": {
+      "lastSession": "Letzte Sitzung",
+      "loading": "Wird geladen…",
+      "empty": "Noch keine abgeschlossenen Sitzungen.",
+      "error": "Die Sitzung konnte nicht geladen werden.",
+      "total": "Gesamt"
+    },
+    "invite": {
+      "title": "Dein Einladungscode",
+      "copy": "Kopieren",
+      "copied": "Kopiert"
+    },
+    "join": {
+      "metaTitle": "Einladung",
+      "genericError": "Die Anfrage konnte nicht gesendet werden.",
+      "invalidTitle": "Ungültiger Code",
+      "invalidDescription": "Dieser Einladungslink existiert nicht mehr oder ist abgelaufen.",
+      "goToApp": "Zu PracticeFlow",
+      "invitedBy": "<strong>@{username}</strong> hat dich eingeladen, sein Freund auf PracticeFlow zu werden.",
+      "createAccount": "Konto erstellen und annehmen",
+      "alreadyHaveAccount": "Ich habe schon ein Konto",
+      "sending": "Anfrage an @{username} wird gesendet…",
+      "goToCommunity": "Zur Community",
+      "sentTitle": "Anfrage an @{username} gesendet",
+      "sentDescription": "Ihr werdet Freunde, sobald er sie in der Community annimmt."
+    }
+  },
+  "Share": {
+    "link": "Link teilen",
+    "session": "Teilen",
+    "inviteText": "Werde mein Freund auf PracticeFlow 🎵",
+    "sessionText": "Ich habe {duration} in {count, plural, one {# Block} other {# Blöcken}} mit PracticeFlow geübt",
+    "streakSuffix": "{count, plural, one {# Tag} other {# Tage}} Serie",
+    "whatsapp": "WhatsApp",
+    "facebook": "Facebook",
+    "copyLink": "Link kopieren",
+    "linkCopied": "Link kopiert",
+    "downloadImage": "Bild herunterladen"
+  },
+  "SessionRunner": {
+    "resume": "Fortsetzen",
+    "pause": "Pausieren",
+    "finishPhaseNow": "Phase jetzt beenden",
+    "activateSound": "Ton aktivieren"
+  },
+  "TimerDisplay": {
+    "paused": "Pausiert",
+    "next": "Nächste: {name}",
+    "lastBlock": "Letzter Block"
+  },
+  "PhaseComplete": {
+    "completed": "{name} abgeschlossen",
+    "next": "Nächste",
+    "lastPhaseCompleted": "Letzte Phase abgeschlossen",
+    "nextPhase": "Nächste Phase",
+    "finishSession": "Sitzung beenden",
+    "addTimeQuestion": "Zeit knapp bei {name}?"
+  },
+  "QuickNote": {
+    "label": "Kurze Notiz zu \"{name}\"",
+    "placeholder": "Z. B.: langsamer üben, Takte 32-45 wiederholen…",
+    "save": "Notiz speichern",
+    "saving": "Wird gespeichert…",
+    "saved": "Gespeichert"
+  },
+  "SessionSummaryScreen": {
+    "title": "Sitzung abgeschlossen",
+    "practiced": "Du hast {duration} in {count, plural, one {# Block} other {# Blöcken}} geübt.",
+    "summaryTitle": "Zusammenfassung",
+    "notePlaceholder": "Abschließende Notiz zur Sitzung (optional)",
+    "saveNote": "Notiz speichern",
+    "savingNote": "Wird gespeichert…",
+    "noteSaved": "Notiz gespeichert",
+    "backHome": "Zurück zum Start"
+  },
+  "SharedSession": {
+    "title": "Übungssitzung",
+    "blocksSummary": "{duration} in {count, plural, one {# Block} other {# Blöcken}}",
+    "cta": "Übe auch mit PracticeFlow"
+  },
+  "InstallPrompt": {
+    "message": "Installiere PracticeFlow für schnellen Zugriff und Benachrichtigungen.",
+    "install": "Installieren",
+    "dismiss": "Verwerfen"
   }
 }

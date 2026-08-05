@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +20,7 @@ export function SessionSummary({
   blocks: RuntimeBlockInput[];
   initialFinalNote?: string;
 }) {
+  const t = useTranslations("SessionSummaryScreen");
   const [note, setNote] = useState(initialFinalNote);
   const [saved, setSaved] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -34,10 +36,9 @@ export function SessionSummary({
 
   return (
     <main className="mx-auto flex min-h-svh max-w-md flex-col items-center justify-center gap-6 p-8 text-center">
-      <h1 className="text-2xl font-semibold">Sesión completada</h1>
+      <h1 className="text-2xl font-semibold">{t("title")}</h1>
       <p className="text-muted-foreground">
-        Has practicado {formatDurationShort(totalSeconds)} en {blocks.length}{" "}
-        {blocks.length === 1 ? "bloque" : "bloques"}.
+        {t("practiced", { duration: formatDurationShort(totalSeconds), count: blocks.length })}
       </p>
 
       <ShareSessionButton
@@ -53,7 +54,7 @@ export function SessionSummary({
 
       <Card className="w-full">
         <CardHeader>
-          <CardTitle className="text-base">Resumen</CardTitle>
+          <CardTitle className="text-base">{t("summaryTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           <ul className="flex flex-col gap-3 text-left">
@@ -88,16 +89,16 @@ export function SessionSummary({
             setNote(event.target.value);
             setSaved(false);
           }}
-          placeholder="Nota final de la sesión (opcional)"
+          placeholder={t("notePlaceholder")}
           rows={3}
         />
         <Button type="button" variant="secondary" onClick={handleSaveNote} disabled={isPending}>
-          {saved ? "Nota guardada" : isPending ? "Guardando…" : "Guardar nota"}
+          {saved ? t("noteSaved") : isPending ? t("savingNote") : t("saveNote")}
         </Button>
       </div>
 
       <Button render={<Link href="/" />} nativeButton={false}>
-        Volver al inicio
+        {t("backHome")}
       </Button>
     </main>
   );

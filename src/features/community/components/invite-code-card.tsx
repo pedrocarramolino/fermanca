@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Check, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ShareInviteButton } from "@/features/community/components/share-invite-button";
 
 export function InviteCodeCard({ inviteCode }: { inviteCode: string }) {
+  const t = useTranslations("Community.invite");
   const [copied, setCopied] = useState(false);
 
   async function handleCopy() {
@@ -18,7 +20,7 @@ export function InviteCodeCard({ inviteCode }: { inviteCode: string }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Tu código de invitación</CardTitle>
+        <CardTitle className="text-base">{t("title")}</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         <div className="flex items-center gap-3">
@@ -27,7 +29,7 @@ export function InviteCodeCard({ inviteCode }: { inviteCode: string }) {
           </span>
           <Button type="button" variant="outline" size="sm" onClick={handleCopy}>
             {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
-            {copied ? "Copiado" : "Copiar"}
+            {copied ? t("copied") : t("copy")}
           </Button>
         </div>
         <ShareInviteButton inviteCode={inviteCode} />

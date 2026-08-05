@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Loader2, UserCheck, UserX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { sendFriendRequestByCode } from "@/features/community/application/actions";
@@ -15,6 +16,7 @@ export function JoinByCodeClient({
   inviterUsername: string;
   authenticated: boolean;
 }) {
+  const t = useTranslations("Community.join");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
     authenticated ? "sending" : "idle",
   );
@@ -25,23 +27,21 @@ export function JoinByCodeClient({
     sendFriendRequestByCode(code)
       .then(() => setStatus("sent"))
       .catch((error: unknown) => {
-        setErrorMessage(
-          error instanceof Error ? error.message : "No se pudo enviar la solicitud.",
-        );
+        setErrorMessage(error instanceof Error ? error.message : t("genericError"));
         setStatus("error");
       });
-  }, [authenticated, code]);
+  }, [authenticated, code, t]);
 
   if (!authenticated) {
     const next = encodeURIComponent(`/community/join/${code}`);
     return (
       <div className="flex w-full flex-col items-center gap-4">
         <p className="text-lg">
-          <strong>@{inviterUsername}</strong> te ha invitado a ser su amigo en PracticeFlow.
+          {t.rich("invitedBy", { username: inviterUsername, strong: (chunks) => <strong>{chunks}</strong> })}
         </p>
         <div className="flex w-full flex-col gap-2">
           <Button render={<Link href={`/register?next=${next}`} />} nativeButton={false}>
-            Crear cuenta y aceptar
+            {t("createAccount")}
           </Button>
           <Button
             type="button"
@@ -49,7 +49,7 @@ export function JoinByCodeClient({
             render={<Link href={`/login?next=${next}`} />}
             nativeButton={false}
           >
-            Ya tengo cuenta
+            {t("alreadyHaveAccount")}
           </Button>
         </div>
       </div>
@@ -60,7 +60,9 @@ export function JoinByCodeClient({
     return (
       <div className="flex flex-col items-center gap-3">
         <Loader2 className="text-muted-foreground size-6 animate-spin" aria-hidden />
-        <p className="text-muted-foreground text-sm">Enviando solicitud a @{inviterUsername}…</p>
+        <p className="text-muted-foreground text-sm">
+          {t("sending", { username: inviterUsername })}
+        </p>
       </div>
     );
   }
@@ -71,7 +73,7 @@ export function JoinByCodeClient({
         <UserX className="text-muted-foreground size-8" aria-hidden />
         <p className="text-sm">{errorMessage}</p>
         <Button render={<Link href="/community" />} nativeButton={false}>
-          Ir a Comunidad
+          {t("goToCommunity")}
         </Button>
       </div>
     );
@@ -80,12 +82,10 @@ export function JoinByCodeClient({
   return (
     <div className="flex flex-col items-center gap-3">
       <UserCheck className="text-primary size-10" aria-hidden />
-      <p className="text-lg font-medium">Solicitud enviada a @{inviterUsername}</p>
-      <p className="text-muted-foreground text-sm">
-        Seréis amigos en cuanto la acepte desde Comunidad.
-      </p>
+      <p className="text-lg font-medium">{t("sentTitle", { username: inviterUsername })}</p>
+      <p className="text-muted-foreground text-sm">{t("sentDescription")}</p>
       <Button render={<Link href="/community" />} nativeButton={false}>
-        Ir a Comunidad
+        {t("goToCommunity")}
       </Button>
     </div>
   );

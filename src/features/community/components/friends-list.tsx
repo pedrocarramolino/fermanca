@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Flame, Trophy, UserMinus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatDurationShort } from "@/core/domain/duration";
@@ -18,13 +19,15 @@ export function FriendsList({
   friends: FriendWithProgress[];
   onRemoved: (friendshipId: string) => void;
 }) {
+  const t = useTranslations("Community.friends");
+  const tStreaks = useTranslations("Streaks");
   const [isPending, startTransition] = useTransition();
   const [selectedFriend, setSelectedFriend] = useState<FriendWithProgress | null>(null);
 
   if (friends.length === 0) {
     return (
       <p className="border-border text-muted-foreground rounded-lg border border-dashed p-6 text-center text-sm">
-        Todavía no tienes amigos — pide el código de invitación de alguien y añádelo arriba.
+        {t("empty")}
       </p>
     );
   }
@@ -54,10 +57,12 @@ export function FriendsList({
                 {friend.username}
               </span>
               <div className="text-muted-foreground flex items-center gap-3 text-sm">
-                <span>{formatDurationShort(friend.weeklySeconds)} esta semana</span>
+                <span>
+                  {formatDurationShort(friend.weeklySeconds)} {t("thisWeek")}
+                </span>
                 <span className="flex items-center gap-1">
                   <Flame className="size-3.5" />
-                  {friend.currentStreak} {friend.currentStreak === 1 ? "día" : "días"}
+                  {tStreaks("days", { count: friend.currentStreak })}
                 </span>
               </div>
             </button>
@@ -65,7 +70,7 @@ export function FriendsList({
               type="button"
               variant="ghost"
               size="icon-sm"
-              aria-label={`Dejar de ser amigo de ${friend.username}`}
+              aria-label={t("remove", { name: friend.username })}
               disabled={isPending}
               onClick={() =>
                 startTransition(async () => {

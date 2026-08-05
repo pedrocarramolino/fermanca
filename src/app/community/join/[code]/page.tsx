@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { getAuthenticatedUser } from "@/core/infrastructure/supabase/current-user";
 import { getInviterByCode } from "@/features/community/application/actions";
 import { JoinByCodeClient } from "@/features/community/components/join-by-code-client";
 import { siteConfig } from "@/config/site";
 
-export const metadata: Metadata = { title: "Invitación" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Community.join");
+  return { title: t("metaTitle") };
+}
 
 export default async function JoinByCodePage({
   params,
@@ -14,6 +18,7 @@ export default async function JoinByCodePage({
   params: Promise<{ code: string }>;
 }) {
   const { code } = await params;
+  const t = await getTranslations("Community.join");
 
   // Sin autenticación a propósito: quien abre el enlace puede no tener
   // cuenta todavía. getInviterByCode solo expone el nombre de usuario, nada
@@ -26,12 +31,10 @@ export default async function JoinByCodePage({
   if (!inviter) {
     return (
       <main className="mx-auto flex min-h-svh max-w-sm flex-col items-center justify-center gap-4 p-8 text-center">
-        <h1 className="text-xl font-semibold">Código no válido</h1>
-        <p className="text-muted-foreground text-sm">
-          Este enlace de invitación no existe o ha caducado.
-        </p>
+        <h1 className="text-xl font-semibold">{t("invalidTitle")}</h1>
+        <p className="text-muted-foreground text-sm">{t("invalidDescription")}</p>
         <Button render={<Link href="/" />} nativeButton={false}>
-          Ir a PracticeFlow
+          {t("goToApp")}
         </Button>
       </main>
     );

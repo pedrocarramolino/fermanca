@@ -1,20 +1,21 @@
 "use client";
 
 import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { deleteReminder, setReminderEnabled } from "@/features/reminders/application/actions";
 import type { DayOfWeek, Reminder } from "@/core/domain/reminder";
 
-const DAY_LABELS: Record<DayOfWeek, string> = {
-  0: "D",
-  1: "L",
-  2: "M",
-  3: "X",
-  4: "J",
-  5: "V",
-  6: "S",
+const DAY_KEYS: Record<DayOfWeek, string> = {
+  0: "sun",
+  1: "mon",
+  2: "tue",
+  3: "wed",
+  4: "thu",
+  5: "fri",
+  6: "sat",
 };
 const ORDERED_DAYS: DayOfWeek[] = [1, 2, 3, 4, 5, 6, 0];
 
@@ -27,12 +28,13 @@ export function ReminderList({
   onDeleted: (id: string) => void;
   onToggled: (id: string, enabled: boolean) => void;
 }) {
+  const t = useTranslations("Reminders");
   const [isPending, startTransition] = useTransition();
 
   if (reminders.length === 0) {
     return (
       <p className="border-border text-muted-foreground rounded-lg border border-dashed p-6 text-center text-sm">
-        Todavía no tienes recordatorios.
+        {t("list.empty")}
       </p>
     );
   }
@@ -56,7 +58,7 @@ export function ReminderList({
                       : "bg-muted text-muted-foreground"
                   }`}
                 >
-                  {DAY_LABELS[day]}
+                  {t(`day.${DAY_KEYS[day]}`)}
                 </span>
               ))}
             </div>
@@ -75,7 +77,7 @@ export function ReminderList({
               type="button"
               variant="ghost"
               size="icon-sm"
-              aria-label="Eliminar recordatorio"
+              aria-label={t("list.delete")}
               disabled={isPending}
               onClick={() =>
                 startTransition(async () => {

@@ -1,12 +1,8 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import { formatDurationShort } from "@/core/domain/duration";
+import { INTL_TAG } from "@/lib/format-date";
+import type { Locale } from "@/core/domain/user-settings";
 import type { HeatmapCell } from "@/core/domain/streaks";
-
-const DAY_FORMAT = new Intl.DateTimeFormat("es-ES", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-});
-const MONTH_FORMAT = new Intl.DateTimeFormat("es-ES", { month: "short" });
 
 const LEVEL_CLASS: Record<HeatmapCell["level"], string> = {
   0: "bg-muted",
@@ -16,7 +12,16 @@ const LEVEL_CLASS: Record<HeatmapCell["level"], string> = {
   4: "bg-primary",
 };
 
-export function ActivityHeatmap({ weeks }: { weeks: HeatmapCell[][] }) {
+export async function ActivityHeatmap({ weeks }: { weeks: HeatmapCell[][] }) {
+  const [t, locale] = await Promise.all([getTranslations("Streaks"), getLocale()]);
+  const intlTag = INTL_TAG[locale as Locale];
+  const dayFormat = new Intl.DateTimeFormat(intlTag, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+  const monthFormat = new Intl.DateTimeFormat(intlTag, { month: "short" });
+
   return (
     <div className="flex flex-col gap-1 overflow-x-auto">
       <div className="flex gap-1">
@@ -25,7 +30,7 @@ export function ActivityHeatmap({ weeks }: { weeks: HeatmapCell[][] }) {
           const showMonth = i === 0 || monday.getUTCDate() <= 7;
           return (
             <span key={i} className="text-muted-foreground w-3 shrink-0 text-[10px]">
-              {showMonth ? MONTH_FORMAT.format(monday) : ""}
+              {showMonth ? monthFormat.format(monday) : ""}
             </span>
           );
         })}
@@ -37,8 +42,8 @@ export function ActivityHeatmap({ weeks }: { weeks: HeatmapCell[][] }) {
               <div
                 key={cell.date.toISOString()}
                 tabIndex={0}
-                aria-label={`${DAY_FORMAT.format(cell.date)}: ${cell.seconds > 0 ? formatDurationShort(cell.seconds) : "sin práctica"}`}
-                title={`${DAY_FORMAT.format(cell.date)} · ${cell.seconds > 0 ? formatDurationShort(cell.seconds) : "sin práctica"}`}
+                aria-label={`${dayFormat.format(cell.date)}: ${cell.seconds > 0 ? formatDurationShort(cell.seconds) : t("noPractice")}`}
+                title={`${dayFormat.format(cell.date)} · ${cell.seconds > 0 ? formatDurationShort(cell.seconds) : t("noPractice")}`}
                 className={`size-3 rounded-[2px] ${LEVEL_CLASS[cell.level]}`}
               />
             ))}
@@ -46,11 +51,11 @@ export function ActivityHeatmap({ weeks }: { weeks: HeatmapCell[][] }) {
         ))}
       </div>
       <div className="text-muted-foreground mt-1 flex items-center gap-1 text-[10px]">
-        <span>Menos</span>
+        <span>{t("less")}</span>
         {([0, 1, 2, 3, 4] as const).map((level) => (
           <span key={level} className={`size-3 rounded-[2px] ${LEVEL_CLASS[level]}`} />
         ))}
-        <span>Más</span>
+        <span>{t("more")}</span>
       </div>
     </div>
   );

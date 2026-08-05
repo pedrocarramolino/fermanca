@@ -1,20 +1,23 @@
 "use client";
 
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDurationShort } from "@/core/domain/duration";
 import type { CategoryStat } from "@/core/domain/session-statistics";
 
 export function CategoryBreakdownChart({ stats }: { stats: CategoryStat[] }) {
+  const t = useTranslations("Statistics");
+
   if (stats.length === 0) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Tiempo por categoría</CardTitle>
+          <CardTitle className="text-base">{t("categoryChartTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="border-border text-muted-foreground rounded-lg border border-dashed p-6 text-center text-sm">
-            Todavía no hay datos suficientes.
+            {t("categoryEmpty")}
           </p>
         </CardContent>
       </Card>
@@ -32,7 +35,7 @@ export function CategoryBreakdownChart({ stats }: { stats: CategoryStat[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Tiempo por categoría</CardTitle>
+        <CardTitle className="text-base">{t("categoryChartTitle")}</CardTitle>
       </CardHeader>
       <CardContent style={{ height: data.length * rowHeight + 24 }}>
         <ResponsiveContainer width="100%" height="100%">
@@ -62,7 +65,7 @@ export function CategoryBreakdownChart({ stats }: { stats: CategoryStat[] }) {
               }}
               formatter={(_value, _key, item) => [
                 (item.payload as { label: string }).label,
-                "Tiempo",
+                t("tooltipTime"),
               ]}
             />
             <Bar

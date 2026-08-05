@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { Award, Flame, Percent } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,13 +15,17 @@ import {
 import { StatTile } from "@/features/statistics/components/stat-tile";
 import { ActivityHeatmap } from "@/features/streaks/components/activity-heatmap";
 
-export const metadata: Metadata = { title: "Rachas" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Streaks");
+  return { title: t("title") };
+}
 
 const MAX_SESSIONS_FOR_STREAKS = 1000;
 const HEATMAP_WEEKS = 26;
 
 export default async function StreaksPage() {
   const { supabase, userId } = await getAuthenticatedUser();
+  const t = await getTranslations("Streaks");
 
   const repo = new SupabaseSessionRepository(supabase);
   const sessions = await repo.listByOwner(userId, { limit: MAX_SESSIONS_FOR_STREAKS });
@@ -39,17 +44,17 @@ export default async function StreaksPage() {
         <>
           <div className="grid gap-4 sm:grid-cols-3">
             <StatTile
-              label="Racha actual"
-              value={`${currentStreakDays(byDay, now)} días`}
+              label={t("current")}
+              value={t("days", { count: currentStreakDays(byDay, now) })}
               icon={Flame}
             />
             <StatTile
-              label="Mejor racha histórica"
-              value={`${bestStreakDays(byDay)} días`}
+              label={t("best")}
+              value={t("days", { count: bestStreakDays(byDay) })}
               icon={Award}
             />
             <StatTile
-              label="Cumplimiento semanal"
+              label={t("weeklyCompliance")}
               value={`${compliance.percentage}%`}
               icon={Percent}
             />
@@ -57,7 +62,7 @@ export default async function StreaksPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Calendario de actividad</CardTitle>
+              <CardTitle className="text-base">{t("activityCalendar")}</CardTitle>
             </CardHeader>
             <CardContent>
               <ActivityHeatmap weeks={heatmapWeeks} />
@@ -66,8 +71,7 @@ export default async function StreaksPage() {
         </>
       ) : (
         <p className="border-border text-muted-foreground rounded-lg border border-dashed p-6 text-center text-sm">
-          Todavía no has completado ninguna sesión. Empieza una desde el inicio para empezar tu
-          racha.
+          {t("empty")}
         </p>
       )}
     </main>

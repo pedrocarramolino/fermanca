@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Download, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -12,6 +13,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export function InstallPromptBanner() {
+  const t = useTranslations("InstallPrompt");
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
@@ -49,17 +51,17 @@ export function InstallPromptBanner() {
     <div className="bg-card border-border fixed inset-x-4 bottom-4 z-50 flex items-center justify-between gap-3 rounded-xl border p-3 shadow-lg sm:inset-x-auto sm:right-4 sm:w-80">
       <div className="flex items-center gap-2 text-sm">
         <Download className="size-4 shrink-0" />
-        Instala PracticeFlow para acceso rápido y notificaciones.
+        {t("message")}
       </div>
       <div className="flex items-center gap-1">
         <Button type="button" size="sm" onClick={install}>
-          Instalar
+          {t("install")}
         </Button>
         <Button
           type="button"
           variant="ghost"
           size="icon-sm"
-          aria-label="Descartar"
+          aria-label={t("dismiss")}
           onClick={dismiss}
         >
           <X className="size-4" />

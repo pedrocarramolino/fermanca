@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Check, Copy, Download, Globe, MessageCircle, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +14,10 @@ import { formatDurationShort } from "@/core/domain/duration";
 import { getCurrentStreakDays } from "@/features/session-timer/application/actions";
 import { generateSessionShareCardBlob } from "@/features/session-timer/lib/session-share-card";
 
+function canShareNatively(): boolean {
+  return typeof navigator !== "undefined" && typeof navigator.share === "function";
+}
+
 export function ShareSessionButton({
   sessionId,
   totalSeconds,
@@ -24,25 +29,26 @@ export function ShareSessionButton({
   blockCount: number;
   blocks: { name: string; color: string; actualDurationSeconds: number }[];
 }) {
+  const t = useTranslations("Share");
   const [streak, setStreak] = useState(0);
   const [copied, setCopied] = useState(false);
-  const [canNativeShare, setCanNativeShare] = useState(false);
-  const [shareUrl, setShareUrl] = useState("");
+  const [canNativeShare] = useState(canShareNatively);
+  const [shareUrl] = useState(() =>
+    typeof window === "undefined" ? "" : `${window.location.origin}/compartir/${sessionId}`,
+  );
   const [isBusy, setIsBusy] = useState(false);
 
   useEffect(() => {
-    setCanNativeShare(typeof navigator.share === "function");
-    setShareUrl(`${window.location.origin}/compartir/${sessionId}`);
     void getCurrentStreakDays()
       .then(setStreak)
       .catch(() => {
         // Solo decora el texto/tarjeta a compartir — si falla, se comparte sin racha.
       });
-  }, [sessionId]);
+  }, []);
 
-  const shareText = `He practicado ${formatDurationShort(totalSeconds)} en ${blockCount} ${
-    blockCount === 1 ? "bloque" : "bloques"
-  } con PracticeFlow 💪${streak > 1 ? ` 🔥 racha de ${streak} días` : ""}`;
+  const shareText = `${t("sessionText", { duration: formatDurationShort(totalSeconds), count: blockCount })} 💪${
+    streak > 1 ? ` 🔥 ${t("streakSuffix", { count: streak })}` : ""
+  }`;
 
   async function buildCardFile(): Promise<File | null> {
     const blob = await generateSessionShareCardBlob({
@@ -101,7 +107,7 @@ export function ShareSessionButton({
     return (
       <Button type="button" variant="outline" size="sm" onClick={handleNativeShare} disabled={isBusy}>
         <Share2 className="size-4" />
-        Compartir
+        {t("session")}
       </Button>
     );
   }
@@ -110,7 +116,7 @@ export function ShareSessionButton({
     <DropdownMenu>
       <DropdownMenuTrigger render={<Button type="button" variant="outline" size="sm" />}>
         <Share2 className="size-4" />
-        Compartir
+        {t("session")}
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuItem
@@ -139,11 +145,11 @@ export function ShareSessionButton({
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleDownloadImage} disabled={isBusy}>
           <Download className="size-4" />
-          Descargar imagen
+          {t("downloadImage")}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleCopy}>
           {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
-          {copied ? "Enlace copiado" : "Copiar enlace"}
+          {copied ? t("linkCopied") : t("copyLink")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

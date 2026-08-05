@@ -9,22 +9,26 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useLocale, useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { secondsToHoursDecimal } from "@/core/domain/duration";
+import { INTL_TAG } from "@/lib/format-date";
+import type { Locale } from "@/core/domain/user-settings";
 import type { TimeBucket } from "@/core/domain/session-statistics";
 
-const MONTH_LABEL = new Intl.DateTimeFormat("es-ES", { month: "short" });
-
 export function MonthlyTrendChart({ buckets }: { buckets: TimeBucket[] }) {
+  const t = useTranslations("Statistics");
+  const locale = useLocale() as Locale;
+  const monthLabel = new Intl.DateTimeFormat(INTL_TAG[locale], { month: "short" });
   const data = buckets.map((bucket) => ({
-    label: MONTH_LABEL.format(bucket.bucketStart),
+    label: monthLabel.format(bucket.bucketStart),
     hours: secondsToHoursDecimal(bucket.seconds),
   }));
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Evolución (horas por mes)</CardTitle>
+        <CardTitle className="text-base">{t("monthlyChartTitle")}</CardTitle>
       </CardHeader>
       <CardContent className="h-64">
         <ResponsiveContainer width="100%" height="100%">
@@ -53,7 +57,7 @@ export function MonthlyTrendChart({ buckets }: { buckets: TimeBucket[] }) {
                 borderRadius: "var(--radius-md)",
                 fontSize: 13,
               }}
-              formatter={(value) => [`${value} h`, "Practicado"]}
+              formatter={(value) => [`${value} h`, t("tooltipPracticed")]}
             />
             <Area
               type="monotone"

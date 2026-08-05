@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   useSessionRuntime,
@@ -23,6 +24,7 @@ export function SessionRunner({
   blocks: RuntimeBlockInput[];
   playbackSettings: PlaybackSettings;
 }) {
+  const t = useTranslations("SessionRunner");
   const [audioReady, setAudioReady] = useState(false);
   const [freshBlocks, setFreshBlocks] = useState<RuntimeBlockInput[] | null>(null);
 
@@ -92,10 +94,10 @@ export function SessionRunner({
               size="sm"
               onClick={runtime.isPaused ? runtime.resumeTimer : runtime.pauseTimer}
             >
-              {runtime.isPaused ? "Reanudar" : "Pausar"}
+              {runtime.isPaused ? t("resume") : t("pause")}
             </Button>
             <Button type="button" variant="outline" size="sm" onClick={runtime.confirmNextPhase}>
-              Terminar fase ahora
+              {t("finishPhaseNow")}
             </Button>
           </div>
         </div>
@@ -111,7 +113,7 @@ export function SessionRunner({
 
       {!audioReady && (
         <Button type="button" variant="outline" size="sm" onClick={handleUnlockAudio}>
-          Activar sonido
+          {t("activateSound")}
         </Button>
       )}
     </main>

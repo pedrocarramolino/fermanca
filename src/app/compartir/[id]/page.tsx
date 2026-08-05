@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createServiceClient } from "@/core/infrastructure/supabase/service-client";
@@ -8,9 +9,13 @@ import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/reposi
 import { formatDurationShort } from "@/core/domain/duration";
 import { formatSessionDate } from "@/lib/format-date";
 import { siteConfig } from "@/config/site";
+import type { Locale } from "@/core/domain/user-settings";
 import type { SessionId } from "@/core/domain/ids";
 
-export const metadata: Metadata = { title: "Sesión de práctica" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("SharedSession");
+  return { title: t("title") };
+}
 
 export default async function SharedSessionPage({
   params,
@@ -18,6 +23,7 @@ export default async function SharedSessionPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const [t, locale] = await Promise.all([getTranslations("SharedSession"), getLocale()]);
 
   // Sin autenticación a propósito: este enlace está pensado para
   // compartirse fuera de la app. getPublicSummary nunca expone notas ni de
@@ -40,15 +46,19 @@ export default async function SharedSessionPage({
       </Link>
 
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold">Sesión de práctica</h1>
-        <p className="text-muted-foreground text-sm">{formatSessionDate(summary.startedAt)}</p>
+        <h1 className="text-2xl font-semibold">{t("title")}</h1>
+        <p className="text-muted-foreground text-sm">
+          {formatSessionDate(summary.startedAt, locale as Locale)}
+        </p>
       </div>
 
       <Card className="w-full">
         <CardHeader>
           <CardTitle className="text-base">
-            {formatDurationShort(totalSeconds)} en {summary.blocks.length}{" "}
-            {summary.blocks.length === 1 ? "bloque" : "bloques"}
+            {t("blocksSummary", {
+              duration: formatDurationShort(totalSeconds),
+              count: summary.blocks.length,
+            })}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -71,7 +81,7 @@ export default async function SharedSessionPage({
       </Card>
 
       <Button render={<Link href="/register" />} nativeButton={false} className="w-full">
-        Practica tú también con PracticeFlow
+        {t("cta")}
       </Button>
     </main>
   );

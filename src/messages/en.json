@@ -2,7 +2,8 @@
   "Common": {
     "settingsAriaLabel": "Settings",
     "showPassword": "Show password",
-    "hidePassword": "Hide password"
+    "hidePassword": "Hide password",
+    "toggleTheme": "Toggle theme"
   },
   "Settings": {
     "title": "Settings",
@@ -121,6 +122,7 @@
     "blocksCount": "{count, plural, one {# block} other {# blocks}}"
   },
   "History": {
+    "title": "History",
     "empty": "You haven't completed any sessions yet.",
     "loading": "Loading…",
     "loadMore": "Load more"
@@ -163,5 +165,168 @@
       "submit": "Save new password",
       "submitting": "Saving…"
     }
+  },
+  "Statistics": {
+    "title": "Statistics",
+    "totalTime": "Total time practiced",
+    "sessionsCount": "Sessions completed",
+    "avgDuration": "Average duration",
+    "weeklyChartTitle": "Hours per week",
+    "monthlyChartTitle": "Trend (hours per month)",
+    "categoryChartTitle": "Time by category",
+    "categoryEmpty": "Not enough data yet.",
+    "tooltipPracticed": "Practiced",
+    "tooltipTime": "Time",
+    "empty": "You haven't completed any sessions yet. Start one from Home to see your stats here."
+  },
+  "Streaks": {
+    "title": "Streaks",
+    "current": "Current streak",
+    "best": "Best streak ever",
+    "weeklyCompliance": "Weekly compliance",
+    "days": "{count, plural, one {# day} other {# days}}",
+    "activityCalendar": "Activity calendar",
+    "empty": "You haven't completed any sessions yet. Start one from Home to begin your streak.",
+    "noPractice": "no practice",
+    "less": "Less",
+    "more": "More"
+  },
+  "Reminders": {
+    "title": "Reminders",
+    "pushCardTitle": "Notifications on this device",
+    "yourReminders": "Your reminders",
+    "push": {
+      "unsupported": "This browser doesn't support push notifications. On iPhone, install PracticeFlow to your home screen first (Safari → Share → Add to Home Screen).",
+      "enabled": "Notifications enabled on this device",
+      "disabled": "Notifications disabled on this device",
+      "activate": "Enable",
+      "deactivate": "Disable"
+    },
+    "form": {
+      "title": "New reminder",
+      "time": "Time",
+      "days": "Days",
+      "add": "Add reminder",
+      "adding": "Adding…"
+    },
+    "list": {
+      "empty": "You don't have any reminders yet.",
+      "delete": "Delete reminder"
+    },
+    "day": {
+      "sun": "S",
+      "mon": "M",
+      "tue": "T",
+      "wed": "W",
+      "thu": "T",
+      "fri": "F",
+      "sat": "S"
+    }
+  },
+  "Community": {
+    "title": "Community",
+    "addFriendTitle": "Add friend",
+    "addFriend": {
+      "placeholder": "Invite code",
+      "add": "Add",
+      "sending": "Sending…",
+      "success": "Request sent!",
+      "genericError": "Couldn't send the request."
+    },
+    "pending": {
+      "title": "Pending requests",
+      "accept": "Accept",
+      "reject": "Reject"
+    },
+    "friends": {
+      "title": "Friends",
+      "empty": "You don't have any friends yet — ask someone for their invite code and add it above.",
+      "thisWeek": "this week",
+      "remove": "Unfriend {name}"
+    },
+    "session": {
+      "lastSession": "Last session",
+      "loading": "Loading…",
+      "empty": "No completed sessions yet.",
+      "error": "Couldn't load the session.",
+      "total": "Total"
+    },
+    "invite": {
+      "title": "Your invite code",
+      "copy": "Copy",
+      "copied": "Copied"
+    },
+    "join": {
+      "metaTitle": "Invitation",
+      "genericError": "Couldn't send the request.",
+      "invalidTitle": "Invalid code",
+      "invalidDescription": "This invite link doesn't exist or has expired.",
+      "goToApp": "Go to PracticeFlow",
+      "invitedBy": "<strong>@{username}</strong> invited you to be their friend on PracticeFlow.",
+      "createAccount": "Create account and accept",
+      "alreadyHaveAccount": "I already have an account",
+      "sending": "Sending request to @{username}…",
+      "goToCommunity": "Go to Community",
+      "sentTitle": "Request sent to @{username}",
+      "sentDescription": "You'll be friends as soon as they accept it from Community."
+    }
+  },
+  "Share": {
+    "link": "Share link",
+    "session": "Share",
+    "inviteText": "Join my friends on PracticeFlow 🎵",
+    "sessionText": "I practiced {duration} across {count, plural, one {# block} other {# blocks}} with PracticeFlow",
+    "streakSuffix": "{count, plural, one {# day} other {# days}} streak",
+    "whatsapp": "WhatsApp",
+    "facebook": "Facebook",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied",
+    "downloadImage": "Download image"
+  },
+  "SessionRunner": {
+    "resume": "Resume",
+    "pause": "Pause",
+    "finishPhaseNow": "Finish phase now",
+    "activateSound": "Enable sound"
+  },
+  "TimerDisplay": {
+    "paused": "Paused",
+    "next": "Next: {name}",
+    "lastBlock": "Last block"
+  },
+  "PhaseComplete": {
+    "completed": "{name} completed",
+    "next": "Next",
+    "lastPhaseCompleted": "Last phase completed",
+    "nextPhase": "Next phase",
+    "finishSession": "Finish session",
+    "addTimeQuestion": "Ran out of time on {name}?"
+  },
+  "QuickNote": {
+    "label": "Quick note about \"{name}\"",
+    "placeholder": "E.g.: work slower, review bars 32-45…",
+    "save": "Save note",
+    "saving": "Saving…",
+    "saved": "Saved"
+  },
+  "SessionSummaryScreen": {
+    "title": "Session completed",
+    "practiced": "You practiced {duration} across {count, plural, one {# block} other {# blocks}}.",
+    "summaryTitle": "Summary",
+    "notePlaceholder": "Final note for the session (optional)",
+    "saveNote": "Save note",
+    "savingNote": "Saving…",
+    "noteSaved": "Note saved",
+    "backHome": "Back to home"
+  },
+  "SharedSession": {
+    "title": "Practice session",
+    "blocksSummary": "{duration} across {count, plural, one {# block} other {# blocks}}",
+    "cta": "Practice too with PracticeFlow"
+  },
+  "InstallPrompt": {
+    "message": "Install PracticeFlow for quick access and notifications.",
+    "install": "Install",
+    "dismiss": "Dismiss"
   }
 }

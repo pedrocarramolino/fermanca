@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Check, Copy, Globe, MessageCircle, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,21 +11,23 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+function canShareNatively(): boolean {
+  return typeof navigator !== "undefined" && typeof navigator.share === "function";
+}
+
 /** Mismo patrón que ShareSessionButton: share nativo si el navegador lo
  * soporta (así aparecen WhatsApp, Telegram, etc. de verdad, algo que un
  * enlace web no puede ofrecer por sí solo), y si no, un menú con
  * WhatsApp/Facebook/copiar enlace para escritorio. */
 export function ShareInviteButton({ inviteCode }: { inviteCode: string }) {
+  const t = useTranslations("Share");
   const [copied, setCopied] = useState(false);
-  const [canNativeShare, setCanNativeShare] = useState(false);
-  const [joinUrl, setJoinUrl] = useState("");
+  const [canNativeShare] = useState(canShareNatively);
+  const [joinUrl] = useState(() =>
+    typeof window === "undefined" ? "" : `${window.location.origin}/community/join/${inviteCode}`,
+  );
 
-  useEffect(() => {
-    setCanNativeShare(typeof navigator.share === "function");
-    setJoinUrl(`${window.location.origin}/community/join/${inviteCode}`);
-  }, [inviteCode]);
-
-  const shareText = "Únete a mis amigos en PracticeFlow 🎵";
+  const shareText = t("inviteText");
 
   async function handleNativeShare() {
     try {
@@ -44,7 +47,7 @@ export function ShareInviteButton({ inviteCode }: { inviteCode: string }) {
     return (
       <Button type="button" variant="outline" size="sm" onClick={handleNativeShare}>
         <Share2 className="size-4" />
-        Compartir enlace
+        {t("link")}
       </Button>
     );
   }
@@ -53,7 +56,7 @@ export function ShareInviteButton({ inviteCode }: { inviteCode: string }) {
     <DropdownMenu>
       <DropdownMenuTrigger render={<Button type="button" variant="outline" size="sm" />}>
         <Share2 className="size-4" />
-        Compartir enlace
+        {t("link")}
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuItem
@@ -82,7 +85,7 @@ export function ShareInviteButton({ inviteCode }: { inviteCode: string }) {
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleCopy}>
           {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
-          {copied ? "Enlace copiado" : "Copiar enlace"}
+          {copied ? t("linkCopied") : t("copyLink")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
