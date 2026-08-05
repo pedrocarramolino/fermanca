@@ -10,26 +10,33 @@ const SESSION_KEY = "pf-launch-shown";
  * cada navegación interna — "cuando se abre la app", no "cada vez que
  * cambias de página". motion-safe: hace que quien tenga activado "reducir
  * movimiento" la vea aparecer y desaparecer sin animación, no que no la vea
- * en absoluto (el hueco de tiempo en sí no es "movimiento"). */
+ * en absoluto (el hueco de tiempo en sí no es "movimiento").
+ *
+ * La visibilidad inicial se calcula en el propio render (useState perezoso),
+ * no en un efecto: un efecto se dispara DESPUÉS de que el navegador ya
+ * pintó el primer fotograma, así que la pantalla de inicio se veía un
+ * instante antes de que el splash apareciera encima. Calculándolo aquí, el
+ * splash ya está en el primer fotograma que se pinta — no hay salto. */
+function shouldPlayOnMount(): boolean {
+  if (typeof window === "undefined") return false;
+  return !sessionStorage.getItem(SESSION_KEY);
+}
+
 export function LaunchAnimation() {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(shouldPlayOnMount);
   const [exiting, setExiting] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined" || sessionStorage.getItem(SESSION_KEY)) return;
+    if (!visible) return;
     sessionStorage.setItem(SESSION_KEY, "1");
 
-    // setTimeout(..., 0) en vez de llamar a setVisible directamente: evita el
-    // aviso de lint por setState síncrono dentro del cuerpo del efecto.
-    const showTimer = setTimeout(() => setVisible(true), 0);
     const exitTimer = setTimeout(() => setExiting(true), 750);
     const removeTimer = setTimeout(() => setVisible(false), 1050);
     return () => {
-      clearTimeout(showTimer);
       clearTimeout(exitTimer);
       clearTimeout(removeTimer);
     };
-  }, []);
+  }, [visible]);
 
   if (!visible) return null;
 
