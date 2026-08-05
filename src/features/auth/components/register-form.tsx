@@ -11,7 +11,7 @@ import { signUp, type AuthActionState } from "@/features/auth/application/action
 
 const initialState: AuthActionState = { error: null, fieldErrors: null };
 
-export function RegisterForm() {
+export function RegisterForm({ next }: { next?: string }) {
   const [state, formAction, isPending] = useActionState(signUp, initialState);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
@@ -21,6 +21,8 @@ export function RegisterForm() {
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
+      <input type="hidden" name="next" value={next ?? "/"} />
+
       <div className="flex flex-col gap-2">
         <Label htmlFor="email">Correo</Label>
         <Input
@@ -121,7 +123,10 @@ export function RegisterForm() {
 
       <p className="text-muted-foreground text-center text-sm">
         ¿Ya tienes cuenta?{" "}
-        <Link href="/login" className="text-foreground underline underline-offset-4">
+        <Link
+          href={next ? `/login?next=${encodeURIComponent(next)}` : "/login"}
+          className="text-foreground underline underline-offset-4"
+        >
           Inicia sesión
         </Link>
       </p>

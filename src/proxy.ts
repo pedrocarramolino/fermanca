@@ -7,11 +7,12 @@ import { getSupabaseEnv } from "@/core/infrastructure/supabase/env";
 // propia recuperación de contraseña), así que es una ruta protegida más,
 // no pública.
 //
-// /terms, /privacy y /compartir son la excepción a "si hay sesión, fuera de
-// aquí": son consultables da igual si has iniciado sesión o no (un usuario
-// registrado también quiere poder leer los términos, o abrir un enlace de
-// compartir sin que lo mande a inicio), así que además de listarlas aquí se
-// excluyen explícitamente de esa segunda condición más abajo.
+// /terms, /privacy, /compartir y /community/join son la excepción a "si hay
+// sesión, fuera de aquí": son consultables da igual si has iniciado sesión o
+// no (un usuario registrado también quiere poder leer los términos, abrir
+// un enlace de compartir, o aceptar una invitación de amistad sin que lo
+// mande a inicio), así que además de listarlas aquí se excluyen
+// explícitamente de esa segunda condición más abajo.
 const PUBLIC_ROUTES = [
   "/login",
   "/register",
@@ -19,8 +20,9 @@ const PUBLIC_ROUTES = [
   "/terms",
   "/privacy",
   "/compartir",
+  "/community/join",
 ];
-const PUBLIC_ROUTES_ALWAYS_ACCESSIBLE = ["/terms", "/privacy", "/compartir"];
+const PUBLIC_ROUTES_ALWAYS_ACCESSIBLE = ["/terms", "/privacy", "/compartir", "/community/join"];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });

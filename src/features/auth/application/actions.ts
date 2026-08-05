@@ -126,12 +126,19 @@ export async function signUp(
     };
   }
 
+  const next = safeRedirectPath(String(formData.get("next") ?? "/"));
+
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
-      emailRedirectTo: `${await originUrl()}/auth/callback`,
+      // El next se lleva también aquí (no solo al redirect de abajo) porque
+      // con la confirmación de email activada, el alta sigue por el enlace
+      // del correo, no por esta misma request — p. ej. para que aceptar una
+      // invitación de amistad desde el registro funcione, ese destino tiene
+      // que sobrevivir hasta que el usuario confirme el correo.
+      emailRedirectTo: `${await originUrl()}/auth/callback?next=${encodeURIComponent(next)}`,
       data: { username: parsed.data.username },
     },
   });
@@ -149,7 +156,7 @@ export async function signUp(
     };
   }
 
-  redirect("/");
+  redirect(next);
 }
 
 export async function requestPasswordReset(

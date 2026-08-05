@@ -89,6 +89,19 @@ async function notifyFriendRequest(addresseeId: UserId, requesterUsername: strin
   }
 }
 
+/**
+ * Para la pantalla pública del enlace de invitación (/community/join/[code]):
+ * hace falta poder decir "X te ha invitado" antes incluso de saber si quien
+ * abrió el enlace tiene cuenta. Con la clave de servicio porque el perfil
+ * ajeno no es visible sin sesión — no expone nada más que el nombre.
+ */
+export async function getInviterByCode(code: string): Promise<{ username: string } | null> {
+  const profile = await new SupabaseProfileRepository(createServiceClient()).getByInviteCode(
+    code.trim().toUpperCase(),
+  );
+  return profile ? { username: profile.username } : null;
+}
+
 export async function sendFriendRequestByCode(inviteCode: string) {
   const { userId, client } = await requireUserId();
   const code = inviteCode.trim().toUpperCase();
