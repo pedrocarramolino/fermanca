@@ -102,6 +102,37 @@ export async function getInviterByCode(code: string): Promise<{ username: string
   return profile ? { username: profile.username } : null;
 }
 
+/**
+ * Núcleo compartido por sendFriendRequestByCode (por código) y
+ * sendFriendRequestToUser (ya conocido, p. ej. desde "amigos de un amigo"):
+ * comprobar que no hay ya relación, crearla y avisar al destinatario.
+ */
+async function createFriendRequest(
+  userId: UserId,
+  client: Awaited<ReturnType<typeof createClient>>,
+  targetOwnerId: UserId,
+) {
+  const friendshipRepo = new SupabaseFriendshipRepository(client);
+  const existing = await friendshipRepo.findBetween(userId, targetOwnerId);
+  if (existing) {
+    throw new Error(
+      existing.status === "accepted" ? "Ya sois amigos." : "Ya hay una solicitud entre vosotros.",
+    );
+  }
+
+  await friendshipRepo.create(userId, targetOwnerId);
+
+  const myProfile = await new SupabaseProfileRepository(client).getByOwnerId(userId);
+  if (myProfile) {
+    await notifyFriendRequest(targetOwnerId, myProfile.username).catch((error: unknown) => {
+      // El aviso es un extra, no debe tumbar la solicitud si falla.
+      console.error("No se pudo enviar el aviso de solicitud de amistad", error);
+    });
+  }
+
+  revalidatePath("/community");
+}
+
 export async function sendFriendRequestByCode(inviteCode: string) {
   const { userId, client } = await requireUserId();
   const code = inviteCode.trim().toUpperCase();
@@ -117,25 +148,15 @@ export async function sendFriendRequestByCode(inviteCode: string) {
   if (!targetProfile) throw new Error("Código de invitación no válido.");
   if (targetProfile.ownerId === userId) throw new Error("Ese código de invitación es el tuyo.");
 
-  const friendshipRepo = new SupabaseFriendshipRepository(client);
-  const existing = await friendshipRepo.findBetween(userId, targetProfile.ownerId);
-  if (existing) {
-    throw new Error(
-      existing.status === "accepted" ? "Ya sois amigos." : "Ya hay una solicitud entre vosotros.",
-    );
-  }
+  await createFriendRequest(userId, client, targetProfile.ownerId);
+}
 
-  await friendshipRepo.create(userId, targetProfile.ownerId);
-
-  const myProfile = await new SupabaseProfileRepository(client).getByOwnerId(userId);
-  if (myProfile) {
-    await notifyFriendRequest(targetProfile.ownerId, myProfile.username).catch((error: unknown) => {
-      // El aviso es un extra, no debe tumbar la solicitud si falla.
-      console.error("No se pudo enviar el aviso de solicitud de amistad", error);
-    });
-  }
-
-  revalidatePath("/community");
+/** Para pedir amistad a alguien cuyo ownerId ya conocemos (p. ej. desde la
+ * lista de "amigos de un amigo") — sin pasar por el código de invitación. */
+export async function sendFriendRequestToUser(targetOwnerId: string) {
+  const { userId, client } = await requireUserId();
+  if (targetOwnerId === userId) throw new Error("Ese eres tú.");
+  await createFriendRequest(userId, client, targetOwnerId as UserId);
 }
 
 export async function acceptFriendRequest(friendshipId: string) {
@@ -235,4 +256,56 @@ export async function getFriendProgress(friendOwnerId: string): Promise<FriendPr
     monthlySeconds: monthlySeries(sessions, 1, now)[0]!.seconds,
     currentStreak: currentStreakDays(byDay, now),
   };
+}
+
+export interface FriendOfFriend {
+  ownerId: string;
+  username: string;
+  /** Relación entre QUIEN PIDE los datos (no el amigo mostrado) y esta
+   * persona — para saber si mostrar "Añadir", "Pendiente" o nada. */
+  relationship: "accepted" | "pending" | "none";
+}
+
+/**
+ * Amigos de un amigo tuyo — solo si ya sois amigos aceptados. La lista de
+ * amistades de esa otra persona no es visible por RLS (cada uno ve solo las
+ * suyas), así que se lee con la clave de servicio; el perfil (nombre) de
+ * cada tercero, igual. Te excluyes a ti mismo del resultado (siempre
+ * apareces en la lista de amigos de tu propio amigo, no aporta nada
+ * mostrártelo).
+ */
+export async function getFriendsOfFriend(friendOwnerId: string): Promise<FriendOfFriend[]> {
+  const { userId, client } = await requireUserId();
+
+  const friendship = await new SupabaseFriendshipRepository(client).findBetween(
+    userId,
+    friendOwnerId as UserId,
+  );
+  if (!friendship || friendship.status !== "accepted") throw new UnauthorizedError();
+
+  const serviceClient = createServiceClient();
+  const theirFriendships = await new SupabaseFriendshipRepository(serviceClient).listByOwner(
+    friendOwnerId as UserId,
+  );
+  const accepted = theirFriendships.filter((f) => f.status === "accepted");
+
+  const profileRepo = new SupabaseProfileRepository(serviceClient);
+  const viewerFriendshipRepo = new SupabaseFriendshipRepository(client);
+
+  const results: FriendOfFriend[] = [];
+  for (const f of accepted) {
+    const otherId = f.requesterId === friendOwnerId ? f.addresseeId : f.requesterId;
+    if (otherId === userId) continue;
+
+    const profile = await profileRepo.getByOwnerId(otherId);
+    if (!profile) continue;
+
+    const existing = await viewerFriendshipRepo.findBetween(userId, otherId);
+    results.push({
+      ownerId: otherId,
+      username: profile.username,
+      relationship: existing ? (existing.status === "accepted" ? "accepted" : "pending") : "none",
+    });
+  }
+  return results;
 }

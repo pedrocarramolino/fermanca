@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { UserPlus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -9,11 +10,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { formatDurationShort } from "@/core/domain/duration";
 import { formatSessionDate } from "@/lib/format-date";
 import {
   getFriendLastSession,
+  getFriendsOfFriend,
+  sendFriendRequestToUser,
   type FriendLastSession,
+  type FriendOfFriend,
 } from "@/features/community/application/actions";
 import type { Locale } from "@/core/domain/user-settings";
 import type { FriendWithProgress } from "@/features/community/components/friends-list";
@@ -24,9 +29,12 @@ import type { FriendWithProgress } from "@/features/community/components/friends
 function FriendSessionContent({ friend }: { friend: FriendWithProgress }) {
   const t = useTranslations("Community.session");
   const tHistory = useTranslations("SessionHistory");
+  const tFriends = useTranslations("Community.friendsOfFriend");
   const locale = useLocale() as Locale;
   const [session, setSession] = useState<FriendLastSession | null>(null);
   const [status, setStatus] = useState<"loading" | "loaded" | "empty" | "error">("loading");
+  const [friendsOfFriend, setFriendsOfFriend] = useState<FriendOfFriend[] | null>(null);
+  const [sendingTo, setSendingTo] = useState<string | null>(null);
 
   useEffect(() => {
     getFriendLastSession(friend.ownerId)
@@ -35,7 +43,24 @@ function FriendSessionContent({ friend }: { friend: FriendWithProgress }) {
         setStatus(result ? "loaded" : "empty");
       })
       .catch(() => setStatus("error"));
+    getFriendsOfFriend(friend.ownerId)
+      .then(setFriendsOfFriend)
+      .catch(() => setFriendsOfFriend([]));
   }, [friend.ownerId]);
+
+  function handleAddFriend(ownerId: string) {
+    setSendingTo(ownerId);
+    sendFriendRequestToUser(ownerId)
+      .then(() => {
+        setFriendsOfFriend((prev) =>
+          prev?.map((f) => (f.ownerId === ownerId ? { ...f, relationship: "pending" } : f)) ?? null,
+        );
+      })
+      .catch(() => {
+        // El botón se queda en "Añadir" y el usuario puede reintentarlo.
+      })
+      .finally(() => setSendingTo(null));
+  }
 
   const totalSeconds =
     session?.blocks.reduce((total, block) => total + block.actualDurationSeconds, 0) ?? 0;
@@ -82,6 +107,39 @@ function FriendSessionContent({ friend }: { friend: FriendWithProgress }) {
             <span>{t("total")}</span>
             <span className="font-mono tabular-nums">{formatDurationShort(totalSeconds)}</span>
           </div>
+        </div>
+      )}
+
+      {friendsOfFriend && friendsOfFriend.length > 0 && (
+        <div className="border-border flex flex-col gap-2 border-t pt-3">
+          <p className="text-sm font-medium">
+            {tFriends("title", { name: friend.username })}
+          </p>
+          <ul className="flex flex-col gap-2">
+            {friendsOfFriend.map((fof) => (
+              <li key={fof.ownerId} className="flex items-center justify-between gap-2 text-sm">
+                <span className="truncate">{fof.username}</span>
+                {fof.relationship === "accepted" && (
+                  <span className="text-muted-foreground text-xs">{tFriends("alreadyFriends")}</span>
+                )}
+                {fof.relationship === "pending" && (
+                  <span className="text-muted-foreground text-xs">{tFriends("pending")}</span>
+                )}
+                {fof.relationship === "none" && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    disabled={sendingTo === fof.ownerId}
+                    onClick={() => handleAddFriend(fof.ownerId)}
+                  >
+                    <UserPlus className="size-3.5" />
+                    {sendingTo === fof.ownerId ? tFriends("sending") : tFriends("add")}
+                  </Button>
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </>

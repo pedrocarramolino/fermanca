@@ -263,6 +263,13 @@
       "error": "Couldn't load the session.",
       "total": "Total"
     },
+    "friendsOfFriend": {
+      "title": "{name}'s friends",
+      "alreadyFriends": "Already friends",
+      "pending": "Pending",
+      "add": "Add",
+      "sending": "Sending…"
+    },
     "invite": {
       "title": "Your invite code",
       "copy": "Copy",

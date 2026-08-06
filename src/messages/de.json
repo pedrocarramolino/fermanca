@@ -263,6 +263,13 @@
       "error": "Die Sitzung konnte nicht geladen werden.",
       "total": "Gesamt"
     },
+    "friendsOfFriend": {
+      "title": "Freunde von {name}",
+      "alreadyFriends": "Schon befreundet",
+      "pending": "Ausstehend",
+      "add": "Hinzufügen",
+      "sending": "Wird gesendet…"
+    },
     "invite": {
       "title": "Dein Einladungscode",
       "copy": "Kopieren",

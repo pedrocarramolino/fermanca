@@ -263,6 +263,13 @@
       "error": "No se pudo cargar la sesión.",
       "total": "Total"
     },
+    "friendsOfFriend": {
+      "title": "Amigos de {name}",
+      "alreadyFriends": "Ya sois amigos",
+      "pending": "Pendiente",
+      "add": "Añadir",
+      "sending": "Enviando…"
+    },
     "invite": {
       "title": "Tu código de invitación",
       "copy": "Copiar",
