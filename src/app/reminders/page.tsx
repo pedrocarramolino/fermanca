@@ -20,7 +20,7 @@ export default async function RemindersPage() {
   const reminders = await repo.listByOwner(userId);
 
   return (
-    <main className="mx-auto flex min-h-svh max-w-2xl flex-col gap-6 p-8 pb-32">
+    <main className="mx-auto flex min-h-svh max-w-2xl flex-col gap-6 p-8 pb-32 md:max-w-3xl lg:max-w-4xl">
       <AppHeader />
 
       <Card>

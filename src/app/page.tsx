@@ -24,7 +24,7 @@ export default async function Home() {
   ]);
 
   return (
-    <main className="mx-auto flex min-h-svh max-w-4xl flex-col gap-8 p-8 pb-32">
+    <main className="mx-auto flex min-h-svh max-w-4xl flex-col gap-8 p-8 pb-32 lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl">
       <AppHeader />
 
       <SessionBuilder initialCategories={categories} initialTemplates={templates} />

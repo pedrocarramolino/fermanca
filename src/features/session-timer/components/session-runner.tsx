@@ -70,7 +70,7 @@ export function SessionRunner({
   }
 
   return (
-    <main className="mx-auto flex min-h-svh max-w-md flex-col items-center justify-center gap-8 p-8">
+    <main className="mx-auto flex min-h-svh max-w-md flex-col items-center justify-center gap-8 p-8 lg:max-w-lg xl:max-w-xl">
       {runtime.status === "awaiting-confirmation" ? (
         <PhaseCompleteCard
           completedBlock={runtime.activeBlock}

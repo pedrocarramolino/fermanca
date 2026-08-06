@@ -29,7 +29,10 @@ export function TimerDisplay({
         <span className="text-lg font-medium">{blockName}</span>
       </div>
 
-      <span className="font-mono text-7xl font-semibold tabular-nums" aria-live="off">
+      <span
+        className="font-mono text-7xl font-semibold tabular-nums sm:text-8xl lg:text-9xl"
+        aria-live="off"
+      >
         {formatDurationClock(Math.ceil(remainingSeconds))}
       </span>
 

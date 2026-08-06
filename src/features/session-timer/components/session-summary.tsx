@@ -35,7 +35,7 @@ export function SessionSummary({
   }
 
   return (
-    <main className="mx-auto flex min-h-svh max-w-md flex-col items-center justify-center gap-6 p-8 text-center">
+    <main className="mx-auto flex min-h-svh max-w-md flex-col items-center justify-center gap-6 p-8 text-center lg:max-w-lg xl:max-w-xl">
       <h1 className="text-2xl font-semibold">{t("title")}</h1>
       <p className="text-muted-foreground">
         {t("practiced", { duration: formatDurationShort(totalSeconds), count: blocks.length })}
