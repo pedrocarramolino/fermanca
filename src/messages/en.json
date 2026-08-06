@@ -3,7 +3,8 @@
     "settingsAriaLabel": "Settings",
     "showPassword": "Show password",
     "hidePassword": "Hide password",
-    "toggleTheme": "Toggle theme"
+    "toggleTheme": "Toggle theme",
+    "signOut": "Sign out"
   },
   "Settings": {
     "title": "Settings",
