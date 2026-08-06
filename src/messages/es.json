@@ -4,7 +4,8 @@
     "showPassword": "Mostrar contraseña",
     "hidePassword": "Ocultar contraseña",
     "toggleTheme": "Cambiar tema",
-    "signOut": "Cerrar sesión"
+    "signOut": "Cerrar sesión",
+    "footerCredit": "© {year} Pedro Carramolino · Idea original: Alejandro Mas"
   },
   "Settings": {
     "title": "Ajustes",

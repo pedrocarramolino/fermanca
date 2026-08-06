@@ -15,7 +15,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function SettingsPage() {
   const [settings, profile] = await Promise.all([getCurrentUserSettings(), getMyProfile()]);
-  const t = await getTranslations("Settings");
+  const [t, tCommon] = await Promise.all([
+    getTranslations("Settings"),
+    getTranslations("Common"),
+  ]);
 
   return (
     <main className="mx-auto flex min-h-svh max-w-2xl flex-col gap-6 p-8 pb-32 md:max-w-3xl lg:max-w-4xl">
@@ -29,6 +32,10 @@ export default async function SettingsPage() {
       <SettingsForm initialSettings={settings} />
 
       <DeleteAccountCard username={profile.username} />
+
+      <p className="text-muted-foreground text-center text-xs">
+        {tCommon("footerCredit", { year: new Date().getFullYear() })}
+      </p>
     </main>
   );
 }

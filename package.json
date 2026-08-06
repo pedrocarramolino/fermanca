@@ -2,6 +2,8 @@
   "name": "practiceflow",
   "version": "0.1.0",
   "private": true,
+  "author": "Pedro Carramolino",
+  "contributors": ["Alejandro Mas (idea original)"],
   "scripts": {
     "predev": "npm run build:sw",
     "dev": "next dev",

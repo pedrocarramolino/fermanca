@@ -1,8 +1,11 @@
+import { getTranslations } from "next-intl/server";
 import { Card, CardContent } from "@/components/ui/card";
 import { AuthLocaleSwitcher } from "@/features/auth/components/auth-locale-switcher";
 import { siteConfig } from "@/config/site";
 
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+export default async function AuthLayout({ children }: { children: React.ReactNode }) {
+  const t = await getTranslations("Common");
+
   return (
     <main className="flex min-h-svh flex-col items-center justify-center gap-6 p-8">
       <span className="flex flex-col items-center gap-2 font-semibold tracking-tight">
@@ -13,6 +16,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <CardContent>{children}</CardContent>
       </Card>
       <AuthLocaleSwitcher />
+      <p className="text-muted-foreground text-center text-xs">
+        {t("footerCredit", { year: new Date().getFullYear() })}
+      </p>
     </main>
   );
 }
