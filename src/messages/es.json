@@ -328,5 +328,96 @@
     "message": "Instala PracticeFlow para acceso rápido y notificaciones.",
     "install": "Instalar",
     "dismiss": "Descartar"
+  },
+  "Terms": {
+    "title": "Términos de servicio",
+    "lastUpdated": "Última actualización: 5 de agosto de 2026",
+    "about": {
+      "heading": "Sobre PracticeFlow",
+      "body": "PracticeFlow es un proyecto personal desarrollado por Pedro Carramolino González para ayudarte a organizar tus sesiones de práctica musical. No es un servicio prestado por una empresa registrada."
+    },
+    "usage": {
+      "heading": "Uso del servicio",
+      "item1": "Necesitas una cuenta para usar PracticeFlow. Eres responsable de mantener la confidencialidad de tu contraseña y de la actividad que ocurra en tu cuenta.",
+      "item2": "Debes proporcionar datos reales al registrarte (correo válido) y no usar la aplicación para fines ilegales, ni para acosar o dañar a otras personas a través de la función de Comunidad.",
+      "item3": "Nos reservamos el derecho de suspender o eliminar cuentas que incumplan estos términos."
+    },
+    "availability": {
+      "heading": "Disponibilidad del servicio",
+      "body": "PracticeFlow se ofrece “tal cual”, sin garantías de disponibilidad continua. Al ser un proyecto personal, el servicio puede sufrir interrupciones, cambios o, en último caso, discontinuarse, y procuraremos avisar con antelación razonable si eso ocurriera con tus datos en juego."
+    },
+    "content": {
+      "heading": "Contenido que subes",
+      "body": "El contenido que escribes (notas de sesión, nombres de categorías, etc.) es tuyo. Al usar la Comunidad, aceptas que tu nombre de usuario y tu progreso agregado (no el detalle de tus sesiones) sean visibles para las personas que aceptes como amigos."
+    },
+    "liability": {
+      "heading": "Limitación de responsabilidad",
+      "body": "En la medida permitida por la ley, PracticeFlow se ofrece sin garantías de ningún tipo, y no nos hacemos responsables de pérdidas de datos o daños derivados del uso del servicio, más allá de lo que exija la normativa aplicable."
+    },
+    "law": {
+      "heading": "Ley aplicable",
+      "body": "Estos términos se rigen por la legislación española."
+    },
+    "contact": {
+      "heading": "Contacto",
+      "body": "Para cualquier duda sobre estos términos, escribe a <email>pedrocarramolino34@gmail.com</email>."
+    },
+    "seeAlso": "Consulta también la <link>Política de privacidad</link>."
+  },
+  "Privacy": {
+    "title": "Política de privacidad",
+    "lastUpdated": "Última actualización: 5 de agosto de 2026",
+    "controller": {
+      "heading": "Responsable del tratamiento",
+      "body": "Pedro Carramolino González, como persona física, es responsable del tratamiento de los datos que recoge PracticeFlow. Puedes contactar para cualquier duda sobre tus datos en <email>pedrocarramolino34@gmail.com</email>."
+    },
+    "dataCollected": {
+      "heading": "Qué datos recogemos",
+      "item1": "Datos de la cuenta: correo electrónico, nombre de usuario y contraseña (esta última nunca se guarda en texto plano; la gestiona nuestro proveedor de autenticación).",
+      "item2": "Datos de práctica: las sesiones que registras (bloques, categorías, duración, notas que escribas), las plantillas y categorías personalizadas que crees.",
+      "item3": "Datos de comunidad: tu código de invitación, tus amistades aceptadas o pendientes, y los minutos y racha semanales agregados que tus amigos pueden ver.",
+      "item4": "Recordatorios: la hora y los días que configures, y tu zona horaria.",
+      "item5": "Notificaciones push: si las activas, tu navegador nos da un identificador de suscripción y claves de cifrado necesarias para enviarte avisos — no los usamos para nada más.",
+      "item6": "Datos técnicos básicos que genera cualquier servicio web (dirección IP, tipo de navegador) a través de nuestro proveedor de hosting, con fines de seguridad y funcionamiento del servicio.",
+      "outro": "No recogemos datos de pago (PracticeFlow no tiene compras ni suscripciones) ni usamos cookies de publicidad o seguimiento."
+    },
+    "dataUse": {
+      "heading": "Para qué usamos tus datos",
+      "item1": "Para que puedas iniciar sesión y usar la aplicación.",
+      "item2": "Para guardar y mostrarte tu historial y estadísticas de práctica.",
+      "item3": "Para la función de Comunidad: mostrar tu progreso agregado (no el detalle de tus sesiones) a las personas que aceptes como amigos, y viceversa.",
+      "item4": "Para enviarte las notificaciones push y recordatorios que actives tú mismo.",
+      "item5": "Para mantener el servicio funcionando de forma segura.",
+      "outro": "No vendemos ni cedemos tus datos a terceros con fines comerciales o publicitarios."
+    },
+    "dataSharing": {
+      "heading": "Con quién compartimos tus datos",
+      "intro": "Usamos los siguientes proveedores para hacer funcionar PracticeFlow, que procesan datos en nuestro nombre:",
+      "item1Strong": "Supabase",
+      "item1Rest": " — base de datos y autenticación.",
+      "item2Strong": "Vercel",
+      "item2Rest": " — alojamiento de la aplicación.",
+      "item3Strong": "Upstash (QStash)",
+      "item3Rest": " — envío programado de notificaciones push en el momento exacto configurado.",
+      "item4": "El navegador que uses (Chrome, Firefox, Safari…) gestiona la entrega técnica de las notificaciones push a través de su propio servicio de push, como parte estándar de esa tecnología web.",
+      "outro": "Ninguno de estos proveedores puede usar tus datos para sus propios fines."
+    },
+    "retention": {
+      "heading": "Cuánto tiempo conservamos tus datos",
+      "body": "Mientras mantengas tu cuenta activa. Si quieres eliminar tu cuenta y todos tus datos, escríbenos a <email>pedrocarramolino34@gmail.com</email> y lo haremos en un plazo razonable — de momento no hay una opción de autoservicio dentro de la app."
+    },
+    "rights": {
+      "heading": "Tus derechos",
+      "body": "Si resides en la Unión Europea, tienes derecho a acceder a tus datos, corregirlos, pedir su eliminación, limitar u oponerte a su tratamiento, y a la portabilidad de tus datos. Puedes ejercerlos escribiendo a <email>pedrocarramolino34@gmail.com</email>. También puedes reclamar ante la <aepd>Agencia Española de Protección de Datos</aepd>."
+    },
+    "minors": {
+      "heading": "Menores de edad",
+      "body": "PracticeFlow no está dirigido a menores de 14 años. Si eres menor de esa edad, necesitas el consentimiento de tu tutor legal para usar la aplicación."
+    },
+    "changes": {
+      "heading": "Cambios en esta política",
+      "body": "Si cambiamos esta política de forma relevante, lo indicaremos en esta misma página junto con la fecha de la última actualización."
+    },
+    "seeAlso": "Consulta también los <link>Términos de servicio</link>."
   }
 }
