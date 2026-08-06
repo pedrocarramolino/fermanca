@@ -6,6 +6,7 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import {
   Select,
   SelectContent,
@@ -114,15 +115,17 @@ export function AddBlockForm({
         <Input id="block-name" value={name} onChange={(event) => setName(event.target.value)} />
       </div>
 
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="block-minutes">{t("minutes")}</Label>
-        <Input
+      <div className="flex w-full flex-col gap-2 sm:w-40">
+        <Label htmlFor="block-minutes">
+          {t("minutes")}: {minutes} min
+        </Label>
+        <Slider
           id="block-minutes"
-          type="number"
-          min={1}
-          className="w-20"
-          value={minutes}
-          onChange={(event) => setMinutes(Number(event.target.value))}
+          value={[minutes]}
+          min={5}
+          max={120}
+          step={5}
+          onValueChange={(value) => setMinutes(Array.isArray(value) ? value[0]! : value)}
         />
       </div>
 
