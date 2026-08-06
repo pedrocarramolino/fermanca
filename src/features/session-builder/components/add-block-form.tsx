@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Plus } from "lucide-react";
+import { Pencil, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,8 +14,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { NewCategoryDialog } from "@/features/session-builder/components/new-category-dialog";
-import type { Category } from "@/core/domain/category";
+import { CategoryDialog } from "@/features/session-builder/components/category-dialog";
+import type { Category, CustomCategory } from "@/core/domain/category";
 
 const NEW_CATEGORY_VALUE = "__new__";
 
@@ -29,10 +29,12 @@ function categoryDisplayName(category: Category, t: (key: string) => string): st
 export function AddBlockForm({
   categories,
   onCategoryCreated,
+  onCategoryUpdated,
   onAdd,
 }: {
   categories: Category[];
-  onCategoryCreated: (category: Category) => void;
+  onCategoryCreated: (category: CustomCategory) => void;
+  onCategoryUpdated: (category: CustomCategory) => void;
   onAdd: (input: {
     categoryId: string;
     name: string;
@@ -47,12 +49,15 @@ export function AddBlockForm({
     categories[0] ? categoryDisplayName(categories[0], tCategories) : "",
   );
   const [minutes, setMinutes] = useState(10);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<CustomCategory | null>(null);
+
+  const selectedCategory = categories.find((c) => c.id === categoryId) ?? null;
 
   function handleCategoryChange(value: string | null) {
     if (!value) return;
     if (value === NEW_CATEGORY_VALUE) {
-      setDialogOpen(true);
+      setCreateDialogOpen(true);
       return;
     }
     setCategoryId(value);
@@ -60,10 +65,15 @@ export function AddBlockForm({
     if (category) setName(categoryDisplayName(category, tCategories));
   }
 
-  function handleCategoryCreated(category: Category) {
+  function handleCategoryCreated(category: CustomCategory) {
     onCategoryCreated(category);
     setCategoryId(category.id);
     setName(categoryDisplayName(category, tCategories));
+  }
+
+  function handleCategoryUpdated(category: CustomCategory) {
+    onCategoryUpdated(category);
+    if (categoryId === category.id) setName(categoryDisplayName(category, tCategories));
   }
 
   function handleAdd() {
@@ -82,32 +92,47 @@ export function AddBlockForm({
     <div className="border-border flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-end">
       <div className="flex flex-1 flex-col gap-2">
         <Label>{t("category")}</Label>
-        <Select value={categoryId} onValueChange={handleCategoryChange}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder={t("categoryPlaceholder")}>
-              {(value: string | null) => {
-                const category = categories.find((c) => c.id === value);
-                return category ? categoryDisplayName(category, tCategories) : t("categoryPlaceholder");
-              }}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {categories.map((category) => (
-              <SelectItem key={category.id} value={category.id}>
-                <span
-                  className="size-2.5 shrink-0 rounded-full"
-                  style={{ backgroundColor: category.color }}
-                  aria-hidden
-                />
-                {categoryDisplayName(category, tCategories)}
+        <div className="flex gap-1">
+          <Select value={categoryId} onValueChange={handleCategoryChange}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder={t("categoryPlaceholder")}>
+                {(value: string | null) => {
+                  const category = categories.find((c) => c.id === value);
+                  return category
+                    ? categoryDisplayName(category, tCategories)
+                    : t("categoryPlaceholder");
+                }}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((category) => (
+                <SelectItem key={category.id} value={category.id}>
+                  <span
+                    className="size-2.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: category.color }}
+                    aria-hidden
+                  />
+                  {categoryDisplayName(category, tCategories)}
+                </SelectItem>
+              ))}
+              <SelectItem value={NEW_CATEGORY_VALUE}>
+                <Plus className="size-3.5" />
+                {t("newCategory")}
               </SelectItem>
-            ))}
-            <SelectItem value={NEW_CATEGORY_VALUE}>
-              <Plus className="size-3.5" />
-              {t("newCategory")}
-            </SelectItem>
-          </SelectContent>
-        </Select>
+            </SelectContent>
+          </Select>
+          {selectedCategory?.kind === "custom" && (
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              aria-label={t("editCategory")}
+              onClick={() => setEditingCategory(selectedCategory)}
+            >
+              <Pencil className="size-4" />
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-1 flex-col gap-2">
@@ -134,10 +159,17 @@ export function AddBlockForm({
         {t("add")}
       </Button>
 
-      <NewCategoryDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        onCreated={handleCategoryCreated}
+      <CategoryDialog
+        key={editingCategory?.id ?? "new"}
+        open={createDialogOpen || editingCategory !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setCreateDialogOpen(false);
+            setEditingCategory(null);
+          }
+        }}
+        category={editingCategory}
+        onSaved={editingCategory ? handleCategoryUpdated : handleCategoryCreated}
       />
     </div>
   );

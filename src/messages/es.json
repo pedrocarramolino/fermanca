@@ -88,17 +88,21 @@
     "category": "Categoría",
     "categoryPlaceholder": "Elige una categoría",
     "newCategory": "Nueva categoría…",
+    "editCategory": "Editar categoría",
     "blockName": "Nombre del bloque",
     "minutes": "Minutos",
     "add": "Añadir"
   },
-  "NewCategoryDialog": {
-    "title": "Nueva categoría",
+  "CategoryDialog": {
+    "createTitle": "Nueva categoría",
+    "editTitle": "Editar categoría",
     "description": "Ejemplos: Escalas, Improvisación, Respiración, Estudios.",
     "name": "Nombre",
     "color": "Color",
     "creating": "Creando…",
-    "create": "Crear categoría"
+    "create": "Crear categoría",
+    "saving": "Guardando…",
+    "save": "Guardar"
   },
   "BlockList": {
     "empty": "Todavía no has añadido ningún bloque.",

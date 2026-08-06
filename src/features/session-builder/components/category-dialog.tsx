@@ -14,31 +14,40 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CUSTOM_CATEGORY_COLORS, DEFAULT_CUSTOM_CATEGORY_COLOR } from "@/config/category-colors";
-import { createCustomCategory } from "@/features/session-builder/application/actions";
+import {
+  createCustomCategory,
+  updateCustomCategory,
+} from "@/features/session-builder/application/actions";
 import type { CustomCategory } from "@/core/domain/category";
 
-export function NewCategoryDialog({
+/** Sin `category` crea una nueva; con `category` la edita — misma UI para
+ * ambos, como SaveTemplateDialog con plantillas. Se remonta con
+ * `key={category?.id ?? "new"}` desde quien la usa, así el estado inicial ya
+ * es el correcto sin necesitar un efecto que lo reinicie. */
+export function CategoryDialog({
   open,
   onOpenChange,
-  onCreated,
+  onSaved,
+  category = null,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreated: (category: CustomCategory) => void;
+  onSaved: (category: CustomCategory) => void;
+  category?: CustomCategory | null;
 }) {
-  const t = useTranslations("NewCategoryDialog");
-  const [name, setName] = useState("");
-  const [color, setColor] = useState<string>(DEFAULT_CUSTOM_CATEGORY_COLOR);
+  const t = useTranslations("CategoryDialog");
+  const [name, setName] = useState(category?.name ?? "");
+  const [color, setColor] = useState<string>(category?.color ?? DEFAULT_CUSTOM_CATEGORY_COLOR);
   const [isPending, setIsPending] = useState(false);
 
-  async function handleCreate() {
+  async function handleSave() {
     if (!name.trim()) return;
     setIsPending(true);
     try {
-      const category = await createCustomCategory(name.trim(), color);
-      onCreated(category);
-      setName("");
-      setColor(DEFAULT_CUSTOM_CATEGORY_COLOR);
+      const saved = category
+        ? await updateCustomCategory(category.id, name.trim(), color)
+        : await createCustomCategory(name.trim(), color);
+      onSaved(saved);
       onOpenChange(false);
     } finally {
       setIsPending(false);
@@ -49,14 +58,14 @@ export function NewCategoryDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{t("title")}</DialogTitle>
-          <DialogDescription>{t("description")}</DialogDescription>
+          <DialogTitle>{category ? t("editTitle") : t("createTitle")}</DialogTitle>
+          {!category && <DialogDescription>{t("description")}</DialogDescription>}
         </DialogHeader>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="new-category-name">{t("name")}</Label>
+          <Label htmlFor="category-name">{t("name")}</Label>
           <Input
-            id="new-category-name"
+            id="category-name"
             value={name}
             onChange={(event) => setName(event.target.value)}
             autoFocus
@@ -82,8 +91,14 @@ export function NewCategoryDialog({
         </div>
 
         <DialogFooter>
-          <Button type="button" onClick={handleCreate} disabled={isPending || !name.trim()}>
-            {isPending ? t("creating") : t("create")}
+          <Button type="button" onClick={handleSave} disabled={isPending || !name.trim()}>
+            {isPending
+              ? category
+                ? t("saving")
+                : t("creating")
+              : category
+                ? t("save")
+                : t("create")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDurationShort } from "@/core/domain/duration";
-import type { Category } from "@/core/domain/category";
+import type { Category, CustomCategory } from "@/core/domain/category";
 import type { Template } from "@/core/domain/template";
 import { useSessionDraft } from "@/features/session-builder/hooks/use-session-draft";
 import { AddBlockForm } from "@/features/session-builder/components/add-block-form";
@@ -56,6 +56,10 @@ export function SessionBuilder({
     setTemplates((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
   }
 
+  function handleCategoryUpdated(updated: CustomCategory) {
+    setCategories((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
+  }
+
   async function handleSaveAsNew(name: string) {
     const template = await saveAsNewTemplate(name, draft.blocksInput);
     setTemplates((prev) => [template, ...prev]);
@@ -89,6 +93,7 @@ export function SessionBuilder({
           <AddBlockForm
             categories={categories}
             onCategoryCreated={(category) => setCategories((prev) => [...prev, category])}
+            onCategoryUpdated={handleCategoryUpdated}
             onAdd={draft.addBlock}
           />
 

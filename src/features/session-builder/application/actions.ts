@@ -58,6 +58,14 @@ export async function createCustomCategory(name: string, color: string) {
   return category;
 }
 
+export async function updateCustomCategory(id: string, name: string, color: string) {
+  const { userId, client } = await requireUserId();
+  const repo = new SupabaseCategoryRepository(client);
+  const category = await repo.updateCustom(id as CategoryId, userId, { name, color });
+  revalidatePath("/");
+  return category;
+}
+
 export async function deleteCustomCategory(id: string) {
   const { userId, client } = await requireUserId();
   const repo = new SupabaseCategoryRepository(client);

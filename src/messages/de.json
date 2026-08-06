@@ -88,17 +88,21 @@
     "category": "Kategorie",
     "categoryPlaceholder": "Kategorie wählen",
     "newCategory": "Neue Kategorie…",
+    "editCategory": "Kategorie bearbeiten",
     "blockName": "Blockname",
     "minutes": "Minuten",
     "add": "Hinzufügen"
   },
-  "NewCategoryDialog": {
-    "title": "Neue Kategorie",
+  "CategoryDialog": {
+    "createTitle": "Neue Kategorie",
+    "editTitle": "Kategorie bearbeiten",
     "description": "Beispiele: Tonleitern, Improvisation, Atmung, Etüden.",
     "name": "Name",
     "color": "Farbe",
     "creating": "Wird erstellt…",
-    "create": "Kategorie erstellen"
+    "create": "Kategorie erstellen",
+    "saving": "Wird gespeichert…",
+    "save": "Speichern"
   },
   "BlockList": {
     "empty": "Du hast noch keine Blöcke hinzugefügt.",
