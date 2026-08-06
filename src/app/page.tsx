@@ -12,7 +12,7 @@ const RECENT_SESSIONS_PREVIEW = 3;
 
 export default async function Home() {
   const { supabase, userId } = await getAuthenticatedUser();
-  const t = await getTranslations("Home");
+  const [t, tCommon] = await Promise.all([getTranslations("Home"), getTranslations("Common")]);
 
   const categoryRepo = new SupabaseCategoryRepository(supabase);
   const templateRepo = new SupabaseTemplateRepository(supabase);
@@ -44,6 +44,10 @@ export default async function Home() {
           </div>
         </div>
       )}
+
+      <p className="text-muted-foreground text-center text-xs">
+        {tCommon("footerCredit", { year: new Date().getFullYear() })}
+      </p>
     </main>
   );
 }
