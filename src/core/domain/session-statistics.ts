@@ -109,14 +109,20 @@ export function categoryBreakdown(sessions: Session[]): CategoryStat[] {
   return [...byCategory.values()].sort((a, b) => b.seconds - a.seconds);
 }
 
-/** Colapsa lo que quede más allá de `topN` en una fila "Otras" (gris, no categórica). */
-export function foldIntoOthers(stats: CategoryStat[], topN: number): CategoryStat[] {
+/** Colapsa lo que quede más allá de `topN` en una fila "Otras" (gris, no
+ * categórica) — `othersLabel` lo traduce quien llama, ya que este módulo de
+ * dominio no depende de next-intl. */
+export function foldIntoOthers(
+  stats: CategoryStat[],
+  topN: number,
+  othersLabel = "Otras",
+): CategoryStat[] {
   if (stats.length <= topN) return stats;
   const head = stats.slice(0, topN);
   const tail = stats.slice(topN);
   const others: CategoryStat = {
     categoryId: "__others__",
-    name: "Otras",
+    name: othersLabel,
     color: "var(--muted-foreground)",
     seconds: tail.reduce((total, s) => total + s.seconds, 0),
     blockCount: tail.reduce((total, s) => total + s.blockCount, 0),

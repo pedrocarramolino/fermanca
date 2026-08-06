@@ -77,6 +77,12 @@
     "start": "Comenzar sesión",
     "starting": "Comenzando…"
   },
+  "Categories": {
+    "warmup": "Calentamiento",
+    "flexibility": "Flexibilidad",
+    "technique": "Técnica",
+    "repertoire": "Obras"
+  },
   "AddBlockForm": {
     "category": "Categoría",
     "categoryPlaceholder": "Elige una categoría",
@@ -177,6 +183,7 @@
     "categoryEmpty": "Todavía no hay datos suficientes.",
     "tooltipPracticed": "Practicado",
     "tooltipTime": "Tiempo",
+    "categoryOthers": "Otras",
     "empty": "Todavía no has completado ninguna sesión. Empieza una desde el inicio para ver tus estadísticas aquí."
   },
   "Streaks": {

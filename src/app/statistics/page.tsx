@@ -38,7 +38,7 @@ export default async function StatisticsPage() {
   const now = new Date();
   const weekly = weeklySeries(sessions, 12, now);
   const monthly = monthlySeries(sessions, 12, now);
-  const categories = foldIntoOthers(categoryBreakdown(sessions), 7);
+  const categories = foldIntoOthers(categoryBreakdown(sessions), 7, t("categoryOthers"));
   const hasSessions = sessionsCount(sessions) > 0;
 
   return (

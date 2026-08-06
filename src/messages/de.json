@@ -77,6 +77,12 @@
     "start": "Sitzung starten",
     "starting": "Wird gestartet…"
   },
+  "Categories": {
+    "warmup": "Aufwärmen",
+    "flexibility": "Flexibilität",
+    "technique": "Technik",
+    "repertoire": "Repertoire"
+  },
   "AddBlockForm": {
     "category": "Kategorie",
     "categoryPlaceholder": "Kategorie wählen",
@@ -177,6 +183,7 @@
     "categoryEmpty": "Noch nicht genug Daten.",
     "tooltipPracticed": "Geübt",
     "tooltipTime": "Zeit",
+    "categoryOthers": "Andere",
     "empty": "Du hast noch keine Sitzung abgeschlossen. Starte eine vom Start aus, um hier deine Statistik zu sehen."
   },
   "Streaks": {

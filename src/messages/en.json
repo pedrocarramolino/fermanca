@@ -77,6 +77,12 @@
     "start": "Start session",
     "starting": "Starting…"
   },
+  "Categories": {
+    "warmup": "Warm-up",
+    "flexibility": "Flexibility",
+    "technique": "Technique",
+    "repertoire": "Repertoire"
+  },
   "AddBlockForm": {
     "category": "Category",
     "categoryPlaceholder": "Choose a category",
@@ -177,6 +183,7 @@
     "categoryEmpty": "Not enough data yet.",
     "tooltipPracticed": "Practiced",
     "tooltipTime": "Time",
+    "categoryOthers": "Other",
     "empty": "You haven't completed any sessions yet. Start one from Home to see your stats here."
   },
   "Streaks": {

@@ -18,6 +18,13 @@ import type { Category } from "@/core/domain/category";
 
 const NEW_CATEGORY_VALUE = "__new__";
 
+/** Las 4 categorías de sistema son compartidas por todos los usuarios y se
+ * muestran en el idioma de quien las ve (vía su slug estable); las
+ * categorías personalizadas se muestran tal cual las escribió su dueño. */
+function categoryDisplayName(category: Category, t: (key: string) => string): string {
+  return category.kind === "system" ? t(category.slug) : category.name;
+}
+
 export function AddBlockForm({
   categories,
   onCategoryCreated,
@@ -33,8 +40,11 @@ export function AddBlockForm({
   }) => void;
 }) {
   const t = useTranslations("AddBlockForm");
+  const tCategories = useTranslations("Categories");
   const [categoryId, setCategoryId] = useState<string>(categories[0]?.id ?? "");
-  const [name, setName] = useState(categories[0]?.name ?? "");
+  const [name, setName] = useState(
+    categories[0] ? categoryDisplayName(categories[0], tCategories) : "",
+  );
   const [minutes, setMinutes] = useState(10);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -46,13 +56,13 @@ export function AddBlockForm({
     }
     setCategoryId(value);
     const category = categories.find((c) => c.id === value);
-    if (category) setName(category.name);
+    if (category) setName(categoryDisplayName(category, tCategories));
   }
 
   function handleCategoryCreated(category: Category) {
     onCategoryCreated(category);
     setCategoryId(category.id);
-    setName(category.name);
+    setName(categoryDisplayName(category, tCategories));
   }
 
   function handleAdd() {
@@ -74,10 +84,10 @@ export function AddBlockForm({
         <Select value={categoryId} onValueChange={handleCategoryChange}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder={t("categoryPlaceholder")}>
-              {(value: string | null) =>
-                categories.find((category) => category.id === value)?.name ??
-                t("categoryPlaceholder")
-              }
+              {(value: string | null) => {
+                const category = categories.find((c) => c.id === value);
+                return category ? categoryDisplayName(category, tCategories) : t("categoryPlaceholder");
+              }}
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
@@ -88,7 +98,7 @@ export function AddBlockForm({
                   style={{ backgroundColor: category.color }}
                   aria-hidden
                 />
-                {category.name}
+                {categoryDisplayName(category, tCategories)}
               </SelectItem>
             ))}
             <SelectItem value={NEW_CATEGORY_VALUE}>
