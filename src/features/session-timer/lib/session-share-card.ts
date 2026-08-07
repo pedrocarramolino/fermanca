@@ -233,6 +233,13 @@ export async function generateSessionShareCardBlob(input: {
     ctx.fillText(badgeText, WIDTH / 2, badgeTop + BADGE_HEIGHT / 2 + 13);
   }
 
+  // ── Crédito: fijo abajo del todo, fuera del bloque centrado — así no
+  // desplaza el resto del contenido al variar su altura. ─────────────────
+  ctx.textAlign = "center";
+  ctx.fillStyle = `color-mix(in oklch, ${onPrimary} 65%, transparent)`;
+  ctx.font = "500 28px system-ui, sans-serif";
+  ctx.fillText(`© ${new Date().getFullYear()} Pedro Carramolino`, WIDTH / 2, HEIGHT - 50);
+
   return new Promise((resolve) => {
     canvas.toBlob((blob) => resolve(blob), "image/png");
   });
