@@ -32,6 +32,7 @@ function blockToDomain(row: SessionBlockRow): SessionBlock {
     startedAt: row.started_at ? new Date(row.started_at) : null,
     endedAt: row.ended_at ? new Date(row.ended_at) : null,
     note: row.note,
+    pausedRemainingSeconds: row.paused_remaining_seconds,
   };
 }
 
@@ -186,6 +187,14 @@ export class SupabaseSessionRepository implements SessionRepository {
     const { error } = await this.client
       .from("session_blocks")
       .update({ qstash_message_id: messageId })
+      .eq("id", id);
+    if (error) throw error;
+  }
+
+  async setBlockPausedRemainingSeconds(id: SessionBlockId, seconds: number | null): Promise<void> {
+    const { error } = await this.client
+      .from("session_blocks")
+      .update({ paused_remaining_seconds: seconds })
       .eq("id", id);
     if (error) throw error;
   }

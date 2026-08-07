@@ -17,6 +17,8 @@ export interface SessionBlock {
   endedAt: Date | null;
   /** Nota rápida que el usuario escribe al terminar el bloque. */
   note: string | null;
+  /** Cuánto quedaba en el instante de pausar — null si no está en pausa. */
+  pausedRemainingSeconds: number | null;
 }
 
 /** Para el enlace de compartir: nunca incluye notas ni de quién es la

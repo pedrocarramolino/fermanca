@@ -307,7 +307,8 @@
     "resume": "Resume",
     "pause": "Pause",
     "finishPhaseNow": "Finish phase now",
-    "activateSound": "Enable sound"
+    "activateSound": "Enable sound",
+    "backHome": "Back to home"
   },
   "TimerDisplay": {
     "paused": "Paused",

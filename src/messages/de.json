@@ -307,7 +307,8 @@
     "resume": "Fortsetzen",
     "pause": "Pausieren",
     "finishPhaseNow": "Phase jetzt beenden",
-    "activateSound": "Ton aktivieren"
+    "activateSound": "Ton aktivieren",
+    "backHome": "Zurück zum Start"
   },
   "TimerDisplay": {
     "paused": "Pausiert",

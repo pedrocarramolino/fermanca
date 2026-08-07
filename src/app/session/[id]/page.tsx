@@ -32,6 +32,7 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
     note: block.note,
     status: block.status,
     startedAt: block.startedAt?.toISOString() ?? null,
+    pausedRemainingSeconds: block.pausedRemainingSeconds,
   }));
 
   if (session.status !== "in_progress") {

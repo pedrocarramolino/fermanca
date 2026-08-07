@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
@@ -100,6 +101,17 @@ export function SessionRunner({
               {t("finishPhaseNow")}
             </Button>
           </div>
+          {runtime.isPaused && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              render={<Link href="/" />}
+              nativeButton={false}
+            >
+              {t("backHome")}
+            </Button>
+          )}
         </div>
       )}
 

@@ -81,16 +81,20 @@ export async function extendActiveBlock(blockId: string, extraSeconds: number) {
 
 /**
  * El usuario pausa el bloque activo — se cancela el aviso QStash pendiente
- * para que no llegue un "fin de fase" mientras el cronómetro está parado;
- * se reprograma al reanudar (ver resumeActiveBlock).
+ * para que no llegue un "fin de fase" mientras el cronómetro está parado, y
+ * se guarda cuánto quedaba en ese instante: sin esto, recargar la página o
+ * volver más tarde recalcularía el tiempo restante desde `started_at` como
+ * si hubiera seguido corriendo mientras se estaba fuera. Se libera al
+ * reanudar (ver resumeActiveBlock).
  */
-export async function pauseActiveBlock(blockId: string) {
+export async function pauseActiveBlock(blockId: string, remainingSeconds: number) {
   const { client } = await requireUserId();
   const repo = new SupabaseSessionRepository(client);
 
   const pendingMessageId = await repo.getBlockQstashMessageId(blockId as SessionBlockId);
   if (pendingMessageId) await cancelQstashMessage(pendingMessageId);
   await repo.setBlockQstashMessageId(blockId as SessionBlockId, null);
+  await repo.setBlockPausedRemainingSeconds(blockId as SessionBlockId, Math.round(remainingSeconds));
 }
 
 /**
@@ -98,7 +102,7 @@ export async function pauseActiveBlock(blockId: string) {
  * tiempo que ha estado en pausa (ver useSessionRuntime), así que persistirlo
  * mantiene el cálculo de elapsed/remaining correcto tras un refresco. El
  * aviso de fin de fase se reprograma para lo que quedaba, no para la
- * duración completa de la fase.
+ * duración completa de la fase, y se libera la marca de pausa.
  */
 export async function resumeActiveBlock(
   blockId: string,
@@ -111,6 +115,7 @@ export async function resumeActiveBlock(
   const messageId = await scheduleSessionPhaseAlert(blockId, remainingSeconds);
   await repo.updateBlock(blockId as SessionBlockId, userId, { startedAt: new Date(newStartedAt) });
   await repo.setBlockQstashMessageId(blockId as SessionBlockId, messageId);
+  await repo.setBlockPausedRemainingSeconds(blockId as SessionBlockId, null);
 }
 
 /**
@@ -131,6 +136,7 @@ export async function getFreshBlocks(sessionId: string) {
     plannedDurationSeconds: block.plannedDurationSeconds,
     actualDurationSeconds: block.actualDurationSeconds,
     note: block.note,
+    pausedRemainingSeconds: block.pausedRemainingSeconds,
   }));
 }
 

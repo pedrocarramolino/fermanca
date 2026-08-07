@@ -21,6 +21,10 @@ export interface RuntimeBlockInput extends RuntimeBlock {
   status: SessionBlockStatus;
   /** ISO — null si el bloque todavía no ha empezado a contar. */
   startedAt: string | null;
+  /** Cuánto quedaba cuando se pausó — null si no está en pausa. Permite
+   * reconstruir una pausa que sobrevivió a recargar la página o a volver
+   * más tarde desde Inicio (ver el useState de `initial` más abajo). */
+  pausedRemainingSeconds: number | null;
 }
 
 export interface PlaybackSettings {
@@ -49,9 +53,27 @@ export function useSessionRuntime({
   const [initial] = useState(() => {
     const index = findActiveIndex(blocks);
     const block = blocks[index];
-    const startedAt = block?.startedAt ? new Date(block.startedAt) : new Date();
-    const state = resolveRuntimeState(blocks, index, startedAt, new Date());
-    return { index, startedAt, alreadyAwaiting: state.status === "awaiting-confirmation" };
+    const nowAtMount = new Date();
+
+    // Estaba en pausa la última vez que se guardó (pauseTimer persiste esto
+    // — ver la acción pauseActiveBlock): se reconstruye "congelada" con el
+    // mismo tiempo restante, en vez de recalcular desde started_at, que no
+    // se movió mientras estuvo en pausa. Así una pausa sobrevive a recargar
+    // la página o a volver más tarde desde Inicio.
+    if (block?.pausedRemainingSeconds != null) {
+      const elapsedSeconds = Math.max(0, block.plannedDurationSeconds - block.pausedRemainingSeconds);
+      const startedAt = new Date(nowAtMount.getTime() - elapsedSeconds * 1000);
+      return { index, startedAt, alreadyAwaiting: false, pausedAt: nowAtMount };
+    }
+
+    const startedAt = block?.startedAt ? new Date(block.startedAt) : nowAtMount;
+    const state = resolveRuntimeState(blocks, index, startedAt, nowAtMount);
+    return {
+      index,
+      startedAt,
+      alreadyAwaiting: state.status === "awaiting-confirmation",
+      pausedAt: null as Date | null,
+    };
   });
 
   const [now, setNow] = useState(() => new Date());
@@ -69,7 +91,7 @@ export function useSessionRuntime({
   const [extraSecondsByBlockId, setExtraSecondsByBlockId] = useState<Record<string, number>>({});
   // Mientras está pausado, congelamos el "now" que ve resolveRuntimeState en
   // el instante de la pausa en vez de dejarlo avanzar con el reloj real.
-  const [pausedAt, setPausedAt] = useState<Date | null>(null);
+  const [pausedAt, setPausedAt] = useState<Date | null>(initial.pausedAt);
   const effectiveBlocks =
     Object.keys(extraSecondsByBlockId).length === 0
       ? blocks
@@ -199,14 +221,18 @@ export function useSessionRuntime({
   }
 
   /** Congela el cronómetro: el bloque activo sigue "running" pero con el
-   * tiempo detenido en el instante de la pausa, y se cancela el aviso de fin
-   * de fase para que no llegue mientras está parado. */
+   * tiempo detenido en el instante de la pausa, se cancela el aviso de fin
+   * de fase para que no llegue mientras está parado, y se guarda cuánto
+   * quedaba — así la pausa se puede reconstruir aunque se cierre la pestaña
+   * o se vuelva a Inicio antes de reanudar (ver el useState de `initial`). */
   function pauseTimer() {
     if (runtimeState.status !== "running" || pausedAt || !activeBlock) return;
     setPausedAt(new Date());
-    void pauseActiveBlock(activeBlock.id).catch((error: unknown) => {
-      console.error("No se pudo pausar la fase", error);
-    });
+    void pauseActiveBlock(activeBlock.id, runtimeState.remainingInActiveBlock).catch(
+      (error: unknown) => {
+        console.error("No se pudo pausar la fase", error);
+      },
+    );
   }
 
   /** Desplaza activeBlockStartedAt hacia delante por lo que ha durado la

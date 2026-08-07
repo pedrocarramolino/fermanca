@@ -136,6 +136,7 @@ export interface Database {
           phase_alert_sent: boolean;
           phase_reminder_sent: boolean;
           qstash_message_id: string | null;
+          paused_remaining_seconds: number | null;
         };
         Insert: {
           id?: string;
@@ -153,6 +154,7 @@ export interface Database {
           phase_alert_sent?: boolean;
           phase_reminder_sent?: boolean;
           qstash_message_id?: string | null;
+          paused_remaining_seconds?: number | null;
         };
         Update: Partial<Database["public"]["Tables"]["session_blocks"]["Insert"]>;
         Relationships: [
