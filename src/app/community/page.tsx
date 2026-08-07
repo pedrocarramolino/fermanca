@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { MessageCircle } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
+import { WhatsAppIcon } from "@/components/icons/whatsapp-icon";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -68,7 +68,7 @@ export default async function CommunityPage() {
             variant="outline"
             className="self-start"
           >
-            <MessageCircle className="size-4" />
+            <WhatsAppIcon className="size-4" />
             {t("cta")}
           </Button>
         </CardContent>
