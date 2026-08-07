@@ -67,10 +67,10 @@ export async function POST(request: Request) {
       { endpoint: sub.endpoint, p256dh: sub.p256dh, auth: sub.auth },
       {
         kind: "session-phase",
-        title: "¿Sigues ahí?",
+        title: "¡Vamos, que seguimos! 🎺",
         body: nextBlock
-          ? `Llevas 2 minutos sin pasar a "${nextBlock.name}".`
-          : "Llevas 2 minutos sin terminar la sesión.",
+          ? `Llevas 2 minutos sin pasar a "${nextBlock.name}". Vuelve a tu sesión.`
+          : "Llevas 2 minutos sin terminar la sesión. Vuelve a tu sesión.",
         sessionId: block.session_id,
         hasNextPhase: nextBlock !== null,
       },
