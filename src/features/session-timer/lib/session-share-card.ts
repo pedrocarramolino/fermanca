@@ -31,6 +31,8 @@ const ROW_GAP = 18;
 const EXTRA_LINE_HEIGHT = 56;
 const PANEL_TO_BADGE_GAP = 56;
 const BADGE_HEIGHT = 88;
+const TO_CREDIT_GAP = 48;
+const CREDIT_LINE_HEIGHT = 40;
 
 function cssVar(name: string): string {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -123,13 +125,16 @@ export async function generateSessionShareCardBlob(input: {
     WORDMARK_LINE +
     WORDMARK_TO_PANEL_GAP +
     panelHeight +
-    (hasStreak ? PANEL_TO_BADGE_GAP + BADGE_HEIGHT : 0);
+    (hasStreak ? PANEL_TO_BADGE_GAP + BADGE_HEIGHT : 0) +
+    TO_CREDIT_GAP +
+    CREDIT_LINE_HEIGHT;
   const contentTop = Math.max(80, Math.round((HEIGHT - contentHeight) / 2));
 
   const iconTop = contentTop;
   const wordmarkBaseline = iconTop + ICON_SIZE + ICON_TO_WORDMARK_GAP + WORDMARK_LINE * 0.72;
   const panelTop = iconTop + ICON_SIZE + ICON_TO_WORDMARK_GAP + WORDMARK_LINE + WORDMARK_TO_PANEL_GAP;
   const badgeTop = panelTop + panelHeight + PANEL_TO_BADGE_GAP;
+  const creditTop = (hasStreak ? badgeTop + BADGE_HEIGHT : panelTop + panelHeight) + TO_CREDIT_GAP;
 
   // ── Cabecera: icono + nombre, directamente sobre el degradado ──────────
   ctx.textAlign = "center";
@@ -233,12 +238,17 @@ export async function generateSessionShareCardBlob(input: {
     ctx.fillText(badgeText, WIDTH / 2, badgeTop + BADGE_HEIGHT / 2 + 13);
   }
 
-  // ── Crédito: fijo abajo del todo, fuera del bloque centrado — así no
-  // desplaza el resto del contenido al variar su altura. ─────────────────
+  // ── Crédito: justo debajo del panel (o de la insignia de racha, si la
+  // hay) — parte del bloque centrado, no fijo al canvas, para que se mueva
+  // con el resto del contenido en vez de quedar suelto abajo del todo. ────
   ctx.textAlign = "center";
   ctx.fillStyle = `color-mix(in oklch, ${onPrimary} 65%, transparent)`;
   ctx.font = "500 28px system-ui, sans-serif";
-  ctx.fillText(`© ${new Date().getFullYear()} Pedro Carramolino`, WIDTH / 2, HEIGHT - 50);
+  ctx.fillText(
+    `© ${new Date().getFullYear()} Pedro Carramolino · Idea original: Alejandro Mas`,
+    WIDTH / 2,
+    creditTop + 28,
+  );
 
   return new Promise((resolve) => {
     canvas.toBlob((blob) => resolve(blob), "image/png");
