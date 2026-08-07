@@ -289,6 +289,11 @@
       "goToCommunity": "Zur Community",
       "sentTitle": "Anfrage an @{username} gesendet",
       "sentDescription": "Ihr werdet Freunde, sobald er sie in der Community annimmt."
+    },
+    "whatsapp": {
+      "title": "Tritt unserer WhatsApp-Community bei",
+      "description": "Tipps, Neuigkeiten und Motivation, um weiter zu üben.",
+      "cta": "WhatsApp-Kanal beitreten"
     }
   },
   "Share": {

@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { MessageCircle } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   getFriendProgress,
   getMyProfile,
@@ -10,12 +13,15 @@ import {
 import { CommunityManager } from "@/features/community/components/community-manager";
 import type { FriendWithProgress } from "@/features/community/components/friends-list";
 
+const WHATSAPP_COMMUNITY_URL = "https://whatsapp.com/channel/0029VbEHCgA9cDDhpNVcWk0M";
+
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Community");
   return { title: t("title") };
 }
 
 export default async function CommunityPage() {
+  const t = await getTranslations("Community.whatsapp");
   const [profile, pendingRequests, friends] = await Promise.all([
     getMyProfile(),
     listPendingRequests(),
@@ -49,6 +55,24 @@ export default async function CommunityPage() {
         initialPendingRequests={pendingRequests}
         initialFriends={friendsWithProgress}
       />
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">{t("title")}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3">
+          <p className="text-muted-foreground text-sm">{t("description")}</p>
+          <Button
+            render={<a href={WHATSAPP_COMMUNITY_URL} target="_blank" rel="noopener noreferrer" />}
+            nativeButton={false}
+            variant="outline"
+            className="self-start"
+          >
+            <MessageCircle className="size-4" />
+            {t("cta")}
+          </Button>
+        </CardContent>
+      </Card>
     </main>
   );
 }
