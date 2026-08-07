@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 import { RegisterServiceWorker } from "@/components/register-service-worker";
 import { InstallPromptBanner } from "@/components/install-prompt-banner";
+import { NotificationPromptDialog } from "@/components/notification-prompt-dialog";
 import { LaunchAnimation } from "@/components/launch-animation";
 import { BottomNav } from "@/components/bottom-nav";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -83,6 +84,7 @@ export default async function RootLayout({
           <ThemeProvider defaultTheme={settings?.theme ?? "system"}>
             {children}
             {userId && <BottomNav />}
+            {userId && <NotificationPromptDialog />}
             <RegisterServiceWorker />
             <InstallPromptBanner />
             <LaunchAnimation />

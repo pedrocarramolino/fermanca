@@ -349,6 +349,12 @@
     "install": "Install",
     "dismiss": "Dismiss"
   },
+  "NotificationPrompt": {
+    "title": "Turn on notifications",
+    "description": "We'll let you know when each phase of your session ends, and at the time you choose for your reminders. You can turn them on in Reminders, further down the menu.",
+    "dismiss": "Not now",
+    "goToReminders": "Go to Reminders"
+  },
   "Terms": {
     "title": "Terms of Service",
     "lastUpdated": "Last updated: August 5, 2026",

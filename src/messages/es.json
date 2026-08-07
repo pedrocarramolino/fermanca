@@ -349,6 +349,12 @@
     "install": "Instalar",
     "dismiss": "Descartar"
   },
+  "NotificationPrompt": {
+    "title": "Activa las notificaciones",
+    "description": "Así te avisamos cuando termine cada fase de tu sesión y en la hora que elijas para tus recordatorios. Puedes activarlas en Recordatorios, más abajo en el menú.",
+    "dismiss": "Ahora no",
+    "goToReminders": "Ir a Recordatorios"
+  },
   "Terms": {
     "title": "Términos de servicio",
     "lastUpdated": "Última actualización: 5 de agosto de 2026",

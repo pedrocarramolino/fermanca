@@ -349,6 +349,12 @@
     "install": "Installieren",
     "dismiss": "Verwerfen"
   },
+  "NotificationPrompt": {
+    "title": "Benachrichtigungen aktivieren",
+    "description": "So erfährst du, wenn jede Phase deiner Sitzung endet, und erhältst Erinnerungen zur gewählten Uhrzeit. Du kannst sie unter Erinnerungen weiter unten im Menü aktivieren.",
+    "dismiss": "Jetzt nicht",
+    "goToReminders": "Zu Erinnerungen"
+  },
   "Terms": {
     "title": "Nutzungsbedingungen",
     "lastUpdated": "Zuletzt aktualisiert: 5. August 2026",
