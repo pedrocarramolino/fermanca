@@ -3,21 +3,16 @@ import { createServiceClient } from "@/core/infrastructure/supabase/service-clie
 import { SupabasePushSubscriptionRepository } from "@/core/infrastructure/supabase/repositories/push-subscription-repository";
 import { sendPush } from "@/core/infrastructure/push/send-push";
 import { verifyQstashSignature } from "@/core/infrastructure/qstash/verify";
-import { scheduleSessionPhaseReminder } from "@/core/infrastructure/qstash/client";
-
-/** Si a los 2 minutos de este aviso el bloque sigue sin confirmarse, se
- * manda un recordatorio (ver /api/qstash/session-phase-reminder). */
-const PHASE_REMINDER_DELAY_SECONDS = 120;
 
 /**
- * QStash llama aquí una sola vez, en el instante exacto en que un bloque
- * debería terminar (programado por SupabaseSessionRepository.start()/
- * transitionBlock con delay = duración planeada) — es la única vía por la
- * que se envía la notificación de fin de fase, tanto con la app en primer
- * plano como con el móvil bloqueado. phase_alert_sent es el cinturón de
- * seguridad: si la fase se confirmó a mano y el mensaje no llegó a
- * cancelarse a tiempo, o si QStash reintenta la entrega, aquí no se hace
- * nada.
+ * QStash llama aquí 2 minutos después del aviso principal de fin de fase
+ * (encadenado desde /api/qstash/session-phase-alert una vez entregado ese
+ * aviso — ver el comentario allí). Si para entonces el bloque ya no está
+ * `active` (se confirmó la fase, o se amplió el tiempo y con ello el ciclo
+ * entero), no hay nada que recordar: transitionBlock/extendActiveBlock ya
+ * cancelaron este mensaje antes de que llegara a dispararse, y este es solo
+ * el cinturón de seguridad para una entrega que se coló de todos modos.
+ * phase_reminder_sent evita reenviarlo si QStash reintenta la entrega.
  */
 export async function POST(request: Request) {
   const rawBody = await request.text();
@@ -30,12 +25,12 @@ export async function POST(request: Request) {
 
   const { data: block, error: blockError } = await supabase
     .from("session_blocks")
-    .select("id, session_id, position, status, phase_alert_sent")
+    .select("id, session_id, position, status, phase_reminder_sent")
     .eq("id", blockId)
     .maybeSingle();
   if (blockError) throw blockError;
 
-  if (!block || block.status !== "active" || block.phase_alert_sent) {
+  if (!block || block.status !== "active" || block.phase_reminder_sent) {
     return NextResponse.json({ sent: 0, skipped: true });
   }
 
@@ -72,8 +67,10 @@ export async function POST(request: Request) {
       { endpoint: sub.endpoint, p256dh: sub.p256dh, auth: sub.auth },
       {
         kind: "session-phase",
-        title: "Fase completada",
-        body: nextBlock ? `Toca para pasar a "${nextBlock.name}".` : "Sesión completada.",
+        title: "¿Sigues ahí?",
+        body: nextBlock
+          ? `Llevas 2 minutos sin pasar a "${nextBlock.name}".`
+          : "Llevas 2 minutos sin terminar la sesión.",
         sessionId: block.session_id,
         hasNextPhase: nextBlock !== null,
       },
@@ -82,31 +79,9 @@ export async function POST(request: Request) {
     if (result.expired) await pushRepo.deleteByEndpoint(sub.endpoint);
   }
 
-  // Se encadena aquí (no al activar el bloque) porque el recordatorio solo
-  // tiene sentido si de verdad llegó a sonar el aviso principal — si el
-  // usuario confirmó la fase antes de que este aviso se disparara, este
-  // código nunca se ejecuta y no hay recordatorio que programar.
-  let reminderMessageId: string | null = null;
-  try {
-    reminderMessageId = await scheduleSessionPhaseReminder(
-      block.id,
-      PHASE_REMINDER_DELAY_SECONDS,
-    );
-  } catch (error) {
-    // No debe tumbar el envío del aviso principal, que ya se entregó.
-    console.error("No se pudo programar el recordatorio de fase", error);
-  }
-
   const { error: markError } = await supabase
     .from("session_blocks")
-    .update({
-      phase_alert_sent: true,
-      // Sustituye el id del aviso principal (ya entregado, nada que
-      // cancelar) por el del recordatorio — transitionBlock/
-      // extendActiveBlock cancelan lo que haya aquí sin necesitar saber
-      // cuál de los dos es.
-      ...(reminderMessageId ? { qstash_message_id: reminderMessageId } : {}),
-    })
+    .update({ phase_reminder_sent: true })
     .eq("id", block.id);
   if (markError) throw markError;
 

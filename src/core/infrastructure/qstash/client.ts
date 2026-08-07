@@ -27,6 +27,23 @@ export async function scheduleSessionPhaseAlert(
   return messageId;
 }
 
+/** Encadenado desde session-phase-alert una vez entregado el aviso
+ * principal, no desde donde se programa este — así el recordatorio hereda
+ * gratis toda la cancelación ya existente (transitionBlock/extendActiveBlock
+ * cancelan lo que haya en qstash_message_id, sea el aviso principal o este
+ * recordatorio, sin necesitar una columna aparte para su id). */
+export async function scheduleSessionPhaseReminder(
+  blockId: string,
+  delaySeconds: number,
+): Promise<string> {
+  const { messageId } = await getClient().publishJSON({
+    url: `${appUrl()}/api/qstash/session-phase-reminder`,
+    body: { blockId },
+    delay: Math.max(0, Math.round(delaySeconds)),
+  });
+  return messageId;
+}
+
 /** Best-effort: si el mensaje ya se entregó o ya no existe, no hay nada que
  * deshacer — no debe tumbar la transición de fase por esto. */
 export async function cancelQstashMessage(messageId: string): Promise<void> {

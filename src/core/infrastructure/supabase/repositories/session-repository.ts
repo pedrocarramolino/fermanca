@@ -209,6 +209,7 @@ export class SupabaseSessionRepository implements SessionRepository {
       .update({
         planned_duration_seconds: current.planned_duration_seconds + extraSeconds,
         phase_alert_sent: false,
+        phase_reminder_sent: false,
         qstash_message_id: qstashMessageId,
       })
       .eq("id", id);
