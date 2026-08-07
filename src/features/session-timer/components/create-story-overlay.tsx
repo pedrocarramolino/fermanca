@@ -1,0 +1,478 @@
+"use client";
+
+import { useEffect, useRef, useState, type ChangeEvent, type PointerEvent } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { Camera, ChevronLeft, Download, Loader2, Share2, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import {
+  getCurrentStreakDays,
+  getSessionTemplateName,
+} from "@/features/session-timer/application/actions";
+import {
+  clampOffset,
+  DEFAULT_STORY_TRANSFORM,
+  resolveDrawRect,
+  type StoryTransform,
+} from "@/features/session-timer/lib/story-transform";
+import {
+  generateSessionStoryBlob,
+  type StoryStyleVariant,
+} from "@/features/session-timer/lib/session-story-card";
+
+type Step = "capture" | "edit" | "preview";
+type StoryBlock = { name: string; color: string; actualDurationSeconds: number };
+
+const STYLE_VARIANTS: StoryStyleVariant[] = ["classic", "minimal", "bold"];
+const STYLE_LABEL_KEYS: Record<StoryStyleVariant, string> = {
+  classic: "styleClassic",
+  minimal: "styleMinimal",
+  bold: "styleBold",
+};
+
+function canShareNatively(): boolean {
+  return typeof navigator !== "undefined" && typeof navigator.share === "function";
+}
+
+/** Foto posicionada con el mismo cálculo (resolveDrawRect) que usa el
+ * canvas final — así la preview en pantalla y la imagen exportada
+ * coinciden siempre, aunque el marco en pantalla mida menos px que el
+ * canvas de 1080×1920. */
+function PhotoPreview({
+  frameRef,
+  photoUrl,
+  photoImage,
+  transform,
+}: {
+  frameRef: React.RefObject<HTMLDivElement | null>;
+  photoUrl: string;
+  photoImage: HTMLImageElement;
+  transform: StoryTransform;
+}) {
+  const [frameSize, setFrameSize] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    const el = frameRef.current;
+    if (!el) return;
+
+    function measure() {
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      setFrameSize({ width: rect.width, height: rect.height });
+    }
+
+    measure();
+    // ResizeObserver cubre además un giro de pantalla mientras el marco
+    // está abierto — measure() ya deja algo pintado desde el primer frame.
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [frameRef]);
+
+  if (frameSize.width === 0) return null;
+
+  const rect = resolveDrawRect(
+    transform,
+    photoImage.naturalWidth,
+    photoImage.naturalHeight,
+    frameSize.width,
+    frameSize.height,
+  );
+  const scaleX = rect.width / photoImage.naturalWidth;
+
+  return (
+    <img
+      src={photoUrl}
+      alt=""
+      draggable={false}
+      className="pointer-events-none absolute top-0 left-0 max-w-none touch-none select-none"
+      style={{
+        width: photoImage.naturalWidth,
+        height: photoImage.naturalHeight,
+        transform: `translate(${rect.x}px, ${rect.y}px) scale(${scaleX})`,
+        transformOrigin: "0 0",
+      }}
+    />
+  );
+}
+
+/** Pista visual barata (gradiente CSS) de dónde caerá el scrim de cada
+ * estilo — nunca recompone el canvas al cambiar de swatch, solo al pulsar
+ * "Continuar". */
+function StyleScrimHint({ variant }: { variant: StoryStyleVariant }) {
+  if (variant === "classic") {
+    return (
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[45%] bg-gradient-to-t from-black/80 to-transparent" />
+    );
+  }
+  if (variant === "bold") {
+    return (
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[40%] bg-gradient-to-b from-black/75 to-transparent" />
+    );
+  }
+  return (
+    <div className="pointer-events-none absolute inset-x-0 bottom-[8%] h-[26%] bg-black/45 blur-2xl" />
+  );
+}
+
+export function CreateStoryOverlay({
+  sessionId,
+  totalSeconds,
+  blockCount,
+  blocks,
+  onClose,
+}: {
+  sessionId: string;
+  totalSeconds: number;
+  blockCount: number;
+  blocks: StoryBlock[];
+  onClose: () => void;
+}) {
+  const t = useTranslations("StoryCreator");
+  const locale = useLocale();
+  const [step, setStep] = useState<Step>("capture");
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [photoImage, setPhotoImage] = useState<HTMLImageElement | null>(null);
+  const [transform, setTransform] = useState<StoryTransform>(DEFAULT_STORY_TRANSFORM);
+  const [styleVariant, setStyleVariant] = useState<StoryStyleVariant>("classic");
+  const [resultUrl, setResultUrl] = useState<string | null>(null);
+  const [resultBlob, setResultBlob] = useState<Blob | null>(null);
+  const [streakDays, setStreakDays] = useState(0);
+  const [sessionName, setSessionName] = useState<string | null>(null);
+  const [isBusy, setIsBusy] = useState(false);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const dragState = useRef<{
+    startX: number;
+    startY: number;
+    startOffsetX: number;
+    startOffsetY: number;
+  } | null>(null);
+
+  useEffect(() => {
+    void getCurrentStreakDays()
+      .then(setStreakDays)
+      .catch(() => {
+        // Solo decora la tarjeta — si falla, se comparte sin racha.
+      });
+    void getSessionTemplateName(sessionId)
+      .then(setSessionName)
+      .catch(() => {
+        // Sesión improvisada o fallo de red — se omite el nombre.
+      });
+  }, [sessionId]);
+
+  // Los object URL de la foto capturada y del resultado compuesto viven
+  // más de un render (se usan en el <img> de preview) — hay que liberarlos
+  // explícitamente o se acumulan cada vez que el usuario repite la foto.
+  useEffect(() => {
+    return () => {
+      if (photoUrl) URL.revokeObjectURL(photoUrl);
+    };
+  }, [photoUrl]);
+
+  useEffect(() => {
+    return () => {
+      if (resultUrl) URL.revokeObjectURL(resultUrl);
+    };
+  }, [resultUrl]);
+
+  function resetPhoto() {
+    setPhotoUrl(null);
+    setPhotoImage(null);
+    setTransform(DEFAULT_STORY_TRANSFORM);
+  }
+
+  function resetResult() {
+    setResultUrl(null);
+    setResultBlob(null);
+  }
+
+  async function handleFileSelected(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    // El usuario canceló la cámara/selector — el input simplemente no trae
+    // archivo, no hay ningún error que capturar.
+    if (!file) return;
+
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.src = url;
+    try {
+      await img.decode();
+    } catch {
+      URL.revokeObjectURL(url);
+      return;
+    }
+    setPhotoUrl(url);
+    setPhotoImage(img);
+    setTransform(DEFAULT_STORY_TRANSFORM);
+    setStep("edit");
+  }
+
+  function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
+    if (!photoImage) return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    dragState.current = {
+      startX: event.clientX,
+      startY: event.clientY,
+      startOffsetX: transform.offsetX,
+      startOffsetY: transform.offsetY,
+    };
+  }
+
+  function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
+    if (!dragState.current || !photoImage || !frameRef.current) return;
+    const frame = frameRef.current.getBoundingClientRect();
+    const baseScale = Math.max(
+      frame.width / photoImage.naturalWidth,
+      frame.height / photoImage.naturalHeight,
+    );
+    const scale = baseScale * transform.zoom;
+    const drawnWidth = photoImage.naturalWidth * scale;
+    const drawnHeight = photoImage.naturalHeight * scale;
+    const maxShiftX = Math.max(0, (drawnWidth - frame.width) / 2);
+    const maxShiftY = Math.max(0, (drawnHeight - frame.height) / 2);
+
+    const dx = event.clientX - dragState.current.startX;
+    const dy = event.clientY - dragState.current.startY;
+
+    const nextOffsetX =
+      maxShiftX === 0 ? 0.5 : dragState.current.startOffsetX - dx / (maxShiftX * 2);
+    const nextOffsetY =
+      maxShiftY === 0 ? 0.5 : dragState.current.startOffsetY - dy / (maxShiftY * 2);
+
+    const clamped = clampOffset(
+      nextOffsetX,
+      nextOffsetY,
+      transform.zoom,
+      photoImage.naturalWidth,
+      photoImage.naturalHeight,
+      frame.width,
+      frame.height,
+    );
+    setTransform((prev) => ({ ...prev, ...clamped }));
+  }
+
+  function handlePointerUp() {
+    dragState.current = null;
+  }
+
+  function handleZoomChange(value: number | readonly number[]) {
+    const zoom = Array.isArray(value) ? value[0]! : value;
+    if (!photoImage || !frameRef.current) {
+      setTransform((prev) => ({ ...prev, zoom }));
+      return;
+    }
+    const frame = frameRef.current.getBoundingClientRect();
+    const clamped = clampOffset(
+      transform.offsetX,
+      transform.offsetY,
+      zoom,
+      photoImage.naturalWidth,
+      photoImage.naturalHeight,
+      frame.width,
+      frame.height,
+    );
+    setTransform({ ...clamped, zoom });
+  }
+
+  async function handleContinue() {
+    if (!photoImage || isBusy) return;
+    setIsBusy(true);
+    try {
+      const blob = await generateSessionStoryBlob({
+        photoImage,
+        transform,
+        styleVariant,
+        totalSeconds,
+        blockCount,
+        blocks,
+        streakDays,
+        sessionName,
+        date: new Date(),
+        locale,
+      });
+      if (!blob) return;
+      setResultBlob(blob);
+      setResultUrl(URL.createObjectURL(blob));
+      setStep("preview");
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
+  function handleSave() {
+    if (!resultBlob) return;
+    const url = URL.createObjectURL(resultBlob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "practiceflow-story.png";
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function handleShare() {
+    if (!resultBlob) return;
+    const file = new File([resultBlob], "practiceflow-story.png", { type: "image/png" });
+    if (!canShareNatively() || !navigator.canShare?.({ files: [file] })) {
+      handleSave();
+      return;
+    }
+    setIsBusy(true);
+    try {
+      await navigator.share({ title: "PracticeFlow", files: [file] });
+    } catch {
+      // El usuario canceló el selector nativo — no es un error que mostrar.
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
+  function handleBack() {
+    if (step === "edit") {
+      resetPhoto();
+      setStep("capture");
+    } else if (step === "preview") {
+      resetResult();
+      setStep("edit");
+    }
+  }
+
+  function handleClose() {
+    resetPhoto();
+    resetResult();
+    onClose();
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col bg-black text-white">
+      <div className="flex items-center justify-between p-3">
+        {step === "capture" ? (
+          <span />
+        ) : (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={handleBack}
+            className="text-white hover:bg-white/10 hover:text-white"
+          >
+            <ChevronLeft className="size-5" />
+          </Button>
+        )}
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={handleClose}
+          aria-label={t("close")}
+          className="text-white hover:bg-white/10 hover:text-white"
+        >
+          <X className="size-5" />
+        </Button>
+      </div>
+
+      {step === "capture" && (
+        <div className="flex flex-1 flex-col items-center justify-center gap-6 p-8 text-center">
+          <Camera className="size-16 text-white/60" />
+          <p className="text-lg font-medium">{t("capturePrompt")}</p>
+          <label>
+            <input
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleFileSelected}
+              className="hidden"
+            />
+            <span className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-medium text-black">
+              <Camera className="size-4" />
+              {t("captureButton")}
+            </span>
+          </label>
+        </div>
+      )}
+
+      {step === "edit" && photoImage && photoUrl && (
+        <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-4">
+          <div
+            ref={frameRef}
+            className="relative mx-auto aspect-[9/16] w-full max-w-xs touch-none overflow-hidden rounded-2xl bg-black"
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerUp}
+          >
+            <PhotoPreview
+              frameRef={frameRef}
+              photoUrl={photoUrl}
+              photoImage={photoImage}
+              transform={transform}
+            />
+            <StyleScrimHint variant={styleVariant} />
+          </div>
+
+          <div className="mx-auto flex w-full max-w-xs flex-col gap-2">
+            <span className="text-xs text-white/60">{t("zoomLabel")}</span>
+            <Slider
+              value={[transform.zoom]}
+              min={1}
+              max={3}
+              step={0.01}
+              onValueChange={handleZoomChange}
+            />
+          </div>
+
+          <div className="mx-auto flex w-full max-w-xs justify-center gap-2">
+            {STYLE_VARIANTS.map((variant) => (
+              <button
+                key={variant}
+                type="button"
+                onClick={() => setStyleVariant(variant)}
+                className={`flex-1 rounded-full px-3 py-2 text-sm font-medium transition-colors ${
+                  styleVariant === variant ? "bg-white text-black" : "bg-white/10 text-white"
+                }`}
+              >
+                {t(STYLE_LABEL_KEYS[variant])}
+              </button>
+            ))}
+          </div>
+
+          <Button
+            type="button"
+            onClick={handleContinue}
+            disabled={isBusy}
+            className="mx-auto w-full max-w-xs"
+          >
+            {isBusy && <Loader2 className="size-4 animate-spin" />}
+            {isBusy ? t("compositing") : t("continueToPreview")}
+          </Button>
+        </div>
+      )}
+
+      {step === "preview" && resultUrl && (
+        <div className="flex flex-1 flex-col gap-4 p-4">
+          <img
+            src={resultUrl}
+            alt=""
+            className="mx-auto aspect-[9/16] w-full max-w-xs rounded-2xl object-cover"
+          />
+          <div className="mx-auto mt-auto flex w-full max-w-xs gap-3 pb-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1 border-white/30 text-white hover:bg-white/10 hover:text-white"
+              onClick={handleSave}
+            >
+              <Download className="size-4" />
+              {t("save")}
+            </Button>
+            <Button type="button" className="flex-1" onClick={handleShare} disabled={isBusy}>
+              <Share2 className="size-4" />
+              {t("share")}
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

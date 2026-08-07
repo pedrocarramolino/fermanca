@@ -2,6 +2,7 @@
 
 import { createClient } from "@/core/infrastructure/supabase/server";
 import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/repositories/session-repository";
+import { SupabaseTemplateRepository } from "@/core/infrastructure/supabase/repositories/template-repository";
 import { UnauthorizedError } from "@/core/domain/errors";
 import { currentStreakDays, practiceSecondsByDay } from "@/core/domain/streaks";
 import type { SessionBlockId, SessionId, UserId } from "@/core/domain/ids";
@@ -138,6 +139,19 @@ export async function getFreshBlocks(sessionId: string) {
     note: block.note,
     pausedRemainingSeconds: block.pausedRemainingSeconds,
   }));
+}
+
+/** Nombre de la rutina de la que viene la sesión, si se creó a partir de
+ * una — se usa en la Story con foto; las sesiones improvisadas (sin
+ * plantilla) no tienen nombre, así que devuelve null y esa línea se omite. */
+export async function getSessionTemplateName(sessionId: string): Promise<string | null> {
+  const { userId, client } = await requireUserId();
+  const sessionRepo = new SupabaseSessionRepository(client);
+  const session = await sessionRepo.getById(sessionId as SessionId, userId);
+  if (!session?.templateId) return null;
+  const templateRepo = new SupabaseTemplateRepository(client);
+  const template = await templateRepo.getById(session.templateId, userId);
+  return template?.name ?? null;
 }
 
 /** Para el texto del botón de compartir — "racha de N días" es más

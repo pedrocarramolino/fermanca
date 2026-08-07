@@ -346,6 +346,20 @@
     "backHome": "Back to home",
     "finishingSession": "Saving session…"
   },
+  "StoryCreator": {
+    "trigger": "Create photo Story",
+    "close": "Close",
+    "capturePrompt": "Take a photo while you practice",
+    "captureButton": "Open camera",
+    "continueToPreview": "Continue",
+    "compositing": "Generating…",
+    "styleClassic": "Classic",
+    "styleMinimal": "Minimal",
+    "styleBold": "Bold",
+    "zoomLabel": "Zoom",
+    "save": "Save",
+    "share": "Share"
+  },
   "SharedSession": {
     "title": "Practice session",
     "blocksSummary": "{duration} across {count, plural, one {# block} other {# blocks}}",

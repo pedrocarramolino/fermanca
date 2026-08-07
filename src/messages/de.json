@@ -346,6 +346,20 @@
     "backHome": "Zurück zum Start",
     "finishingSession": "Sitzung wird gespeichert…"
   },
+  "StoryCreator": {
+    "trigger": "Story mit Foto erstellen",
+    "close": "Schließen",
+    "capturePrompt": "Mach ein Foto beim Üben",
+    "captureButton": "Kamera öffnen",
+    "continueToPreview": "Weiter",
+    "compositing": "Wird erstellt…",
+    "styleClassic": "Klassisch",
+    "styleMinimal": "Minimal",
+    "styleBold": "Auffällig",
+    "zoomLabel": "Zoom",
+    "save": "Speichern",
+    "share": "Teilen"
+  },
   "SharedSession": {
     "title": "Übungssitzung",
     "blocksSummary": "{duration} in {count, plural, one {# Block} other {# Blöcken}}",

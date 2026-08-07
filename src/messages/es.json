@@ -346,6 +346,20 @@
     "backHome": "Volver al inicio",
     "finishingSession": "Guardando sesión…"
   },
+  "StoryCreator": {
+    "trigger": "Crear Story con foto",
+    "close": "Cerrar",
+    "capturePrompt": "Hazte una foto practicando",
+    "captureButton": "Abrir cámara",
+    "continueToPreview": "Continuar",
+    "compositing": "Generando…",
+    "styleClassic": "Clásico",
+    "styleMinimal": "Minimal",
+    "styleBold": "Destacado",
+    "zoomLabel": "Zoom",
+    "save": "Guardar",
+    "share": "Compartir"
+  },
   "SharedSession": {
     "title": "Sesión de práctica",
     "blocksSummary": "{duration} en {count, plural, one {# bloque} other {# bloques}}",

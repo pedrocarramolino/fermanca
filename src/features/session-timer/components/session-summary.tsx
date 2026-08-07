@@ -3,12 +3,14 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDurationShort } from "@/core/domain/duration";
 import { finishSession } from "@/features/session-timer/application/actions";
 import { ShareSessionButton } from "@/features/session-timer/components/share-session-button";
+import { CreateStoryOverlay } from "@/features/session-timer/components/create-story-overlay";
 import type { RuntimeBlockInput } from "@/features/session-timer/hooks/use-session-runtime";
 
 export function SessionSummary({
@@ -23,11 +25,18 @@ export function SessionSummary({
   finishing?: boolean;
 }) {
   const t = useTranslations("SessionSummaryScreen");
+  const tStory = useTranslations("StoryCreator");
   const [note, setNote] = useState(initialFinalNote);
   const [saved, setSaved] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [storyOpen, setStoryOpen] = useState(false);
 
   const totalSeconds = blocks.reduce((total, block) => total + block.actualDurationSeconds, 0);
+  const shareBlocks = blocks.map((block) => ({
+    name: block.name,
+    color: block.color,
+    actualDurationSeconds: block.actualDurationSeconds,
+  }));
 
   function handleSaveNote() {
     startTransition(async () => {
@@ -43,16 +52,28 @@ export function SessionSummary({
         {t("practiced", { duration: formatDurationShort(totalSeconds), count: blocks.length })}
       </p>
 
-      <ShareSessionButton
-        sessionId={sessionId}
-        totalSeconds={totalSeconds}
-        blockCount={blocks.length}
-        blocks={blocks.map((block) => ({
-          name: block.name,
-          color: block.color,
-          actualDurationSeconds: block.actualDurationSeconds,
-        }))}
-      />
+      <div className="flex flex-wrap justify-center gap-2">
+        <ShareSessionButton
+          sessionId={sessionId}
+          totalSeconds={totalSeconds}
+          blockCount={blocks.length}
+          blocks={shareBlocks}
+        />
+        <Button type="button" variant="outline" size="sm" onClick={() => setStoryOpen(true)}>
+          <Camera className="size-4" />
+          {tStory("trigger")}
+        </Button>
+      </div>
+
+      {storyOpen && (
+        <CreateStoryOverlay
+          sessionId={sessionId}
+          totalSeconds={totalSeconds}
+          blockCount={blocks.length}
+          blocks={shareBlocks}
+          onClose={() => setStoryOpen(false)}
+        />
+      )}
 
       <Card className="w-full">
         <CardHeader>
