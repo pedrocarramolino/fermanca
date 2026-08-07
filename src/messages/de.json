@@ -338,7 +338,8 @@
     "saveNote": "Notiz speichern",
     "savingNote": "Wird gespeichert…",
     "noteSaved": "Notiz gespeichert",
-    "backHome": "Zurück zum Start"
+    "backHome": "Zurück zum Start",
+    "finishingSession": "Sitzung wird gespeichert…"
   },
   "SharedSession": {
     "title": "Übungssitzung",

@@ -89,6 +89,12 @@ export function useSessionRuntime({
   // plannedDurationSeconds solo para el cálculo de este runtime, la duración
   // "de verdad" del bloque no cambia hasta que el servidor confirma.
   const [extraSecondsByBlockId, setExtraSecondsByBlockId] = useState<Record<string, number>>({});
+  // Sigue en true entre el momento en que se confirma la última fase (la UI
+  // ya pasa a "finished" al instante) y el momento en que finishSession
+  // termina de marcar la sesión como completada en la BD — si el usuario
+  // navega a Inicio antes de eso, vería la sesión como "en curso" hasta que
+  // se recargara. Ver el botón "Volver al inicio" del resumen.
+  const [finishing, setFinishing] = useState(false);
   // Mientras está pausado, congelamos el "now" que ve resolveRuntimeState en
   // el instante de la pausa en vez de dejarlo avanzar con el reloj real.
   const [pausedAt, setPausedAt] = useState<Date | null>(initial.pausedAt);
@@ -199,7 +205,13 @@ export function useSessionRuntime({
       // actual_duration_seconds tal cual está en BD en ese momento — si se
       // lanzara a la vez, podría leer el bloque justo cerrado todavía con su
       // valor por defecto (0) y guardar un total corto.
-      void transition.then(() => finishSession(sessionId, null));
+      setFinishing(true);
+      void transition
+        .then(() => finishSession(sessionId, null))
+        .catch((error: unknown) => {
+          console.error("No se pudo finalizar la sesión", error);
+        })
+        .finally(() => setFinishing(false));
       // activeBlockIndex ya queda >= blocks.length, así que
       // resolveRuntimeState pasará a "finished" en el próximo tick — no
       // hace falta liberar isTransitioningRef, el runner desmonta este hook.
@@ -287,6 +299,7 @@ export function useSessionRuntime({
     elapsedSeconds: runtimeState.status === "running" ? runtimeState.elapsedInActiveBlock : 0,
     lastCompletedBlock,
     completedDurations,
+    finishing,
     isPaused: pausedAt !== null,
     confirmNextPhase,
     addExtraTime,

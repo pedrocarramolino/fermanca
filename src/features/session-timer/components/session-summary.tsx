@@ -15,10 +15,12 @@ export function SessionSummary({
   sessionId,
   blocks,
   initialFinalNote = "",
+  finishing = false,
 }: {
   sessionId: string;
   blocks: RuntimeBlockInput[];
   initialFinalNote?: string;
+  finishing?: boolean;
 }) {
   const t = useTranslations("SessionSummaryScreen");
   const [note, setNote] = useState(initialFinalNote);
@@ -97,8 +99,13 @@ export function SessionSummary({
         </Button>
       </div>
 
-      <Button render={<Link href="/" />} nativeButton={false}>
-        {t("backHome")}
+      <Button
+        render={<Link href="/" />}
+        nativeButton={false}
+        disabled={finishing}
+        aria-busy={finishing}
+      >
+        {finishing ? t("finishingSession") : t("backHome")}
       </Button>
     </main>
   );

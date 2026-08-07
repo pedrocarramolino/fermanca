@@ -338,7 +338,8 @@
     "saveNote": "Guardar nota",
     "savingNote": "Guardando…",
     "noteSaved": "Nota guardada",
-    "backHome": "Volver al inicio"
+    "backHome": "Volver al inicio",
+    "finishingSession": "Guardando sesión…"
   },
   "SharedSession": {
     "title": "Sesión de práctica",

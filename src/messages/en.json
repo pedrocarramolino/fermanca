@@ -338,7 +338,8 @@
     "saveNote": "Save note",
     "savingNote": "Saving…",
     "noteSaved": "Note saved",
-    "backHome": "Back to home"
+    "backHome": "Back to home",
+    "finishingSession": "Saving session…"
   },
   "SharedSession": {
     "title": "Practice session",

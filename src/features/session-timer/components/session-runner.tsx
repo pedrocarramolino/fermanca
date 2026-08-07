@@ -63,7 +63,9 @@ export function SessionRunner({
         ? { ...block, actualDurationSeconds: runtime.completedDurations[block.id]! }
         : block,
     );
-    return <SessionSummary sessionId={sessionId} blocks={summaryBlocks} />;
+    return (
+      <SessionSummary sessionId={sessionId} blocks={summaryBlocks} finishing={runtime.finishing} />
+    );
   }
 
   if (!runtime.activeBlock) {
