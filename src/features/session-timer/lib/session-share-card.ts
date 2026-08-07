@@ -125,16 +125,16 @@ export async function generateSessionShareCardBlob(input: {
     WORDMARK_LINE +
     WORDMARK_TO_PANEL_GAP +
     panelHeight +
-    (hasStreak ? PANEL_TO_BADGE_GAP + BADGE_HEIGHT : 0) +
     TO_CREDIT_GAP +
-    CREDIT_LINE_HEIGHT;
+    CREDIT_LINE_HEIGHT +
+    (hasStreak ? PANEL_TO_BADGE_GAP + BADGE_HEIGHT : 0);
   const contentTop = Math.max(80, Math.round((HEIGHT - contentHeight) / 2));
 
   const iconTop = contentTop;
   const wordmarkBaseline = iconTop + ICON_SIZE + ICON_TO_WORDMARK_GAP + WORDMARK_LINE * 0.72;
   const panelTop = iconTop + ICON_SIZE + ICON_TO_WORDMARK_GAP + WORDMARK_LINE + WORDMARK_TO_PANEL_GAP;
-  const badgeTop = panelTop + panelHeight + PANEL_TO_BADGE_GAP;
-  const creditTop = (hasStreak ? badgeTop + BADGE_HEIGHT : panelTop + panelHeight) + TO_CREDIT_GAP;
+  const creditTop = panelTop + panelHeight + TO_CREDIT_GAP;
+  const badgeTop = creditTop + CREDIT_LINE_HEIGHT + PANEL_TO_BADGE_GAP;
 
   // ── Cabecera: icono + nombre, directamente sobre el degradado ──────────
   ctx.textAlign = "center";
@@ -222,7 +222,19 @@ export async function generateSessionShareCardBlob(input: {
     ctx.fillText(`+${extraCount} más`, WIDTH / 2, y + 40);
   }
 
-  // ── Racha: insignia sobre el degradado, debajo del panel ────────────────
+  // ── Crédito: justo debajo del panel — parte del bloque centrado, no fijo
+  // al canvas, para que se mueva con el resto del contenido en vez de
+  // quedar suelto abajo del todo. ─────────────────────────────────────────
+  ctx.textAlign = "center";
+  ctx.fillStyle = `color-mix(in oklch, ${onPrimary} 65%, transparent)`;
+  ctx.font = "500 28px system-ui, sans-serif";
+  ctx.fillText(
+    `© ${new Date().getFullYear()} Pedro Carramolino · Idea original: Alejandro Mas`,
+    WIDTH / 2,
+    creditTop + 28,
+  );
+
+  // ── Racha: insignia sobre el degradado, debajo del crédito ─────────────
   if (hasStreak) {
     const badgeText = `🔥 RACHA DE ${input.streakDays} DÍAS`;
     ctx.font = "600 38px system-ui, sans-serif";
@@ -237,18 +249,6 @@ export async function generateSessionShareCardBlob(input: {
     ctx.fillStyle = onPrimary;
     ctx.fillText(badgeText, WIDTH / 2, badgeTop + BADGE_HEIGHT / 2 + 13);
   }
-
-  // ── Crédito: justo debajo del panel (o de la insignia de racha, si la
-  // hay) — parte del bloque centrado, no fijo al canvas, para que se mueva
-  // con el resto del contenido en vez de quedar suelto abajo del todo. ────
-  ctx.textAlign = "center";
-  ctx.fillStyle = `color-mix(in oklch, ${onPrimary} 65%, transparent)`;
-  ctx.font = "500 28px system-ui, sans-serif";
-  ctx.fillText(
-    `© ${new Date().getFullYear()} Pedro Carramolino · Idea original: Alejandro Mas`,
-    WIDTH / 2,
-    creditTop + 28,
-  );
 
   return new Promise((resolve) => {
     canvas.toBlob((blob) => resolve(blob), "image/png");
