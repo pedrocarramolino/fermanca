@@ -396,7 +396,7 @@ export function CreateStoryOverlay({
         <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-4">
           <div
             ref={frameRef}
-            className="relative mx-auto aspect-[9/16] w-full max-w-xs touch-none overflow-hidden rounded-2xl bg-black"
+            className="relative mx-auto aspect-[9/16] w-full max-w-xs shrink-0 touch-none overflow-hidden rounded-2xl bg-black"
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
