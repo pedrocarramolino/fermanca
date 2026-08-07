@@ -140,18 +140,29 @@ export function AddBlockForm({
         <Input id="block-name" value={name} onChange={(event) => setName(event.target.value)} />
       </div>
 
-      <div className="flex w-full flex-col gap-2 sm:w-40">
-        <Label htmlFor="block-minutes">
-          {t("minutes")}: {minutes} min
-        </Label>
-        <Slider
-          id="block-minutes"
-          value={[minutes]}
-          min={5}
-          max={120}
-          step={5}
-          onValueChange={(value) => setMinutes(Array.isArray(value) ? value[0]! : value)}
-        />
+      <div className="flex flex-1 flex-col gap-2 sm:min-w-56">
+        <Label htmlFor="block-minutes">{t("minutes")}</Label>
+        <div className="flex items-center gap-3">
+          <Slider
+            className="flex-1"
+            value={[Math.min(Math.max(minutes, 5), 120)]}
+            min={5}
+            max={120}
+            step={5}
+            onValueChange={(value) => setMinutes(Array.isArray(value) ? value[0]! : value)}
+          />
+          <div className="flex shrink-0 items-center gap-1.5">
+            <Input
+              id="block-minutes"
+              type="number"
+              min={1}
+              className="w-16 text-center"
+              value={minutes}
+              onChange={(event) => setMinutes(Number(event.target.value))}
+            />
+            <span className="text-muted-foreground text-sm">min</span>
+          </div>
+        </div>
       </div>
 
       <Button type="button" onClick={handleAdd} disabled={!categoryId || !name.trim()}>
