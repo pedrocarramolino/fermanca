@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Camera } from "lucide-react";
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDurationShort } from "@/core/domain/duration";
-import { finishSession } from "@/features/session-timer/application/actions";
+import { finishSession, listGhostCategoryIds } from "@/features/session-timer/application/actions";
 import { ShareSessionButton } from "@/features/session-timer/components/share-session-button";
 import { CreateStoryOverlay } from "@/features/session-timer/components/create-story-overlay";
 import type { RuntimeBlockInput } from "@/features/session-timer/hooks/use-session-runtime";
@@ -30,9 +30,21 @@ export function SessionSummary({
   const [saved, setSaved] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [storyOpen, setStoryOpen] = useState(false);
+  const [ghostCategoryIds, setGhostCategoryIds] = useState<string[]>([]);
 
-  const totalSeconds = blocks.reduce((total, block) => total + block.actualDurationSeconds, 0);
-  const shareBlocks = blocks.map((block) => ({
+  useEffect(() => {
+    void listGhostCategoryIds()
+      .then(setGhostCategoryIds)
+      .catch(() => {
+        // Solo afecta a qué se oculta — si falla, el resumen muestra todo.
+      });
+  }, []);
+
+  // Los bloques de categorías "fantasma" no cuentan aquí: ni en la lista, ni
+  // en el tiempo total, ni en lo que se manda a compartir/Story.
+  const visibleBlocks = blocks.filter((block) => !ghostCategoryIds.includes(block.categoryId));
+  const totalSeconds = visibleBlocks.reduce((total, block) => total + block.actualDurationSeconds, 0);
+  const shareBlocks = visibleBlocks.map((block) => ({
     name: block.name,
     color: block.color,
     actualDurationSeconds: block.actualDurationSeconds,
@@ -49,14 +61,14 @@ export function SessionSummary({
     <main className="mx-auto flex min-h-svh max-w-md flex-col items-center justify-center gap-6 p-8 text-center lg:max-w-lg xl:max-w-xl">
       <h1 className="text-2xl font-semibold">{t("title")}</h1>
       <p className="text-muted-foreground">
-        {t("practiced", { duration: formatDurationShort(totalSeconds), count: blocks.length })}
+        {t("practiced", { duration: formatDurationShort(totalSeconds), count: visibleBlocks.length })}
       </p>
 
       <div className="flex flex-wrap justify-center gap-2">
         <ShareSessionButton
           sessionId={sessionId}
           totalSeconds={totalSeconds}
-          blockCount={blocks.length}
+          blockCount={visibleBlocks.length}
           blocks={shareBlocks}
         />
         <Button type="button" variant="outline" size="sm" onClick={() => setStoryOpen(true)}>
@@ -69,7 +81,7 @@ export function SessionSummary({
         <CreateStoryOverlay
           sessionId={sessionId}
           totalSeconds={totalSeconds}
-          blockCount={blocks.length}
+          blockCount={visibleBlocks.length}
           blocks={shareBlocks}
           onClose={() => setStoryOpen(false)}
         />
@@ -81,7 +93,7 @@ export function SessionSummary({
         </CardHeader>
         <CardContent>
           <ul className="flex flex-col gap-3 text-left">
-            {blocks.map((block) => (
+            {visibleBlocks.map((block) => (
               <li key={block.id} className="flex flex-col gap-1">
                 <div className="flex items-center gap-3 text-sm">
                   <span

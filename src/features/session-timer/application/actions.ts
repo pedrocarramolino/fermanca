@@ -3,6 +3,7 @@
 import { createClient } from "@/core/infrastructure/supabase/server";
 import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/repositories/session-repository";
 import { SupabaseTemplateRepository } from "@/core/infrastructure/supabase/repositories/template-repository";
+import { SupabaseCategoryRepository } from "@/core/infrastructure/supabase/repositories/category-repository";
 import { UnauthorizedError } from "@/core/domain/errors";
 import { currentStreakDays, practiceSecondsByDay } from "@/core/domain/streaks";
 import type { SessionBlockId, SessionId, UserId } from "@/core/domain/ids";
@@ -134,11 +135,24 @@ export async function getFreshBlocks(sessionId: string) {
     id: block.id,
     name: block.name,
     color: block.color,
+    categoryId: block.categoryId,
     plannedDurationSeconds: block.plannedDurationSeconds,
     actualDurationSeconds: block.actualDurationSeconds,
     note: block.note,
     pausedRemainingSeconds: block.pausedRemainingSeconds,
   }));
+}
+
+/** IDs de las categorías personalizadas marcadas como "fantasma" — sus
+ * bloques se excluyen del resumen final y de la imagen para compartir (ver
+ * SessionSummary). Se consulta en vivo, no se guarda una copia en el bloque:
+ * si el usuario cambia la marca después, el resumen de una sesión ya
+ * terminada refleja el estado actual de la categoría, no el de cuando se
+ * creó el bloque. */
+export async function listGhostCategoryIds(): Promise<string[]> {
+  const { userId, client } = await requireUserId();
+  const categories = await new SupabaseCategoryRepository(client).listAvailable(userId);
+  return categories.filter((c) => c.kind === "custom" && c.isGhost).map((c) => c.id);
 }
 
 /** Nombre de la rutina de la que viene la sesión, si se creó a partir de

@@ -105,6 +105,8 @@
     "description": "Examples: Scales, Improvisation, Breathing, Studies.",
     "name": "Name",
     "color": "Color",
+    "ghostLabel": "Ghost",
+    "ghostDescription": "Won't appear in the summary or the share image, and won't count toward the total time.",
     "creating": "Creating…",
     "create": "Create category",
     "saving": "Saving…",

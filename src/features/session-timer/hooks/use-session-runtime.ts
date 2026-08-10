@@ -16,6 +16,7 @@ import type { SessionBlockStatus } from "@/core/domain/session";
 export interface RuntimeBlockInput extends RuntimeBlock {
   name: string;
   color: string;
+  categoryId: string;
   actualDurationSeconds: number;
   note: string | null;
   status: SessionBlockStatus;

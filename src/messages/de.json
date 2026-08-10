@@ -105,6 +105,8 @@
     "description": "Beispiele: Tonleitern, Improvisation, Atmung, Etüden.",
     "name": "Name",
     "color": "Farbe",
+    "ghostLabel": "Geist",
+    "ghostDescription": "Erscheint nicht in der Zusammenfassung oder im Teilen-Bild und zählt nicht zur Gesamtzeit.",
     "creating": "Wird erstellt…",
     "create": "Kategorie erstellen",
     "saving": "Wird gespeichert…",

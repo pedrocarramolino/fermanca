@@ -50,18 +50,23 @@ function toNewSessionBlocks(blocks: DraftBlockInput[]): NewSessionBlock[] {
   }));
 }
 
-export async function createCustomCategory(name: string, color: string) {
+export async function createCustomCategory(name: string, color: string, isGhost: boolean) {
   const { userId, client } = await requireUserId();
   const repo = new SupabaseCategoryRepository(client);
-  const category = await repo.createCustom({ ownerId: userId, name, color });
+  const category = await repo.createCustom({ ownerId: userId, name, color, isGhost });
   revalidatePath("/");
   return category;
 }
 
-export async function updateCustomCategory(id: string, name: string, color: string) {
+export async function updateCustomCategory(
+  id: string,
+  name: string,
+  color: string,
+  isGhost: boolean,
+) {
   const { userId, client } = await requireUserId();
   const repo = new SupabaseCategoryRepository(client);
-  const category = await repo.updateCustom(id as CategoryId, userId, { name, color });
+  const category = await repo.updateCustom(id as CategoryId, userId, { name, color, isGhost });
   revalidatePath("/");
   return category;
 }

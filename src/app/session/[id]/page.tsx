@@ -27,6 +27,7 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
     id: block.id,
     name: block.name,
     color: block.color,
+    categoryId: block.categoryId,
     plannedDurationSeconds: block.plannedDurationSeconds,
     actualDurationSeconds: block.actualDurationSeconds,
     note: block.note,

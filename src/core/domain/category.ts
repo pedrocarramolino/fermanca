@@ -22,5 +22,8 @@ export interface CustomCategory {
   ownerId: UserId;
   name: string;
   color: string;
+  /** Si está marcada, sus bloques no aparecen en el resumen final ni en la
+   * imagen para compartir, y no cuentan en el tiempo total mostrado ahí. */
+  isGhost: boolean;
   createdAt: Date;
 }

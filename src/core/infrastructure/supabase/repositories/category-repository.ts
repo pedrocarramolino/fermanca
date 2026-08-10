@@ -22,6 +22,7 @@ function toDomain(row: CategoryRow): Category {
     ownerId: row.owner_id as UserId,
     name: row.name,
     color: row.color,
+    isGhost: row.is_ghost,
     createdAt: new Date(row.created_at),
   };
 }
@@ -45,10 +46,17 @@ export class SupabaseCategoryRepository implements CategoryRepository {
     ownerId: UserId;
     name: string;
     color: string;
+    isGhost: boolean;
   }): Promise<CustomCategory> {
     const { data, error } = await this.client
       .from("categories")
-      .insert({ kind: "custom", owner_id: input.ownerId, name: input.name, color: input.color })
+      .insert({
+        kind: "custom",
+        owner_id: input.ownerId,
+        name: input.name,
+        color: input.color,
+        is_ghost: input.isGhost,
+      })
       .select("*")
       .single();
 
@@ -59,11 +67,19 @@ export class SupabaseCategoryRepository implements CategoryRepository {
   async updateCustom(
     id: CategoryId,
     ownerId: UserId,
-    changes: Partial<Pick<CustomCategory, "name" | "color">>,
+    changes: Partial<Pick<CustomCategory, "name" | "color" | "isGhost">>,
   ): Promise<CustomCategory> {
+    // No se puede pasar `changes` tal cual a `.update()`: `isGhost` (camelCase)
+    // no coincide con la columna `is_ghost` como sí pasa por casualidad con
+    // name/color, así que hay que traducir las claves explícitamente.
+    const payload: Database["public"]["Tables"]["categories"]["Update"] = {};
+    if (changes.name !== undefined) payload.name = changes.name;
+    if (changes.color !== undefined) payload.color = changes.color;
+    if (changes.isGhost !== undefined) payload.is_ghost = changes.isGhost;
+
     const { data, error } = await this.client
       .from("categories")
-      .update(changes)
+      .update(payload)
       .eq("id", id)
       .eq("owner_id", ownerId)
       .select("*")

@@ -28,6 +28,7 @@ export interface Database {
           slug: string | null;
           name: string;
           color: string;
+          is_ghost: boolean;
           created_at: string;
         };
         Insert: {
@@ -37,6 +38,7 @@ export interface Database {
           slug?: string | null;
           name: string;
           color: string;
+          is_ghost?: boolean;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["categories"]["Insert"]>;

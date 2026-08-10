@@ -105,6 +105,8 @@
     "description": "Ejemplos: Escalas, Improvisación, Respiración, Estudios.",
     "name": "Nombre",
     "color": "Color",
+    "ghostLabel": "Fantasma",
+    "ghostDescription": "No aparecerá en el resumen ni en la imagen para compartir, y no contará en el tiempo total.",
     "creating": "Creando…",
     "create": "Crear categoría",
     "saving": "Guardando…",
