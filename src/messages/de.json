@@ -15,8 +15,14 @@
       "dark": "Dunkel",
       "system": "System"
     },
+    "visualStyle": {
+      "title": "Visueller Stil",
+      "classic": "Klassisch",
+      "glass": "Liquid Glass"
+    },
     "accent": {
-      "title": "Akzentfarbe"
+      "title": "Akzentfarbe",
+      "customColor": "Eigene Farbe"
     },
     "sound": {
       "title": "Timer-Ton",

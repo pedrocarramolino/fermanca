@@ -3,6 +3,7 @@
 @import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant glass (&:is([data-style="glass"] *));
 
 @theme inline {
   --font-heading: var(--font-sans);

@@ -10,7 +10,7 @@ export async function AppHeader() {
   const t = await getTranslations("Common");
 
   return (
-    <header className="flex items-center justify-between">
+    <header className="glass:bg-background/50 glass:backdrop-blur-xl glass:backdrop-saturate-150 glass:-mx-3 glass:rounded-2xl glass:px-3 glass:py-2 flex items-center justify-between">
       <span className="flex items-center gap-2 font-semibold tracking-tight">
         <img src="/icons/icon-96x96.png" alt="" className="size-7 rounded-lg" />
         {siteConfig.name}

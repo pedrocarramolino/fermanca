@@ -15,8 +15,10 @@ const NAV_ITEMS = [
 ] as const;
 
 /**
- * Barra de navegación flotante "Liquid Glass" (estilo Apple: vidrio
- * esmerilado translúcido con un realce especular en el borde superior).
+ * Barra de navegación flotante. Con el estilo "Liquid Glass" activado en
+ * Ajustes (data-style="glass" en <html>, ver globals.css) es vidrio
+ * esmerilado translúcido con un realce especular en el borde superior;
+ * si no, un fondo sólido normal — mismas forma y posición en los dos casos.
  * Oculta durante una sesión en marcha (/session/*) para no distraer — igual
  * que Apple Fitness oculta su tab bar durante un entrenamiento activo.
  */
@@ -33,9 +35,10 @@ export function BottomNav() {
       <div
         className={cn(
           "flex items-center gap-1 rounded-[28px] p-1.5",
-          "bg-background/70 dark:bg-background/50",
-          "ring-border/60 shadow-[0_8px_32px_rgba(0,0,0,0.16),inset_0_1px_0_rgba(255,255,255,0.35)] ring-1",
-          "backdrop-blur-2xl backdrop-saturate-150 dark:shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.08)]",
+          "bg-background ring-border ring-1 shadow-sm",
+          "glass:bg-background/70 glass:dark:bg-background/50",
+          "glass:ring-border/60 glass:shadow-[0_8px_32px_rgba(0,0,0,0.16),inset_0_1px_0_rgba(255,255,255,0.35)]",
+          "glass:backdrop-blur-2xl glass:backdrop-saturate-150 glass:dark:shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.08)]",
         )}
       >
         {NAV_ITEMS.map(({ href, key, icon: Icon }) => {

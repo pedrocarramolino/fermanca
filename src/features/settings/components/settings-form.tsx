@@ -9,8 +9,10 @@ import {
   Contrast,
   Globe,
   Palette,
+  Pipette,
   Play,
   Smartphone,
+  Sparkles,
   Timer,
   Vibrate,
   Volume2,
@@ -29,17 +31,24 @@ import {
 } from "@/components/ui/select";
 import { useMounted } from "@/hooks/use-mounted";
 import { updateSettings } from "@/features/settings/application/actions";
-import { ACCENT_PRESETS, type AccentPreset } from "@/features/settings/lib/accent-presets";
+import { ACCENT_PRESETS, isAccentPreset } from "@/features/settings/lib/accent-presets";
 import {
   playNotificationSound,
   unlockAudio,
   vibrate,
 } from "@/features/session-timer/application/sounds";
-import type { Locale, SoundChoice, ThemePreference, UserSettings } from "@/core/domain/user-settings";
+import type {
+  Locale,
+  SoundChoice,
+  ThemePreference,
+  UserSettings,
+  VisualStyle,
+} from "@/core/domain/user-settings";
 
 const VISUAL_ALERT_OPTIONS = [1500, 3000, 5000, 8000];
 const THEME_VALUES: ThemePreference[] = ["light", "dark", "system"];
 const LOCALE_VALUES: Locale[] = ["es", "en", "de"];
+const VISUAL_STYLE_VALUES: VisualStyle[] = ["classic", "glass"];
 
 export function SettingsForm({ initialSettings }: { initialSettings: UserSettings }) {
   const t = useTranslations("Settings");
@@ -56,6 +65,7 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
   );
   const [accentColor, setAccentColor] = useState(initialSettings.accentColor);
   const [locale, setLocale] = useState(initialSettings.locale);
+  const [visualStyle, setVisualStyle] = useState(initialSettings.visualStyle);
 
   const SOUND_LABELS: Record<SoundChoice, string> = {
     classic: t("sound.options.classic"),
@@ -74,6 +84,10 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
     value,
     label: t(`language.${value}`),
   }));
+
+  const VISUAL_STYLE_OPTIONS: { value: VisualStyle; label: string }[] = VISUAL_STYLE_VALUES.map(
+    (value) => ({ value, label: t(`visualStyle.${value}`) }),
+  );
 
   function handleThemeChange(value: ThemePreference) {
     setTheme(value);
@@ -113,10 +127,21 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
     });
   }
 
-  function handleAccentChange(preset: AccentPreset) {
-    setAccentColor(preset);
+  function handleAccentChange(value: string) {
+    setAccentColor(value);
     startTransition(async () => {
-      await updateSettings({ accentColor: preset });
+      await updateSettings({ accentColor: value });
+      router.refresh();
+    });
+  }
+
+  function handleVisualStyleChange(value: VisualStyle) {
+    setVisualStyle(value);
+    startTransition(async () => {
+      // Igual que accentColor: se lee en el layout raíz vía un atributo en
+      // <html>, en el servidor — sin refresh no se vería el cambio hasta la
+      // siguiente navegación.
+      await updateSettings({ visualStyle: value });
       router.refresh();
     });
   }
@@ -189,18 +214,37 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-1.5 text-base">
+            <Sparkles className="size-4" aria-hidden />
+            {t("visualStyle.title")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-2">
+            {VISUAL_STYLE_OPTIONS.map((option) => (
+              <Button
+                key={option.value}
+                type="button"
+                variant={visualStyle === option.value ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleVisualStyleChange(option.value)}
+              >
+                {option.label}
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-1.5 text-base">
             <Palette className="size-4" aria-hidden />
             {t("accent.title")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-3">
-            {(
-              Object.entries(ACCENT_PRESETS) as [
-                AccentPreset,
-                (typeof ACCENT_PRESETS)[AccentPreset],
-              ][]
-            ).map(([key, preset]) => (
+            {Object.entries(ACCENT_PRESETS).map(([key, preset]) => (
               <button
                 key={key}
                 type="button"
@@ -212,6 +256,30 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
                 {accentColor === key && <Check className="size-4 text-white drop-shadow" />}
               </button>
             ))}
+            <div className="relative size-9 shrink-0">
+              <input
+                type="color"
+                value={!accentColor || isAccentPreset(accentColor) ? "#888888" : accentColor}
+                onChange={(event) => handleAccentChange(event.target.value)}
+                aria-label={t("accent.customColor")}
+                className="absolute inset-0 size-9 cursor-pointer opacity-0"
+              />
+              <div
+                aria-hidden
+                data-selected={(!!accentColor && !isAccentPreset(accentColor)) || undefined}
+                className="ring-border ring-offset-background pointer-events-none flex size-9 items-center justify-center rounded-full ring-1 ring-offset-2 data-[selected]:ring-foreground data-[selected]:ring-2"
+                style={{
+                  background:
+                    accentColor && !isAccentPreset(accentColor)
+                      ? accentColor
+                      : "conic-gradient(from 0deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)",
+                }}
+              >
+                {(!accentColor || isAccentPreset(accentColor)) && (
+                  <Pipette className="size-4 text-white drop-shadow" />
+                )}
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

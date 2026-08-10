@@ -15,8 +15,14 @@
       "dark": "Oscuro",
       "system": "Sistema"
     },
+    "visualStyle": {
+      "title": "Estilo visual",
+      "classic": "Clásico",
+      "glass": "Liquid Glass"
+    },
     "accent": {
-      "title": "Color de acento"
+      "title": "Color de acento",
+      "customColor": "Color personalizado"
     },
     "sound": {
       "title": "Sonido del temporizador",

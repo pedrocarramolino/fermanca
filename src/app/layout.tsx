@@ -15,7 +15,11 @@ import {
   getAuthenticatedUser,
   getCurrentUserSettings,
 } from "@/core/infrastructure/supabase/current-user";
-import { accentOverrideCss, isAccentPreset } from "@/features/settings/lib/accent-presets";
+import {
+  accentOverrideCss,
+  accentOverrideCssFromHex,
+  isAccentPreset,
+} from "@/features/settings/lib/accent-presets";
 import type { UserSettings } from "@/core/domain/user-settings";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
@@ -71,12 +75,19 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
+      data-style={settings?.visualStyle ?? "classic"}
       className={cn("font-sans", geist.variable, geistMono.variable)}
       suppressHydrationWarning
     >
       <head>
-        {settings && isAccentPreset(settings.accentColor) && (
-          <style dangerouslySetInnerHTML={{ __html: accentOverrideCss(settings.accentColor) }} />
+        {settings && settings.accentColor && (
+          <style
+            dangerouslySetInnerHTML={{
+              __html: isAccentPreset(settings.accentColor)
+                ? accentOverrideCss(settings.accentColor)
+                : accentOverrideCssFromHex(settings.accentColor),
+            }}
+          />
         )}
       </head>
       <body>
