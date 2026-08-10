@@ -27,6 +27,7 @@ import { deleteCustomCategory } from "@/features/session-builder/application/act
 import type { Category, CustomCategory } from "@/core/domain/category";
 
 const NEW_CATEGORY_VALUE = "__new__";
+const QUICK_MINUTE_PRESETS = [5, 10, 15, 30, 60];
 
 /** Las 4 categorías de sistema son compartidas por todos los usuarios y se
  * muestran en el idioma de quien las ve (vía su slug estable); las
@@ -210,6 +211,19 @@ export function AddBlockForm({
             />
             <span className="text-muted-foreground text-sm">min</span>
           </div>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {QUICK_MINUTE_PRESETS.map((preset) => (
+            <Button
+              key={preset}
+              type="button"
+              size="xs"
+              variant={minutes === preset ? "default" : "outline"}
+              onClick={() => setMinutes(preset)}
+            >
+              {preset} min
+            </Button>
+          ))}
         </div>
       </div>
 
