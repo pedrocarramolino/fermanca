@@ -1,9 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { Pencil, Plus } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -15,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CategoryDialog } from "@/features/session-builder/components/category-dialog";
+import { deleteCustomCategory } from "@/features/session-builder/application/actions";
 import type { Category, CustomCategory } from "@/core/domain/category";
 
 const NEW_CATEGORY_VALUE = "__new__";
@@ -30,11 +39,13 @@ export function AddBlockForm({
   categories,
   onCategoryCreated,
   onCategoryUpdated,
+  onCategoryDeleted,
   onAdd,
 }: {
   categories: Category[];
   onCategoryCreated: (category: CustomCategory) => void;
   onCategoryUpdated: (category: CustomCategory) => void;
+  onCategoryDeleted: (categoryId: string) => void;
   onAdd: (input: {
     categoryId: string;
     name: string;
@@ -51,6 +62,9 @@ export function AddBlockForm({
   const [minutes, setMinutes] = useState(10);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<CustomCategory | null>(null);
+  const [deletingCategory, setDeletingCategory] = useState<CustomCategory | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [isDeleting, startDeleting] = useTransition();
 
   const selectedCategory = categories.find((c) => c.id === categoryId) ?? null;
 
@@ -74,6 +88,26 @@ export function AddBlockForm({
   function handleCategoryUpdated(category: CustomCategory) {
     onCategoryUpdated(category);
     if (categoryId === category.id) setName(categoryDisplayName(category, tCategories));
+  }
+
+  function handleConfirmDelete() {
+    if (!deletingCategory) return;
+    const deletedId = deletingCategory.id;
+    startDeleting(async () => {
+      setDeleteError(null);
+      try {
+        await deleteCustomCategory(deletedId);
+        onCategoryDeleted(deletedId);
+        setDeletingCategory(null);
+        if (categoryId === deletedId) {
+          const fallback = categories.find((c) => c.id !== deletedId) ?? null;
+          setCategoryId(fallback?.id ?? "");
+          setName(fallback ? categoryDisplayName(fallback, tCategories) : "");
+        }
+      } catch {
+        setDeleteError(t("deleteError"));
+      }
+    });
   }
 
   function handleAdd() {
@@ -122,15 +156,29 @@ export function AddBlockForm({
             </SelectContent>
           </Select>
           {selectedCategory?.kind === "custom" && (
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              aria-label={t("editCategory")}
-              onClick={() => setEditingCategory(selectedCategory)}
-            >
-              <Pencil className="size-4" />
-            </Button>
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                aria-label={t("editCategory")}
+                onClick={() => setEditingCategory(selectedCategory)}
+              >
+                <Pencil className="size-4" />
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                aria-label={t("deleteCategory")}
+                onClick={() => {
+                  setDeleteError(null);
+                  setDeletingCategory(selectedCategory);
+                }}
+              >
+                <Trash2 className="size-4" />
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -182,6 +230,35 @@ export function AddBlockForm({
         category={editingCategory}
         onSaved={editingCategory ? handleCategoryUpdated : handleCategoryCreated}
       />
+
+      <Dialog
+        open={deletingCategory !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeletingCategory(null);
+            setDeleteError(null);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("deleteConfirmTitle", { name: deletingCategory?.name ?? "" })}</DialogTitle>
+            <DialogDescription>
+              {deleteError ?? t("deleteConfirmDescription")}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={isDeleting}
+              onClick={handleConfirmDelete}
+            >
+              {isDeleting ? t("deleting") : t("deleteConfirmCta")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

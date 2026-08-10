@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Pipette } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -41,6 +42,8 @@ export function CategoryDialog({
   const [color, setColor] = useState<string>(category?.color ?? DEFAULT_CUSTOM_CATEGORY_COLOR);
   const [isGhost, setIsGhost] = useState(category?.isGhost ?? false);
   const [isPending, setIsPending] = useState(false);
+
+  const isPresetColor = CUSTOM_CATEGORY_COLORS.some((option) => option.value === color);
 
   async function handleSave() {
     if (!name.trim()) return;
@@ -89,6 +92,27 @@ export function CategoryDialog({
                 style={{ backgroundColor: option.value }}
               />
             ))}
+            <div className="relative size-7 shrink-0">
+              <input
+                type="color"
+                value={isPresetColor ? "#888888" : color}
+                onChange={(event) => setColor(event.target.value)}
+                aria-label={t("customColor")}
+                className="absolute inset-0 size-7 cursor-pointer opacity-0"
+              />
+              <div
+                aria-hidden
+                data-selected={!isPresetColor || undefined}
+                className="ring-offset-background data-[selected]:ring-foreground pointer-events-none flex size-7 items-center justify-center rounded-full ring-offset-2 outline-none data-[selected]:ring-2"
+                style={{
+                  background: isPresetColor
+                    ? "conic-gradient(from 0deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)"
+                    : color,
+                }}
+              >
+                {isPresetColor && <Pipette className="size-3.5 text-white drop-shadow" />}
+              </div>
+            </div>
           </div>
         </div>
 

@@ -60,6 +60,10 @@ export function SessionBuilder({
     setCategories((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
   }
 
+  function handleCategoryDeleted(categoryId: string) {
+    setCategories((prev) => prev.filter((c) => c.id !== categoryId));
+  }
+
   async function handleSaveAsNew(name: string) {
     const template = await saveAsNewTemplate(name, draft.blocksInput);
     setTemplates((prev) => [template, ...prev]);
@@ -94,6 +98,7 @@ export function SessionBuilder({
             categories={categories}
             onCategoryCreated={(category) => setCategories((prev) => [...prev, category])}
             onCategoryUpdated={handleCategoryUpdated}
+            onCategoryDeleted={handleCategoryDeleted}
             onAdd={draft.addBlock}
           />
 
