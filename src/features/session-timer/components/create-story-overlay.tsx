@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Camera, ChevronLeft, Download, Loader2, Share2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { formatDurationShort } from "@/core/domain/duration";
 import {
   getCurrentStreakDays,
   getSessionTemplateName,
@@ -29,6 +30,19 @@ const STYLE_LABEL_KEYS: Record<StoryStyleVariant, string> = {
   minimal: "styleMinimal",
   bold: "styleBold",
 };
+const MAX_VISIBLE_BLOCKS_PREVIEW = 5;
+
+function formatPreviewDate(date: Date, locale: string): string {
+  try {
+    return new Intl.DateTimeFormat(locale, {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }).format(date);
+  } catch {
+    return date.toLocaleDateString();
+  }
+}
 
 function canShareNatively(): boolean {
   return typeof navigator !== "undefined" && typeof navigator.share === "function";
@@ -96,22 +110,109 @@ function PhotoPreview({
   );
 }
 
-/** Pista visual barata (gradiente CSS) de dónde caerá el scrim de cada
- * estilo — nunca recompone el canvas al cambiar de swatch, solo al pulsar
- * "Continuar". */
-function StyleScrimHint({ variant }: { variant: StoryStyleVariant }) {
-  if (variant === "classic") {
+/** Preview barata en CSS (no canvas) de cómo quedarían las estadísticas
+ * reales de la sesión sobre la foto en cada estilo — así se puede comparar
+ * cuál queda mejor cambiando de swatch, sin recomponer el canvas hasta
+ * pulsar "Continuar". Aproxima el layout de session-story-card.ts, no
+ * tiene que ser pixel-perfect. */
+function StoryStatsPreview({
+  variant,
+  totalSeconds,
+  blockCount,
+  blocks,
+  streakDays,
+  sessionName,
+  date,
+  locale,
+}: {
+  variant: StoryStyleVariant;
+  totalSeconds: number;
+  blockCount: number;
+  blocks: StoryBlock[];
+  streakDays: number;
+  sessionName: string | null;
+  date: Date;
+  locale: string;
+}) {
+  const timeText = formatDurationShort(totalSeconds);
+  const dateText = formatPreviewDate(date, locale);
+  const visibleBlocks = blocks.slice(0, MAX_VISIBLE_BLOCKS_PREVIEW);
+  const extraCount = blocks.length - visibleBlocks.length;
+
+  const categoryRows = (
+    <div className="flex flex-col gap-1.5">
+      {visibleBlocks.map((block, index) => (
+        <div key={index} className="flex items-center gap-2 text-sm">
+          <span
+            className="size-2.5 shrink-0 rounded-full"
+            style={{ backgroundColor: block.color }}
+            aria-hidden
+          />
+          <span className="flex-1 truncate font-medium">{block.name}</span>
+          <span className="text-white/70">{formatDurationShort(block.actualDurationSeconds)}</span>
+        </div>
+      ))}
+      {extraCount > 0 && <span className="text-xs text-white/60">+{extraCount} más</span>}
+    </div>
+  );
+
+  if (variant === "minimal") {
     return (
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[45%] bg-gradient-to-t from-black/80 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-10 flex flex-col items-center gap-2 px-6 text-center">
+        {streakDays > 1 && (
+          <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold">
+            🔥 {streakDays} días
+          </span>
+        )}
+        <div className="rounded-2xl bg-black/40 px-6 py-4 backdrop-blur-sm">
+          <div className="text-4xl leading-none font-extrabold">{timeText}</div>
+          <div className="mt-1 text-sm text-white/80">de práctica</div>
+        </div>
+      </div>
     );
   }
+
   if (variant === "bold") {
     return (
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[40%] bg-gradient-to-b from-black/75 to-transparent" />
+      <>
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[42%] bg-gradient-to-b from-black/75 to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col gap-1 p-4">
+          <div className="text-5xl leading-none font-extrabold">{timeText}</div>
+          <div className="truncate text-sm text-white/80">
+            {sessionName ? `${sessionName} · ${dateText}` : dateText}
+          </div>
+          {streakDays > 1 && (
+            <div className="text-xs text-white/70">🔥 Racha de {streakDays} días</div>
+          )}
+        </div>
+        {visibleBlocks.length > 0 && (
+          <div className="pointer-events-none absolute inset-x-4 bottom-4 rounded-xl bg-black/45 p-3 backdrop-blur-sm">
+            {categoryRows}
+          </div>
+        )}
+      </>
     );
   }
+
+  // classic
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-[8%] h-[26%] bg-black/45 blur-2xl" />
+    <>
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[58%] bg-gradient-to-t from-black/85 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col gap-2 p-4">
+        {sessionName && (
+          <div className="truncate text-sm font-semibold text-white/80">{sessionName}</div>
+        )}
+        <div className="text-5xl leading-none font-extrabold">{timeText}</div>
+        <div className="text-sm text-white/80">
+          en {blockCount} {blockCount === 1 ? "bloque" : "bloques"}
+        </div>
+        <div className="mt-1">{categoryRows}</div>
+        <div className="mt-1 text-xs text-white/60">
+          {dateText}
+          {streakDays > 1 ? ` · 🔥 ${streakDays} días` : ""}
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -140,6 +241,9 @@ export function CreateStoryOverlay({
   const [streakDays, setStreakDays] = useState(0);
   const [sessionName, setSessionName] = useState<string | null>(null);
   const [isBusy, setIsBusy] = useState(false);
+  // Misma fecha para la preview en vivo y la exportación final — evita que
+  // difieran si el usuario deja el editor abierto justo al cruzar medianoche.
+  const [captureDate] = useState(() => new Date());
   const frameRef = useRef<HTMLDivElement>(null);
   const dragState = useRef<{
     startX: number;
@@ -289,7 +393,7 @@ export function CreateStoryOverlay({
         blocks,
         streakDays,
         sessionName,
-        date: new Date(),
+        date: captureDate,
         locale,
       });
       if (!blob) return;
@@ -408,7 +512,16 @@ export function CreateStoryOverlay({
               photoImage={photoImage}
               transform={transform}
             />
-            <StyleScrimHint variant={styleVariant} />
+            <StoryStatsPreview
+              variant={styleVariant}
+              totalSeconds={totalSeconds}
+              blockCount={blockCount}
+              blocks={blocks}
+              streakDays={streakDays}
+              sessionName={sessionName}
+              date={captureDate}
+              locale={locale}
+            />
           </div>
 
           <div className="mx-auto flex w-full max-w-xs flex-col gap-2">
