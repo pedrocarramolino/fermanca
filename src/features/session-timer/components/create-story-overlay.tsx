@@ -460,7 +460,7 @@ export function CreateStoryOverlay({
             <Button
               type="button"
               variant="outline"
-              className="flex-1 border-white/30 text-white hover:bg-white/10 hover:text-white"
+              className="flex-1 border-white/30 bg-transparent text-white hover:bg-white/10 hover:text-white"
               onClick={handleSave}
             >
               <Download className="size-4" />
