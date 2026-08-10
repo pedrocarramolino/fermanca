@@ -67,7 +67,12 @@
   },
   "Home": {
     "recentSessions": "Recent sessions",
-    "viewAll": "View all"
+    "viewAll": "View all",
+    "greetingMorning": "Good morning, {username}",
+    "greetingAfternoon": "Good afternoon, {username}",
+    "greetingEvening": "Good evening, {username}",
+    "greetingNeutral": "Hi, {username}",
+    "greetingQuestion": "What will you achieve today?"
   },
   "SessionBuilder": {
     "title": "Practice session",
@@ -369,10 +374,6 @@
     "message": "Install PracticeFlow for quick access and notifications.",
     "install": "Install",
     "dismiss": "Dismiss"
-  },
-  "WelcomeBanner": {
-    "greeting": "Hi, {username}! Welcome back.",
-    "dismiss": "Close"
   },
   "NotificationPrompt": {
     "title": "Turn on notifications",

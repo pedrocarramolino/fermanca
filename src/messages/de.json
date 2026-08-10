@@ -67,7 +67,12 @@
   },
   "Home": {
     "recentSessions": "Letzte Sitzungen",
-    "viewAll": "Alle anzeigen"
+    "viewAll": "Alle anzeigen",
+    "greetingMorning": "Guten Morgen, {username}",
+    "greetingAfternoon": "Guten Tag, {username}",
+    "greetingEvening": "Guten Abend, {username}",
+    "greetingNeutral": "Hallo, {username}",
+    "greetingQuestion": "Was erreichst du heute?"
   },
   "SessionBuilder": {
     "title": "Übungssitzung",
@@ -369,10 +374,6 @@
     "message": "Installiere PracticeFlow für schnellen Zugriff und Benachrichtigungen.",
     "install": "Installieren",
     "dismiss": "Verwerfen"
-  },
-  "WelcomeBanner": {
-    "greeting": "Hallo, {username}! Willkommen zurück.",
-    "dismiss": "Schließen"
   },
   "NotificationPrompt": {
     "title": "Benachrichtigungen aktivieren",

@@ -9,12 +9,10 @@ import { RegisterServiceWorker } from "@/components/register-service-worker";
 import { InstallPromptBanner } from "@/components/install-prompt-banner";
 import { NotificationPromptDialog } from "@/components/notification-prompt-dialog";
 import { LaunchAnimation } from "@/components/launch-animation";
-import { WelcomeBanner } from "@/components/welcome-banner";
 import { BottomNav } from "@/components/bottom-nav";
 import { ThemeProvider } from "@/components/theme-provider";
 import {
   getAuthenticatedUser,
-  getCurrentUserProfile,
   getCurrentUserSettings,
 } from "@/core/infrastructure/supabase/current-user";
 import { accentOverrideCss, isAccentPreset } from "@/features/settings/lib/accent-presets";
@@ -59,17 +57,11 @@ export default async function RootLayout({
   // app entera solo por no poder leer tema/acento — se degrada a los valores
   // por defecto en vez de propagar el error.
   let settings: UserSettings | null = null;
-  let username: string | null = null;
   if (userId) {
     try {
       settings = await getCurrentUserSettings();
     } catch {
       settings = null;
-    }
-    try {
-      username = (await getCurrentUserProfile())?.username ?? null;
-    } catch {
-      username = null;
     }
   }
 
@@ -93,7 +85,6 @@ export default async function RootLayout({
             {children}
             {userId && <BottomNav />}
             {userId && <NotificationPromptDialog />}
-            {userId && <WelcomeBanner username={username} />}
             <RegisterServiceWorker />
             <InstallPromptBanner />
             <LaunchAnimation />
