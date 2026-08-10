@@ -370,6 +370,10 @@
     "install": "Install",
     "dismiss": "Dismiss"
   },
+  "WelcomeBanner": {
+    "greeting": "Hi, {username}! Welcome back.",
+    "dismiss": "Close"
+  },
   "NotificationPrompt": {
     "title": "Turn on notifications",
     "description": "We'll let you know when each phase of your session ends, and at the time you choose for your reminders. You can turn them on in Reminders, further down the menu.",

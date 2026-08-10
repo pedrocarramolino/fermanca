@@ -370,6 +370,10 @@
     "install": "Instalar",
     "dismiss": "Descartar"
   },
+  "WelcomeBanner": {
+    "greeting": "¡Hola, {username}! Bienvenido de vuelta.",
+    "dismiss": "Cerrar"
+  },
   "NotificationPrompt": {
     "title": "Activa las notificaciones",
     "description": "Así te avisamos cuando termine cada fase de tu sesión y en la hora que elijas para tus recordatorios. Puedes activarlas en Recordatorios, más abajo en el menú.",

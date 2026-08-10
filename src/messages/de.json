@@ -370,6 +370,10 @@
     "install": "Installieren",
     "dismiss": "Verwerfen"
   },
+  "WelcomeBanner": {
+    "greeting": "Hallo, {username}! Willkommen zurück.",
+    "dismiss": "Schließen"
+  },
   "NotificationPrompt": {
     "title": "Benachrichtigungen aktivieren",
     "description": "So erfährst du, wenn jede Phase deiner Sitzung endet, und erhältst Erinnerungen zur gewählten Uhrzeit. Du kannst sie unter Erinnerungen weiter unten im Menü aktivieren.",

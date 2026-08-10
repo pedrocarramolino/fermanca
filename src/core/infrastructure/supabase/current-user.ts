@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { createClient } from "@/core/infrastructure/supabase/server";
 import { SupabaseUserSettingsRepository } from "@/core/infrastructure/supabase/repositories/user-settings-repository";
+import { SupabaseProfileRepository } from "@/core/infrastructure/supabase/repositories/profile-repository";
 import type { UserId } from "@/core/domain/ids";
 
 /**
@@ -26,4 +27,12 @@ export const getAuthenticatedUser = cache(async () => {
 export const getCurrentUserSettings = cache(async () => {
   const { supabase, userId } = await getAuthenticatedUser();
   return new SupabaseUserSettingsRepository(supabase).get(userId);
+});
+
+/** El layout raíz lo usa para el mensaje de bienvenida (nombre de
+ * usuario) — cacheado igual que el resto para no repetir la consulta si
+ * alguna página también necesita el perfil en la misma petición. */
+export const getCurrentUserProfile = cache(async () => {
+  const { supabase, userId } = await getAuthenticatedUser();
+  return new SupabaseProfileRepository(supabase).getByOwnerId(userId);
 });
