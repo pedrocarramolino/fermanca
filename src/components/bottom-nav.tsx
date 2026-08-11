@@ -88,7 +88,10 @@ export function BottomNav() {
 
   // Refs no se leen durante el render (regla de React) — la posición de la
   // pastilla se recalcula aquí, después de que el DOM ya refleje el índice
-  // resaltado y el modo compacto/expandido.
+  // resaltado. Un ResizeObserver (no solo una lectura puntual) la mantiene
+  // pegada al elemento MIENTRAS se anima el paso a modo compacto/expandido
+  // — si no, se queda con el ancho de antes de la transición y se ve
+  // descuadrada frente al icono real, que sigue encogiéndose por debajo.
   useLayoutEffect(() => {
     if (highlightIndex === null) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -97,8 +100,14 @@ export function BottomNav() {
     }
     const el = itemRefs.current[highlightIndex];
     if (!el) return;
-    setPillStyle({ width: el.offsetWidth, left: el.offsetLeft });
-  }, [highlightIndex, compact]);
+
+    const update = () => setPillStyle({ width: el.offsetWidth, left: el.offsetLeft });
+    update();
+
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [highlightIndex]);
 
   if (pathname.startsWith("/session/")) return null;
 
