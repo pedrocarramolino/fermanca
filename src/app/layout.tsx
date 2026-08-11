@@ -9,6 +9,7 @@ import { RegisterServiceWorker } from "@/components/register-service-worker";
 import { InstallPromptBanner } from "@/components/install-prompt-banner";
 import { NotificationPromptDialog } from "@/components/notification-prompt-dialog";
 import { LaunchAnimation } from "@/components/launch-animation";
+import { LiquidGlassFilter } from "@/components/liquid-glass-filter";
 import { BottomNav } from "@/components/bottom-nav";
 import { ThemeProvider } from "@/components/theme-provider";
 import {
@@ -102,6 +103,7 @@ export default async function RootLayout({
         )}
       </head>
       <body>
+        <LiquidGlassFilter />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ThemeProvider defaultTheme={settings?.theme ?? "system"}>
             {children}
