@@ -16,7 +16,7 @@ const DEFAULTS: Omit<UserSettings, "ownerId"> = {
   timezone: "UTC",
   locale: "es",
   visualStyle: "classic",
-  glassIntensity: 70,
+  glassIntensity: 100,
 };
 
 function toDomain(ownerId: UserId, row: Row | null): UserSettings {
