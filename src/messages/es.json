@@ -18,7 +18,8 @@
     "visualStyle": {
       "title": "Estilo visual",
       "classic": "Clásico",
-      "glass": "Liquid Glass"
+      "glass": "Liquid Glass",
+      "intensity": "Intensidad del efecto: {value}%"
     },
     "accent": {
       "title": "Color de acento",

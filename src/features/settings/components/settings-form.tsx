@@ -66,6 +66,7 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
   const [accentColor, setAccentColor] = useState(initialSettings.accentColor);
   const [locale, setLocale] = useState(initialSettings.locale);
   const [visualStyle, setVisualStyle] = useState(initialSettings.visualStyle);
+  const [glassIntensity, setGlassIntensity] = useState(initialSettings.glassIntensity);
 
   const SOUND_LABELS: Record<SoundChoice, string> = {
     classic: t("sound.options.classic"),
@@ -146,6 +147,15 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
     });
   }
 
+  function handleGlassIntensityCommit(value: number) {
+    startTransition(async () => {
+      // Igual que visualStyle: las variables --glass-* se inyectan en el
+      // servidor (layout raíz), así que hace falta refresh para verlas.
+      await updateSettings({ glassIntensity: value });
+      router.refresh();
+    });
+  }
+
   function handleLocaleChange(value: Locale) {
     setLocale(value);
     startTransition(async () => {
@@ -218,7 +228,7 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
             {t("visualStyle.title")}
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex flex-col gap-4">
           <div className="flex gap-2">
             {VISUAL_STYLE_OPTIONS.map((option) => (
               <Button
@@ -232,6 +242,23 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
               </Button>
             ))}
           </div>
+          {visualStyle === "glass" && (
+            <div className="flex flex-col gap-2">
+              <Label>{t("visualStyle.intensity", { value: glassIntensity })}</Label>
+              <Slider
+                value={[glassIntensity]}
+                min={0}
+                max={100}
+                step={5}
+                onValueChange={(value) =>
+                  setGlassIntensity(Array.isArray(value) ? value[0]! : value)
+                }
+                onValueCommitted={(value) =>
+                  handleGlassIntensityCommit(Array.isArray(value) ? value[0]! : value)
+                }
+              />
+            </div>
+          )}
         </CardContent>
       </Card>
 

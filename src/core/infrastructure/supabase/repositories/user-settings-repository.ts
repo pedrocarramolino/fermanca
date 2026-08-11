@@ -16,6 +16,7 @@ const DEFAULTS: Omit<UserSettings, "ownerId"> = {
   timezone: "UTC",
   locale: "es",
   visualStyle: "classic",
+  glassIntensity: 70,
 };
 
 function toDomain(ownerId: UserId, row: Row | null): UserSettings {
@@ -31,6 +32,7 @@ function toDomain(ownerId: UserId, row: Row | null): UserSettings {
     timezone: row.timezone,
     locale: row.locale,
     visualStyle: row.visual_style,
+    glassIntensity: row.glass_intensity,
   };
 }
 
@@ -68,6 +70,7 @@ export class SupabaseUserSettingsRepository implements UserSettingsRepository {
         timezone: merged.timezone,
         locale: merged.locale,
         visual_style: merged.visualStyle,
+        glass_intensity: merged.glassIntensity,
       })
       .select("*")
       .single();

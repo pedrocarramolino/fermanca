@@ -203,6 +203,7 @@ export interface Database {
           timezone: string;
           locale: Locale;
           visual_style: VisualStyle;
+          glass_intensity: number;
           updated_at: string;
         };
         Insert: {
@@ -216,6 +217,7 @@ export interface Database {
           timezone?: string;
           locale?: Locale;
           visual_style?: VisualStyle;
+          glass_intensity?: number;
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["user_settings"]["Insert"]>;

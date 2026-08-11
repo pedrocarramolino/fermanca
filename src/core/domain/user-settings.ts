@@ -21,4 +21,6 @@ export interface UserSettings {
   timezone: string;
   locale: Locale;
   visualStyle: VisualStyle;
+  /** 0-100. Solo tiene efecto visible cuando visualStyle = "glass". */
+  glassIntensity: number;
 }

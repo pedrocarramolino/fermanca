@@ -72,11 +72,22 @@ export default async function RootLayout({
   const locale = await getLocale();
   const messages = await getMessages();
 
+  // Traduce el 0-100 guardado a las variables CSS que consumen los
+  // `glass:`-utilities (ver globals.css): a más intensidad, más blur y más
+  // translúcido; 100% reproduce el aspecto original fijo del efecto.
+  const glassIntensity = settings?.glassIntensity ?? 70;
+  const glassVars = {
+    "--glass-blur": `${Math.round((glassIntensity / 100) * 40)}px`,
+    "--glass-alpha-light": `${Math.round(100 - glassIntensity * 0.3)}%`,
+    "--glass-alpha-dark": `${Math.round(100 - glassIntensity * 0.5)}%`,
+  } as React.CSSProperties;
+
   return (
     <html
       lang={locale}
       data-style={settings?.visualStyle ?? "classic"}
       className={cn("font-sans", geist.variable, geistMono.variable)}
+      style={glassVars}
       suppressHydrationWarning
     >
       <head>
