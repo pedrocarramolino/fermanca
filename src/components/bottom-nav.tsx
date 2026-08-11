@@ -27,6 +27,10 @@ const SCROLL_COMPACT_THRESHOLD = 24;
 /** px de movimiento horizontal antes de interpretar el toque como arrastre
  * en vez de un simple tap — evita arrastres accidentales. */
 const DRAG_THRESHOLD = 8;
+/** Diámetro del círculo resaltado — fijo, no depende del ancho del botón
+ * (icono + etiqueta), para que sea siempre un círculo perfecto centrado en
+ * el icono y no una píldora que cambia de forma con cada pestaña. */
+const HIGHLIGHT_SIZE = 40;
 
 /**
  * Barra de navegación flotante. Con el estilo "Liquid Glass" activado en
@@ -49,9 +53,10 @@ export function BottomNav() {
   const t = useTranslations("Nav");
   const [compact, setCompact] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
-  const [pillStyle, setPillStyle] = useState<{ width: number; left: number } | null>(null);
+  const [pillStyle, setPillStyle] = useState<{ top: number; left: number } | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+  const iconRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const dragState = useRef<{
     pointerId: number;
     startX: number;
@@ -97,13 +102,16 @@ export function BottomNav() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Refs no se leen durante el render (regla de React) — la posición de la
-  // pastilla se recalcula aquí, después de que el DOM ya refleje el índice
-  // resaltado. Se vigila el CONTENEDOR entero, no solo el elemento
-  // resaltado: si un vecino cambia de tamaño (p. ej. al pasar de compacto a
-  // expandido) el resaltado se desplaza aunque su propio ancho no cambie, y
-  // un ResizeObserver solo en él no se entera — se queda pegado a la
-  // posición de otra pestaña.
+  // Refs no se leen durante el render (regla de React) — la posición del
+  // círculo se recalcula aquí, después de que el DOM ya refleje el índice
+  // resaltado. Se centra sobre el ICONO (no sobre todo el botón, que
+  // también incluye la etiqueta) usando getBoundingClientRect en vez de
+  // offsetLeft/Top para no depender de qué elemento sea su offsetParent.
+  // Se vigila el CONTENEDOR entero, no solo el elemento resaltado: si un
+  // vecino cambia de tamaño (p. ej. al pasar de compacto a expandido) el
+  // resaltado se desplaza aunque su propio ancho no cambie, y un
+  // ResizeObserver solo en él no se entera — se queda pegado a la posición
+  // de otra pestaña.
   useLayoutEffect(() => {
     if (highlightIndex === null) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -114,15 +122,31 @@ export function BottomNav() {
     if (!container) return;
 
     const update = () => {
-      const el = itemRefs.current[highlightIndex];
-      if (!el) return;
-      setPillStyle({ width: el.offsetWidth, left: el.offsetLeft });
+      const iconEl = iconRefs.current[highlightIndex];
+      if (!iconEl) return;
+      const iconRect = iconEl.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      const centerX = iconRect.left + iconRect.width / 2 - containerRect.left;
+      const centerY = iconRect.top + iconRect.height / 2 - containerRect.top;
+      setPillStyle({ left: centerX - HIGHLIGHT_SIZE / 2, top: centerY - HIGHLIGHT_SIZE / 2 });
     };
     update();
+    // Repasos tras el primer pintado: en la carga inicial (fuentes
+    // cargando, hidratación asentándose, aparición/desaparición de la
+    // barra de scroll) la primera medición puede quedar unos píxeles
+    // corrida sin que cambie el tamaño del propio contenedor — esto lo
+    // corrige sin esperar a que el usuario interactúe.
+    const timeouts = [100, 400, 1000].map((ms) => setTimeout(update, ms));
+    window.addEventListener("resize", update);
 
     const observer = new ResizeObserver(update);
     observer.observe(container);
-    return () => observer.disconnect();
+    observer.observe(document.body);
+    return () => {
+      timeouts.forEach(clearTimeout);
+      window.removeEventListener("resize", update);
+      observer.disconnect();
+    };
   }, [highlightIndex]);
 
   if (pathname.startsWith("/session/")) return null;
@@ -199,12 +223,13 @@ export function BottomNav() {
           <div
             aria-hidden
             className={cn(
-              "bg-muted pointer-events-none absolute top-1 bottom-1 rounded-3xl",
-              !compactJustChanged && "transition-[transform,width] duration-200 ease-out",
+              "bg-muted pointer-events-none absolute top-0 left-0 rounded-full",
+              !compactJustChanged && "transition-transform duration-200 ease-out",
             )}
             style={{
-              width: pillStyle.width,
-              transform: `translateX(${pillStyle.left}px)`,
+              width: HIGHLIGHT_SIZE,
+              height: HIGHLIGHT_SIZE,
+              transform: `translate(${pillStyle.left}px, ${pillStyle.top}px)`,
             }}
           />
         )}
@@ -234,15 +259,22 @@ export function BottomNav() {
                   : "text-muted-foreground hover:text-foreground",
               )}
             >
-              <Icon
-                className={cn(
-                  "size-5 transition-transform duration-150",
-                  previewed && "scale-110",
-                )}
-                strokeWidth={active ? 2.4 : 2}
-                fill={active ? "currentColor" : "none"}
-                fillOpacity={active ? 0.15 : 0}
-              />
+              <span
+                ref={(el) => {
+                  iconRefs.current[index] = el;
+                }}
+                className="flex items-center justify-center"
+              >
+                <Icon
+                  className={cn(
+                    "size-5 transition-transform duration-150",
+                    previewed && "scale-110",
+                  )}
+                  strokeWidth={active ? 2.4 : 2}
+                  fill={active ? "currentColor" : "none"}
+                  fillOpacity={active ? 0.15 : 0}
+                />
+              </span>
               <span
                 className={cn(
                   "overflow-hidden text-[10px] leading-none font-medium whitespace-nowrap transition-[max-width,opacity] duration-200",
