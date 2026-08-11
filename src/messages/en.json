@@ -83,6 +83,22 @@
     "greetingNeutral": "Hi, {username}",
     "greetingQuestion": "What will you achieve today?"
   },
+  "WeeklyGoal": {
+    "title": "Weekly goal",
+    "edit": "Edit",
+    "hoursLabel": "Hours practiced",
+    "daysLabel": "Days practiced",
+    "daysProgress": "{practiced} / {target} days",
+    "markCompleted": "Mark as completed",
+    "completed": "Goal completed this week",
+    "form": {
+      "days": "Days per week",
+      "hours": "Hours per week",
+      "save": "Save goal",
+      "saving": "Saving…",
+      "cancel": "Cancel"
+    }
+  },
   "SessionBuilder": {
     "title": "Practice session",
     "savedTemplates": "Saved templates",

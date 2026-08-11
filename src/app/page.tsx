@@ -11,6 +11,10 @@ import {
 import { SupabaseCategoryRepository } from "@/core/infrastructure/supabase/repositories/category-repository";
 import { SupabaseTemplateRepository } from "@/core/infrastructure/supabase/repositories/template-repository";
 import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/repositories/session-repository";
+import { SupabaseWeeklyGoalRepository } from "@/core/infrastructure/supabase/repositories/weekly-goal-repository";
+import { currentWeekStartKey, weeklyGoalProgress } from "@/core/domain/weekly-goal";
+import { mondayOf } from "@/core/domain/streaks";
+import { WeeklyGoalCard } from "@/features/weekly-goals/components/weekly-goal-card";
 
 const RECENT_SESSIONS_PREVIEW = 3;
 
@@ -21,18 +25,31 @@ export default async function Home() {
   const categoryRepo = new SupabaseCategoryRepository(supabase);
   const templateRepo = new SupabaseTemplateRepository(supabase);
   const sessionRepo = new SupabaseSessionRepository(supabase);
-  const [categories, templates, recentSessions, profile] = await Promise.all([
+  const weeklyGoalRepo = new SupabaseWeeklyGoalRepository(supabase);
+  const [categories, templates, recentSessions, profile, weeklyGoal] = await Promise.all([
     categoryRepo.listAvailable(userId),
     templateRepo.listByOwner(userId),
     sessionRepo.listByOwner(userId, { limit: RECENT_SESSIONS_PREVIEW }),
     getCurrentUserProfile().catch(() => null),
+    weeklyGoalRepo.getForWeek(userId, currentWeekStartKey(new Date())),
   ]);
+
+  // Solo hace falta traer las sesiones de esta semana si hay un objetivo que
+  // comparar contra ellas.
+  const weeklyProgress = weeklyGoal
+    ? weeklyGoalProgress(
+        await sessionRepo.listByOwner(userId, { from: mondayOf(new Date()) }),
+        weeklyGoal,
+      )
+    : null;
 
   return (
     <main className="mx-auto flex min-h-svh max-w-4xl flex-col gap-8 p-8 pb-32 lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl">
       <AppHeader />
 
       <HomeGreeting username={profile?.username ?? null} />
+
+      <WeeklyGoalCard initialGoal={weeklyGoal} progress={weeklyProgress} />
 
       <SessionBuilder initialCategories={categories} initialTemplates={templates} />
 

@@ -83,6 +83,22 @@
     "greetingNeutral": "Hallo, {username}",
     "greetingQuestion": "Was erreichst du heute?"
   },
+  "WeeklyGoal": {
+    "title": "Wochenziel",
+    "edit": "Bearbeiten",
+    "hoursLabel": "Geübte Stunden",
+    "daysLabel": "Geübte Tage",
+    "daysProgress": "{practiced} / {target} Tage",
+    "markCompleted": "Als erledigt markieren",
+    "completed": "Ziel diese Woche erreicht",
+    "form": {
+      "days": "Tage pro Woche",
+      "hours": "Stunden pro Woche",
+      "save": "Ziel speichern",
+      "saving": "Speichern…",
+      "cancel": "Abbrechen"
+    }
+  },
   "SessionBuilder": {
     "title": "Übungssitzung",
     "savedTemplates": "Gespeicherte Vorlagen",

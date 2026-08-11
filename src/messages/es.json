@@ -83,6 +83,22 @@
     "greetingNeutral": "Hola, {username}",
     "greetingQuestion": "¿Qué vas a conseguir hoy?"
   },
+  "WeeklyGoal": {
+    "title": "Objetivo semanal",
+    "edit": "Editar",
+    "hoursLabel": "Horas practicadas",
+    "daysLabel": "Días practicados",
+    "daysProgress": "{practiced} / {target} días",
+    "markCompleted": "Marcar como completado",
+    "completed": "Objetivo completado esta semana",
+    "form": {
+      "days": "Días a la semana",
+      "hours": "Horas a la semana",
+      "save": "Guardar objetivo",
+      "saving": "Guardando…",
+      "cancel": "Cancelar"
+    }
+  },
   "SessionBuilder": {
     "title": "Sesión de práctica",
     "savedTemplates": "Plantillas guardadas",

@@ -281,6 +281,28 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["friendships"]["Insert"]>;
         Relationships: [];
       };
+      weekly_goals: {
+        Row: {
+          id: string;
+          owner_id: string;
+          week_start: string;
+          target_days: number;
+          target_seconds: number;
+          completed: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          week_start: string;
+          target_days: number;
+          target_seconds: number;
+          completed?: boolean;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["weekly_goals"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

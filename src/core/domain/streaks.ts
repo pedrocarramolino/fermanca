@@ -1,14 +1,24 @@
 import type { Session } from "@/core/domain/session";
 
 /** "YYYY-MM-DD" en UTC — misma convención de "día" que las estadísticas (Fase 7). */
-function dayKey(date: Date): string {
+export function dayKey(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
 
-function addDays(date: Date, days: number): Date {
+export function addDays(date: Date, days: number): Date {
   const d = new Date(date);
   d.setUTCDate(d.getUTCDate() + days);
   return d;
+}
+
+/** Lunes (00:00 UTC) de la semana natural que contiene `today`. */
+export function mondayOf(today: Date): Date {
+  const day = today.getUTCDay();
+  const mondayOffset = day === 0 ? 6 : day - 1;
+  return addDays(
+    new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())),
+    -mondayOffset,
+  );
 }
 
 /** Segundos totales practicados por día (solo sesiones no en curso). */
@@ -62,12 +72,7 @@ export interface WeeklyCompliance {
 
 /** % de días de la semana natural (lunes-domingo) en los que se ha practicado. */
 export function weeklyCompliance(byDay: Map<string, number>, today: Date): WeeklyCompliance {
-  const day = today.getUTCDay();
-  const mondayOffset = day === 0 ? 6 : day - 1;
-  const monday = addDays(
-    new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())),
-    -mondayOffset,
-  );
+  const monday = mondayOf(today);
 
   let practicedDays = 0;
   for (let i = 0; i < 7; i++) {
@@ -101,12 +106,7 @@ export function activityHeatmap(
   weeks: number,
   today: Date,
 ): HeatmapCell[][] {
-  const day = today.getUTCDay();
-  const mondayOffset = day === 0 ? 6 : day - 1;
-  const currentWeekMonday = addDays(
-    new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())),
-    -mondayOffset,
-  );
+  const currentWeekMonday = mondayOf(today);
   const firstWeekMonday = addDays(currentWeekMonday, -7 * (weeks - 1));
 
   return Array.from({ length: weeks }, (_, w) => {
