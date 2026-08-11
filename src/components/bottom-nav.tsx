@@ -50,6 +50,7 @@ export function BottomNav() {
   const [compact, setCompact] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [pillStyle, setPillStyle] = useState<{ width: number; left: number } | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const dragState = useRef<{
     pointerId: number;
@@ -98,24 +99,29 @@ export function BottomNav() {
 
   // Refs no se leen durante el render (regla de React) — la posición de la
   // pastilla se recalcula aquí, después de que el DOM ya refleje el índice
-  // resaltado. Un ResizeObserver (no solo una lectura puntual) la mantiene
-  // pegada al elemento MIENTRAS se anima el paso a modo compacto/expandido
-  // — si no, se queda con el ancho de antes de la transición y se ve
-  // descuadrada frente al icono real, que sigue encogiéndose por debajo.
+  // resaltado. Se vigila el CONTENEDOR entero, no solo el elemento
+  // resaltado: si un vecino cambia de tamaño (p. ej. al pasar de compacto a
+  // expandido) el resaltado se desplaza aunque su propio ancho no cambie, y
+  // un ResizeObserver solo en él no se entera — se queda pegado a la
+  // posición de otra pestaña.
   useLayoutEffect(() => {
     if (highlightIndex === null) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setPillStyle(null);
       return;
     }
-    const el = itemRefs.current[highlightIndex];
-    if (!el) return;
+    const container = containerRef.current;
+    if (!container) return;
 
-    const update = () => setPillStyle({ width: el.offsetWidth, left: el.offsetLeft });
+    const update = () => {
+      const el = itemRefs.current[highlightIndex];
+      if (!el) return;
+      setPillStyle({ width: el.offsetWidth, left: el.offsetLeft });
+    };
     update();
 
     const observer = new ResizeObserver(update);
-    observer.observe(el);
+    observer.observe(container);
     return () => observer.disconnect();
   }, [highlightIndex]);
 
@@ -173,6 +179,7 @@ export function BottomNav() {
       style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 1rem)" }}
     >
       <div
+        ref={containerRef}
         className={cn(
           "relative flex touch-pan-y items-center gap-1 rounded-[28px] transition-[padding] duration-300 ease-out",
           compact ? "p-1" : "p-1.5",
