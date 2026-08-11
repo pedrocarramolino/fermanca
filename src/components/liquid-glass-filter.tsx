@@ -12,19 +12,19 @@
 export function LiquidGlassFilter() {
   return (
     <svg aria-hidden className="pointer-events-none absolute size-0 overflow-hidden">
-      <filter id="liquid-glass-distortion" x="-20%" y="-20%" width="140%" height="140%">
+      <filter id="liquid-glass-distortion" x="-30%" y="-30%" width="160%" height="160%">
         <feTurbulence
           type="fractalNoise"
-          baseFrequency="0.008 0.012"
+          baseFrequency="0.005 0.008"
           numOctaves={2}
           seed={7}
           result="noise"
         />
-        <feGaussianBlur in="noise" stdDeviation={2} result="softNoise" />
+        <feGaussianBlur in="noise" stdDeviation={3} result="softNoise" />
         <feDisplacementMap
           in="SourceGraphic"
           in2="softNoise"
-          scale={18}
+          scale={55}
           xChannelSelector="R"
           yChannelSelector="G"
         />
