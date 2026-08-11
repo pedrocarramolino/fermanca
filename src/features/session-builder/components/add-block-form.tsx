@@ -27,7 +27,7 @@ import { deleteCustomCategory } from "@/features/session-builder/application/act
 import type { Category, CustomCategory } from "@/core/domain/category";
 
 const NEW_CATEGORY_VALUE = "__new__";
-const QUICK_MINUTE_PRESETS = [5, 10, 15, 30, 60];
+const QUICK_MINUTE_PRESETS = [10, 15, 20, 30, 60];
 
 /** Las 4 categorías de sistema son compartidas por todos los usuarios y se
  * muestran en el idioma de quien las ve (vía su slug estable); las
