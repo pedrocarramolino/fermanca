@@ -127,7 +127,7 @@ export function AddBlockForm({
     <div className="border-border flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-end">
       <div className="flex flex-1 flex-col gap-2">
         <Label>{t("category")}</Label>
-        <div className="flex gap-1">
+        <div className="flex gap-2">
           <Select value={categoryId} onValueChange={handleCategoryChange}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder={t("categoryPlaceholder")}>

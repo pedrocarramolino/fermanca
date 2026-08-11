@@ -53,7 +53,7 @@ export function TemplateList({
                 {formatDurationShort(templateTotalDurationSeconds(template))}
               </span>
             </div>
-            <div className="flex shrink-0 items-center gap-1">
+            <div className="flex shrink-0 items-center gap-2">
               <Button type="button" size="sm" variant="secondary" onClick={() => onUse(template)}>
                 {t("use")}
               </Button>
