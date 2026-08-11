@@ -64,6 +64,16 @@ export function BottomNav() {
   );
   const highlightIndex = dragIndex ?? (activeIndex === -1 ? null : activeIndex);
 
+  // Patrón de React para comparar con el render anterior sin efecto (ver
+  // "Storing information from previous renders" en la doc de useState):
+  // si compact cambia justo en este render, la pastilla salta sin animar
+  // en vez de deslizarse Y cambiar de tamaño a la vez — eso es lo que se
+  // veía "raro" al navegar a otra pestaña con la barra encogida, porque
+  // las dos animaciones (posición y tamaño) se pisaban entre sí.
+  const [prevCompact, setPrevCompact] = useState(compact);
+  const compactJustChanged = compact !== prevCompact;
+  if (compactJustChanged) setPrevCompact(compact);
+
   useEffect(() => {
     let lastY = window.scrollY;
     let ticking = false;
@@ -181,7 +191,10 @@ export function BottomNav() {
         {pillStyle && (
           <div
             aria-hidden
-            className="bg-muted pointer-events-none absolute top-1 bottom-1 rounded-3xl transition-[transform,width] duration-200 ease-out"
+            className={cn(
+              "bg-muted pointer-events-none absolute top-1 bottom-1 rounded-3xl",
+              !compactJustChanged && "transition-[transform,width] duration-200 ease-out",
+            )}
             style={{
               width: pillStyle.width,
               transform: `translateX(${pillStyle.left}px)`,
