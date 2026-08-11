@@ -19,6 +19,8 @@
       "title": "Visueller Stil",
       "classic": "Klassisch",
       "glass": "Liquid Glass",
+      "minimal": "Minimalistisch",
+      "futuristic": "Futuristisch",
       "intensity": "Effektstärke: {value}%"
     },
     "accent": {

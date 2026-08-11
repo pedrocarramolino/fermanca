@@ -3,9 +3,10 @@ import type { UserId } from "@/core/domain/ids";
 export type ThemePreference = "light" | "dark" | "system";
 export type SoundChoice = "classic" | "bell" | "metronome" | "piano" | "alarm" | "none";
 export type Locale = "es" | "en" | "de";
-/** "glass" = Liquid Glass (vidrio esmerilado translúcido) — más estilos
- * (futurista, minimalista) se añadirán aquí más adelante. */
-export type VisualStyle = "classic" | "glass";
+/** "glass" = Liquid Glass (vidrio esmerilado translúcido), "minimal" =
+ * plano y silencioso (sin sombra, ring más tenue), "futuristic" = borde y
+ * resplandor de neón en el color de acento. */
+export type VisualStyle = "classic" | "glass" | "minimal" | "futuristic";
 
 export interface UserSettings {
   ownerId: UserId;

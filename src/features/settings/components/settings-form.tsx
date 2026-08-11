@@ -48,7 +48,7 @@ import type {
 const VISUAL_ALERT_OPTIONS = [1500, 3000, 5000, 8000];
 const THEME_VALUES: ThemePreference[] = ["light", "dark", "system"];
 const LOCALE_VALUES: Locale[] = ["es", "en", "de"];
-const VISUAL_STYLE_VALUES: VisualStyle[] = ["classic", "glass"];
+const VISUAL_STYLE_VALUES: VisualStyle[] = ["classic", "glass", "minimal", "futuristic"];
 
 export function SettingsForm({ initialSettings }: { initialSettings: UserSettings }) {
   const t = useTranslations("Settings");
@@ -229,7 +229,7 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {VISUAL_STYLE_OPTIONS.map((option) => (
               <Button
                 key={option.value}

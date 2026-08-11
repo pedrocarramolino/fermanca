@@ -15,7 +15,7 @@ export type SessionBlockStatus = "pending" | "active" | "completed" | "skipped";
 export type ThemePreference = "light" | "dark" | "system";
 export type SoundChoice = "classic" | "bell" | "metronome" | "piano" | "alarm" | "none";
 export type Locale = "es" | "en" | "de";
-export type VisualStyle = "classic" | "glass";
+export type VisualStyle = "classic" | "glass" | "minimal" | "futuristic";
 export type FriendshipStatus = "pending" | "accepted";
 
 export interface Database {

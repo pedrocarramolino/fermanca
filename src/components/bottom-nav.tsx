@@ -39,6 +39,8 @@ export function BottomNav() {
           "glass:bg-[color-mix(in_oklch,var(--background)_var(--glass-alpha-light,70%),transparent)] glass:dark:bg-[color-mix(in_oklch,var(--background)_var(--glass-alpha-dark,50%),transparent)]",
           "glass:ring-border/60 glass:shadow-[0_8px_32px_rgba(0,0,0,0.16),inset_0_1px_0_rgba(255,255,255,0.35)]",
           "glass:backdrop-blur-[var(--glass-blur,40px)] glass:backdrop-saturate-150 glass:dark:shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.08)]",
+          "minimal:shadow-none minimal:ring-border/30",
+          "futuristic:ring-primary/50 futuristic:shadow-[0_0_0_1px_color-mix(in_oklch,var(--primary)_45%,transparent),0_0_24px_-6px_var(--primary)] futuristic:dark:shadow-[0_0_0_1px_color-mix(in_oklch,var(--primary)_55%,transparent),0_0_32px_-4px_var(--primary)]",
         )}
       >
         {NAV_ITEMS.map(({ href, key, icon: Icon }) => {
