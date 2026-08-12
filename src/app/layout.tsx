@@ -5,7 +5,6 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
-import { APPLE_SPLASH_SCREENS } from "@/config/apple-splash-screens";
 import { RegisterServiceWorker } from "@/components/register-service-worker";
 import { InstallPromptBanner } from "@/components/install-prompt-banner";
 import { NotificationPromptDialog } from "@/components/notification-prompt-dialog";
@@ -36,15 +35,14 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     // "default" pinta la barra de estado de iOS blanca siempre, sin
-    // importar el tema de la app — con la app instalada en modo oscuro se
-    // veía una franja blanca arriba del todo hasta que el resto del
-    // contenido terminaba de pintar. "black-translucent" se probó primero,
-    // pero en iOS no es realmente transparente: aplica un tinte oscuro
-    // semitransparente sobre el contenido, así que en vez de ver el fondo
-    // real se veía gris. "black" es sólida (sin translucidez) y coincide
-    // con el fondo real en modo oscuro; en modo claro queda una franja
-    // negra fija — aceptable frente a la alternativa de "blanca siempre".
-    statusBarStyle: "black",
+    // importar el tema de la app. "black" (sólida) se probó después, pero
+    // seguía viéndose gris — el problema real no era la translucidez en sí,
+    // sino que el fondo de la propia página aún no estaba en oscuro cuando
+    // se pintaba ese primer fotograma (ver el className de <html> más abajo,
+    // ahora resuelto en el servidor). Con eso arreglado, "black-translucent"
+    // es la opción correcta: dejar ver el contenido real de la app en vez de
+    // una barra de color fijo que nunca encaja en los dos temas a la vez.
+    statusBarStyle: "black-translucent",
     title: siteConfig.shortName,
   },
   formatDetection: {
@@ -97,7 +95,19 @@ export default async function RootLayout({
     <html
       lang={locale}
       data-style={settings?.visualStyle ?? "classic"}
-      className={cn("font-sans", geist.variable, geistMono.variable)}
+      // Si el usuario tiene un tema explícito guardado (no "system"), se
+      // pinta ya en el HTML del servidor en vez de esperar al script que
+      // inyecta next-themes en el cliente — ese script evita el flash en una
+      // pestaña normal, pero en el arranque de la PWA instalada (justo
+      // cuando se ve LaunchAnimation) parece llegar tarde: se veía un
+      // instante en tema claro, y la barra de estado "black-translucent"
+      // mezclada con ese fondo claro es lo que se veía como gris.
+      className={cn(
+        "font-sans",
+        geist.variable,
+        geistMono.variable,
+        settings?.theme === "dark" && "dark",
+      )}
       style={glassVars}
       suppressHydrationWarning
     >
@@ -111,14 +121,6 @@ export default async function RootLayout({
             }}
           />
         )}
-        {/* iOS no lee de forma fiable el theme_color del manifest para la
-            franja de la barra de estado durante el splash nativo (queda gris
-            en vez del fondo real) — con una imagen de arranque completa por
-            dispositivo, ese hueco no existe: la imagen ya cubre toda la
-            pantalla con el color correcto. */}
-        {APPLE_SPLASH_SCREENS.map((screen) => (
-          <link key={screen.href} rel="apple-touch-startup-image" href={screen.href} media={screen.media} />
-        ))}
       </head>
       <body>
         <LiquidGlassFilter />
