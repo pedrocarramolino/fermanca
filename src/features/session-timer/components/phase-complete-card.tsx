@@ -41,13 +41,15 @@ export function PhaseCompleteCard({
 
       {nextBlock ? (
         <div className="flex flex-col items-center gap-2">
-          <span
-            className="size-4 shrink-0 rounded-full"
-            style={{ backgroundColor: nextBlock.color }}
-            aria-hidden
-          />
           <p className="text-muted-foreground text-sm">{t("next")}</p>
-          <p className="text-2xl font-semibold">{nextBlock.name}</p>
+          <div className="flex items-center gap-2">
+            <span
+              className="size-4 shrink-0 rounded-full"
+              style={{ backgroundColor: nextBlock.color }}
+              aria-hidden
+            />
+            <p className="text-2xl font-semibold">{nextBlock.name}</p>
+          </div>
         </div>
       ) : (
         <p className="text-2xl font-semibold">{t("lastPhaseCompleted")}</p>
