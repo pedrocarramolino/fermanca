@@ -81,6 +81,11 @@ interface StoryCardInput {
   streakDays: number;
   sessionName: string | null;
   date: Date;
+  /** Hora de inicio/fin de la sesión — se muestran como "18:30–19:45" junto
+   * a la fecha. startedAt puede faltar (fallo de red al leerlo); en ese
+   * caso se omite el rango entero en vez de mostrar solo la mitad. */
+  startedAt: Date | null;
+  endedAt: Date | null;
   /** Para formatear la fecha en el idioma del usuario — "es" por defecto. */
   locale?: string;
 }
@@ -93,6 +98,24 @@ function formatStoryDate(date: Date, locale: string): string {
   } catch {
     return date.toLocaleDateString();
   }
+}
+
+function formatStoryTime(date: Date, locale: string): string {
+  try {
+    return new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(date);
+  } catch {
+    return date.toLocaleTimeString();
+  }
+}
+
+/** "18:30–19:45", o null si falta cualquiera de las dos horas. */
+function formatStoryTimeRange(
+  startedAt: Date | null,
+  endedAt: Date | null,
+  locale: string,
+): string | null {
+  if (!startedAt || !endedAt) return null;
+  return `${formatStoryTime(startedAt, locale)}–${formatStoryTime(endedAt, locale)}`;
 }
 
 function drawStreakBadge(ctx: CanvasRenderingContext2D, centerX: number, bottomY: number, days: number) {
@@ -156,11 +179,11 @@ function drawClassicLayout(
   ctx.textAlign = "left";
   ctx.fillStyle = MUTED_ON_PHOTO;
   ctx.font = "500 32px system-ui, sans-serif";
-  const dateAndStreak =
-    input.streakDays > 1
-      ? `${formatStoryDate(input.date, input.locale ?? "es")} · 🔥 ${input.streakDays} días`
-      : formatStoryDate(input.date, input.locale ?? "es");
-  ctx.fillText(dateAndStreak, marginX, y);
+  const timeRange = formatStoryTimeRange(input.startedAt, input.endedAt, input.locale ?? "es");
+  const dateLineParts = [formatStoryDate(input.date, input.locale ?? "es")];
+  if (timeRange) dateLineParts.push(timeRange);
+  if (input.streakDays > 1) dateLineParts.push(`🔥 ${input.streakDays} días`);
+  ctx.fillText(truncateToWidth(ctx, dateLineParts.join(" · "), WIDTH - marginX * 2), marginX, y);
   y -= 64;
 
   const rowsHeight = visibleBlocks.length * 66 + (extraCount > 0 ? 44 : 0);
@@ -210,15 +233,18 @@ function drawMinimalLayout(
   icon: HTMLImageElement | null,
 ) {
   const centerX = WIDTH / 2;
+  const timeRange = formatStoryTimeRange(input.startedAt, input.endedAt, input.locale ?? "es");
   const pillBottom = HEIGHT - 220;
-  const pillHeight = 190;
+  const pillHeight = timeRange ? 234 : 190;
 
   ctx.font = "700 104px system-ui, sans-serif";
   const timeText = formatDurationShort(input.totalSeconds);
   const timeWidth = ctx.measureText(timeText).width;
   ctx.font = "500 34px system-ui, sans-serif";
   const labelWidth = ctx.measureText("de práctica").width;
-  const pillWidth = Math.max(timeWidth, labelWidth) + 120;
+  ctx.font = "500 28px system-ui, sans-serif";
+  const rangeWidth = timeRange ? ctx.measureText(timeRange).width : 0;
+  const pillWidth = Math.max(timeWidth, labelWidth, rangeWidth) + 120;
 
   const scrim = ctx.createRadialGradient(
     centerX,
@@ -241,6 +267,12 @@ function drawMinimalLayout(
   ctx.fillStyle = MUTED_ON_PHOTO;
   ctx.font = "500 34px system-ui, sans-serif";
   ctx.fillText("de práctica", centerX, pillBottom - 40);
+
+  if (timeRange) {
+    ctx.fillStyle = MUTED_ON_PHOTO;
+    ctx.font = "500 28px system-ui, sans-serif";
+    ctx.fillText(timeRange, centerX, pillBottom - 2);
+  }
 
   if (input.streakDays > 1) {
     drawStreakBadge(ctx, centerX, pillBottom - pillHeight - 24, input.streakDays);
@@ -273,9 +305,12 @@ function drawBoldLayout(
 
   ctx.font = "500 40px system-ui, sans-serif";
   ctx.fillStyle = MUTED_ON_PHOTO;
+  const timeRange = formatStoryTimeRange(input.startedAt, input.endedAt, input.locale ?? "es");
+  const subtitleParts = [formatStoryDate(input.date, input.locale ?? "es")];
+  if (timeRange) subtitleParts.push(timeRange);
   const subtitle = input.sessionName
-    ? `${input.sessionName} · ${formatStoryDate(input.date, input.locale ?? "es")}`
-    : formatStoryDate(input.date, input.locale ?? "es");
+    ? `${input.sessionName} · ${subtitleParts.join(" · ")}`
+    : subtitleParts.join(" · ");
   ctx.fillText(truncateToWidth(ctx, subtitle, WIDTH - marginX * 2), marginX, y);
 
   if (input.streakDays > 1) {

@@ -155,6 +155,19 @@ export async function listGhostCategoryIds(): Promise<string[]> {
   return categories.filter((c) => c.kind === "custom" && c.isGhost).map((c) => c.id);
 }
 
+/** Hora a la que empezó la sesión — se usa en la Story con foto. Se lee de
+ * `sessions.started_at`, no del primer bloque: es fiable desde el instante
+ * en que se crea la sesión, mientras que `endedAt` a nivel de sesión aún no
+ * existe si el usuario abre la Story antes de guardar la nota final (ver
+ * finishSession), así que la hora de fin se aproxima con "ahora" en el
+ * propio creador de la Story en vez de depender de aquí. */
+export async function getSessionStartedAt(sessionId: string): Promise<string | null> {
+  const { userId, client } = await requireUserId();
+  const sessionRepo = new SupabaseSessionRepository(client);
+  const session = await sessionRepo.getById(sessionId as SessionId, userId);
+  return session ? session.startedAt.toISOString() : null;
+}
+
 /** Nombre de la rutina de la que viene la sesión, si se creó a partir de
  * una — se usa en la Story con foto; las sesiones improvisadas (sin
  * plantilla) no tienen nombre, así que devuelve null y esa línea se omite. */

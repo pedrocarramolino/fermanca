@@ -8,6 +8,7 @@ import { Slider } from "@/components/ui/slider";
 import { formatDurationShort } from "@/core/domain/duration";
 import {
   getCurrentStreakDays,
+  getSessionStartedAt,
   getSessionTemplateName,
 } from "@/features/session-timer/application/actions";
 import {
@@ -42,6 +43,26 @@ function formatPreviewDate(date: Date, locale: string): string {
   } catch {
     return date.toLocaleDateString();
   }
+}
+
+function formatPreviewTime(date: Date, locale: string): string {
+  try {
+    return new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(date);
+  } catch {
+    return date.toLocaleTimeString();
+  }
+}
+
+/** "18:30–19:45", o null si falta alguna de las dos horas (p. ej. mientras
+ * startedAt aún no ha llegado del servidor) — igual que en
+ * session-story-card.ts, la imagen final. */
+function formatPreviewTimeRange(
+  startedAt: Date | null,
+  endedAt: Date | null,
+  locale: string,
+): string | null {
+  if (!startedAt || !endedAt) return null;
+  return `${formatPreviewTime(startedAt, locale)}–${formatPreviewTime(endedAt, locale)}`;
 }
 
 function canShareNatively(): boolean {
@@ -123,6 +144,8 @@ function StoryStatsPreview({
   streakDays,
   sessionName,
   date,
+  startedAt,
+  endedAt,
   locale,
 }: {
   variant: StoryStyleVariant;
@@ -132,10 +155,13 @@ function StoryStatsPreview({
   streakDays: number;
   sessionName: string | null;
   date: Date;
+  startedAt: Date | null;
+  endedAt: Date | null;
   locale: string;
 }) {
   const timeText = formatDurationShort(totalSeconds);
   const dateText = formatPreviewDate(date, locale);
+  const timeRangeText = formatPreviewTimeRange(startedAt, endedAt, locale);
   const visibleBlocks = blocks.slice(0, MAX_VISIBLE_BLOCKS_PREVIEW);
   const extraCount = blocks.length - visibleBlocks.length;
 
@@ -167,6 +193,7 @@ function StoryStatsPreview({
         <div className="rounded-2xl bg-black/40 px-6 py-4 backdrop-blur-sm">
           <div className="text-4xl leading-none font-extrabold">{timeText}</div>
           <div className="mt-1 text-sm text-white/80">de práctica</div>
+          {timeRangeText && <div className="mt-1 text-xs text-white/60">{timeRangeText}</div>}
         </div>
       </div>
     );
@@ -179,7 +206,7 @@ function StoryStatsPreview({
         <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col gap-1 p-4">
           <div className="text-5xl leading-none font-extrabold">{timeText}</div>
           <div className="truncate text-sm text-white/80">
-            {sessionName ? `${sessionName} · ${dateText}` : dateText}
+            {[sessionName, dateText, timeRangeText].filter(Boolean).join(" · ")}
           </div>
           {streakDays > 1 && (
             <div className="text-xs text-white/70">🔥 Racha de {streakDays} días</div>
@@ -208,8 +235,9 @@ function StoryStatsPreview({
         </div>
         <div className="mt-1">{categoryRows}</div>
         <div className="mt-1 text-xs text-white/60">
-          {dateText}
-          {streakDays > 1 ? ` · 🔥 ${streakDays} días` : ""}
+          {[dateText, timeRangeText, streakDays > 1 ? `🔥 ${streakDays} días` : null]
+            .filter(Boolean)
+            .join(" · ")}
         </div>
       </div>
     </>
@@ -240,10 +268,23 @@ export function CreateStoryOverlay({
   const [resultBlob, setResultBlob] = useState<Blob | null>(null);
   const [streakDays, setStreakDays] = useState(0);
   const [sessionName, setSessionName] = useState<string | null>(null);
+  // Hora a la que empezó la sesión, para el rango "18:30–19:45" de la
+  // imagen — null hasta que llega del servidor (o si falla la lectura, en
+  // cuyo caso el rango se omite del todo, ver formatStoryTimeRange).
+  const [startedAt, setStartedAt] = useState<Date | null>(null);
   const [isBusy, setIsBusy] = useState(false);
-  // Misma fecha para la preview en vivo y la exportación final — evita que
-  // difieran si el usuario deja el editor abierto justo al cruzar medianoche.
+  // Solo para la FECHA mostrada ("11 de agosto de 2026") — no para la hora
+  // de fin del rango, que se calcula aparte (ver endedAt) porque "ahora"
+  // (el momento en que se abre este editor) puede incluir tiempo de una
+  // categoría fantasma que no cuenta como practicado.
   const [captureDate] = useState(() => new Date());
+  // Hora de fin = inicio + tiempo realmente practicado (totalSeconds ya
+  // viene sin los bloques de categorías fantasma, ver SessionSummary) — así
+  // el rango de horas de la imagen es coherente con la duración que se
+  // muestra en ella, en vez de con el reloj real, que puede incluir tiempo
+  // de una categoría fantasma o el rato que ha tardado el usuario en elegir
+  // la foto y el estilo antes de exportar.
+  const endedAt = startedAt ? new Date(startedAt.getTime() + totalSeconds * 1000) : null;
   const frameRef = useRef<HTMLDivElement>(null);
   const dragState = useRef<{
     startX: number;
@@ -262,6 +303,11 @@ export function CreateStoryOverlay({
       .then(setSessionName)
       .catch(() => {
         // Sesión improvisada o fallo de red — se omite el nombre.
+      });
+    void getSessionStartedAt(sessionId)
+      .then((iso) => setStartedAt(iso ? new Date(iso) : null))
+      .catch(() => {
+        // Fallo de red — se omite el rango de horas del todo.
       });
   }, [sessionId]);
 
@@ -394,6 +440,8 @@ export function CreateStoryOverlay({
         streakDays,
         sessionName,
         date: captureDate,
+        startedAt,
+        endedAt,
         locale,
       });
       if (!blob) return;
@@ -520,6 +568,8 @@ export function CreateStoryOverlay({
               streakDays={streakDays}
               sessionName={sessionName}
               date={captureDate}
+              startedAt={startedAt}
+              endedAt={endedAt}
               locale={locale}
             />
           </div>
