@@ -2,18 +2,32 @@
 
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { AddPhaseButton } from "@/features/session-timer/components/add-phase-button";
+import { RemainingPhasesList } from "@/features/session-timer/components/remaining-phases-list";
 import type { RuntimeBlockInput } from "@/features/session-timer/hooks/use-session-runtime";
 
 export function PhaseCompleteCard({
   completedBlock,
   nextBlock,
+  remainingBlocks,
   onConfirm,
   onAddTime,
+  onAddPhase,
+  onReorderPhases,
 }: {
   completedBlock: RuntimeBlockInput;
   nextBlock: RuntimeBlockInput | null;
+  remainingBlocks: RuntimeBlockInput[];
   onConfirm: () => void;
   onAddTime: (seconds: number) => void;
+  onAddPhase: (input: {
+    categoryId: string;
+    name: string;
+    color: string;
+    plannedDurationSeconds: number;
+    beforeBlockId: string | null;
+  }) => Promise<void>;
+  onReorderPhases: (orderedBlockIds: string[]) => void;
 }) {
   const t = useTranslations("PhaseComplete");
 
@@ -42,6 +56,10 @@ export function PhaseCompleteCard({
       <Button type="button" size="lg" onClick={onConfirm}>
         {nextBlock ? t("nextPhase") : t("finishSession")}
       </Button>
+
+      <AddPhaseButton onAdd={onAddPhase} />
+
+      <RemainingPhasesList blocks={remainingBlocks} onReorder={onReorderPhases} />
 
       <div className="flex flex-col items-center gap-2">
         <p className="text-muted-foreground text-xs">

@@ -367,6 +367,24 @@
     "finishSession": "Sitzung beenden",
     "addTimeQuestion": "Zeit knapp bei {name}?"
   },
+  "AddPhase": {
+    "trigger": "Phase hinzufügen",
+    "title": "Eine Phase hinzufügen",
+    "description": "Wird ans Ende der Warteschlange der laufenden Sitzung angehängt; danach kannst du sie an die richtige Stelle ziehen.",
+    "loading": "Kategorien werden geladen…",
+    "category": "Kategorie",
+    "categoryPlaceholder": "Kategorie wählen",
+    "newCategory": "Neue Kategorie…",
+    "phaseName": "Name der Phase",
+    "minutes": "Minuten",
+    "add": "Phase hinzufügen",
+    "adding": "Wird hinzugefügt…",
+    "addError": "Die Phase konnte nicht hinzugefügt werden. Versuch es erneut."
+  },
+  "RemainingPhases": {
+    "title": "Anstehende Phasen — zum Umordnen ziehen",
+    "reorder": "{name} neu anordnen"
+  },
   "QuickNote": {
     "label": "Kurze Notiz zu \"{name}\"",
     "placeholder": "Z. B.: langsamer üben, Takte 32-45 wiederholen…",

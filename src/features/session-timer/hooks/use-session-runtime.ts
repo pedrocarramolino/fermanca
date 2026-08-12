@@ -9,6 +9,8 @@ import {
   extendActiveBlock,
   pauseActiveBlock,
   resumeActiveBlock,
+  insertSessionBlock,
+  reorderSessionBlocks,
 } from "@/features/session-timer/application/actions";
 import type { SoundChoice } from "@/core/domain/user-settings";
 import type { SessionBlockStatus } from "@/core/domain/session";
@@ -99,10 +101,16 @@ export function useSessionRuntime({
   // Mientras está pausado, congelamos el "now" que ve resolveRuntimeState en
   // el instante de la pausa en vez de dejarlo avanzar con el reloj real.
   const [pausedAt, setPausedAt] = useState<Date | null>(initial.pausedAt);
+  // Fases añadidas a mitad de sesión (ver addBlock) se insertan aquí, no en
+  // la prop `blocks` original (fija desde que se montó el componente) — todo
+  // lo demás (nextBlock, activeBlockIndex+1, la cola de "pendientes" para el
+  // selector de posición…) se deriva de este array por índice, así que una
+  // fase nueva encaja sola sin más casos especiales.
+  const [dynamicBlocks, setDynamicBlocks] = useState(blocks);
   const effectiveBlocks =
     Object.keys(extraSecondsByBlockId).length === 0
-      ? blocks
-      : blocks.map((block) =>
+      ? dynamicBlocks
+      : dynamicBlocks.map((block) =>
           extraSecondsByBlockId[block.id]
             ? {
                 ...block,
@@ -275,6 +283,57 @@ export function useSessionRuntime({
     );
   }
 
+  /** Añade una fase nueva entre las que quedan por hacer — se llama desde la
+   * pantalla de fin de fase (ver PhaseCompleteCard/AddPhaseDialog).
+   * `beforeBlockId: null` la deja al final de la cola; si no había ninguna
+   * fase pendiente (estabas en la última), esta pasa a ser `nextBlock` sola,
+   * y el botón de "siguiente fase" que ya existe sirve para empezarla. */
+  async function addBlock(input: {
+    categoryId: string;
+    name: string;
+    color: string;
+    plannedDurationSeconds: number;
+    beforeBlockId: string | null;
+  }) {
+    const created = await insertSessionBlock(sessionId, input);
+    const runtimeBlock: RuntimeBlockInput = {
+      id: created.id,
+      name: created.name,
+      color: created.color,
+      categoryId: created.categoryId,
+      plannedDurationSeconds: created.plannedDurationSeconds,
+      actualDurationSeconds: 0,
+      note: null,
+      status: "pending",
+      startedAt: null,
+      pausedRemainingSeconds: null,
+    };
+    setDynamicBlocks((prev) => {
+      const insertAt = input.beforeBlockId
+        ? prev.findIndex((block) => block.id === input.beforeBlockId)
+        : -1;
+      const index = insertAt === -1 ? prev.length : insertAt;
+      return [...prev.slice(0, index), runtimeBlock, ...prev.slice(index)];
+    });
+  }
+
+  /** Reordena la cola de fases pendientes arrastrando (ver PhaseCompleteCard/
+   * RemainingPhasesList) — mismo patrón que la lista de bloques de la
+   * pantalla de inicio: se añade siempre al final y luego se arrastra a su
+   * sitio, en vez de elegir la posición en un desplegable al crearla. */
+  function reorderBlocks(orderedBlockIds: string[]) {
+    setDynamicBlocks((prev) => {
+      const byId = new Map(prev.map((block) => [block.id, block] as const));
+      const reorderedTail = orderedBlockIds
+        .map((id) => byId.get(id))
+        .filter((block): block is RuntimeBlockInput => block != null);
+      return [...prev.slice(0, activeBlockIndex + 1), ...reorderedTail];
+    });
+    void reorderSessionBlocks(sessionId, orderedBlockIds).catch((error: unknown) => {
+      console.error("No se pudo reordenar las fases", error);
+    });
+  }
+
   const confirmNextPhaseRef = useRef(confirmNextPhase);
   useEffect(() => {
     confirmNextPhaseRef.current = confirmNextPhase;
@@ -296,6 +355,9 @@ export function useSessionRuntime({
     status: runtimeState.status,
     activeBlock,
     nextBlock,
+    // Fases todavía sin empezar tras la que se está confirmando ahora — para
+    // el selector de "insertar antes de…" al añadir una fase nueva.
+    remainingBlocks: effectiveBlocks.slice(activeBlockIndex + 1),
     remainingSeconds: runtimeState.status === "running" ? runtimeState.remainingInActiveBlock : 0,
     elapsedSeconds: runtimeState.status === "running" ? runtimeState.elapsedInActiveBlock : 0,
     lastCompletedBlock,
@@ -304,6 +366,8 @@ export function useSessionRuntime({
     isPaused: pausedAt !== null,
     confirmNextPhase,
     addExtraTime,
+    addBlock,
+    reorderBlocks,
     pauseTimer,
     resumeTimer,
   };

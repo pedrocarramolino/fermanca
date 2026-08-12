@@ -6,7 +6,7 @@ import { SupabaseTemplateRepository } from "@/core/infrastructure/supabase/repos
 import { SupabaseCategoryRepository } from "@/core/infrastructure/supabase/repositories/category-repository";
 import { UnauthorizedError } from "@/core/domain/errors";
 import { currentStreakDays, practiceSecondsByDay } from "@/core/domain/streaks";
-import type { SessionBlockId, SessionId, UserId } from "@/core/domain/ids";
+import type { CategoryId, SessionBlockId, SessionId, UserId } from "@/core/domain/ids";
 import {
   cancelQstashMessage,
   scheduleSessionPhaseAlert,
@@ -202,4 +202,62 @@ export async function finishSession(sessionId: string, finalNote: string | null)
   const { userId, client } = await requireUserId();
   const repo = new SupabaseSessionRepository(client);
   return repo.finish(sessionId as SessionId, userId, { status: "completed", finalNote });
+}
+
+/** Categorías para el selector de "añadir fase" en la pantalla de fin de
+ * fase — mismo listado que al montar la sesión, pero pedido aparte porque
+ * SessionRunner no las recibe por props (la sesión ya está en marcha). */
+export async function listSessionCategories() {
+  const { userId, client } = await requireUserId();
+  return new SupabaseCategoryRepository(client).listAvailable(userId);
+}
+
+/**
+ * Añade una fase nueva a una sesión en marcha, en la posición que elija el
+ * usuario entre las que aún no han empezado — `beforeBlockId: null` la deja
+ * al final. Rechaza sesiones que ya no estén en curso (terminadas o
+ * abandonadas no deberían ganar fases nuevas).
+ */
+export async function insertSessionBlock(
+  sessionId: string,
+  input: {
+    categoryId: string;
+    name: string;
+    color: string;
+    plannedDurationSeconds: number;
+    beforeBlockId: string | null;
+  },
+) {
+  const { userId, client } = await requireUserId();
+  const repo = new SupabaseSessionRepository(client);
+
+  const session = await repo.getById(sessionId as SessionId, userId);
+  if (!session || session.status !== "in_progress") {
+    throw new Error("La sesión no está en curso.");
+  }
+
+  return repo.insertBlock(sessionId as SessionId, userId, {
+    categoryId: input.categoryId as CategoryId,
+    name: input.name,
+    color: input.color,
+    plannedDurationSeconds: input.plannedDurationSeconds,
+    beforeBlockId: input.beforeBlockId as SessionBlockId | null,
+  });
+}
+
+/**
+ * Reordena las fases pendientes de una sesión en marcha arrastrando (mismo
+ * mecanismo que la lista de bloques de la pantalla de inicio). Rechaza
+ * sesiones que ya no estén en curso, igual que insertSessionBlock.
+ */
+export async function reorderSessionBlocks(sessionId: string, orderedBlockIds: string[]) {
+  const { userId, client } = await requireUserId();
+  const repo = new SupabaseSessionRepository(client);
+
+  const session = await repo.getById(sessionId as SessionId, userId);
+  if (!session || session.status !== "in_progress") {
+    throw new Error("La sesión no está en curso.");
+  }
+
+  await repo.reorderBlocks(sessionId as SessionId, userId, orderedBlockIds as SessionBlockId[]);
 }

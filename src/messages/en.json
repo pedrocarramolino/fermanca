@@ -367,6 +367,24 @@
     "finishSession": "Finish session",
     "addTimeQuestion": "Ran out of time on {name}?"
   },
+  "AddPhase": {
+    "trigger": "Add phase",
+    "title": "Add a phase",
+    "description": "Added to the end of the queue for the session in progress; drag it into place afterwards.",
+    "loading": "Loading categories…",
+    "category": "Category",
+    "categoryPlaceholder": "Choose a category",
+    "newCategory": "New category…",
+    "phaseName": "Phase name",
+    "minutes": "Minutes",
+    "add": "Add phase",
+    "adding": "Adding…",
+    "addError": "Couldn't add the phase. Try again."
+  },
+  "RemainingPhases": {
+    "title": "Upcoming phases — drag to reorder",
+    "reorder": "Reorder {name}"
+  },
   "QuickNote": {
     "label": "Quick note about \"{name}\"",
     "placeholder": "E.g.: work slower, review bars 32-45…",

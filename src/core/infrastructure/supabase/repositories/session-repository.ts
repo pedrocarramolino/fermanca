@@ -5,7 +5,7 @@ import type {
   SessionBlock,
   SessionStatus,
 } from "@/core/domain/session";
-import type { SessionBlockId, SessionId, TemplateId, UserId } from "@/core/domain/ids";
+import type { CategoryId, SessionBlockId, SessionId, TemplateId, UserId } from "@/core/domain/ids";
 import type {
   NewSessionBlock,
   SessionHistoryFilter,
@@ -223,6 +223,102 @@ export class SupabaseSessionRepository implements SessionRepository {
       })
       .eq("id", id);
     if (error) throw error;
+  }
+
+  async insertBlock(
+    sessionId: SessionId,
+    ownerId: UserId,
+    input: {
+      categoryId: CategoryId;
+      name: string;
+      color: string;
+      plannedDurationSeconds: number;
+      beforeBlockId: SessionBlockId | null;
+    },
+  ): Promise<SessionBlock> {
+    void ownerId; // RLS ya exige que la sesión pertenezca al usuario.
+    const { data: existing, error: existingError } = await this.client
+      .from("session_blocks")
+      .select("id, position")
+      .eq("session_id", sessionId)
+      .order("position", { ascending: false });
+    if (existingError) throw existingError;
+
+    let targetPosition: number;
+    if (input.beforeBlockId === null) {
+      targetPosition = (existing[0]?.position ?? -1) + 1;
+    } else {
+      const beforeBlock = existing.find((row) => row.id === input.beforeBlockId);
+      if (!beforeBlock) throw new Error("Bloque de referencia no encontrado.");
+      targetPosition = beforeBlock.position;
+
+      // Hueco para el nuevo bloque: se desplazan +1 los que quedan a partir
+      // de esa posición, de mayor a menor (uno a uno, no en un solo UPDATE)
+      // para no chocar nunca con la unique constraint (session_id, position)
+      // — de mayor a menor, cada hueco de destino ya está libre porque el
+      // bloque que lo ocupaba se acaba de mover un paso por delante.
+      const toShift = existing.filter((row) => row.position >= targetPosition);
+      for (const row of toShift) {
+        const { error: shiftError } = await this.client
+          .from("session_blocks")
+          .update({ position: row.position + 1 })
+          .eq("id", row.id);
+        if (shiftError) throw shiftError;
+      }
+    }
+
+    const { data, error } = await this.client
+      .from("session_blocks")
+      .insert({
+        session_id: sessionId,
+        category_id: input.categoryId,
+        name: input.name,
+        color: input.color,
+        position: targetPosition,
+        planned_duration_seconds: input.plannedDurationSeconds,
+        status: "pending",
+      })
+      .select("*")
+      .single();
+    if (error) throw error;
+    return blockToDomain(data);
+  }
+
+  async reorderBlocks(
+    sessionId: SessionId,
+    ownerId: UserId,
+    orderedBlockIds: SessionBlockId[],
+  ): Promise<void> {
+    void ownerId; // RLS ya exige que la sesión pertenezca al usuario.
+    const { data: rows, error: rowsError } = await this.client
+      .from("session_blocks")
+      .select("id, position")
+      .eq("session_id", sessionId)
+      .in("id", orderedBlockIds);
+    if (rowsError) throw rowsError;
+    if (rows.length !== orderedBlockIds.length) throw new Error("Bloques no encontrados.");
+
+    const positions = rows.map((row) => row.position).sort((a, b) => a - b);
+
+    // Dos fases para evitar chocar con la unique constraint (session_id,
+    // position) al reasignar: primero se mueven todos a posiciones fuera de
+    // rango (nunca chocan entre sí ni con el resto de la sesión), luego se
+    // asignan las posiciones definitivas ya en el orden pedido.
+    for (const row of rows) {
+      const { error: tempError } = await this.client
+        .from("session_blocks")
+        .update({ position: row.position + 100000 })
+        .eq("id", row.id);
+      if (tempError) throw tempError;
+    }
+
+    for (const [i, blockId] of orderedBlockIds.entries()) {
+      const { error: finalError } = await this.client
+        .from("session_blocks")
+        .update({ position: positions[i] })
+        .eq("id", blockId);
+      if (finalError) throw finalError;
+    }
   }
 
   async getPublicSummary(id: SessionId): Promise<PublicSessionSummary | null> {

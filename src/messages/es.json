@@ -367,6 +367,24 @@
     "finishSession": "Finalizar sesión",
     "addTimeQuestion": "¿Te ha faltado tiempo en {name}?"
   },
+  "AddPhase": {
+    "trigger": "Añadir fase",
+    "title": "Añadir una fase",
+    "description": "Se añade al final de la cola de la sesión en marcha; luego puedes arrastrarla donde haga falta.",
+    "loading": "Cargando categorías…",
+    "category": "Categoría",
+    "categoryPlaceholder": "Elige una categoría",
+    "newCategory": "Nueva categoría…",
+    "phaseName": "Nombre de la fase",
+    "minutes": "Minutos",
+    "add": "Añadir fase",
+    "adding": "Añadiendo…",
+    "addError": "No se pudo añadir la fase. Inténtalo de nuevo."
+  },
+  "RemainingPhases": {
+    "title": "Fases pendientes — arrastra para reordenar",
+    "reorder": "Reordenar {name}"
+  },
   "QuickNote": {
     "label": "Nota rápida sobre \"{name}\"",
     "placeholder": "Ej: trabajar más lento, revisar compases 32-45…",

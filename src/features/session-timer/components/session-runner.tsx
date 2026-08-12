@@ -78,8 +78,11 @@ export function SessionRunner({
         <PhaseCompleteCard
           completedBlock={runtime.activeBlock}
           nextBlock={runtime.nextBlock}
+          remainingBlocks={runtime.remainingBlocks}
           onConfirm={runtime.confirmNextPhase}
           onAddTime={runtime.addExtraTime}
+          onAddPhase={runtime.addBlock}
+          onReorderPhases={runtime.reorderBlocks}
         />
       ) : (
         <div className="flex flex-col items-center gap-4">
