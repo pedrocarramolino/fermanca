@@ -102,7 +102,7 @@ export function SessionRunner({
             >
               {runtime.isPaused ? t("resume") : t("pause")}
             </Button>
-            <Button type="button" variant="outline" size="sm" onClick={runtime.confirmNextPhase}>
+            <Button type="button" variant="outline" size="sm" onClick={runtime.finishPhaseNow}>
               {t("finishPhaseNow")}
             </Button>
           </div>

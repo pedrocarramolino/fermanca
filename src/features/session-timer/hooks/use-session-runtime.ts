@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { resolveRuntimeState, type RuntimeBlock } from "@/core/domain/session-runtime";
+import { resolveRuntimeState, type RuntimeBlock, type RuntimeState } from "@/core/domain/session-runtime";
 import { playNotificationSound, vibrate } from "@/features/session-timer/application/sounds";
 import {
   transitionBlock,
@@ -101,6 +101,15 @@ export function useSessionRuntime({
   // Mientras está pausado, congelamos el "now" que ve resolveRuntimeState en
   // el instante de la pausa en vez de dejarlo avanzar con el reloj real.
   const [pausedAt, setPausedAt] = useState<Date | null>(initial.pausedAt);
+  // El usuario ha pulsado "terminar fase ahora" antes de que se agote el
+  // tiempo — a diferencia de una pausa, esto no es reversible con "reanudar":
+  // fuerza el estado a "awaiting-confirmation" (con la hora exacta del click,
+  // no la de cuando se confirme después) para que pase por la misma pantalla
+  // de fin de fase que un final por tiempo agotado, con su botón de "Añadir
+  // fase" incluido — antes saltaba directo a la siguiente fase sin pasar por
+  // ahí. Se limpia al confirmar la fase o al pedir más tiempo (ver
+  // confirmNextPhase/addExtraTime).
+  const [forcedCompletionAt, setForcedCompletionAt] = useState<Date | null>(null);
   // Fases añadidas a mitad de sesión (ver addBlock) se insertan aquí, no en
   // la prop `blocks` original (fija desde que se montó el componente) — todo
   // lo demás (nextBlock, activeBlockIndex+1, la cola de "pendientes" para el
@@ -138,12 +147,9 @@ export function useSessionRuntime({
   }, []);
 
   const effectiveNow = pausedAt ?? now;
-  const runtimeState = resolveRuntimeState(
-    effectiveBlocks,
-    activeBlockIndex,
-    activeBlockStartedAt,
-    effectiveNow,
-  );
+  const runtimeState: RuntimeState = forcedCompletionAt
+    ? { status: "awaiting-confirmation", activeBlockIndex }
+    : resolveRuntimeState(effectiveBlocks, activeBlockIndex, activeBlockStartedAt, effectiveNow);
   const activeBlock = effectiveBlocks[activeBlockIndex] ?? null;
   const nextBlock = effectiveBlocks[activeBlockIndex + 1] ?? null;
   const awaitingConfirmationIndex =
@@ -175,19 +181,17 @@ export function useSessionRuntime({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [runtimeState.status, awaitingConfirmationIndex]);
 
-  /** También se puede llamar con el bloque todavía "running" — el botón de
-   * "terminar fase ahora" del cronómetro deja que el usuario cierre la fase
-   * antes de que se agote el tiempo, sin esperar a la pantalla de
-   * confirmación. */
   function confirmNextPhase() {
     if (isTransitioningRef.current || runtimeState.status === "finished") return;
     const completedBlock = activeBlock;
     if (!completedBlock) return;
 
     isTransitioningRef.current = true;
-    // Si estaba en pausa, la fase "terminó" en el instante en que se pausó,
-    // no ahora — si no, el tiempo en pausa contaría como practicado.
-    const confirmedAt = pausedAt ?? new Date();
+    // La fase "terminó" en el instante en que se pausó o se forzó su fin con
+    // "terminar fase ahora", no ahora — si no, ese rato de más contaría como
+    // practicado.
+    const confirmedAt = forcedCompletionAt ?? pausedAt ?? new Date();
+    setForcedCompletionAt(null);
     setPausedAt(null);
     const actualDurationSeconds = Math.round(
       (confirmedAt.getTime() - activeBlockStartedAt.getTime()) / 1000,
@@ -234,11 +238,26 @@ export function useSessionRuntime({
     if (runtimeState.status !== "awaiting-confirmation" || !activeBlock) return;
     const blockId = activeBlock.id;
     setExtraSecondsByBlockId((prev) => ({ ...prev, [blockId]: (prev[blockId] ?? 0) + seconds }));
+    // Si el fin de fase fue forzado ("terminar fase ahora"), pedir más tiempo
+    // significa que el usuario se ha arrepentido — se libera para que vuelva
+    // a mandar el estado el cronómetro real (ahora con el plazo ampliado),
+    // en vez de quedarse fijo en "awaiting-confirmation" para siempre.
+    setForcedCompletionAt(null);
     // Para que vuelva a sonar/vibrar cuando se agote también el tiempo extra.
     announcedIndexRef.current = null;
     void extendActiveBlock(blockId, seconds).catch((error: unknown) => {
       console.error("No se pudo ampliar el tiempo de la fase", error);
     });
+  }
+
+  /** Cierra la fase activa antes de que se agote su tiempo — a diferencia de
+   * antes, ya no confirma el paso a la siguiente fase directamente: fuerza el
+   * mismo estado "awaiting-confirmation" que un final por tiempo agotado, así
+   * el usuario pasa por la pantalla de fin de fase (con su opción de "Añadir
+   * fase") en vez de saltársela. */
+  function finishPhaseNow() {
+    if (runtimeState.status !== "running" || !activeBlock) return;
+    setForcedCompletionAt(pausedAt ?? new Date());
   }
 
   /** Congela el cronómetro: el bloque activo sigue "running" pero con el
@@ -365,6 +384,7 @@ export function useSessionRuntime({
     finishing,
     isPaused: pausedAt !== null,
     confirmNextPhase,
+    finishPhaseNow,
     addExtraTime,
     addBlock,
     reorderBlocks,
