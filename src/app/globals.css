@@ -165,13 +165,6 @@
   }
   body {
     @apply bg-background text-foreground;
-    /* La barra de estado de iOS es transparente (ver statusBarStyle en
-       layout.tsx) — este padding empuja el contenido por debajo del
-       notch/Dynamic Island sin dejar un hueco del color equivocado, ya que
-       el fondo de body (correcto según el tema) sigue llegando hasta arriba
-       del todo. env() vale 0 en dispositivos sin notch, así que no cambia
-       nada ahí. */
-    padding-top: env(safe-area-inset-top, 0px);
   }
   html {
     @apply font-sans;

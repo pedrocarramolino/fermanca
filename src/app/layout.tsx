@@ -37,11 +37,13 @@ export const metadata: Metadata = {
     // "default" pinta la barra de estado de iOS blanca siempre, sin
     // importar el tema de la app — con la app instalada en modo oscuro se
     // veía una franja blanca arriba del todo hasta que el resto del
-    // contenido terminaba de pintar. "black-translucent" la hace
-    // transparente y deja ver el propio fondo (ya correcto según el tema);
-    // el padding-top de body en globals.css evita que el contenido quede
-    // debajo del notch/Dynamic Island.
-    statusBarStyle: "black-translucent",
+    // contenido terminaba de pintar. "black-translucent" se probó primero,
+    // pero en iOS no es realmente transparente: aplica un tinte oscuro
+    // semitransparente sobre el contenido, así que en vez de ver el fondo
+    // real se veía gris. "black" es sólida (sin translucidez) y coincide
+    // con el fondo real en modo oscuro; en modo claro queda una franja
+    // negra fija — aceptable frente a la alternativa de "blanca siempre".
+    statusBarStyle: "black",
     title: siteConfig.shortName,
   },
   formatDetection: {
