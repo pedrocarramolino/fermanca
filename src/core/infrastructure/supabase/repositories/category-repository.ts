@@ -3,6 +3,7 @@ import type { Category, CustomCategory, SystemCategorySlug } from "@/core/domain
 import type { CategoryId, UserId } from "@/core/domain/ids";
 import type { CategoryRepository } from "@/core/domain/repositories/category-repository";
 import type { Database } from "@/core/infrastructure/supabase/database.types";
+import { assertUuid } from "@/lib/uuid";
 
 type CategoryRow = Database["public"]["Tables"]["categories"]["Row"];
 
@@ -31,6 +32,7 @@ export class SupabaseCategoryRepository implements CategoryRepository {
   constructor(private readonly client: SupabaseClient<Database>) {}
 
   async listAvailable(ownerId: UserId): Promise<Category[]> {
+    assertUuid(ownerId);
     const { data, error } = await this.client
       .from("categories")
       .select("*")

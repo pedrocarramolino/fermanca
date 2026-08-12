@@ -3,6 +3,7 @@ import type { Friendship } from "@/core/domain/friendship";
 import type { FriendshipId, UserId } from "@/core/domain/ids";
 import type { FriendshipRepository } from "@/core/domain/repositories/friendship-repository";
 import type { Database } from "@/core/infrastructure/supabase/database.types";
+import { assertUuid } from "@/lib/uuid";
 
 type Row = Database["public"]["Tables"]["friendships"]["Row"];
 
@@ -20,6 +21,7 @@ export class SupabaseFriendshipRepository implements FriendshipRepository {
   constructor(private readonly client: SupabaseClient<Database>) {}
 
   async listByOwner(ownerId: UserId): Promise<Friendship[]> {
+    assertUuid(ownerId);
     const { data, error } = await this.client
       .from("friendships")
       .select("*")
@@ -67,6 +69,7 @@ export class SupabaseFriendshipRepository implements FriendshipRepository {
   }
 
   async remove(id: FriendshipId, ownerId: UserId): Promise<void> {
+    assertUuid(ownerId);
     const { error } = await this.client
       .from("friendships")
       .delete()

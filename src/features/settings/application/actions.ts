@@ -7,8 +7,24 @@ import { createServiceClient } from "@/core/infrastructure/supabase/service-clie
 import { SupabaseUserSettingsRepository } from "@/core/infrastructure/supabase/repositories/user-settings-repository";
 import { UnauthorizedError } from "@/core/domain/errors";
 import { GUEST_LOCALE_COOKIE } from "@/i18n/request";
+import { isAccentPreset } from "@/features/settings/lib/accent-presets";
 import type { Locale, UserSettings } from "@/core/domain/user-settings";
 import type { UserId } from "@/core/domain/ids";
+
+const HEX_COLOR_PATTERN = /^#[0-9a-f]{6}$/i;
+
+/** `accentColor` no tiene columna con CHECK en BD (a diferencia de theme,
+ * sound, visualStyle...) porque acepta tanto un preset como un hex libre —
+ * y se interpola tal cual en un <style> del layout raíz (ver
+ * accentOverrideCssFromHex), así que hay que validarlo aquí antes de
+ * guardarlo. El <input type="color"> del navegador ya solo produce
+ * "#rrggbb", pero esta acción es invocable directamente sin pasar por ese
+ * control. */
+function assertValidAccentColor(value: string | null | undefined): void {
+  if (value == null) return;
+  if (isAccentPreset(value) || HEX_COLOR_PATTERN.test(value)) return;
+  throw new Error("Color de acento no válido.");
+}
 
 /**
  * Para las pantallas de login/registro, que no tienen sesión y por tanto no
@@ -31,6 +47,7 @@ export async function updateSettings(
   const { data } = await supabase.auth.getClaims();
   const sub = data?.claims.sub;
   if (!sub) throw new UnauthorizedError();
+  assertValidAccentColor(changes.accentColor);
 
   const repo = new SupabaseUserSettingsRepository(supabase);
   return repo.upsert(sub as UserId, changes);
