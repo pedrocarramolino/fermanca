@@ -95,7 +95,12 @@ export function RemainingPhasesList({
   return (
     <div className="flex w-full flex-col gap-2">
       <p className="text-muted-foreground text-xs">{t("title")}</p>
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <DndContext
+        id="remaining-phases"
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
         <SortableContext items={blocks.map((block) => block.id)} strategy={verticalListSortingStrategy}>
           <ul className="flex flex-col gap-1.5">
             {blocks.map((block) => (
