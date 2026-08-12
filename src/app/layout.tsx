@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
+import { APPLE_SPLASH_SCREENS } from "@/config/apple-splash-screens";
 import { RegisterServiceWorker } from "@/components/register-service-worker";
 import { InstallPromptBanner } from "@/components/install-prompt-banner";
 import { NotificationPromptDialog } from "@/components/notification-prompt-dialog";
@@ -110,6 +111,14 @@ export default async function RootLayout({
             }}
           />
         )}
+        {/* iOS no lee de forma fiable el theme_color del manifest para la
+            franja de la barra de estado durante el splash nativo (queda gris
+            en vez del fondo real) — con una imagen de arranque completa por
+            dispositivo, ese hueco no existe: la imagen ya cubre toda la
+            pantalla con el color correcto. */}
+        {APPLE_SPLASH_SCREENS.map((screen) => (
+          <link key={screen.href} rel="apple-touch-startup-image" href={screen.href} media={screen.media} />
+        ))}
       </head>
       <body>
         <LiquidGlassFilter />
