@@ -34,7 +34,14 @@ export const metadata: Metadata = {
   description: siteConfig.description,
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    // "default" pinta la barra de estado de iOS blanca siempre, sin
+    // importar el tema de la app — con la app instalada en modo oscuro se
+    // veía una franja blanca arriba del todo hasta que el resto del
+    // contenido terminaba de pintar. "black-translucent" la hace
+    // transparente y deja ver el propio fondo (ya correcto según el tema);
+    // el padding-top de body en globals.css evita que el contenido quede
+    // debajo del notch/Dynamic Island.
+    statusBarStyle: "black-translucent",
     title: siteConfig.shortName,
   },
   formatDetection: {
