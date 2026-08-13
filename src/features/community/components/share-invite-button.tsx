@@ -31,7 +31,7 @@ export function ShareInviteButton({ inviteCode }: { inviteCode: string }) {
 
   async function handleNativeShare() {
     try {
-      await navigator.share({ title: "PracticeFlow", text: shareText, url: joinUrl });
+      await navigator.share({ title: "Fermança", text: shareText, url: joinUrl });
     } catch {
       // El usuario canceló el selector nativo — no es un error que mostrar.
     }

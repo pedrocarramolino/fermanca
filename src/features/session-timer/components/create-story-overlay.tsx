@@ -458,21 +458,21 @@ export function CreateStoryOverlay({
     const url = URL.createObjectURL(resultBlob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "practiceflow-story.png";
+    link.download = "fermanca-story.png";
     link.click();
     URL.revokeObjectURL(url);
   }
 
   async function handleShare() {
     if (!resultBlob) return;
-    const file = new File([resultBlob], "practiceflow-story.png", { type: "image/png" });
+    const file = new File([resultBlob], "fermanca-story.png", { type: "image/png" });
     if (!canShareNatively() || !navigator.canShare?.({ files: [file] })) {
       handleSave();
       return;
     }
     setIsBusy(true);
     try {
-      await navigator.share({ title: "PracticeFlow", files: [file] });
+      await navigator.share({ title: "Fermança", files: [file] });
     } catch {
       // El usuario canceló el selector nativo — no es un error que mostrar.
     } finally {

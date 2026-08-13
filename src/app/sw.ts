@@ -76,7 +76,7 @@ interface ShowNotificationOptions extends NotificationOptions {
 self.addEventListener("push", (event: PushEvent) => {
   const payload: IncomingPushPayload = event.data?.json() ?? {
     kind: "reminder",
-    title: "PracticeFlow",
+    title: "Fermança",
     body: "Tienes un recordatorio.",
   };
 

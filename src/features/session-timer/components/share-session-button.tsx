@@ -58,7 +58,7 @@ export function ShareSessionButton({
       streakDays: streak,
     });
     if (!blob) return null;
-    return new File([blob], "practiceflow-sesion.png", { type: "image/png" });
+    return new File([blob], "fermanca-sesion.png", { type: "image/png" });
   }
 
   /** Instagram (y el resto de apps) solo aparecen como destino real si se
@@ -70,9 +70,9 @@ export function ShareSessionButton({
     try {
       const file = await buildCardFile();
       if (file && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ title: "PracticeFlow", text: shareText, files: [file] });
+        await navigator.share({ title: "Fermança", text: shareText, files: [file] });
       } else {
-        await navigator.share({ title: "PracticeFlow", text: shareText, url: shareUrl });
+        await navigator.share({ title: "Fermança", text: shareText, url: shareUrl });
       }
     } catch {
       // El usuario canceló el selector nativo — no es un error que mostrar.

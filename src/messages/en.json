@@ -248,7 +248,7 @@
     "pushCardTitle": "Notifications on this device",
     "yourReminders": "Your reminders",
     "push": {
-      "unsupported": "This browser doesn't support push notifications. On iPhone, install PracticeFlow to your home screen first (Safari → Share → Add to Home Screen).",
+      "unsupported": "This browser doesn't support push notifications. On iPhone, install Fermança to your home screen first (Safari → Share → Add to Home Screen).",
       "enabled": "Notifications enabled on this device",
       "disabled": "Notifications disabled on this device",
       "activate": "Enable",
@@ -321,8 +321,8 @@
       "genericError": "Couldn't send the request.",
       "invalidTitle": "Invalid code",
       "invalidDescription": "This invite link doesn't exist or has expired.",
-      "goToApp": "Go to PracticeFlow",
-      "invitedBy": "<strong>@{username}</strong> invited you to be their friend on PracticeFlow.",
+      "goToApp": "Go to Fermança",
+      "invitedBy": "<strong>@{username}</strong> invited you to be their friend on Fermança.",
       "createAccount": "Create account and accept",
       "alreadyHaveAccount": "I already have an account",
       "sending": "Sending request to @{username}…",
@@ -339,8 +339,8 @@
   "Share": {
     "link": "Share link",
     "session": "Share",
-    "inviteText": "Join my friends on PracticeFlow 🎵",
-    "sessionText": "I practiced {duration} across {count, plural, one {# block} other {# blocks}} with PracticeFlow",
+    "inviteText": "Join my friends on Fermança 🎵",
+    "sessionText": "I practiced {duration} across {count, plural, one {# block} other {# blocks}} with Fermança",
     "streakSuffix": "{count, plural, one {# day} other {# days}} streak",
     "whatsapp": "WhatsApp",
     "facebook": "Facebook",
@@ -421,10 +421,10 @@
   "SharedSession": {
     "title": "Practice session",
     "blocksSummary": "{duration} across {count, plural, one {# block} other {# blocks}}",
-    "cta": "Practice too with PracticeFlow"
+    "cta": "Practice too with Fermança"
   },
   "InstallPrompt": {
-    "message": "Install PracticeFlow for quick access and notifications.",
+    "message": "Install Fermança for quick access and notifications.",
     "install": "Install",
     "dismiss": "Dismiss"
   },
@@ -438,18 +438,18 @@
     "title": "Terms of Service",
     "lastUpdated": "Last updated: August 5, 2026",
     "about": {
-      "heading": "About PracticeFlow",
-      "body": "PracticeFlow is a personal project developed by Pedro Carramolino González to help you organize your music practice sessions. It is not a service provided by a registered company."
+      "heading": "About Fermança",
+      "body": "Fermança is a personal project developed by Pedro Carramolino González to help you organize your music practice sessions. It is not a service provided by a registered company."
     },
     "usage": {
       "heading": "Using the service",
-      "item1": "You need an account to use PracticeFlow. You are responsible for keeping your password confidential and for any activity that happens on your account.",
+      "item1": "You need an account to use Fermança. You are responsible for keeping your password confidential and for any activity that happens on your account.",
       "item2": "You must provide real information when registering (a valid email) and must not use the app for illegal purposes, or to harass or harm other people through the Community feature.",
       "item3": "We reserve the right to suspend or delete accounts that violate these terms."
     },
     "availability": {
       "heading": "Service availability",
-      "body": "PracticeFlow is provided “as is”, without guarantees of continuous availability. Being a personal project, the service may experience interruptions, changes, or ultimately be discontinued; we'll try to give reasonable notice if that were to happen while your data is at stake."
+      "body": "Fermança is provided “as is”, without guarantees of continuous availability. Being a personal project, the service may experience interruptions, changes, or ultimately be discontinued; we'll try to give reasonable notice if that were to happen while your data is at stake."
     },
     "content": {
       "heading": "Content you upload",
@@ -457,7 +457,7 @@
     },
     "liability": {
       "heading": "Limitation of liability",
-      "body": "To the extent permitted by law, PracticeFlow is provided without warranties of any kind, and we are not liable for data loss or damages arising from use of the service, beyond what applicable regulations require."
+      "body": "To the extent permitted by law, Fermança is provided without warranties of any kind, and we are not liable for data loss or damages arising from use of the service, beyond what applicable regulations require."
     },
     "law": {
       "heading": "Governing law",
@@ -474,7 +474,7 @@
     "lastUpdated": "Last updated: August 5, 2026",
     "controller": {
       "heading": "Data controller",
-      "body": "Pedro Carramolino González, as an individual, is the controller responsible for the data PracticeFlow collects. You can reach out with any questions about your data at <email>pedrocarramolino34@gmail.com</email>."
+      "body": "Pedro Carramolino González, as an individual, is the controller responsible for the data Fermança collects. You can reach out with any questions about your data at <email>pedrocarramolino34@gmail.com</email>."
     },
     "dataCollected": {
       "heading": "What data we collect",
@@ -484,7 +484,7 @@
       "item4": "Reminders: the time and days you configure, and your timezone.",
       "item5": "Push notifications: if you enable them, your browser gives us a subscription identifier and encryption keys needed to send you alerts — we don't use them for anything else.",
       "item6": "Basic technical data generated by any web service (IP address, browser type) through our hosting provider, for security and to keep the service running.",
-      "outro": "We don't collect payment data (PracticeFlow has no purchases or subscriptions) and we don't use advertising or tracking cookies."
+      "outro": "We don't collect payment data (Fermança has no purchases or subscriptions) and we don't use advertising or tracking cookies."
     },
     "dataUse": {
       "heading": "What we use your data for",
@@ -497,7 +497,7 @@
     },
     "dataSharing": {
       "heading": "Who we share your data with",
-      "intro": "We use the following providers to run PracticeFlow, who process data on our behalf:",
+      "intro": "We use the following providers to run Fermança, who process data on our behalf:",
       "item1Strong": "Supabase",
       "item1Rest": " — database and authentication.",
       "item2Strong": "Vercel",
@@ -517,7 +517,7 @@
     },
     "minors": {
       "heading": "Minors",
-      "body": "PracticeFlow is not directed at children under 14. If you are under that age, you need your legal guardian's consent to use the app."
+      "body": "Fermança is not directed at children under 14. If you are under that age, you need your legal guardian's consent to use the app."
     },
     "changes": {
       "heading": "Changes to this policy",

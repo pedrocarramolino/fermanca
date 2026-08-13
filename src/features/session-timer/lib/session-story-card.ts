@@ -136,7 +136,7 @@ function drawStreakBadge(ctx: CanvasRenderingContext2D, centerX: number, bottomY
 
 function drawCredit(ctx: CanvasRenderingContext2D, centerX: number, y: number, icon: HTMLImageElement | null) {
   const iconSize = 32;
-  const label = "PracticeFlow";
+  const label = "Fermança";
   ctx.font = "600 30px system-ui, sans-serif";
   const labelWidth = ctx.measureText(label).width;
   const gap = 12;

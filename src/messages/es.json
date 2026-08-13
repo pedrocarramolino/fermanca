@@ -248,7 +248,7 @@
     "pushCardTitle": "Notificaciones en este dispositivo",
     "yourReminders": "Tus recordatorios",
     "push": {
-      "unsupported": "Este navegador no admite notificaciones push. En iPhone, instala PracticeFlow en la pantalla de inicio primero (Safari → Compartir → Añadir a pantalla de inicio).",
+      "unsupported": "Este navegador no admite notificaciones push. En iPhone, instala Fermança en la pantalla de inicio primero (Safari → Compartir → Añadir a pantalla de inicio).",
       "enabled": "Notificaciones activadas en este dispositivo",
       "disabled": "Notificaciones desactivadas en este dispositivo",
       "activate": "Activar",
@@ -321,8 +321,8 @@
       "genericError": "No se pudo enviar la solicitud.",
       "invalidTitle": "Código no válido",
       "invalidDescription": "Este enlace de invitación no existe o ha caducado.",
-      "goToApp": "Ir a PracticeFlow",
-      "invitedBy": "<strong>@{username}</strong> te ha invitado a ser su amigo en PracticeFlow.",
+      "goToApp": "Ir a Fermança",
+      "invitedBy": "<strong>@{username}</strong> te ha invitado a ser su amigo en Fermança.",
       "createAccount": "Crear cuenta y aceptar",
       "alreadyHaveAccount": "Ya tengo cuenta",
       "sending": "Enviando solicitud a @{username}…",
@@ -339,8 +339,8 @@
   "Share": {
     "link": "Compartir enlace",
     "session": "Compartir",
-    "inviteText": "Únete a mis amigos en PracticeFlow 🎵",
-    "sessionText": "He practicado {duration} en {count, plural, one {# bloque} other {# bloques}} con PracticeFlow",
+    "inviteText": "Únete a mis amigos en Fermança 🎵",
+    "sessionText": "He practicado {duration} en {count, plural, one {# bloque} other {# bloques}} con Fermança",
     "streakSuffix": "racha de {count, plural, one {# día} other {# días}}",
     "whatsapp": "WhatsApp",
     "facebook": "Facebook",
@@ -421,10 +421,10 @@
   "SharedSession": {
     "title": "Sesión de práctica",
     "blocksSummary": "{duration} en {count, plural, one {# bloque} other {# bloques}}",
-    "cta": "Practica tú también con PracticeFlow"
+    "cta": "Practica tú también con Fermança"
   },
   "InstallPrompt": {
-    "message": "Instala PracticeFlow para acceso rápido y notificaciones.",
+    "message": "Instala Fermança para acceso rápido y notificaciones.",
     "install": "Instalar",
     "dismiss": "Descartar"
   },
@@ -438,18 +438,18 @@
     "title": "Términos de servicio",
     "lastUpdated": "Última actualización: 5 de agosto de 2026",
     "about": {
-      "heading": "Sobre PracticeFlow",
-      "body": "PracticeFlow es un proyecto personal desarrollado por Pedro Carramolino González para ayudarte a organizar tus sesiones de práctica musical. No es un servicio prestado por una empresa registrada."
+      "heading": "Sobre Fermança",
+      "body": "Fermança es un proyecto personal desarrollado por Pedro Carramolino González para ayudarte a organizar tus sesiones de práctica musical. No es un servicio prestado por una empresa registrada."
     },
     "usage": {
       "heading": "Uso del servicio",
-      "item1": "Necesitas una cuenta para usar PracticeFlow. Eres responsable de mantener la confidencialidad de tu contraseña y de la actividad que ocurra en tu cuenta.",
+      "item1": "Necesitas una cuenta para usar Fermança. Eres responsable de mantener la confidencialidad de tu contraseña y de la actividad que ocurra en tu cuenta.",
       "item2": "Debes proporcionar datos reales al registrarte (correo válido) y no usar la aplicación para fines ilegales, ni para acosar o dañar a otras personas a través de la función de Comunidad.",
       "item3": "Nos reservamos el derecho de suspender o eliminar cuentas que incumplan estos términos."
     },
     "availability": {
       "heading": "Disponibilidad del servicio",
-      "body": "PracticeFlow se ofrece “tal cual”, sin garantías de disponibilidad continua. Al ser un proyecto personal, el servicio puede sufrir interrupciones, cambios o, en último caso, discontinuarse, y procuraremos avisar con antelación razonable si eso ocurriera con tus datos en juego."
+      "body": "Fermança se ofrece “tal cual”, sin garantías de disponibilidad continua. Al ser un proyecto personal, el servicio puede sufrir interrupciones, cambios o, en último caso, discontinuarse, y procuraremos avisar con antelación razonable si eso ocurriera con tus datos en juego."
     },
     "content": {
       "heading": "Contenido que subes",
@@ -457,7 +457,7 @@
     },
     "liability": {
       "heading": "Limitación de responsabilidad",
-      "body": "En la medida permitida por la ley, PracticeFlow se ofrece sin garantías de ningún tipo, y no nos hacemos responsables de pérdidas de datos o daños derivados del uso del servicio, más allá de lo que exija la normativa aplicable."
+      "body": "En la medida permitida por la ley, Fermança se ofrece sin garantías de ningún tipo, y no nos hacemos responsables de pérdidas de datos o daños derivados del uso del servicio, más allá de lo que exija la normativa aplicable."
     },
     "law": {
       "heading": "Ley aplicable",
@@ -474,7 +474,7 @@
     "lastUpdated": "Última actualización: 5 de agosto de 2026",
     "controller": {
       "heading": "Responsable del tratamiento",
-      "body": "Pedro Carramolino González, como persona física, es responsable del tratamiento de los datos que recoge PracticeFlow. Puedes contactar para cualquier duda sobre tus datos en <email>pedrocarramolino34@gmail.com</email>."
+      "body": "Pedro Carramolino González, como persona física, es responsable del tratamiento de los datos que recoge Fermança. Puedes contactar para cualquier duda sobre tus datos en <email>pedrocarramolino34@gmail.com</email>."
     },
     "dataCollected": {
       "heading": "Qué datos recogemos",
@@ -484,7 +484,7 @@
       "item4": "Recordatorios: la hora y los días que configures, y tu zona horaria.",
       "item5": "Notificaciones push: si las activas, tu navegador nos da un identificador de suscripción y claves de cifrado necesarias para enviarte avisos — no los usamos para nada más.",
       "item6": "Datos técnicos básicos que genera cualquier servicio web (dirección IP, tipo de navegador) a través de nuestro proveedor de hosting, con fines de seguridad y funcionamiento del servicio.",
-      "outro": "No recogemos datos de pago (PracticeFlow no tiene compras ni suscripciones) ni usamos cookies de publicidad o seguimiento."
+      "outro": "No recogemos datos de pago (Fermança no tiene compras ni suscripciones) ni usamos cookies de publicidad o seguimiento."
     },
     "dataUse": {
       "heading": "Para qué usamos tus datos",
@@ -497,7 +497,7 @@
     },
     "dataSharing": {
       "heading": "Con quién compartimos tus datos",
-      "intro": "Usamos los siguientes proveedores para hacer funcionar PracticeFlow, que procesan datos en nuestro nombre:",
+      "intro": "Usamos los siguientes proveedores para hacer funcionar Fermança, que procesan datos en nuestro nombre:",
       "item1Strong": "Supabase",
       "item1Rest": " — base de datos y autenticación.",
       "item2Strong": "Vercel",
@@ -517,7 +517,7 @@
     },
     "minors": {
       "heading": "Menores de edad",
-      "body": "PracticeFlow no está dirigido a menores de 14 años. Si eres menor de esa edad, necesitas el consentimiento de tu tutor legal para usar la aplicación."
+      "body": "Fermança no está dirigido a menores de 14 años. Si eres menor de esa edad, necesitas el consentimiento de tu tutor legal para usar la aplicación."
     },
     "changes": {
       "heading": "Cambios en esta política",

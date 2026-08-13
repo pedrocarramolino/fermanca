@@ -1,4 +1,4 @@
-# PracticeFlow
+# Fermança
 
 PWA para organizar sesiones de práctica en bloques temporizados que se encadenan
 automáticamente. Ver [progreso y fases del proyecto](#roadmap) más abajo.

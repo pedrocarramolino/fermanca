@@ -149,7 +149,7 @@ export async function generateSessionShareCardBlob(input: {
     ctx.restore();
   }
   ctx.font = "600 40px system-ui, sans-serif";
-  ctx.fillText("PracticeFlow", WIDTH / 2, wordmarkBaseline);
+  ctx.fillText("Fermança", WIDTH / 2, wordmarkBaseline);
 
   // ── Panel flotante ────────────────────────────────────────────────────
   ctx.save();

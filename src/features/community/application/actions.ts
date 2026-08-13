@@ -82,7 +82,7 @@ async function notifyFriendRequest(addresseeId: UserId, requesterUsername: strin
       {
         kind: "friend-request",
         title: "Nueva solicitud de amistad",
-        body: `${requesterUsername} quiere ser tu amigo en PracticeFlow.`,
+        body: `${requesterUsername} quiere ser tu amigo en Fermança.`,
       },
     );
     if (result.expired) await pushRepo.deleteByEndpoint(sub.endpoint);
