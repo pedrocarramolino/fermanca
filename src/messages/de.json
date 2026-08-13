@@ -297,7 +297,8 @@
       "remove": "{name} nicht mehr befreundet"
     },
     "session": {
-      "lastSession": "Letzte Sitzung",
+      "recentSessions": "Letzte Sitzungen",
+      "monthTotal": "{duration} diesen Monat",
       "loading": "Wird geladen…",
       "empty": "Noch keine abgeschlossenen Sitzungen.",
       "error": "Die Sitzung konnte nicht geladen werden.",

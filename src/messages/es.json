@@ -297,7 +297,8 @@
       "remove": "Dejar de ser amigo de {name}"
     },
     "session": {
-      "lastSession": "Última sesión",
+      "recentSessions": "Últimas sesiones",
+      "monthTotal": "{duration} este mes",
       "loading": "Cargando…",
       "empty": "Todavía no tiene sesiones completadas.",
       "error": "No se pudo cargar la sesión.",

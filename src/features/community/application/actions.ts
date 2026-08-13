@@ -173,28 +173,34 @@ export async function removeFriendship(friendshipId: string) {
   revalidatePath("/community");
 }
 
-export interface FriendLastSessionBlock {
+export interface FriendSessionBlock {
   id: string;
   name: string;
   color: string;
   actualDurationSeconds: number;
 }
 
-export interface FriendLastSession {
+export interface FriendSession {
+  id: string;
   startedAt: string;
   status: "completed" | "abandoned";
-  blocks: FriendLastSessionBlock[];
+  blocks: FriendSessionBlock[];
 }
 
+/** Cuántas sesiones recientes se muestran en el diálogo de un amigo — junto
+ * al total del mes (ver getFriendProgress), es suficiente para hacerse una
+ * idea sin cargar todo el historial. */
+const RECENT_SESSIONS_LIMIT = 3;
+
 /**
- * Fases y duración real de la última sesión terminada de un amigo — a
- * diferencia de getFriendProgress, esto sí es detalle de una sesión
- * concreta, así que deliberadamente NO incluye `note` ni `finalNote`: esas
- * siguen siendo privadas incluso para amigos aceptados.
+ * Fases y duración real de las últimas sesiones terminadas de un amigo — a
+ * diferencia de getFriendProgress, esto sí es detalle de sesiones
+ * concretas, así que deliberadamente NO incluye `note` ni `finalNote`: esas
+ * siguen siendo privadas incluso para amigos aceptados. Se piden de más
+ * (limit 5) y se filtran las que aún están en marcha, por si el amigo tiene
+ * una sesión abierta en este momento — así siempre se completan las 3.
  */
-export async function getFriendLastSession(
-  friendOwnerId: string,
-): Promise<FriendLastSession | null> {
+export async function getFriendRecentSessions(friendOwnerId: string): Promise<FriendSession[]> {
   const { userId, client } = await requireUserId();
 
   const friendship = await new SupabaseFriendshipRepository(client).findBetween(
@@ -205,21 +211,23 @@ export async function getFriendLastSession(
 
   const sessions = await new SupabaseSessionRepository(createServiceClient()).listByOwner(
     friendOwnerId as UserId,
-    { limit: 5 },
+    { limit: RECENT_SESSIONS_LIMIT + 2 },
   );
-  const last = sessions.find((s) => s.status !== "in_progress");
-  if (!last) return null;
 
-  return {
-    startedAt: last.startedAt.toISOString(),
-    status: last.status as "completed" | "abandoned",
-    blocks: last.blocks.map((block) => ({
-      id: block.id,
-      name: block.name,
-      color: block.color,
-      actualDurationSeconds: block.actualDurationSeconds,
-    })),
-  };
+  return sessions
+    .filter((s) => s.status !== "in_progress")
+    .slice(0, RECENT_SESSIONS_LIMIT)
+    .map((session) => ({
+      id: session.id,
+      startedAt: session.startedAt.toISOString(),
+      status: session.status as "completed" | "abandoned",
+      blocks: session.blocks.map((block) => ({
+        id: block.id,
+        name: block.name,
+        color: block.color,
+        actualDurationSeconds: block.actualDurationSeconds,
+      })),
+    }));
 }
 
 export interface FriendProgress {

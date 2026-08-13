@@ -297,7 +297,8 @@
       "remove": "Unfriend {name}"
     },
     "session": {
-      "lastSession": "Last session",
+      "recentSessions": "Recent sessions",
+      "monthTotal": "{duration} this month",
       "loading": "Loading…",
       "empty": "No completed sessions yet.",
       "error": "Couldn't load the session.",
