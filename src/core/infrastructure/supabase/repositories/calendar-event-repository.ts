@@ -59,25 +59,25 @@ export class SupabaseCalendarEventRepository implements CalendarEventRepository 
     if (error) throw error;
   }
 
-  async getQstashMessageId(id: CalendarEventId, ownerId: UserId): Promise<string | null> {
+  async getQstashScheduleId(id: CalendarEventId, ownerId: UserId): Promise<string | null> {
     const { data, error } = await this.client
       .from("calendar_events")
-      .select("qstash_message_id")
+      .select("qstash_schedule_id")
       .eq("id", id)
       .eq("owner_id", ownerId)
       .maybeSingle();
     if (error) throw error;
-    return data?.qstash_message_id ?? null;
+    return data?.qstash_schedule_id ?? null;
   }
 
-  async setQstashMessageId(
+  async setQstashScheduleId(
     id: CalendarEventId,
     ownerId: UserId,
-    messageId: string | null,
+    scheduleId: string | null,
   ): Promise<void> {
     const { error } = await this.client
       .from("calendar_events")
-      .update({ qstash_message_id: messageId })
+      .update({ qstash_schedule_id: scheduleId })
       .eq("id", id)
       .eq("owner_id", ownerId);
     if (error) throw error;

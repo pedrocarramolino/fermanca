@@ -3,10 +3,13 @@ import { createServiceClient } from "@/core/infrastructure/supabase/service-clie
 import { SupabasePushSubscriptionRepository } from "@/core/infrastructure/supabase/repositories/push-subscription-repository";
 import { sendPush } from "@/core/infrastructure/push/send-push";
 import { verifyQstashSignature } from "@/core/infrastructure/qstash/verify";
+import { deleteQstashSchedule } from "@/core/infrastructure/qstash/client";
 
 /** QStash llama aquí en el instante exacto que se eligió al crear el evento
  * (ver scheduleCalendarEventNotification) — mismo patrón que reminder-alert,
- * pero de un solo disparo en vez de recurrente. */
+ * pero el Schedule de un evento es de un solo disparo: como el cron no
+ * puede fijar el año, se autoborra aquí nada más entregarse para no volver
+ * a saltar el año que viene en la misma fecha. */
 export async function POST(request: Request) {
   const rawBody = await request.text();
   if (!(await verifyQstashSignature(request, rawBody))) {
@@ -18,7 +21,7 @@ export async function POST(request: Request) {
 
   const { data: event, error: eventError } = await supabase
     .from("calendar_events")
-    .select("id, owner_id, title")
+    .select("id, owner_id, title, qstash_schedule_id")
     .eq("id", eventId)
     .maybeSingle();
   if (eventError) throw eventError;
@@ -51,6 +54,8 @@ export async function POST(request: Request) {
     if (result.ok) sent += 1;
     if (result.expired) await pushRepo.deleteByEndpoint(sub.endpoint);
   }
+
+  if (event.qstash_schedule_id) await deleteQstashSchedule(event.qstash_schedule_id);
 
   return NextResponse.json({ sent });
 }

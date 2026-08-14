@@ -7,8 +7,8 @@ export interface CalendarEventRepository {
   listByOwner(ownerId: UserId): Promise<CalendarEvent[]>;
   create(ownerId: UserId, input: NewCalendarEvent): Promise<CalendarEvent>;
   delete(id: CalendarEventId, ownerId: UserId): Promise<void>;
-  /** Id del mensaje QStash pendiente para el aviso de este evento, si tiene
-   * uno programado — igual que en session_blocks, para poder cancelarlo. */
-  getQstashMessageId(id: CalendarEventId, ownerId: UserId): Promise<string | null>;
-  setQstashMessageId(id: CalendarEventId, ownerId: UserId, messageId: string | null): Promise<void>;
+  /** Id del Schedule de QStash pendiente para el aviso de este evento, si
+   * tiene uno programado — igual que en reminders, para poder cancelarlo. */
+  getQstashScheduleId(id: CalendarEventId, ownerId: UserId): Promise<string | null>;
+  setQstashScheduleId(id: CalendarEventId, ownerId: UserId, scheduleId: string | null): Promise<void>;
 }

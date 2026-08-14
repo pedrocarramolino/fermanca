@@ -310,7 +310,7 @@ export interface Database {
           title: string;
           event_date: string;
           notify_at: string | null;
-          qstash_message_id: string | null;
+          qstash_schedule_id: string | null;
           created_at: string;
         };
         Insert: {
@@ -319,7 +319,7 @@ export interface Database {
           title: string;
           event_date: string;
           notify_at?: string | null;
-          qstash_message_id?: string | null;
+          qstash_schedule_id?: string | null;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["calendar_events"]["Insert"]>;

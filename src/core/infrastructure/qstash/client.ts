@@ -79,21 +79,33 @@ export async function createReminderSchedule(
   return scheduleId;
 }
 
-/** Aviso puntual para un evento de calendario, en un instante concreto en
- * vez de un delay relativo — a diferencia de scheduleSessionPhaseAlert
- * (segundos desde ahora), aquí el momento puede estar a meses vista, así
- * que se usa `notBefore` (timestamp absoluto) en lugar de `delay`, que no
- * está pensado para plazos tan largos. */
+/** minute hour day-of-month month * — un cron de un solo campo de año no
+ * existe en el formato estándar de 5 campos, así que esta expresión en
+ * realidad se repetiría cada año en esa fecha; calendar-event-alert borra el
+ * Schedule nada más entregar el aviso para que se comporte como un disparo
+ * único. Se calcula en UTC (sin prefijo CRON_TZ) porque `notifyAt` ya es un
+ * instante absoluto resuelto en el navegador del usuario, no una hora local
+ * que QStash tenga que reinterpretar. */
+function oneShotCron(notifyAt: Date): string {
+  return `${notifyAt.getUTCMinutes()} ${notifyAt.getUTCHours()} ${notifyAt.getUTCDate()} ${notifyAt.getUTCMonth() + 1} *`;
+}
+
+/** Aviso puntual para un evento de calendario, en un instante concreto que
+ * puede estar a meses vista — un mensaje normal (`notBefore`/`delay`) no
+ * sirve porque el plan de QStash limita esos plazos a 7 días; un Schedule
+ * (cron) no tiene ese límite, así que se usa ese mecanismo aunque el aviso
+ * no sea recurrente (ver oneShotCron). */
 export async function scheduleCalendarEventNotification(
   eventId: string,
   notifyAt: Date,
 ): Promise<string> {
-  const { messageId } = await getClient().publishJSON({
-    url: `${appUrl()}/api/qstash/calendar-event-alert`,
-    body: { eventId },
-    notBefore: Math.round(notifyAt.getTime() / 1000),
+  const { scheduleId } = await getClient().schedules.create({
+    destination: `${appUrl()}/api/qstash/calendar-event-alert`,
+    body: JSON.stringify({ eventId }),
+    headers: { "Content-Type": "application/json" },
+    cron: oneShotCron(notifyAt),
   });
-  return messageId;
+  return scheduleId;
 }
 
 export async function deleteQstashSchedule(scheduleId: string): Promise<void> {

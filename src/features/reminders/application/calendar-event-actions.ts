@@ -5,7 +5,7 @@ import { createClient } from "@/core/infrastructure/supabase/server";
 import { SupabaseCalendarEventRepository } from "@/core/infrastructure/supabase/repositories/calendar-event-repository";
 import { UnauthorizedError } from "@/core/domain/errors";
 import {
-  cancelQstashMessage,
+  deleteQstashSchedule,
   scheduleCalendarEventNotification,
 } from "@/core/infrastructure/qstash/client";
 import type { CalendarEventId, UserId } from "@/core/domain/ids";
@@ -36,8 +36,8 @@ export async function createCalendarEvent(title: string, date: string, notifyAt:
   const event = await repo.create(userId, { title: trimmed, date, notifyAt: notifyAtDate });
 
   if (notifyAtDate) {
-    const messageId = await scheduleCalendarEventNotification(event.id, notifyAtDate);
-    await repo.setQstashMessageId(event.id, userId, messageId);
+    const scheduleId = await scheduleCalendarEventNotification(event.id, notifyAtDate);
+    await repo.setQstashScheduleId(event.id, userId, scheduleId);
   }
 
   revalidatePath("/reminders");
@@ -47,8 +47,8 @@ export async function createCalendarEvent(title: string, date: string, notifyAt:
 export async function deleteCalendarEvent(id: string) {
   const { userId, client } = await requireUserId();
   const repo = new SupabaseCalendarEventRepository(client);
-  const messageId = await repo.getQstashMessageId(id as CalendarEventId, userId);
+  const scheduleId = await repo.getQstashScheduleId(id as CalendarEventId, userId);
   await repo.delete(id as CalendarEventId, userId);
-  if (messageId) await cancelQstashMessage(messageId);
+  if (scheduleId) await deleteQstashSchedule(scheduleId);
   revalidatePath("/reminders");
 }
