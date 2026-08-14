@@ -263,7 +263,11 @@
     },
     "list": {
       "empty": "Du hast noch keine Erinnerungen.",
-      "delete": "Erinnerung löschen"
+      "delete": "Erinnerung löschen",
+      "deleteConfirmTitle": "Diese Erinnerung löschen?",
+      "deleteConfirmDescription": "Diese Aktion kann nicht rückgängig gemacht werden.",
+      "deleteConfirmCta": "Löschen",
+      "deleting": "Wird gelöscht…"
     },
     "day": {
       "sun": "So",
@@ -293,13 +297,17 @@
       "today": "Es ist heute!",
       "daysLeft": "Noch {count, plural, one {# Tag} other {# Tage}}",
       "daysAgo": "Vor {count, plural, one {# Tag} other {# Tagen}}",
-      "notifyBadge": "Hat eine geplante Erinnerung"
+      "notifyBadge": "Hat eine geplante Erinnerung",
+      "deleteConfirmTitle": "\"{name}\" löschen?",
+      "deleteConfirmDescription": "Diese Aktion kann nicht rückgängig gemacht werden.",
+      "deleteConfirmCta": "Löschen"
     },
     "dialog": {
       "title": "Termin bearbeiten",
       "save": "Speichern",
       "saving": "Wird gespeichert…",
-      "deleting": "Wird gelöscht…"
+      "deleting": "Wird gelöscht…",
+      "cancel": "Abbrechen"
     },
     "addError": "Der Termin konnte nicht hinzugefügt werden. Versuch es erneut."
   },

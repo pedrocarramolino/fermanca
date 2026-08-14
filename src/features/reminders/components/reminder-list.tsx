@@ -1,8 +1,16 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { deleteReminder, setReminderEnabled } from "@/features/reminders/application/actions";
@@ -30,6 +38,17 @@ export function ReminderList({
 }) {
   const t = useTranslations("Reminders");
   const [isPending, startTransition] = useTransition();
+  const [deletingReminder, setDeletingReminder] = useState<Reminder | null>(null);
+
+  function handleConfirmDelete() {
+    if (!deletingReminder) return;
+    const id = deletingReminder.id;
+    startTransition(async () => {
+      await deleteReminder(id);
+      onDeleted(id);
+      setDeletingReminder(null);
+    });
+  }
 
   if (reminders.length === 0) {
     return (
@@ -40,57 +59,78 @@ export function ReminderList({
   }
 
   return (
-    <ul className="flex flex-col gap-2">
-      {reminders.map((reminder) => (
-        <li
-          key={reminder.id}
-          className="border-border hover:bg-muted flex items-center justify-between gap-3 rounded-lg border p-3 transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <span className="font-mono text-lg tabular-nums">{reminder.timeOfDay}</span>
-            <div className="flex gap-1">
-              {ORDERED_DAYS.map((day) => (
-                <span
-                  key={day}
-                  className={`flex size-5 items-center justify-center rounded-full text-[10px] ${
-                    reminder.daysOfWeek.includes(day)
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  {t(`day.${DAY_KEYS[day]}`)}
-                </span>
-              ))}
+    <>
+      <ul className="flex flex-col gap-2">
+        {reminders.map((reminder) => (
+          <li
+            key={reminder.id}
+            className="border-border hover:bg-muted flex items-center justify-between gap-3 rounded-lg border p-3 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <span className="font-mono text-lg tabular-nums">{reminder.timeOfDay}</span>
+              <div className="flex gap-1">
+                {ORDERED_DAYS.map((day) => (
+                  <span
+                    key={day}
+                    className={`flex size-5 items-center justify-center rounded-full text-[10px] ${
+                      reminder.daysOfWeek.includes(day)
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {t(`day.${DAY_KEYS[day]}`)}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
 
-          <div className="flex items-center gap-2">
-            <Switch
-              checked={reminder.enabled}
-              disabled={isPending}
-              onCheckedChange={(checked: boolean) => {
-                onToggled(reminder.id, checked);
-                startTransition(() => setReminderEnabled(reminder.id, checked));
-              }}
-            />
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={reminder.enabled}
+                disabled={isPending}
+                onCheckedChange={(checked: boolean) => {
+                  onToggled(reminder.id, checked);
+                  startTransition(() => setReminderEnabled(reminder.id, checked));
+                }}
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label={t("list.delete")}
+                disabled={isPending}
+                onClick={() => setDeletingReminder(reminder)}
+              >
+                <Trash2 className="size-4" />
+              </Button>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      <Dialog
+        open={deletingReminder !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeletingReminder(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("list.deleteConfirmTitle")}</DialogTitle>
+            <DialogDescription>{t("list.deleteConfirmDescription")}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
             <Button
               type="button"
-              variant="ghost"
-              size="icon-sm"
-              aria-label={t("list.delete")}
+              variant="destructive"
               disabled={isPending}
-              onClick={() =>
-                startTransition(async () => {
-                  await deleteReminder(reminder.id);
-                  onDeleted(reminder.id);
-                })
-              }
+              onClick={handleConfirmDelete}
             >
-              <Trash2 className="size-4" />
+              {isPending ? t("list.deleting") : t("list.deleteConfirmCta")}
             </Button>
-          </div>
-        </li>
-      ))}
-    </ul>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

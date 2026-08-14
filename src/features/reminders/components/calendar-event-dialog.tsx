@@ -6,6 +6,7 @@ import { Bell, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -61,6 +62,7 @@ function CalendarEventDialogContent({
   const [notifyAt, setNotifyAt] = useState(
     event.notifyAt ? toLocalDateTimeInputValue(event.notifyAt) : "",
   );
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [isSaving, startSaving] = useTransition();
   const [isDeleting, startDeleting] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -78,8 +80,8 @@ function CalendarEventDialogContent({
         const updated = await updateCalendarEvent(event.id, title, date, notifyIso);
         onUpdated(updated);
         onClose();
-      } catch {
-        setError(t("addError"));
+      } catch (err) {
+        setError(err instanceof Error ? err.message : t("addError"));
       }
     });
   }
@@ -90,6 +92,30 @@ function CalendarEventDialogContent({
       onDeleted(event.id);
       onClose();
     });
+  }
+
+  if (confirmingDelete) {
+    return (
+      <>
+        <DialogHeader>
+          <DialogTitle>{t("list.deleteConfirmTitle", { name: event.title })}</DialogTitle>
+          <DialogDescription>{t("list.deleteConfirmDescription")}</DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={isDeleting}
+            onClick={() => setConfirmingDelete(false)}
+          >
+            {t("dialog.cancel")}
+          </Button>
+          <Button type="button" variant="destructive" disabled={isDeleting} onClick={handleDelete}>
+            {isDeleting ? t("dialog.deleting") : t("list.deleteConfirmCta")}
+          </Button>
+        </DialogFooter>
+      </>
+    );
   }
 
   return (
@@ -157,11 +183,11 @@ function CalendarEventDialogContent({
           type="button"
           variant="outline"
           disabled={isPending}
-          onClick={handleDelete}
-          className="text-destructive hover:text-destructive sm:mr-auto"
+          onClick={() => setConfirmingDelete(true)}
+          className="sm:mr-auto"
         >
           <Trash2 className="size-4" />
-          {isDeleting ? t("dialog.deleting") : t("list.delete")}
+          {t("list.delete")}
         </Button>
         <Button type="button" disabled={isPending || !title.trim() || !date || !notifyValid} onClick={handleSave}>
           {isSaving ? t("dialog.saving") : t("dialog.save")}

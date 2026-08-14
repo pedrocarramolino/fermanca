@@ -263,7 +263,11 @@
     },
     "list": {
       "empty": "You don't have any reminders yet.",
-      "delete": "Delete reminder"
+      "delete": "Delete reminder",
+      "deleteConfirmTitle": "Delete this reminder?",
+      "deleteConfirmDescription": "This action can't be undone.",
+      "deleteConfirmCta": "Delete",
+      "deleting": "Deleting…"
     },
     "day": {
       "sun": "S",
@@ -293,13 +297,17 @@
       "today": "It's today!",
       "daysLeft": "{count, plural, one {# day} other {# days}} left",
       "daysAgo": "{count, plural, one {# day} other {# days}} ago",
-      "notifyBadge": "Has a scheduled notification"
+      "notifyBadge": "Has a scheduled notification",
+      "deleteConfirmTitle": "Delete \"{name}\"?",
+      "deleteConfirmDescription": "This action can't be undone.",
+      "deleteConfirmCta": "Delete"
     },
     "dialog": {
       "title": "Edit event",
       "save": "Save",
       "saving": "Saving…",
-      "deleting": "Deleting…"
+      "deleting": "Deleting…",
+      "cancel": "Cancel"
     },
     "addError": "Couldn't add the event. Try again."
   },

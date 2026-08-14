@@ -1,8 +1,16 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Bell, Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { daysUntil } from "@/core/domain/calendar-event";
 import { formatEventDate } from "@/lib/format-date";
@@ -42,7 +50,18 @@ export function CalendarEventList({
   const t = useTranslations("CalendarEvents");
   const locale = useLocale() as Locale;
   const [isPending, startTransition] = useTransition();
+  const [deletingEvent, setDeletingEvent] = useState<CalendarEvent | null>(null);
   const now = new Date();
+
+  function handleConfirmDelete() {
+    if (!deletingEvent) return;
+    const id = deletingEvent.id;
+    startTransition(async () => {
+      await deleteCalendarEvent(id);
+      onDeleted(id);
+      setDeletingEvent(null);
+    });
+  }
 
   if (events.length === 0) {
     return (
@@ -53,55 +72,81 @@ export function CalendarEventList({
   }
 
   return (
-    <ul className="flex flex-col gap-2">
-      {events.map((event) => {
-        const days = daysUntil(event.date, now);
-        return (
-          <li
-            key={event.id}
-            className="border-border hover:bg-muted flex items-center justify-between gap-3 rounded-lg border p-3 transition-colors"
-            data-past={days < 0 || undefined}
-          >
-            <button
-              type="button"
-              className="flex min-w-0 flex-1 flex-col items-start gap-0.5 text-left"
-              onClick={() => onSelect(event)}
+    <>
+      <ul className="flex flex-col gap-2">
+        {events.map((event) => {
+          const days = daysUntil(event.date, now);
+          return (
+            <li
+              key={event.id}
+              // Un evento que ya pasó se distingue de un lejano nada más que
+              // por el texto pequeño del contador ("Hace 3 días" vs "Quedan
+              // 3 días") si no se atenúa también la fila entera.
+              className="border-border hover:bg-muted flex items-center justify-between gap-3 rounded-lg border p-3 transition-colors data-[past]:opacity-60"
+              data-past={days < 0 || undefined}
             >
-              <span className="flex items-center gap-1.5 truncate font-medium">
-                {event.title}
-                {event.notifyAt && (
-                  <Bell
-                    className="text-muted-foreground size-3.5 shrink-0"
-                    aria-label={t("list.notifyBadge")}
-                  />
-                )}
-              </span>
-              <span className="text-muted-foreground text-xs">
-                {formatEventDate(new Date(`${event.date}T00:00:00`), locale)}
-              </span>
-            </button>
-
-            <div className="flex shrink-0 items-center gap-2">
-              <CountdownBadge days={days} />
-              <Button
+              <button
                 type="button"
-                variant="ghost"
-                size="icon-sm"
-                aria-label={t("list.delete")}
-                disabled={isPending}
-                onClick={() =>
-                  startTransition(async () => {
-                    await deleteCalendarEvent(event.id);
-                    onDeleted(event.id);
-                  })
-                }
+                className="flex min-w-0 flex-1 flex-col items-start gap-0.5 text-left"
+                onClick={() => onSelect(event)}
               >
-                <Trash2 className="size-4" />
-              </Button>
-            </div>
-          </li>
-        );
-      })}
-    </ul>
+                <span className="flex items-center gap-1.5 truncate font-medium">
+                  {event.title}
+                  {event.notifyAt && (
+                    <Bell
+                      className="text-muted-foreground size-3.5 shrink-0"
+                      aria-label={t("list.notifyBadge")}
+                    />
+                  )}
+                </span>
+                <span className="text-muted-foreground text-xs">
+                  {formatEventDate(new Date(`${event.date}T00:00:00`), locale)}
+                </span>
+              </button>
+
+              <div className="flex shrink-0 items-center gap-2">
+                <CountdownBadge days={days} />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={t("list.delete")}
+                  disabled={isPending}
+                  onClick={() => setDeletingEvent(event)}
+                >
+                  <Trash2 className="size-4" />
+                </Button>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+
+      <Dialog
+        open={deletingEvent !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeletingEvent(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {t("list.deleteConfirmTitle", { name: deletingEvent?.title ?? "" })}
+            </DialogTitle>
+            <DialogDescription>{t("list.deleteConfirmDescription")}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={isPending}
+              onClick={handleConfirmDelete}
+            >
+              {isPending ? t("dialog.deleting") : t("list.deleteConfirmCta")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

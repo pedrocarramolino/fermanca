@@ -55,8 +55,8 @@ export function CalendarEventForm({ onCreated }: { onCreated: (event: CalendarEv
         setTitle("");
         setNotifyEnabled(false);
         setNotifyAt("");
-      } catch {
-        setError(t("addError"));
+      } catch (err) {
+        setError(err instanceof Error ? err.message : t("addError"));
       }
     });
   }

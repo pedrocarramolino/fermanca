@@ -263,7 +263,11 @@
     },
     "list": {
       "empty": "Todavía no tienes recordatorios.",
-      "delete": "Eliminar recordatorio"
+      "delete": "Eliminar recordatorio",
+      "deleteConfirmTitle": "¿Eliminar este recordatorio?",
+      "deleteConfirmDescription": "Esta acción no se puede deshacer.",
+      "deleteConfirmCta": "Eliminar",
+      "deleting": "Eliminando…"
     },
     "day": {
       "sun": "D",
@@ -293,13 +297,17 @@
       "today": "¡Es hoy!",
       "daysLeft": "Queda {count, plural, one {# día} other {# días}}",
       "daysAgo": "Hace {count, plural, one {# día} other {# días}}",
-      "notifyBadge": "Tiene un aviso programado"
+      "notifyBadge": "Tiene un aviso programado",
+      "deleteConfirmTitle": "¿Borrar \"{name}\"?",
+      "deleteConfirmDescription": "Esta acción no se puede deshacer.",
+      "deleteConfirmCta": "Borrar"
     },
     "dialog": {
       "title": "Editar evento",
       "save": "Guardar",
       "saving": "Guardando…",
-      "deleting": "Eliminando…"
+      "deleting": "Eliminando…",
+      "cancel": "Cancelar"
     },
     "addError": "No se pudo añadir el evento. Inténtalo de nuevo."
   },
