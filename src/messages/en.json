@@ -295,6 +295,12 @@
       "daysAgo": "{count, plural, one {# day} other {# days}} ago",
       "notifyBadge": "Has a scheduled notification"
     },
+    "dialog": {
+      "title": "Edit event",
+      "save": "Save",
+      "saving": "Saving…",
+      "deleting": "Deleting…"
+    },
     "addError": "Couldn't add the event. Try again."
   },
   "Community": {

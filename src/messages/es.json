@@ -295,6 +295,12 @@
       "daysAgo": "Hace {count, plural, one {# día} other {# días}}",
       "notifyBadge": "Tiene un aviso programado"
     },
+    "dialog": {
+      "title": "Editar evento",
+      "save": "Guardar",
+      "saving": "Guardando…",
+      "deleting": "Eliminando…"
+    },
     "addError": "No se pudo añadir el evento. Inténtalo de nuevo."
   },
   "Community": {

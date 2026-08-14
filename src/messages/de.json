@@ -295,6 +295,12 @@
       "daysAgo": "Vor {count, plural, one {# Tag} other {# Tagen}}",
       "notifyBadge": "Hat eine geplante Erinnerung"
     },
+    "dialog": {
+      "title": "Termin bearbeiten",
+      "save": "Speichern",
+      "saving": "Wird gespeichert…",
+      "deleting": "Wird gelöscht…"
+    },
     "addError": "Der Termin konnte nicht hinzugefügt werden. Versuch es erneut."
   },
   "Community": {

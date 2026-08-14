@@ -6,6 +6,7 @@ export type NewCalendarEvent = Pick<CalendarEvent, "title" | "date" | "notifyAt"
 export interface CalendarEventRepository {
   listByOwner(ownerId: UserId): Promise<CalendarEvent[]>;
   create(ownerId: UserId, input: NewCalendarEvent): Promise<CalendarEvent>;
+  update(id: CalendarEventId, ownerId: UserId, changes: NewCalendarEvent): Promise<CalendarEvent>;
   delete(id: CalendarEventId, ownerId: UserId): Promise<void>;
   /** Id del Schedule de QStash pendiente para el aviso de este evento, si
    * tiene uno programado — igual que en reminders, para poder cancelarlo. */

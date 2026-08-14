@@ -50,6 +50,27 @@ export class SupabaseCalendarEventRepository implements CalendarEventRepository 
     return toDomain(data);
   }
 
+  async update(
+    id: CalendarEventId,
+    ownerId: UserId,
+    changes: NewCalendarEvent,
+  ): Promise<CalendarEvent> {
+    const { data, error } = await this.client
+      .from("calendar_events")
+      .update({
+        title: changes.title,
+        event_date: changes.date,
+        notify_at: changes.notifyAt?.toISOString() ?? null,
+      })
+      .eq("id", id)
+      .eq("owner_id", ownerId)
+      .select("*")
+      .single();
+
+    if (error) throw error;
+    return toDomain(data);
+  }
+
   async delete(id: CalendarEventId, ownerId: UserId): Promise<void> {
     const { error } = await this.client
       .from("calendar_events")

@@ -32,9 +32,11 @@ function CountdownBadge({ days }: { days: number }) {
 
 export function CalendarEventList({
   events,
+  onSelect,
   onDeleted,
 }: {
   events: CalendarEvent[];
+  onSelect: (event: CalendarEvent) => void;
   onDeleted: (id: string) => void;
 }) {
   const t = useTranslations("CalendarEvents");
@@ -60,7 +62,11 @@ export function CalendarEventList({
             className="border-border hover:bg-muted flex items-center justify-between gap-3 rounded-lg border p-3 transition-colors"
             data-past={days < 0 || undefined}
           >
-            <div className="flex min-w-0 flex-col gap-0.5">
+            <button
+              type="button"
+              className="flex min-w-0 flex-1 flex-col items-start gap-0.5 text-left"
+              onClick={() => onSelect(event)}
+            >
               <span className="flex items-center gap-1.5 truncate font-medium">
                 {event.title}
                 {event.notifyAt && (
@@ -73,7 +79,7 @@ export function CalendarEventList({
               <span className="text-muted-foreground text-xs">
                 {formatEventDate(new Date(`${event.date}T00:00:00`), locale)}
               </span>
-            </div>
+            </button>
 
             <div className="flex shrink-0 items-center gap-2">
               <CountdownBadge days={days} />
