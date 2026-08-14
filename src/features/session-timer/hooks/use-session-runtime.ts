@@ -187,14 +187,21 @@ export function useSessionRuntime({
     if (!completedBlock) return;
 
     isTransitioningRef.current = true;
-    // La fase "terminó" en el instante en que se pausó o se forzó su fin con
-    // "terminar fase ahora", no ahora — si no, ese rato de más contaría como
-    // practicado.
-    const confirmedAt = forcedCompletionAt ?? pausedAt ?? new Date();
+    const clickedAt = new Date();
+    // La fase "terminó" en el instante en que se agotó su tiempo, se pausó o
+    // se forzó su fin con "terminar fase ahora" — nunca en el momento en que
+    // por fin se confirma, que puede llegar mucho después si se deja la
+    // pantalla de fin de fase abierta sin tocarla; si no, esa espera contaría
+    // como tiempo practicado (y, al reutilizarse como inicio de la siguiente
+    // fase, también le robaría tiempo a esa).
+    const naturalEndAt = new Date(
+      activeBlockStartedAt.getTime() + completedBlock.plannedDurationSeconds * 1000,
+    );
+    const completedAt = forcedCompletionAt ?? pausedAt ?? naturalEndAt;
     setForcedCompletionAt(null);
     setPausedAt(null);
     const actualDurationSeconds = Math.round(
-      (confirmedAt.getTime() - activeBlockStartedAt.getTime()) / 1000,
+      (completedAt.getTime() - activeBlockStartedAt.getTime()) / 1000,
     );
 
     setLastCompletedBlock(completedBlock);
@@ -202,15 +209,16 @@ export function useSessionRuntime({
 
     const transition = transitionBlock({
       completedBlocks: [{ id: completedBlock.id, actualDurationSeconds }],
+      completedAt: completedAt.toISOString(),
       nextBlockId: nextBlock?.id ?? null,
       nextBlockPlannedDurationSeconds: nextBlock?.plannedDurationSeconds,
-      now: confirmedAt.toISOString(),
+      nextStartedAt: clickedAt.toISOString(),
     }).catch((error: unknown) => {
       console.error("No se pudo guardar la transición de bloque", error);
     });
 
     setActiveBlockIndex(activeBlockIndex + 1);
-    setActiveBlockStartedAt(confirmedAt);
+    setActiveBlockStartedAt(clickedAt);
     if (nextBlock) {
       isTransitioningRef.current = false;
     } else {

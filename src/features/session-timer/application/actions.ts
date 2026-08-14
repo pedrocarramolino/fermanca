@@ -29,9 +29,16 @@ async function requireUserId() {
  */
 export async function transitionBlock(input: {
   completedBlocks: { id: string; actualDurationSeconds: number }[];
+  /** Instante en que la fase cerrada realmente terminó (agotó su tiempo, se
+   * pausó o se forzó su fin) — no cuándo se confirmó, que puede ser bastante
+   * después. */
+  completedAt: string;
   nextBlockId: string | null;
   nextBlockPlannedDurationSeconds?: number;
-  now: string;
+  /** Instante en que empieza a contar la siguiente fase: el click real de
+   * confirmación, no `completedAt` — si no, el rato que se tardó en confirmar
+   * se restaría también del tiempo de la fase siguiente. */
+  nextStartedAt: string;
 }) {
   const { userId, client } = await requireUserId();
   const repo = new SupabaseSessionRepository(client);
@@ -45,14 +52,14 @@ export async function transitionBlock(input: {
 
     await repo.updateBlock(block.id as SessionBlockId, userId, {
       status: "completed",
-      endedAt: new Date(input.now),
+      endedAt: new Date(input.completedAt),
       actualDurationSeconds: block.actualDurationSeconds,
     });
   }
   if (input.nextBlockId) {
     await repo.updateBlock(input.nextBlockId as SessionBlockId, userId, {
       status: "active",
-      startedAt: new Date(input.now),
+      startedAt: new Date(input.nextStartedAt),
     });
     if (input.nextBlockPlannedDurationSeconds != null) {
       const messageId = await scheduleSessionPhaseAlert(
