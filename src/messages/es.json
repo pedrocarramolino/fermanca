@@ -72,7 +72,7 @@
     "statistics": "Estadísticas",
     "community": "Comunidad",
     "streaks": "Rachas",
-    "reminders": "Recordatorios"
+    "reminders": "Avisos"
   },
   "Home": {
     "recentSessions": "Últimas sesiones",
@@ -244,7 +244,7 @@
     "more": "Más"
   },
   "Reminders": {
-    "title": "Recordatorios",
+    "title": "Avisos",
     "pushCardTitle": "Notificaciones en este dispositivo",
     "yourReminders": "Tus recordatorios",
     "push": {
@@ -274,6 +274,28 @@
       "fri": "V",
       "sat": "S"
     }
+  },
+  "CalendarEvents": {
+    "yourEvents": "Tus eventos",
+    "form": {
+      "title": "Nuevo evento",
+      "name": "Nombre",
+      "namePlaceholder": "Concierto, examen…",
+      "date": "Fecha",
+      "notify": "Avisarme",
+      "notifyAt": "Día y hora del aviso",
+      "add": "Añadir evento",
+      "adding": "Añadiendo…"
+    },
+    "list": {
+      "empty": "Todavía no tienes eventos guardados.",
+      "delete": "Eliminar evento",
+      "today": "¡Es hoy!",
+      "daysLeft": "Queda {count, plural, one {# día} other {# días}}",
+      "daysAgo": "Hace {count, plural, one {# día} other {# días}}",
+      "notifyBadge": "Tiene un aviso programado"
+    },
+    "addError": "No se pudo añadir el evento. Inténtalo de nuevo."
   },
   "Community": {
     "title": "Comunidad",
@@ -432,7 +454,7 @@
     "title": "Activa las notificaciones",
     "description": "Así te avisamos cuando termine cada fase de tu sesión y en la hora que elijas para tus recordatorios. Puedes activarlas en Recordatorios, más abajo en el menú.",
     "dismiss": "Ahora no",
-    "goToReminders": "Ir a Recordatorios"
+    "goToReminders": "Ir a Avisos"
   },
   "Terms": {
     "title": "Términos de servicio",

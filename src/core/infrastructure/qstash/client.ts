@@ -79,6 +79,23 @@ export async function createReminderSchedule(
   return scheduleId;
 }
 
+/** Aviso puntual para un evento de calendario, en un instante concreto en
+ * vez de un delay relativo — a diferencia de scheduleSessionPhaseAlert
+ * (segundos desde ahora), aquí el momento puede estar a meses vista, así
+ * que se usa `notBefore` (timestamp absoluto) en lugar de `delay`, que no
+ * está pensado para plazos tan largos. */
+export async function scheduleCalendarEventNotification(
+  eventId: string,
+  notifyAt: Date,
+): Promise<string> {
+  const { messageId } = await getClient().publishJSON({
+    url: `${appUrl()}/api/qstash/calendar-event-alert`,
+    body: { eventId },
+    notBefore: Math.round(notifyAt.getTime() / 1000),
+  });
+  return messageId;
+}
+
 export async function deleteQstashSchedule(scheduleId: string): Promise<void> {
   try {
     await getClient().schedules.delete(scheduleId);

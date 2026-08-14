@@ -4,8 +4,10 @@ import { AppHeader } from "@/components/app-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAuthenticatedUser } from "@/core/infrastructure/supabase/current-user";
 import { SupabaseReminderRepository } from "@/core/infrastructure/supabase/repositories/reminder-repository";
+import { SupabaseCalendarEventRepository } from "@/core/infrastructure/supabase/repositories/calendar-event-repository";
 import { PushSetup } from "@/features/reminders/components/push-setup";
 import { RemindersManager } from "@/features/reminders/components/reminders-manager";
+import { CalendarEventsManager } from "@/features/reminders/components/calendar-events-manager";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Reminders");
@@ -16,8 +18,12 @@ export default async function RemindersPage() {
   const { supabase, userId } = await getAuthenticatedUser();
   const t = await getTranslations("Reminders");
 
-  const repo = new SupabaseReminderRepository(supabase);
-  const reminders = await repo.listByOwner(userId);
+  const reminderRepo = new SupabaseReminderRepository(supabase);
+  const calendarEventRepo = new SupabaseCalendarEventRepository(supabase);
+  const [reminders, calendarEvents] = await Promise.all([
+    reminderRepo.listByOwner(userId),
+    calendarEventRepo.listByOwner(userId),
+  ]);
 
   return (
     <main className="mx-auto flex min-h-svh max-w-2xl flex-col gap-6 p-8 pb-32 md:max-w-3xl lg:max-w-4xl">
@@ -31,6 +37,8 @@ export default async function RemindersPage() {
           <PushSetup />
         </CardContent>
       </Card>
+
+      <CalendarEventsManager initialEvents={calendarEvents} />
 
       <RemindersManager initialReminders={reminders} />
     </main>

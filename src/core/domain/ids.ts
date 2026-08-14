@@ -15,3 +15,4 @@ export type SessionBlockId = Brand<string, "SessionBlockId">;
 export type ReminderId = Brand<string, "ReminderId">;
 export type FriendshipId = Brand<string, "FriendshipId">;
 export type WeeklyGoalId = Brand<string, "WeeklyGoalId">;
+export type CalendarEventId = Brand<string, "CalendarEventId">;

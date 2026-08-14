@@ -303,6 +303,28 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["weekly_goals"]["Insert"]>;
         Relationships: [];
       };
+      calendar_events: {
+        Row: {
+          id: string;
+          owner_id: string;
+          title: string;
+          event_date: string;
+          notify_at: string | null;
+          qstash_message_id: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          title: string;
+          event_date: string;
+          notify_at?: string | null;
+          qstash_message_id?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["calendar_events"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

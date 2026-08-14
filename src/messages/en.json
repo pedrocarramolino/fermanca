@@ -72,7 +72,7 @@
     "statistics": "Statistics",
     "community": "Community",
     "streaks": "Streaks",
-    "reminders": "Reminders"
+    "reminders": "Alerts"
   },
   "Home": {
     "recentSessions": "Recent sessions",
@@ -244,7 +244,7 @@
     "more": "More"
   },
   "Reminders": {
-    "title": "Reminders",
+    "title": "Alerts",
     "pushCardTitle": "Notifications on this device",
     "yourReminders": "Your reminders",
     "push": {
@@ -274,6 +274,28 @@
       "fri": "F",
       "sat": "S"
     }
+  },
+  "CalendarEvents": {
+    "yourEvents": "Your events",
+    "form": {
+      "title": "New event",
+      "name": "Name",
+      "namePlaceholder": "Concert, exam…",
+      "date": "Date",
+      "notify": "Notify me",
+      "notifyAt": "Notification day and time",
+      "add": "Add event",
+      "adding": "Adding…"
+    },
+    "list": {
+      "empty": "You don't have any events saved yet.",
+      "delete": "Delete event",
+      "today": "It's today!",
+      "daysLeft": "{count, plural, one {# day} other {# days}} left",
+      "daysAgo": "{count, plural, one {# day} other {# days}} ago",
+      "notifyBadge": "Has a scheduled notification"
+    },
+    "addError": "Couldn't add the event. Try again."
   },
   "Community": {
     "title": "Community",
@@ -432,7 +454,7 @@
     "title": "Turn on notifications",
     "description": "We'll let you know when each phase of your session ends, and at the time you choose for your reminders. You can turn them on in Reminders, further down the menu.",
     "dismiss": "Not now",
-    "goToReminders": "Go to Reminders"
+    "goToReminders": "Go to Alerts"
   },
   "Terms": {
     "title": "Terms of Service",

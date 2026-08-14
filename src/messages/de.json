@@ -72,7 +72,7 @@
     "statistics": "Statistik",
     "community": "Community",
     "streaks": "Serien",
-    "reminders": "Erinnerungen"
+    "reminders": "Hinweise"
   },
   "Home": {
     "recentSessions": "Letzte Sitzungen",
@@ -244,7 +244,7 @@
     "more": "Mehr"
   },
   "Reminders": {
-    "title": "Erinnerungen",
+    "title": "Hinweise",
     "pushCardTitle": "Benachrichtigungen auf diesem Gerät",
     "yourReminders": "Deine Erinnerungen",
     "push": {
@@ -274,6 +274,28 @@
       "fri": "Fr",
       "sat": "Sa"
     }
+  },
+  "CalendarEvents": {
+    "yourEvents": "Deine Termine",
+    "form": {
+      "title": "Neuer Termin",
+      "name": "Name",
+      "namePlaceholder": "Konzert, Prüfung…",
+      "date": "Datum",
+      "notify": "Erinnere mich",
+      "notifyAt": "Tag und Uhrzeit der Erinnerung",
+      "add": "Termin hinzufügen",
+      "adding": "Wird hinzugefügt…"
+    },
+    "list": {
+      "empty": "Du hast noch keine Termine gespeichert.",
+      "delete": "Termin löschen",
+      "today": "Es ist heute!",
+      "daysLeft": "Noch {count, plural, one {# Tag} other {# Tage}}",
+      "daysAgo": "Vor {count, plural, one {# Tag} other {# Tagen}}",
+      "notifyBadge": "Hat eine geplante Erinnerung"
+    },
+    "addError": "Der Termin konnte nicht hinzugefügt werden. Versuch es erneut."
   },
   "Community": {
     "title": "Community",
@@ -432,7 +454,7 @@
     "title": "Benachrichtigungen aktivieren",
     "description": "So erfährst du, wenn jede Phase deiner Sitzung endet, und erhältst Erinnerungen zur gewählten Uhrzeit. Du kannst sie unter Erinnerungen weiter unten im Menü aktivieren.",
     "dismiss": "Jetzt nicht",
-    "goToReminders": "Zu Erinnerungen"
+    "goToReminders": "Zu den Hinweisen"
   },
   "Terms": {
     "title": "Nutzungsbedingungen",
