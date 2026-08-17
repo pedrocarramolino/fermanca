@@ -107,7 +107,8 @@
     "saveChangesTo": "Änderungen in \"{name}\" speichern",
     "saving": "Wird gespeichert…",
     "start": "Sitzung starten",
-    "starting": "Wird gestartet…"
+    "starting": "Wird gestartet…",
+    "inviteFriend": "Einen Freund einladen"
   },
   "Categories": {
     "warmup": "Aufwärmen",
@@ -402,7 +403,44 @@
     "pause": "Pausieren",
     "finishPhaseNow": "Phase jetzt beenden",
     "activateSound": "Ton aktivieren",
-    "backHome": "Zurück zum Start"
+    "backHome": "Zurück zum Start",
+    "practicingWith": "Übt gerade mit @{name}"
+  },
+  "SessionInvites": {
+    "dialog": {
+      "title": "Einen Freund einladen",
+      "description": "Wähle aus, mit wem du diese Sitzung live zusammen machen möchtest.",
+      "loading": "Freunde werden geladen…",
+      "noFriends": "Du hast noch keine Freunde — füge einen über die Community hinzu.",
+      "inviting": "Wird eingeladen…",
+      "error": "Die Einladung konnte nicht gesendet werden."
+    },
+    "waiting": {
+      "title": "Warten auf Antwort…",
+      "waitingFor": "Warten darauf, dass @{name} annimmt",
+      "declined": "@{name} hat die Einladung abgelehnt.",
+      "cancelled": "Du hast die Einladung storniert.",
+      "backToBuilder": "Zurück",
+      "cancel": "Einladung stornieren",
+      "cancelling": "Wird storniert…"
+    },
+    "pending": {
+      "title": "Einladungen zum gemeinsamen Üben",
+      "from": "@{name} lädt dich zum Üben ein",
+      "summary": "{count, plural, one {# Phase} other {# Phasen}} · {duration}",
+      "accept": "Annehmen",
+      "reject": "Ablehnen",
+      "responding": "Wird beantwortet…"
+    },
+    "notices": {
+      "paused": "@{name} hat die Phase pausiert",
+      "resumed": "@{name} hat die Phase fortgesetzt",
+      "phase_confirmed": "@{name} ist zur nächsten Phase übergegangen",
+      "time_extended": "@{name} hat mehr Zeit angefordert",
+      "phase_added": "@{name} hat eine Phase hinzugefügt",
+      "phases_reordered": "@{name} hat die ausstehenden Phasen neu geordnet",
+      "session_finished": "@{name} hat die Sitzung beendet"
+    }
   },
   "TimerDisplay": {
     "paused": "Pausiert",

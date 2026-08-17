@@ -46,4 +46,13 @@ export interface Session {
   endedAt: Date | null;
   finalNote: string | null;
   blocks: SessionBlock[];
+  /** Sesión gemela de un compañero en una sesión cooperativa — null en una
+   * sesión normal en solitario. Cada participante tiene su propia fila
+   * `sessions` (ver acceptSessionInvite); esta es la única forma de saber
+   * que hay una al otro lado. */
+  linkedSessionId: SessionId | null;
+  /** Username del compañero, copiado en el momento de enlazar — la RLS de
+   * `sessions` es de dueño único, así que nunca se puede leer su fila para
+   * sacarlo después. */
+  linkedSessionPeerUsername: string | null;
 }

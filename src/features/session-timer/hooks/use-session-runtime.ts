@@ -208,6 +208,7 @@ export function useSessionRuntime({
     setCompletedDurations((prev) => ({ ...prev, [completedBlock.id]: actualDurationSeconds }));
 
     const transition = transitionBlock({
+      sessionId,
       completedBlocks: [{ id: completedBlock.id, actualDurationSeconds }],
       completedAt: completedAt.toISOString(),
       nextBlockId: nextBlock?.id ?? null,
@@ -253,7 +254,7 @@ export function useSessionRuntime({
     setForcedCompletionAt(null);
     // Para que vuelva a sonar/vibrar cuando se agote también el tiempo extra.
     announcedIndexRef.current = null;
-    void extendActiveBlock(blockId, seconds).catch((error: unknown) => {
+    void extendActiveBlock(sessionId, blockId, seconds).catch((error: unknown) => {
       console.error("No se pudo ampliar el tiempo de la fase", error);
     });
   }
@@ -276,7 +277,7 @@ export function useSessionRuntime({
   function pauseTimer() {
     if (runtimeState.status !== "running" || pausedAt || !activeBlock) return;
     setPausedAt(new Date());
-    void pauseActiveBlock(activeBlock.id, runtimeState.remainingInActiveBlock).catch(
+    void pauseActiveBlock(sessionId, activeBlock.id, runtimeState.remainingInActiveBlock).catch(
       (error: unknown) => {
         console.error("No se pudo pausar la fase", error);
       },
@@ -303,7 +304,7 @@ export function useSessionRuntime({
 
     setActiveBlockStartedAt(newStartedAt);
     setPausedAt(null);
-    void resumeActiveBlock(activeBlock.id, newStartedAt.toISOString(), remainingSeconds).catch(
+    void resumeActiveBlock(sessionId, activeBlock.id, newStartedAt.toISOString(), remainingSeconds).catch(
       (error: unknown) => {
         console.error("No se pudo reanudar la fase", error);
       },

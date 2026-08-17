@@ -107,7 +107,8 @@
     "saveChangesTo": "Guardar cambios en \"{name}\"",
     "saving": "Guardando…",
     "start": "Comenzar sesión",
-    "starting": "Comenzando…"
+    "starting": "Comenzando…",
+    "inviteFriend": "Invitar a un amigo"
   },
   "Categories": {
     "warmup": "Calentamiento",
@@ -402,7 +403,44 @@
     "pause": "Pausar",
     "finishPhaseNow": "Terminar fase ahora",
     "activateSound": "Activar sonido",
-    "backHome": "Volver al inicio"
+    "backHome": "Volver al inicio",
+    "practicingWith": "Practicando con @{name}"
+  },
+  "SessionInvites": {
+    "dialog": {
+      "title": "Invitar a un amigo",
+      "description": "Elige con quién quieres hacer esta sesión juntos, en directo.",
+      "loading": "Cargando amigos…",
+      "noFriends": "Todavía no tienes amigos — añade uno desde Comunidad.",
+      "inviting": "Invitando…",
+      "error": "No se pudo enviar la invitación."
+    },
+    "waiting": {
+      "title": "Esperando respuesta…",
+      "waitingFor": "Esperando a que @{name} acepte",
+      "declined": "@{name} ha rechazado la invitación.",
+      "cancelled": "Has cancelado la invitación.",
+      "backToBuilder": "Volver",
+      "cancel": "Cancelar invitación",
+      "cancelling": "Cancelando…"
+    },
+    "pending": {
+      "title": "Invitaciones a practicar juntos",
+      "from": "@{name} te invita a practicar",
+      "summary": "{count, plural, one {# fase} other {# fases}} · {duration}",
+      "accept": "Aceptar",
+      "reject": "Rechazar",
+      "responding": "Respondiendo…"
+    },
+    "notices": {
+      "paused": "@{name} ha pausado la fase",
+      "resumed": "@{name} ha reanudado la fase",
+      "phase_confirmed": "@{name} ha pasado a la siguiente fase",
+      "time_extended": "@{name} ha pedido más tiempo",
+      "phase_added": "@{name} ha añadido una fase",
+      "phases_reordered": "@{name} ha reordenado las fases pendientes",
+      "session_finished": "@{name} ha terminado la sesión"
+    }
   },
   "TimerDisplay": {
     "paused": "En pausa",

@@ -48,6 +48,8 @@ function toDomain(row: SessionWithBlocksRow): Session {
     endedAt: row.ended_at ? new Date(row.ended_at) : null,
     finalNote: row.final_note,
     blocks: [...row.session_blocks].sort((a, b) => a.position - b.position).map(blockToDomain),
+    linkedSessionId: row.linked_session_id as SessionId | null,
+    linkedSessionPeerUsername: row.linked_session_peer_username,
   };
 }
 
@@ -171,6 +173,33 @@ export class SupabaseSessionRepository implements SessionRepository {
 
     if (error) throw error;
     return blockToDomain(data);
+  }
+
+  async transitionBlockIfStatus(
+    id: SessionBlockId,
+    ownerId: UserId,
+    expectedStatus: SessionBlock["status"],
+    changes: Partial<
+      Pick<SessionBlock, "status" | "actualDurationSeconds" | "startedAt" | "endedAt" | "note">
+    >,
+  ): Promise<SessionBlock | null> {
+    void ownerId;
+    const { data, error } = await this.client
+      .from("session_blocks")
+      .update({
+        status: changes.status,
+        actual_duration_seconds: changes.actualDurationSeconds,
+        started_at: changes.startedAt?.toISOString(),
+        ended_at: changes.endedAt?.toISOString(),
+        note: changes.note,
+      })
+      .eq("id", id)
+      .eq("status", expectedStatus)
+      .select("*")
+      .maybeSingle();
+
+    if (error) throw error;
+    return data ? blockToDomain(data) : null;
   }
 
   async getBlockQstashMessageId(id: SessionBlockId): Promise<string | null> {
@@ -371,5 +400,56 @@ export class SupabaseSessionRepository implements SessionRepository {
     const updated = await this.getById(id, ownerId);
     if (!updated) throw new Error("Sesión no encontrada.");
     return updated;
+  }
+
+  async getLinkedSessionId(id: SessionId, ownerId: UserId): Promise<SessionId | null> {
+    const { data, error } = await this.client
+      .from("sessions")
+      .select("linked_session_id")
+      .eq("id", id)
+      .eq("owner_id", ownerId)
+      .maybeSingle();
+    if (error) throw error;
+    return (data?.linked_session_id as SessionId | null) ?? null;
+  }
+
+  async setLinkedSession(
+    id: SessionId,
+    ownerId: UserId,
+    linkedSessionId: SessionId,
+    peerUsername: string,
+  ): Promise<void> {
+    const { error } = await this.client
+      .from("sessions")
+      .update({ linked_session_id: linkedSessionId, linked_session_peer_username: peerUsername })
+      .eq("id", id)
+      .eq("owner_id", ownerId);
+    if (error) throw error;
+  }
+
+  async getBlockPositions(
+    blockIds: SessionBlockId[],
+  ): Promise<{ id: SessionBlockId; position: number }[]> {
+    if (blockIds.length === 0) return [];
+    const { data, error } = await this.client
+      .from("session_blocks")
+      .select("id, position")
+      .in("id", blockIds);
+    if (error) throw error;
+    return data.map((row) => ({ id: row.id as SessionBlockId, position: row.position }));
+  }
+
+  async findBlockIdsAtPositions(
+    sessionId: SessionId,
+    positions: number[],
+  ): Promise<{ id: SessionBlockId; position: number }[]> {
+    if (positions.length === 0) return [];
+    const { data, error } = await this.client
+      .from("session_blocks")
+      .select("id, position")
+      .eq("session_id", sessionId)
+      .in("position", positions);
+    if (error) throw error;
+    return data.map((row) => ({ id: row.id as SessionBlockId, position: row.position }));
   }
 }

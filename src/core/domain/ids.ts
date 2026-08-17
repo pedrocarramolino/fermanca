@@ -17,3 +17,4 @@ export type FriendshipId = Brand<string, "FriendshipId">;
 export type WeeklyGoalId = Brand<string, "WeeklyGoalId">;
 export type CalendarEventId = Brand<string, "CalendarEventId">;
 export type AnnouncementId = Brand<string, "AnnouncementId">;
+export type SessionInviteId = Brand<string, "SessionInviteId">;

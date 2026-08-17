@@ -107,7 +107,8 @@
     "saveChangesTo": "Save changes to \"{name}\"",
     "saving": "Saving…",
     "start": "Start session",
-    "starting": "Starting…"
+    "starting": "Starting…",
+    "inviteFriend": "Invite a friend"
   },
   "Categories": {
     "warmup": "Warm-up",
@@ -402,7 +403,44 @@
     "pause": "Pause",
     "finishPhaseNow": "Finish phase now",
     "activateSound": "Enable sound",
-    "backHome": "Back to home"
+    "backHome": "Back to home",
+    "practicingWith": "Practicing with @{name}"
+  },
+  "SessionInvites": {
+    "dialog": {
+      "title": "Invite a friend",
+      "description": "Choose who you want to do this session with, live.",
+      "loading": "Loading friends…",
+      "noFriends": "You don't have any friends yet — add one from Community.",
+      "inviting": "Inviting…",
+      "error": "Couldn't send the invite."
+    },
+    "waiting": {
+      "title": "Waiting for a response…",
+      "waitingFor": "Waiting for @{name} to accept",
+      "declined": "@{name} declined the invite.",
+      "cancelled": "You cancelled the invite.",
+      "backToBuilder": "Back",
+      "cancel": "Cancel invite",
+      "cancelling": "Cancelling…"
+    },
+    "pending": {
+      "title": "Invites to practice together",
+      "from": "@{name} invites you to practice",
+      "summary": "{count, plural, one {# phase} other {# phases}} · {duration}",
+      "accept": "Accept",
+      "reject": "Reject",
+      "responding": "Responding…"
+    },
+    "notices": {
+      "paused": "@{name} paused the phase",
+      "resumed": "@{name} resumed the phase",
+      "phase_confirmed": "@{name} moved to the next phase",
+      "time_extended": "@{name} asked for more time",
+      "phase_added": "@{name} added a phase",
+      "phases_reordered": "@{name} reordered the upcoming phases",
+      "session_finished": "@{name} finished the session"
+    }
   },
   "TimerDisplay": {
     "paused": "Paused",

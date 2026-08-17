@@ -6,6 +6,7 @@ import {
 import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/repositories/session-repository";
 import type { SessionId } from "@/core/domain/ids";
 import { SessionRunner } from "@/features/session-timer/components/session-runner";
+import { CoopSessionRunner } from "@/features/session-timer/components/coop-session-runner";
 import { SessionSummary } from "@/features/session-timer/components/session-summary";
 import type { RuntimeBlockInput } from "@/features/session-timer/hooks/use-session-runtime";
 
@@ -46,16 +47,26 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
     );
   }
 
+  const playbackSettings = {
+    sound: settings.sound,
+    volume: settings.volume,
+    vibrationEnabled: settings.vibrationEnabled,
+    visualAlertDurationMs: settings.visualAlertDurationMs,
+  };
+
+  if (session.linkedSessionId) {
+    return (
+      <CoopSessionRunner
+        sessionId={session.id}
+        initialBlocks={runtimeBlocks}
+        playbackSettings={playbackSettings}
+        peerUsername={session.linkedSessionPeerUsername ?? ""}
+        userId={userId}
+      />
+    );
+  }
+
   return (
-    <SessionRunner
-      sessionId={session.id}
-      blocks={runtimeBlocks}
-      playbackSettings={{
-        sound: settings.sound,
-        volume: settings.volume,
-        vibrationEnabled: settings.vibrationEnabled,
-        visualAlertDurationMs: settings.visualAlertDurationMs,
-      }}
-    />
+    <SessionRunner sessionId={session.id} blocks={runtimeBlocks} playbackSettings={playbackSettings} />
   );
 }

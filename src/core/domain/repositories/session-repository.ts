@@ -2,6 +2,7 @@ import type {
   PublicSessionSummary,
   Session,
   SessionBlock,
+  SessionBlockStatus,
   SessionStatus,
 } from "@/core/domain/session";
 import type { CategoryId, SessionBlockId, SessionId, TemplateId, UserId } from "@/core/domain/ids";
@@ -41,6 +42,19 @@ export interface SessionRepository {
       Pick<SessionBlock, "status" | "actualDurationSeconds" | "startedAt" | "endedAt" | "note">
     >,
   ): Promise<SessionBlock>;
+  /** Como updateBlock, pero solo aplica los cambios si el bloque sigue en
+   * expectedStatus — evita una doble transición si los dos dispositivos de
+   * una sesión cooperativa confirman la misma fase casi a la vez. Devuelve
+   * null (sin tocar nada) si el estado ya no coincidía: el compañero ya
+   * hizo esta transición. */
+  transitionBlockIfStatus(
+    id: SessionBlockId,
+    ownerId: UserId,
+    expectedStatus: SessionBlockStatus,
+    changes: Partial<
+      Pick<SessionBlock, "status" | "actualDurationSeconds" | "startedAt" | "endedAt" | "note">
+    >,
+  ): Promise<SessionBlock | null>;
   /** Id del mensaje QStash pendiente para el aviso de fin de fase de este
    * bloque, si tiene uno programado. */
   getBlockQstashMessageId(id: SessionBlockId): Promise<string | null>;
@@ -90,4 +104,21 @@ export interface SessionRepository {
     ownerId: UserId,
     result: { status: Extract<SessionStatus, "completed" | "abandoned">; finalNote: string | null },
   ): Promise<Session>;
+  /** Id de la sesión gemela enlazada (sesión cooperativa) — null si esta
+   * sesión es normal, en solitario. */
+  getLinkedSessionId(id: SessionId, ownerId: UserId): Promise<SessionId | null>;
+  setLinkedSession(
+    id: SessionId,
+    ownerId: UserId,
+    linkedSessionId: SessionId,
+    peerUsername: string,
+  ): Promise<void>;
+  /** Puente "posición, no id" que necesita toda réplica entre sesiones
+   * gemelas — los ids de bloque son distintos en cada sesión, pero las
+   * posiciones son idénticas por construcción (ver acceptSessionInvite). */
+  getBlockPositions(blockIds: SessionBlockId[]): Promise<{ id: SessionBlockId; position: number }[]>;
+  findBlockIdsAtPositions(
+    sessionId: SessionId,
+    positions: number[],
+  ): Promise<{ id: SessionBlockId; position: number }[]>;
 }

@@ -51,11 +51,27 @@ export interface AnnouncementPushPayload {
   body: string;
 }
 
+export interface SessionInvitePushPayload {
+  kind: "session-invite";
+  title: string;
+  body: string;
+  inviteId: string;
+}
+
+export interface SessionInviteAcceptedPushPayload {
+  kind: "session-invite-accepted";
+  title: string;
+  body: string;
+  sessionId: string;
+}
+
 export type PushPayload =
   | ReminderPushPayload
   | SessionPhasePushPayload
   | FriendRequestPushPayload
-  | AnnouncementPushPayload;
+  | AnnouncementPushPayload
+  | SessionInvitePushPayload
+  | SessionInviteAcceptedPushPayload;
 
 /** `expired: true` cuando el servicio push responde 404/410 — la
  * suscripción ya no es válida y hay que borrarla, no reintentar. */

@@ -69,11 +69,27 @@ interface AnnouncementPushPayload {
   body: string;
 }
 
+interface SessionInvitePushPayload {
+  kind: "session-invite";
+  title: string;
+  body: string;
+  inviteId: string;
+}
+
+interface SessionInviteAcceptedPushPayload {
+  kind: "session-invite-accepted";
+  title: string;
+  body: string;
+  sessionId: string;
+}
+
 type IncomingPushPayload =
   | ReminderPushPayload
   | SessionPhasePushPayload
   | FriendRequestPushPayload
-  | AnnouncementPushPayload;
+  | AnnouncementPushPayload
+  | SessionInvitePushPayload
+  | SessionInviteAcceptedPushPayload;
 
 interface ShowNotificationOptions extends NotificationOptions {
   actions?: { action: string; title: string }[];
@@ -134,6 +150,32 @@ self.addEventListener("push", (event: PushEvent) => {
         badge: "/icons/icon-192x192.png",
         data: { url: "/community" },
         tag: "practiceflow-announcement",
+      }),
+    );
+    return;
+  }
+
+  if (payload.kind === "session-invite") {
+    event.waitUntil(
+      self.registration.showNotification(payload.title, {
+        body: payload.body,
+        icon: "/icons/icon-192x192.png",
+        badge: "/icons/icon-192x192.png",
+        data: { url: "/community" },
+        tag: "practiceflow-session-invite",
+      }),
+    );
+    return;
+  }
+
+  if (payload.kind === "session-invite-accepted") {
+    event.waitUntil(
+      self.registration.showNotification(payload.title, {
+        body: payload.body,
+        icon: "/icons/icon-192x192.png",
+        badge: "/icons/icon-192x192.png",
+        data: { url: `/session/${payload.sessionId}` },
+        tag: "practiceflow-session-invite-accepted",
       }),
     );
     return;

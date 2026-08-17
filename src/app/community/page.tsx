@@ -11,8 +11,10 @@ import {
   listPendingRequests,
 } from "@/features/community/application/actions";
 import { listAnnouncements } from "@/features/community/application/announcement-actions";
+import { listIncomingPendingSessionInvites } from "@/features/session-invites/application/actions";
 import { CommunityManager } from "@/features/community/components/community-manager";
 import { AnnouncementBoard } from "@/features/community/components/announcement-board";
+import { PendingSessionInvitesList } from "@/features/session-invites/components/pending-session-invites-list";
 import type { FriendWithProgress } from "@/features/community/components/friends-list";
 
 const WHATSAPP_COMMUNITY_URL = "https://whatsapp.com/channel/0029VbEHCgA9cDDhpNVcWk0M";
@@ -24,12 +26,14 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function CommunityPage() {
   const t = await getTranslations("Community.whatsapp");
-  const [profile, pendingRequests, friends, announcements] = await Promise.all([
-    getMyProfile(),
-    listPendingRequests(),
-    listFriends(),
-    listAnnouncements(),
-  ]);
+  const [profile, pendingRequests, friends, announcements, pendingSessionInvites] =
+    await Promise.all([
+      getMyProfile(),
+      listPendingRequests(),
+      listFriends(),
+      listAnnouncements(),
+      listIncomingPendingSessionInvites(),
+    ]);
 
   const friendsWithProgress: FriendWithProgress[] = await Promise.all(
     friends.map(async (friend) => ({
@@ -58,6 +62,8 @@ export default async function CommunityPage() {
         initialPendingRequests={pendingRequests}
         initialFriends={friendsWithProgress}
       />
+
+      <PendingSessionInvitesList initialInvites={pendingSessionInvites} />
 
       <AnnouncementBoard
         initialAnnouncements={announcements.map((a) => ({

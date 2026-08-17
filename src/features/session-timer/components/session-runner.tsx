@@ -20,10 +20,14 @@ export function SessionRunner({
   sessionId,
   blocks,
   playbackSettings,
+  peerUsername,
 }: {
   sessionId: string;
   blocks: RuntimeBlockInput[];
   playbackSettings: PlaybackSettings;
+  /** Sesión cooperativa — nombre de con quién se practica, solo para el
+   * pequeño subtítulo bajo el cronómetro. */
+  peerUsername?: string | null;
 }) {
   const t = useTranslations("SessionRunner");
   const [audioReady, setAudioReady] = useState(false);
@@ -74,6 +78,11 @@ export function SessionRunner({
 
   return (
     <main className="mx-auto flex min-h-svh max-w-md flex-col items-center justify-center gap-8 p-8 lg:max-w-lg xl:max-w-xl">
+      {peerUsername && (
+        <p className="text-muted-foreground -mb-4 text-sm">
+          {t("practicingWith", { name: peerUsername })}
+        </p>
+      )}
       {runtime.status === "awaiting-confirmation" ? (
         <PhaseCompleteCard
           completedBlock={runtime.activeBlock}

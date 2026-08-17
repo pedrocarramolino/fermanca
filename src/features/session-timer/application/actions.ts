@@ -4,6 +4,7 @@ import { createClient } from "@/core/infrastructure/supabase/server";
 import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/repositories/session-repository";
 import { SupabaseTemplateRepository } from "@/core/infrastructure/supabase/repositories/template-repository";
 import { SupabaseCategoryRepository } from "@/core/infrastructure/supabase/repositories/category-repository";
+import { SupabaseProfileRepository } from "@/core/infrastructure/supabase/repositories/profile-repository";
 import { UnauthorizedError } from "@/core/domain/errors";
 import { currentStreakDays, practiceSecondsByDay } from "@/core/domain/streaks";
 import type { CategoryId, SessionBlockId, SessionId, UserId } from "@/core/domain/ids";
@@ -11,6 +12,26 @@ import {
   cancelQstashMessage,
   scheduleSessionPhaseAlert,
 } from "@/core/infrastructure/qstash/client";
+import {
+  getCoopPeer,
+  mirrorExtend,
+  mirrorInsertBlock,
+  mirrorPause,
+  mirrorReorderBlocks,
+  mirrorResume,
+  mirrorTransition,
+  resolveCoopInsertTarget,
+  resolveCoopReorderTarget,
+} from "@/features/session-timer/application/coop-mirror";
+
+type Client = Awaited<ReturnType<typeof createClient>>;
+
+/** Solo se pide si de verdad hay una sesión gemela enlazada — la mayoría de
+ * las sesiones son en solitario y no deben pagar este lookup de perfil. */
+async function actorUsername(client: Client, userId: UserId): Promise<string> {
+  const profile = await new SupabaseProfileRepository(client).getByOwnerId(userId);
+  return profile?.username ?? "";
+}
 
 async function requireUserId() {
   const client = await createClient();
@@ -28,6 +49,7 @@ async function requireUserId() {
  * hace falta cerrar varios de golpe.
  */
 export async function transitionBlock(input: {
+  sessionId: string;
   completedBlocks: { id: string; actualDurationSeconds: number }[];
   /** Instante en que la fase cerrada realmente terminó (agotó su tiempo, se
    * pausó o se forzó su fin) — no cuándo se confirmó, que puede ser bastante
@@ -42,6 +64,7 @@ export async function transitionBlock(input: {
 }) {
   const { userId, client } = await requireUserId();
   const repo = new SupabaseSessionRepository(client);
+  const sessionId = input.sessionId as SessionId;
 
   for (const block of input.completedBlocks) {
     // Se confirmó a mano antes de que llegara el aviso programado — se
@@ -50,24 +73,44 @@ export async function transitionBlock(input: {
     const pendingMessageId = await repo.getBlockQstashMessageId(block.id as SessionBlockId);
     if (pendingMessageId) await cancelQstashMessage(pendingMessageId);
 
-    await repo.updateBlock(block.id as SessionBlockId, userId, {
+    // transitionBlockIfStatus, no updateBlock a secas: en una sesión
+    // cooperativa, la réplica del compañero puede llegar a esta misma fila
+    // justo antes que esta escritura "local" — si el bloque ya no está
+    // 'active', alguien ya hizo esta transición, no hay nada más que hacer.
+    await repo.transitionBlockIfStatus(block.id as SessionBlockId, userId, "active", {
       status: "completed",
       endedAt: new Date(input.completedAt),
       actualDurationSeconds: block.actualDurationSeconds,
     });
   }
   if (input.nextBlockId) {
-    await repo.updateBlock(input.nextBlockId as SessionBlockId, userId, {
-      status: "active",
-      startedAt: new Date(input.nextStartedAt),
-    });
-    if (input.nextBlockPlannedDurationSeconds != null) {
+    const activated = await repo.transitionBlockIfStatus(
+      input.nextBlockId as SessionBlockId,
+      userId,
+      "pending",
+      { status: "active", startedAt: new Date(input.nextStartedAt) },
+    );
+    if (activated && input.nextBlockPlannedDurationSeconds != null) {
       const messageId = await scheduleSessionPhaseAlert(
         input.nextBlockId,
         input.nextBlockPlannedDurationSeconds,
       );
       await repo.setBlockQstashMessageId(input.nextBlockId as SessionBlockId, messageId);
     }
+  }
+
+  const peer = await getCoopPeer(sessionId, userId, client);
+  if (peer) {
+    await mirrorTransition(client, peer, sessionId, userId, await actorUsername(client, userId), {
+      completedBlocks: input.completedBlocks.map((b) => ({
+        id: b.id as SessionBlockId,
+        actualDurationSeconds: b.actualDurationSeconds,
+      })),
+      completedAtIso: input.completedAt,
+      nextBlockId: input.nextBlockId as SessionBlockId | null,
+      nextBlockPlannedDurationSeconds: input.nextBlockPlannedDurationSeconds,
+      nextStartedAtIso: input.nextStartedAt,
+    });
   }
 }
 
@@ -77,7 +120,7 @@ export async function transitionBlock(input: {
  * entregarse) y programa uno nuevo para el plazo ampliado, para que el
  * aviso de fin de fase siga llegando aunque el móvil esté bloqueado.
  */
-export async function extendActiveBlock(blockId: string, extraSeconds: number) {
+export async function extendActiveBlock(sessionId: string, blockId: string, extraSeconds: number) {
   const { userId, client } = await requireUserId();
   const repo = new SupabaseSessionRepository(client);
 
@@ -86,6 +129,19 @@ export async function extendActiveBlock(blockId: string, extraSeconds: number) {
 
   const messageId = await scheduleSessionPhaseAlert(blockId, extraSeconds);
   await repo.extendBlock(blockId as SessionBlockId, userId, extraSeconds, messageId);
+
+  const peer = await getCoopPeer(sessionId as SessionId, userId, client);
+  if (peer) {
+    await mirrorExtend(
+      client,
+      peer,
+      sessionId as SessionId,
+      userId,
+      await actorUsername(client, userId),
+      blockId as SessionBlockId,
+      extraSeconds,
+    );
+  }
 }
 
 /**
@@ -96,14 +152,31 @@ export async function extendActiveBlock(blockId: string, extraSeconds: number) {
  * si hubiera seguido corriendo mientras se estaba fuera. Se libera al
  * reanudar (ver resumeActiveBlock).
  */
-export async function pauseActiveBlock(blockId: string, remainingSeconds: number) {
-  const { client } = await requireUserId();
+export async function pauseActiveBlock(
+  sessionId: string,
+  blockId: string,
+  remainingSeconds: number,
+) {
+  const { userId, client } = await requireUserId();
   const repo = new SupabaseSessionRepository(client);
 
   const pendingMessageId = await repo.getBlockQstashMessageId(blockId as SessionBlockId);
   if (pendingMessageId) await cancelQstashMessage(pendingMessageId);
   await repo.setBlockQstashMessageId(blockId as SessionBlockId, null);
   await repo.setBlockPausedRemainingSeconds(blockId as SessionBlockId, Math.round(remainingSeconds));
+
+  const peer = await getCoopPeer(sessionId as SessionId, userId, client);
+  if (peer) {
+    await mirrorPause(
+      client,
+      peer,
+      sessionId as SessionId,
+      userId,
+      await actorUsername(client, userId),
+      blockId as SessionBlockId,
+      remainingSeconds,
+    );
+  }
 }
 
 /**
@@ -114,6 +187,7 @@ export async function pauseActiveBlock(blockId: string, remainingSeconds: number
  * duración completa de la fase, y se libera la marca de pausa.
  */
 export async function resumeActiveBlock(
+  sessionId: string,
   blockId: string,
   newStartedAt: string,
   remainingSeconds: number,
@@ -125,6 +199,20 @@ export async function resumeActiveBlock(
   await repo.updateBlock(blockId as SessionBlockId, userId, { startedAt: new Date(newStartedAt) });
   await repo.setBlockQstashMessageId(blockId as SessionBlockId, messageId);
   await repo.setBlockPausedRemainingSeconds(blockId as SessionBlockId, null);
+
+  const peer = await getCoopPeer(sessionId as SessionId, userId, client);
+  if (peer) {
+    await mirrorResume(
+      client,
+      peer,
+      sessionId as SessionId,
+      userId,
+      await actorUsername(client, userId),
+      blockId as SessionBlockId,
+      newStartedAt,
+      remainingSeconds,
+    );
+  }
 }
 
 /**
@@ -147,6 +235,13 @@ export async function getFreshBlocks(sessionId: string) {
     actualDurationSeconds: block.actualDurationSeconds,
     note: block.note,
     pausedRemainingSeconds: block.pausedRemainingSeconds,
+    // status/startedAt: SessionSummary (la única consumidora original de
+    // esta acción) los sobreescribe siempre a mano ("completed"/null) al
+    // usarlos — se incluyen tal cual para que CoopSessionRunner también
+    // pueda recalcular el estado en vivo del cronómetro tras un evento de
+    // Realtime, sin necesitar una segunda acción casi idéntica.
+    status: block.status,
+    startedAt: block.startedAt ? block.startedAt.toISOString() : null,
   }));
 }
 
@@ -243,13 +338,42 @@ export async function insertSessionBlock(
     throw new Error("La sesión no está en curso.");
   }
 
-  return repo.insertBlock(sessionId as SessionId, userId, {
+  // Se resuelve el bloque gemelo ANTES de insertar aquí — insertar desplaza
+  // posiciones, y la correspondencia por posición solo es válida mientras
+  // las dos sesiones siguen alineadas (ver coop-mirror.ts).
+  const coopTarget = await resolveCoopInsertTarget(
+    client,
+    sessionId as SessionId,
+    userId,
+    input.beforeBlockId as SessionBlockId | null,
+  );
+
+  const created = await repo.insertBlock(sessionId as SessionId, userId, {
     categoryId: input.categoryId as CategoryId,
     name: input.name,
     color: input.color,
     plannedDurationSeconds: input.plannedDurationSeconds,
     beforeBlockId: input.beforeBlockId as SessionBlockId | null,
   });
+
+  if (coopTarget) {
+    await mirrorInsertBlock(
+      client,
+      coopTarget.peer,
+      sessionId as SessionId,
+      userId,
+      await actorUsername(client, userId),
+      coopTarget.peerBeforeBlockId,
+      {
+        categoryId: input.categoryId as CategoryId,
+        name: input.name,
+        color: input.color,
+        plannedDurationSeconds: input.plannedDurationSeconds,
+      },
+    );
+  }
+
+  return created;
 }
 
 /**
@@ -266,5 +390,26 @@ export async function reorderSessionBlocks(sessionId: string, orderedBlockIds: s
     throw new Error("La sesión no está en curso.");
   }
 
+  // Mismo motivo que en insertSessionBlock: se resuelve la correspondencia
+  // de bloques ANTES de reordenar aquí, mientras las posiciones de las dos
+  // sesiones todavía coinciden.
+  const coopTarget = await resolveCoopReorderTarget(
+    client,
+    sessionId as SessionId,
+    userId,
+    orderedBlockIds as SessionBlockId[],
+  );
+
   await repo.reorderBlocks(sessionId as SessionId, userId, orderedBlockIds as SessionBlockId[]);
+
+  if (coopTarget) {
+    await mirrorReorderBlocks(
+      client,
+      coopTarget.peer,
+      sessionId as SessionId,
+      userId,
+      await actorUsername(client, userId),
+      coopTarget.peerOrderedBlockIds,
+    );
+  }
 }

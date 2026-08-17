@@ -6,18 +6,15 @@ import { createClient } from "@/core/infrastructure/supabase/server";
 import { SupabaseCategoryRepository } from "@/core/infrastructure/supabase/repositories/category-repository";
 import { SupabaseTemplateRepository } from "@/core/infrastructure/supabase/repositories/template-repository";
 import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/repositories/session-repository";
-import type { NewTemplateBlock } from "@/core/domain/repositories/template-repository";
-import type { NewSessionBlock } from "@/core/domain/repositories/session-repository";
 import type { CategoryId, TemplateId, UserId } from "@/core/domain/ids";
 import { UnauthorizedError } from "@/core/domain/errors";
+import {
+  toNewSessionBlocks,
+  toNewTemplateBlocks,
+  type DraftBlockInput,
+} from "@/features/session-builder/application/draft-block";
 
-export interface DraftBlockInput {
-  categoryId: string;
-  name: string;
-  durationSeconds: number;
-  color: string;
-  position: number;
-}
+export type { DraftBlockInput };
 
 async function requireUserId(): Promise<{
   userId: UserId;
@@ -28,26 +25,6 @@ async function requireUserId(): Promise<{
   const sub = data?.claims.sub;
   if (!sub) throw new UnauthorizedError();
   return { userId: sub as UserId, client };
-}
-
-function toNewTemplateBlocks(blocks: DraftBlockInput[]): NewTemplateBlock[] {
-  return blocks.map((block) => ({
-    categoryId: block.categoryId as CategoryId,
-    name: block.name,
-    durationSeconds: block.durationSeconds,
-    color: block.color,
-    position: block.position,
-  }));
-}
-
-function toNewSessionBlocks(blocks: DraftBlockInput[]): NewSessionBlock[] {
-  return blocks.map((block) => ({
-    categoryId: block.categoryId as CategoryId,
-    name: block.name,
-    color: block.color,
-    position: block.position,
-    plannedDurationSeconds: block.durationSeconds,
-  }));
 }
 
 export async function createCustomCategory(name: string, color: string, isGhost: boolean) {

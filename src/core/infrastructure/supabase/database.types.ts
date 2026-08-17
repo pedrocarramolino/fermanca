@@ -17,6 +17,15 @@ export type SoundChoice = "classic" | "bell" | "metronome" | "piano" | "alarm" |
 export type Locale = "es" | "en" | "de";
 export type VisualStyle = "classic" | "glass" | "minimal" | "futuristic";
 export type FriendshipStatus = "pending" | "accepted";
+export type SessionInviteStatus = "pending" | "accepted" | "declined" | "cancelled";
+export type SessionEventType =
+  | "paused"
+  | "resumed"
+  | "phase_confirmed"
+  | "time_extended"
+  | "phase_added"
+  | "phases_reordered"
+  | "session_finished";
 
 export interface Database {
   public: {
@@ -106,6 +115,8 @@ export interface Database {
           ended_at: string | null;
           final_note: string | null;
           created_at: string;
+          linked_session_id: string | null;
+          linked_session_peer_username: string | null;
         };
         Insert: {
           id?: string;
@@ -118,6 +129,8 @@ export interface Database {
           ended_at?: string | null;
           final_note?: string | null;
           created_at?: string;
+          linked_session_id?: string | null;
+          linked_session_peer_username?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["sessions"]["Insert"]>;
         Relationships: [];
@@ -343,6 +356,54 @@ export interface Database {
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["announcements"]["Insert"]>;
+        Relationships: [];
+      };
+      session_invites: {
+        Row: {
+          id: string;
+          inviter_id: string;
+          invitee_id: string;
+          template_id: string | null;
+          blocks: unknown;
+          status: SessionInviteStatus;
+          inviter_session_id: string | null;
+          invitee_session_id: string | null;
+          created_at: string;
+          responded_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          inviter_id: string;
+          invitee_id: string;
+          template_id?: string | null;
+          blocks: unknown;
+          status?: SessionInviteStatus;
+          inviter_session_id?: string | null;
+          invitee_session_id?: string | null;
+          created_at?: string;
+          responded_at?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["session_invites"]["Insert"]>;
+        Relationships: [];
+      };
+      session_events: {
+        Row: {
+          id: string;
+          session_id: string;
+          actor_id: string;
+          actor_username: string;
+          type: SessionEventType;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          session_id: string;
+          actor_id: string;
+          actor_username: string;
+          type: SessionEventType;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["session_events"]["Insert"]>;
         Relationships: [];
       };
     };
