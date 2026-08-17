@@ -51,7 +51,10 @@ export function CoopNoticeToast({
   if (notices.length === 0) return null;
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 top-4 z-50 flex flex-col items-center gap-2 px-4">
+    <div
+      className="pointer-events-none fixed inset-x-0 z-50 flex flex-col items-center gap-2 px-4"
+      style={{ top: "calc(env(safe-area-inset-top, 0px) + 1rem)" }}
+    >
       {notices.map((notice) => (
         <Toast key={notice.id} notice={notice} onDismiss={() => onDismiss(notice.id)} />
       ))}

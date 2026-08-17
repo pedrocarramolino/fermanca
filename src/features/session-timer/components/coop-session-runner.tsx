@@ -49,6 +49,23 @@ export function CoopSessionRunner({
     const supabase = createClient();
     let channel: RealtimeChannel | null = null;
     let cancelled = false;
+    let refreshTimer: ReturnType<typeof setTimeout> | null = null;
+
+    // Confirmar una fase toca DOS filas de session_blocks (se cierra una,
+    // se activa la siguiente) — cada una dispara este handler por separado.
+    // Sin agrupar, eso son dos remontados seguidos de SessionRunner por una
+    // sola transición, que se nota como un parpadeo/glitch. Se espera un
+    // instante a que lleguen todos los cambios de la misma ráfaga antes de
+    // releer y remontar una sola vez.
+    function scheduleBlocksRefresh() {
+      if (refreshTimer) clearTimeout(refreshTimer);
+      refreshTimer = setTimeout(() => {
+        void getFreshBlocks(sessionId).then((fresh) => {
+          setBlocks(fresh);
+          setRevision((r) => r + 1);
+        });
+      }, 350);
+    }
 
     // El canal debe autenticarse ANTES de suscribirse — si no, se conecta
     // como anónimo y la RLS de session_blocks/sessions/session_events
@@ -66,12 +83,7 @@ export function CoopSessionRunner({
             table: "session_blocks",
             filter: `session_id=eq.${sessionId}`,
           },
-          () => {
-            void getFreshBlocks(sessionId).then((fresh) => {
-              setBlocks(fresh);
-              setRevision((r) => r + 1);
-            });
-          },
+          () => scheduleBlocksRefresh(),
         )
         .on(
           "postgres_changes",
@@ -114,6 +126,7 @@ export function CoopSessionRunner({
 
     return () => {
       cancelled = true;
+      if (refreshTimer) clearTimeout(refreshTimer);
       if (channel) void supabase.removeChannel(channel);
     };
   }, [sessionId, userId, router]);

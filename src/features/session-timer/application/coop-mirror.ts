@@ -2,12 +2,27 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createServiceClient } from "@/core/infrastructure/supabase/service-client";
 import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/repositories/session-repository";
+import { SupabasePushSubscriptionRepository } from "@/core/infrastructure/supabase/repositories/push-subscription-repository";
+import { sendPush } from "@/core/infrastructure/push/send-push";
 import { cancelQstashMessage, scheduleSessionPhaseAlert } from "@/core/infrastructure/qstash/client";
 import type { Database } from "@/core/infrastructure/supabase/database.types";
 import type { CategoryId, SessionBlockId, SessionId, UserId } from "@/core/domain/ids";
 import type { SessionEventType } from "@/core/domain/session-event";
 
 type Client = SupabaseClient<Database>;
+
+const EVENT_NOTICE_TEXT: Record<SessionEventType, (name: string) => { title: string; body: string }> = {
+  paused: (name) => ({ title: "Sesión en pausa", body: `${name} ha pausado la fase.` }),
+  resumed: (name) => ({ title: "Sesión reanudada", body: `${name} ha reanudado la fase.` }),
+  phase_confirmed: (name) => ({ title: "Nueva fase", body: `${name} ha pasado a la siguiente fase.` }),
+  time_extended: (name) => ({ title: "Más tiempo", body: `${name} ha pedido más tiempo para la fase.` }),
+  phase_added: (name) => ({ title: "Fase añadida", body: `${name} ha añadido una fase a la sesión.` }),
+  phases_reordered: (name) => ({
+    title: "Fases reordenadas",
+    body: `${name} ha reordenado las fases pendientes.`,
+  }),
+  session_finished: (name) => ({ title: "Sesión terminada", body: `${name} ha terminado la sesión.` }),
+};
 
 export interface CoopPeer {
   peerSessionId: SessionId;
@@ -107,6 +122,35 @@ export async function recordCoopEvent(
   ]);
   if (ownResult.error) throw ownResult.error;
   if (peerResult.error) throw peerResult.error;
+
+  // El push es un extra sobre el aviso en vivo (por si el compañero no
+  // tiene la app abierta en ese momento) — un fallo aquí no debe tumbar la
+  // acción que ya se guardó correctamente.
+  await notifyCoopPeer(peer, type, actorUsername).catch((error: unknown) => {
+    console.error("No se pudo avisar por push del evento cooperativo", error);
+  });
+}
+
+async function notifyCoopPeer(
+  peer: CoopPeer,
+  type: SessionEventType,
+  actorUsername: string,
+): Promise<void> {
+  const { title, body } = EVENT_NOTICE_TEXT[type](actorUsername);
+  const { data: subscriptions, error } = await peer.serviceClient
+    .from("push_subscriptions")
+    .select("*")
+    .eq("owner_id", peer.peerOwnerId);
+  if (error) throw error;
+
+  const pushRepo = new SupabasePushSubscriptionRepository(peer.serviceClient);
+  for (const sub of subscriptions) {
+    const result = await sendPush(
+      { endpoint: sub.endpoint, p256dh: sub.p256dh, auth: sub.auth },
+      { kind: "session-coop-notice", title, body, sessionId: peer.peerSessionId },
+    );
+    if (result.expired) await pushRepo.deleteByEndpoint(sub.endpoint);
+  }
 }
 
 /** Réplica de confirmar/terminar una fase — ver transitionBlock. Cada

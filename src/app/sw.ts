@@ -83,13 +83,21 @@ interface SessionInviteAcceptedPushPayload {
   sessionId: string;
 }
 
+interface SessionCoopNoticePushPayload {
+  kind: "session-coop-notice";
+  title: string;
+  body: string;
+  sessionId: string;
+}
+
 type IncomingPushPayload =
   | ReminderPushPayload
   | SessionPhasePushPayload
   | FriendRequestPushPayload
   | AnnouncementPushPayload
   | SessionInvitePushPayload
-  | SessionInviteAcceptedPushPayload;
+  | SessionInviteAcceptedPushPayload
+  | SessionCoopNoticePushPayload;
 
 interface ShowNotificationOptions extends NotificationOptions {
   actions?: { action: string; title: string }[];
@@ -176,6 +184,21 @@ self.addEventListener("push", (event: PushEvent) => {
         badge: "/icons/icon-192x192.png",
         data: { url: `/session/${payload.sessionId}` },
         tag: "practiceflow-session-invite-accepted",
+      }),
+    );
+    return;
+  }
+
+  if (payload.kind === "session-coop-notice") {
+    event.waitUntil(
+      self.registration.showNotification(payload.title, {
+        body: payload.body,
+        icon: "/icons/icon-192x192.png",
+        badge: "/icons/icon-192x192.png",
+        data: { url: `/session/${payload.sessionId}` },
+        // Tag fijo (no por sesión): un pause/resume seguido del otro
+        // reemplaza la notificación anterior en vez de amontonarlas.
+        tag: "practiceflow-session-coop-notice",
       }),
     );
     return;

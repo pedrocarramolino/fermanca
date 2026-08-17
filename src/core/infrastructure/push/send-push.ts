@@ -65,13 +65,21 @@ export interface SessionInviteAcceptedPushPayload {
   sessionId: string;
 }
 
+export interface SessionCoopNoticePushPayload {
+  kind: "session-coop-notice";
+  title: string;
+  body: string;
+  sessionId: string;
+}
+
 export type PushPayload =
   | ReminderPushPayload
   | SessionPhasePushPayload
   | FriendRequestPushPayload
   | AnnouncementPushPayload
   | SessionInvitePushPayload
-  | SessionInviteAcceptedPushPayload;
+  | SessionInviteAcceptedPushPayload
+  | SessionCoopNoticePushPayload;
 
 /** `expired: true` cuando el servicio push responde 404/410 — la
  * suscripción ya no es válida y hay que borrarla, no reintentar. */
