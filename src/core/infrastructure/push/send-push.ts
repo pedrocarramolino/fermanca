@@ -45,10 +45,17 @@ export interface FriendRequestPushPayload {
   body: string;
 }
 
+export interface AnnouncementPushPayload {
+  kind: "announcement";
+  title: string;
+  body: string;
+}
+
 export type PushPayload =
   | ReminderPushPayload
   | SessionPhasePushPayload
-  | FriendRequestPushPayload;
+  | FriendRequestPushPayload
+  | AnnouncementPushPayload;
 
 /** `expired: true` cuando el servicio push responde 404/410 — la
  * suscripción ya no es válida y hay que borrarla, no reintentar. */

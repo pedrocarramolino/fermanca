@@ -63,10 +63,17 @@ interface FriendRequestPushPayload {
   body: string;
 }
 
+interface AnnouncementPushPayload {
+  kind: "announcement";
+  title: string;
+  body: string;
+}
+
 type IncomingPushPayload =
   | ReminderPushPayload
   | SessionPhasePushPayload
-  | FriendRequestPushPayload;
+  | FriendRequestPushPayload
+  | AnnouncementPushPayload;
 
 interface ShowNotificationOptions extends NotificationOptions {
   actions?: { action: string; title: string }[];
@@ -114,6 +121,19 @@ self.addEventListener("push", (event: PushEvent) => {
         badge: "/icons/icon-192x192.png",
         data: { url: "/community" },
         tag: "practiceflow-friend-request",
+      }),
+    );
+    return;
+  }
+
+  if (payload.kind === "announcement") {
+    event.waitUntil(
+      self.registration.showNotification(payload.title, {
+        body: payload.body,
+        icon: "/icons/icon-192x192.png",
+        badge: "/icons/icon-192x192.png",
+        data: { url: "/community" },
+        tag: "practiceflow-announcement",
       }),
     );
     return;

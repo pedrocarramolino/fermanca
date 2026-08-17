@@ -2,10 +2,15 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/core/infrastructure/supabase/server";
+import { createServiceClient } from "@/core/infrastructure/supabase/service-client";
 import { SupabaseAnnouncementRepository } from "@/core/infrastructure/supabase/repositories/announcement-repository";
 import { SupabaseProfileRepository } from "@/core/infrastructure/supabase/repositories/profile-repository";
+import { SupabasePushSubscriptionRepository } from "@/core/infrastructure/supabase/repositories/push-subscription-repository";
+import { sendPush } from "@/core/infrastructure/push/send-push";
 import { UnauthorizedError } from "@/core/domain/errors";
 import type { AnnouncementId, UserId } from "@/core/domain/ids";
+
+const NOTIFICATION_BODY_LIMIT = 150;
 
 async function requireUserId() {
   const client = await createClient();
@@ -13,6 +18,33 @@ async function requireUserId() {
   const sub = data?.claims.sub;
   if (!sub) throw new UnauthorizedError();
   return { userId: sub as UserId, client };
+}
+
+/** Avisa a todos los dispositivos suscritos salvo los de quien publica —
+ * con la clave de servicio, porque hace falta leer suscripciones de
+ * cualquier usuario, no solo la propia (igual que notifyFriendRequest en
+ * community/application/actions.ts). */
+async function notifyAnnouncementSubscribers(authorId: UserId, body: string) {
+  const serviceClient = createServiceClient();
+  const { data: subscriptions, error } = await serviceClient
+    .from("push_subscriptions")
+    .select("*")
+    .neq("owner_id", authorId);
+  if (error) throw error;
+
+  const truncatedBody =
+    body.length > NOTIFICATION_BODY_LIMIT
+      ? `${body.slice(0, NOTIFICATION_BODY_LIMIT)}…`
+      : body;
+
+  const pushRepo = new SupabasePushSubscriptionRepository(serviceClient);
+  for (const sub of subscriptions) {
+    const result = await sendPush(
+      { endpoint: sub.endpoint, p256dh: sub.p256dh, auth: sub.auth },
+      { kind: "announcement", title: "Nuevo anuncio en Fermança", body: truncatedBody },
+    );
+    if (result.expired) await pushRepo.deleteByEndpoint(sub.endpoint);
+  }
 }
 
 export async function listAnnouncements() {
@@ -33,6 +65,12 @@ export async function createAnnouncement(body: string) {
     profile.username,
     trimmed,
   );
+
+  await notifyAnnouncementSubscribers(userId, trimmed).catch((error: unknown) => {
+    // El aviso es un extra, no debe tumbar la publicación si falla.
+    console.error("No se pudo avisar a los usuarios del anuncio", error);
+  });
+
   revalidatePath("/community");
   return announcement;
 }
