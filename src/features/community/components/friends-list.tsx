@@ -12,6 +12,21 @@ import type { FriendProgress } from "@/features/community/application/actions";
 
 export type FriendWithProgress = Friend & FriendProgress;
 
+function FriendAvatar({ username, avatarUrl }: { username: string; avatarUrl: string | null }) {
+  return (
+    <span className="border-border bg-muted flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full border">
+      {avatarUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={avatarUrl} alt="" className="size-full object-cover" />
+      ) : (
+        <span className="text-muted-foreground text-xs font-medium">
+          {username.slice(0, 2).toUpperCase()}
+        </span>
+      )}
+    </span>
+  );
+}
+
 export function FriendsList({
   friends,
   onRemoved,
@@ -44,26 +59,29 @@ export function FriendsList({
           >
             <button
               type="button"
-              className="flex flex-1 flex-col items-start gap-1 text-left"
+              className="flex flex-1 items-center gap-3 text-left"
               onClick={() => setSelectedFriend(friend)}
             >
-              <span className="flex items-center gap-1.5 font-medium">
-                {index === 0 && friend.weeklySeconds > 0 && (
-                  <Trophy
-                    className="size-4 text-amber-500 dark:text-amber-400"
-                    aria-hidden
-                  />
-                )}
-                {friend.username}
-              </span>
-              <div className="text-muted-foreground flex items-center gap-3 text-sm">
-                <span>
-                  {formatDurationShort(friend.weeklySeconds)} {t("thisWeek")}
+              <FriendAvatar username={friend.username} avatarUrl={friend.avatarUrl} />
+              <div className="flex flex-col items-start gap-1">
+                <span className="flex items-center gap-1.5 font-medium">
+                  {index === 0 && friend.weeklySeconds > 0 && (
+                    <Trophy
+                      className="size-4 text-amber-500 dark:text-amber-400"
+                      aria-hidden
+                    />
+                  )}
+                  {friend.username}
                 </span>
-                <span className="flex items-center gap-1">
-                  <Flame className="size-3.5" />
-                  {tStreaks("days", { count: friend.currentStreak })}
-                </span>
+                <div className="text-muted-foreground flex items-center gap-3 text-sm">
+                  <span>
+                    {formatDurationShort(friend.weeklySeconds)} {t("thisWeek")}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Flame className="size-3.5" />
+                    {tStreaks("days", { count: friend.currentStreak })}
+                  </span>
+                </div>
               </div>
             </button>
             <Button

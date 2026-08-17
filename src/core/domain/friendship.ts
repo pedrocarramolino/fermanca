@@ -16,4 +16,5 @@ export interface Friend {
   friendshipId: FriendshipId;
   ownerId: UserId;
   username: string;
+  avatarUrl: string | null;
 }

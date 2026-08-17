@@ -59,7 +59,14 @@ export async function listFriends(): Promise<Friend[]> {
   for (const f of accepted) {
     const otherId = f.requesterId === userId ? f.addresseeId : f.requesterId;
     const profile = await profileRepo.getByOwnerId(otherId);
-    if (profile) friends.push({ friendshipId: f.id, ownerId: otherId, username: profile.username });
+    if (profile) {
+      friends.push({
+        friendshipId: f.id,
+        ownerId: otherId,
+        username: profile.username,
+        avatarUrl: profile.avatarUrl,
+      });
+    }
   }
   return friends;
 }
