@@ -8,8 +8,9 @@ export async function SignOutButton() {
 
   return (
     <form action={signOut}>
-      <Button type="submit" variant="ghost" size="icon" aria-label={t("signOut")}>
+      <Button type="submit" variant="outline" size="sm">
         <LogOut className="size-4" />
+        {t("signOut")}
       </Button>
     </form>
   );

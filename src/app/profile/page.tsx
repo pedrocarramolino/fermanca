@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { getAuthenticatedUser } from "@/core/infrastructure/supabase/current-user";
 import { getMyProfile } from "@/features/community/application/actions";
 import { ProfileCard } from "@/features/settings/components/profile-card";
+import { SignOutButton } from "@/features/auth/components/sign-out-button";
 import { formatEventDate } from "@/lib/format-date";
 import type { Locale } from "@/core/domain/user-settings";
 
@@ -44,6 +45,8 @@ export default async function ProfilePage() {
         email={userResult.data.user?.email ?? ""}
         memberSince={formatEventDate(profile.createdAt, locale as Locale)}
       />
+
+      <SignOutButton />
     </main>
   );
 }
