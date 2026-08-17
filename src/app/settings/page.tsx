@@ -5,7 +5,6 @@ import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { getCurrentUserSettings } from "@/core/infrastructure/supabase/current-user";
 import { getMyProfile } from "@/features/community/application/actions";
-import { ProfileCard } from "@/features/settings/components/profile-card";
 import { SettingsForm } from "@/features/settings/components/settings-form";
 import { DeleteAccountCard } from "@/features/settings/components/delete-account-card";
 
@@ -29,8 +28,6 @@ export default async function SettingsPage() {
         </Button>
         <h1 className="text-lg font-medium">{t("title")}</h1>
       </div>
-
-      <ProfileCard username={profile.username} avatarUrl={profile.avatarUrl} />
 
       <SettingsForm initialSettings={settings} />
 

@@ -1,6 +1,7 @@
 {
   "Common": {
     "settingsAriaLabel": "Einstellungen",
+    "profileAriaLabel": "Dein Profil",
     "showPassword": "Passwort anzeigen",
     "hidePassword": "Passwort verbergen",
     "toggleTheme": "Design wechseln",
@@ -9,18 +10,6 @@
   },
   "Settings": {
     "title": "Einstellungen",
-    "profile": {
-      "title": "Profil",
-      "changePhoto": "Foto ändern",
-      "uploading": "Wird hochgeladen…",
-      "removePhoto": "Foto entfernen",
-      "avatarError": "Das Foto konnte nicht aktualisiert werden.",
-      "usernameLabel": "Benutzername",
-      "save": "Speichern",
-      "saving": "Wird gespeichert…",
-      "saved": "Gespeichert",
-      "usernameError": "Der Benutzername konnte nicht geändert werden."
-    },
     "theme": {
       "title": "Design",
       "light": "Hell",
@@ -68,6 +57,21 @@
       "en": "English",
       "de": "Deutsch"
     }
+  },
+  "Profile": {
+    "title": "Profil",
+    "back": "Zurück",
+    "changePhoto": "Foto ändern",
+    "uploading": "Wird hochgeladen…",
+    "removePhoto": "Foto entfernen",
+    "avatarError": "Das Foto konnte nicht aktualisiert werden.",
+    "usernameLabel": "Benutzername",
+    "save": "Speichern",
+    "saving": "Wird gespeichert…",
+    "saved": "Gespeichert",
+    "usernameError": "Der Benutzername konnte nicht geändert werden.",
+    "emailLabel": "E-Mail",
+    "memberSinceLabel": "Mitglied seit"
   },
   "DeleteAccount": {
     "title": "Gefahrenzone",

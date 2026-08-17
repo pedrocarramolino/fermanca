@@ -6,4 +6,5 @@ export interface Profile {
   inviteCode: string;
   isAdmin: boolean;
   avatarUrl: string | null;
+  createdAt: Date;
 }

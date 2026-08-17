@@ -20,6 +20,7 @@ function toDomain(row: Row): Profile {
     inviteCode: row.invite_code,
     isAdmin: row.is_admin,
     avatarUrl: row.avatar_url,
+    createdAt: new Date(row.created_at),
   };
 }
 

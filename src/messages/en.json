@@ -1,6 +1,7 @@
 {
   "Common": {
     "settingsAriaLabel": "Settings",
+    "profileAriaLabel": "Your profile",
     "showPassword": "Show password",
     "hidePassword": "Hide password",
     "toggleTheme": "Toggle theme",
@@ -9,18 +10,6 @@
   },
   "Settings": {
     "title": "Settings",
-    "profile": {
-      "title": "Profile",
-      "changePhoto": "Change photo",
-      "uploading": "Uploading…",
-      "removePhoto": "Remove photo",
-      "avatarError": "Couldn't update the photo.",
-      "usernameLabel": "Username",
-      "save": "Save",
-      "saving": "Saving…",
-      "saved": "Saved",
-      "usernameError": "Couldn't change the username."
-    },
     "theme": {
       "title": "Theme",
       "light": "Light",
@@ -68,6 +57,21 @@
       "en": "English",
       "de": "Deutsch"
     }
+  },
+  "Profile": {
+    "title": "Profile",
+    "back": "Back",
+    "changePhoto": "Change photo",
+    "uploading": "Uploading…",
+    "removePhoto": "Remove photo",
+    "avatarError": "Couldn't update the photo.",
+    "usernameLabel": "Username",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "usernameError": "Couldn't change the username.",
+    "emailLabel": "Email",
+    "memberSinceLabel": "Member since"
   },
   "DeleteAccount": {
     "title": "Danger zone",

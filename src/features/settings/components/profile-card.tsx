@@ -16,11 +16,15 @@ import {
 export function ProfileCard({
   username: initialUsername,
   avatarUrl: initialAvatarUrl,
+  email,
+  memberSince,
 }: {
   username: string;
   avatarUrl: string | null;
+  email: string;
+  memberSince: string;
 }) {
-  const t = useTranslations("Settings.profile");
+  const t = useTranslations("Profile");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl);
@@ -162,6 +166,17 @@ export function ProfileCard({
           {usernameSaved && !usernameError && (
             <p className="text-muted-foreground text-sm">{t("saved")}</p>
           )}
+        </div>
+
+        <div className="border-border flex flex-col gap-2 border-t pt-4">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">{t("emailLabel")}</span>
+            <span className="font-medium">{email}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">{t("memberSinceLabel")}</span>
+            <span className="font-medium">{memberSince}</span>
+          </div>
         </div>
       </CardContent>
     </Card>
