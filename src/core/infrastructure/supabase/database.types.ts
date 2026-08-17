@@ -262,6 +262,7 @@ export interface Database {
           username: string;
           invite_code: string;
           is_admin: boolean;
+          avatar_url: string | null;
           created_at: string;
         };
         Insert: {
@@ -269,6 +270,7 @@ export interface Database {
           username: string;
           invite_code: string;
           is_admin?: boolean;
+          avatar_url?: string | null;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;

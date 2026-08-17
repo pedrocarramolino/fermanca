@@ -5,4 +5,5 @@ export interface Profile {
   username: string;
   inviteCode: string;
   isAdmin: boolean;
+  avatarUrl: string | null;
 }

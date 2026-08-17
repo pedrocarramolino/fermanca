@@ -9,6 +9,18 @@
   },
   "Settings": {
     "title": "Ajustes",
+    "profile": {
+      "title": "Perfil",
+      "changePhoto": "Cambiar foto",
+      "uploading": "Subiendo…",
+      "removePhoto": "Quitar foto",
+      "avatarError": "No se pudo actualizar la foto.",
+      "usernameLabel": "Nombre de usuario",
+      "save": "Guardar",
+      "saving": "Guardando…",
+      "saved": "Guardado",
+      "usernameError": "No se pudo cambiar el nombre de usuario."
+    },
     "theme": {
       "title": "Tema",
       "light": "Claro",

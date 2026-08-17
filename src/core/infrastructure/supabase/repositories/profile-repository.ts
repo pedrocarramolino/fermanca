@@ -19,6 +19,7 @@ function toDomain(row: Row): Profile {
     username: row.username,
     inviteCode: row.invite_code,
     isAdmin: row.is_admin,
+    avatarUrl: row.avatar_url,
   };
 }
 
@@ -59,6 +60,17 @@ export class SupabaseProfileRepository implements ProfileRepository {
     const { data, error } = await this.client
       .from("profiles")
       .update({ username })
+      .eq("owner_id", ownerId)
+      .select("*")
+      .single();
+    if (error) throw error;
+    return toDomain(data);
+  }
+
+  async updateAvatarUrl(ownerId: UserId, avatarUrl: string | null): Promise<Profile> {
+    const { data, error } = await this.client
+      .from("profiles")
+      .update({ avatar_url: avatarUrl })
       .eq("owner_id", ownerId)
       .select("*")
       .single();

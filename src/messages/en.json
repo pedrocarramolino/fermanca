@@ -9,6 +9,18 @@
   },
   "Settings": {
     "title": "Settings",
+    "profile": {
+      "title": "Profile",
+      "changePhoto": "Change photo",
+      "uploading": "Uploading…",
+      "removePhoto": "Remove photo",
+      "avatarError": "Couldn't update the photo.",
+      "usernameLabel": "Username",
+      "save": "Save",
+      "saving": "Saving…",
+      "saved": "Saved",
+      "usernameError": "Couldn't change the username."
+    },
     "theme": {
       "title": "Theme",
       "light": "Light",
