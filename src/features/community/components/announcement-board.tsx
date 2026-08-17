@@ -125,12 +125,9 @@ export function AnnouncementBoard({
                 className="border-border flex flex-col gap-1 rounded-lg border p-3"
               >
                 <div className="flex items-start justify-between gap-2">
-                  <div className="flex flex-col">
-                    <span className="text-sm font-semibold">@{announcement.authorUsername}</span>
-                    <span className="text-muted-foreground text-xs">
-                      {formatSessionDate(new Date(announcement.createdAt), locale)}
-                    </span>
-                  </div>
+                  <span className="text-muted-foreground text-xs">
+                    {formatSessionDate(new Date(announcement.createdAt), locale)}
+                  </span>
                   {isAdmin && (
                     <Button
                       type="button"
