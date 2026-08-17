@@ -4,4 +4,5 @@ export interface Profile {
   ownerId: UserId;
   username: string;
   inviteCode: string;
+  isAdmin: boolean;
 }

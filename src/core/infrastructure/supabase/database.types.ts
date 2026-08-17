@@ -248,12 +248,14 @@ export interface Database {
           owner_id: string;
           username: string;
           invite_code: string;
+          is_admin: boolean;
           created_at: string;
         };
         Insert: {
           owner_id: string;
           username: string;
           invite_code: string;
+          is_admin?: boolean;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
@@ -323,6 +325,24 @@ export interface Database {
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["calendar_events"]["Insert"]>;
+        Relationships: [];
+      };
+      announcements: {
+        Row: {
+          id: string;
+          author_id: string;
+          author_username: string;
+          body: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          author_id: string;
+          author_username: string;
+          body: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["announcements"]["Insert"]>;
         Relationships: [];
       };
     };

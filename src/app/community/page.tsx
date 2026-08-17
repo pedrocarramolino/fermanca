@@ -10,7 +10,9 @@ import {
   listFriends,
   listPendingRequests,
 } from "@/features/community/application/actions";
+import { listAnnouncements } from "@/features/community/application/announcement-actions";
 import { CommunityManager } from "@/features/community/components/community-manager";
+import { AnnouncementBoard } from "@/features/community/components/announcement-board";
 import type { FriendWithProgress } from "@/features/community/components/friends-list";
 
 const WHATSAPP_COMMUNITY_URL = "https://whatsapp.com/channel/0029VbEHCgA9cDDhpNVcWk0M";
@@ -22,10 +24,11 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function CommunityPage() {
   const t = await getTranslations("Community.whatsapp");
-  const [profile, pendingRequests, friends] = await Promise.all([
+  const [profile, pendingRequests, friends, announcements] = await Promise.all([
     getMyProfile(),
     listPendingRequests(),
     listFriends(),
+    listAnnouncements(),
   ]);
 
   const friendsWithProgress: FriendWithProgress[] = await Promise.all(
@@ -54,6 +57,16 @@ export default async function CommunityPage() {
         inviteCode={profile.inviteCode}
         initialPendingRequests={pendingRequests}
         initialFriends={friendsWithProgress}
+      />
+
+      <AnnouncementBoard
+        initialAnnouncements={announcements.map((a) => ({
+          id: a.id,
+          authorUsername: a.authorUsername,
+          body: a.body,
+          createdAt: a.createdAt.toISOString(),
+        }))}
+        isAdmin={profile.isAdmin}
       />
 
       <Card>

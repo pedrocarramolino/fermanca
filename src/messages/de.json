@@ -370,6 +370,19 @@
       "title": "Tritt unserer WhatsApp-Community bei",
       "description": "Tipps, Neuigkeiten und Motivation, um weiter zu üben.",
       "cta": "WhatsApp-Kanal beitreten"
+    },
+    "board": {
+      "title": "Ankündigungen",
+      "placeholder": "Schreibe eine Ankündigung für die Community…",
+      "post": "Veröffentlichen",
+      "posting": "Wird veröffentlicht…",
+      "postError": "Die Ankündigung konnte nicht veröffentlicht werden.",
+      "empty": "Noch keine Ankündigungen.",
+      "delete": "Ankündigung löschen",
+      "deleteConfirmTitle": "Diese Ankündigung löschen?",
+      "deleteConfirmDescription": "Diese Aktion kann nicht rückgängig gemacht werden.",
+      "deleteConfirmCta": "Löschen",
+      "deleting": "Wird gelöscht…"
     }
   },
   "Share": {

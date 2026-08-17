@@ -370,6 +370,19 @@
       "title": "Join our WhatsApp community",
       "description": "Tips, updates, and motivation to keep practicing.",
       "cta": "Join the WhatsApp channel"
+    },
+    "board": {
+      "title": "Announcements",
+      "placeholder": "Write an announcement for the community…",
+      "post": "Post",
+      "posting": "Posting…",
+      "postError": "Couldn't post the announcement.",
+      "empty": "No announcements yet.",
+      "delete": "Delete announcement",
+      "deleteConfirmTitle": "Delete this announcement?",
+      "deleteConfirmDescription": "This action can't be undone.",
+      "deleteConfirmCta": "Delete",
+      "deleting": "Deleting…"
     }
   },
   "Share": {

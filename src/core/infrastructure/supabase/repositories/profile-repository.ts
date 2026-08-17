@@ -18,6 +18,7 @@ function toDomain(row: Row): Profile {
     ownerId: row.owner_id as UserId,
     username: row.username,
     inviteCode: row.invite_code,
+    isAdmin: row.is_admin,
   };
 }
 

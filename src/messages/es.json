@@ -370,6 +370,19 @@
       "title": "Únete a nuestra comunidad de WhatsApp",
       "description": "Consejos, novedades y motivación para seguir practicando.",
       "cta": "Unirse al canal de WhatsApp"
+    },
+    "board": {
+      "title": "Tablón de anuncios",
+      "placeholder": "Escribe un anuncio para la comunidad…",
+      "post": "Publicar",
+      "posting": "Publicando…",
+      "postError": "No se pudo publicar el anuncio.",
+      "empty": "Todavía no hay anuncios.",
+      "delete": "Borrar anuncio",
+      "deleteConfirmTitle": "¿Borrar este anuncio?",
+      "deleteConfirmDescription": "Esta acción no se puede deshacer.",
+      "deleteConfirmCta": "Borrar",
+      "deleting": "Borrando…"
     }
   },
   "Share": {
