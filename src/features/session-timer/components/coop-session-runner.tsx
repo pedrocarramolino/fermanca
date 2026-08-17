@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/core/infrastructure/supabase/client";
+import type { RealtimeChannel } from "@supabase/supabase-js";
+import { authenticateRealtime, createClient } from "@/core/infrastructure/supabase/client";
 import { getFreshBlocks } from "@/features/session-timer/application/actions";
 import { SessionRunner } from "@/features/session-timer/components/session-runner";
 import {
@@ -46,63 +47,74 @@ export function CoopSessionRunner({
 
   useEffect(() => {
     const supabase = createClient();
-    const channel = supabase
-      .channel(`coop-session-${sessionId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "session_blocks",
-          filter: `session_id=eq.${sessionId}`,
-        },
-        () => {
-          void getFreshBlocks(sessionId).then((fresh) => {
-            setBlocks(fresh);
-            setRevision((r) => r + 1);
-          });
-        },
-      )
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "sessions", filter: `id=eq.${sessionId}` },
-        (payload) => {
-          const row = payload.new as { status: string };
-          // La propia página server ya sabe cambiar entre SessionRunner y
-          // SessionSummary según session.status — no hace falta duplicar
-          // esa lógica aquí, solo pedirle que vuelva a renderizar.
-          if (row.status !== "in_progress") router.refresh();
-        },
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "session_events",
-          filter: `session_id=eq.${sessionId}`,
-        },
-        (payload) => {
-          const row = payload.new as {
-            id: string;
-            actor_id: string;
-            actor_username: string;
-            type: SessionEventType;
-          };
-          // El evento que yo mismo acabo de generar también llega por este
-          // canal (se inserta en las dos sesiones) — solo interesa el del
-          // compañero.
-          if (row.actor_id === userId) return;
-          setNotices((prev) => [
-            ...prev,
-            { id: row.id, type: row.type, actorUsername: row.actor_username },
-          ]);
-        },
-      )
-      .subscribe();
+    let channel: RealtimeChannel | null = null;
+    let cancelled = false;
+
+    // El canal debe autenticarse ANTES de suscribirse — si no, se conecta
+    // como anónimo y la RLS de session_blocks/sessions/session_events
+    // (todas exigen auth.uid()) filtra cada fila: el canal queda
+    // "SUBSCRIBED" sin ningún error, pero no llega ni un solo evento.
+    void authenticateRealtime(supabase).then(() => {
+      if (cancelled) return;
+      channel = supabase
+        .channel(`coop-session-${sessionId}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "session_blocks",
+            filter: `session_id=eq.${sessionId}`,
+          },
+          () => {
+            void getFreshBlocks(sessionId).then((fresh) => {
+              setBlocks(fresh);
+              setRevision((r) => r + 1);
+            });
+          },
+        )
+        .on(
+          "postgres_changes",
+          { event: "UPDATE", schema: "public", table: "sessions", filter: `id=eq.${sessionId}` },
+          (payload) => {
+            const row = payload.new as { status: string };
+            // La propia página server ya sabe cambiar entre SessionRunner y
+            // SessionSummary según session.status — no hace falta duplicar
+            // esa lógica aquí, solo pedirle que vuelva a renderizar.
+            if (row.status !== "in_progress") router.refresh();
+          },
+        )
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "session_events",
+            filter: `session_id=eq.${sessionId}`,
+          },
+          (payload) => {
+            const row = payload.new as {
+              id: string;
+              actor_id: string;
+              actor_username: string;
+              type: SessionEventType;
+            };
+            // El evento que yo mismo acabo de generar también llega por este
+            // canal (se inserta en las dos sesiones) — solo interesa el del
+            // compañero.
+            if (row.actor_id === userId) return;
+            setNotices((prev) => [
+              ...prev,
+              { id: row.id, type: row.type, actorUsername: row.actor_username },
+            ]);
+          },
+        )
+        .subscribe();
+    });
 
     return () => {
-      void supabase.removeChannel(channel);
+      cancelled = true;
+      if (channel) void supabase.removeChannel(channel);
     };
   }, [sessionId, userId, router]);
 

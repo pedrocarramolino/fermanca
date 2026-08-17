@@ -4,8 +4,9 @@ import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
-import { createClient } from "@/core/infrastructure/supabase/client";
+import { authenticateRealtime, createClient } from "@/core/infrastructure/supabase/client";
 import { cancelSessionInvite } from "@/features/session-invites/application/actions";
 import type { SessionInviteStatus } from "@/core/domain/session-invite";
 
@@ -27,32 +28,42 @@ export function InviteWaitingScreen({
     if (status !== "pending") return;
 
     const supabase = createClient();
-    const channel = supabase
-      .channel(`session-invite-${inviteId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "session_invites",
-          filter: `id=eq.${inviteId}`,
-        },
-        (payload) => {
-          const row = payload.new as {
-            status: SessionInviteStatus;
-            inviter_session_id: string | null;
-          };
-          if (row.status === "accepted" && row.inviter_session_id) {
-            router.push(`/session/${row.inviter_session_id}`);
-            return;
-          }
-          setStatus(row.status);
-        },
-      )
-      .subscribe();
+    let channel: RealtimeChannel | null = null;
+    let cancelled = false;
+
+    // Autenticar el socket antes de suscribirse — sin esto se conecta como
+    // anónimo y la RLS de session_invites (exige auth.uid()) no deja pasar
+    // ningún evento, aunque el canal se suscriba sin error.
+    void authenticateRealtime(supabase).then(() => {
+      if (cancelled) return;
+      channel = supabase
+        .channel(`session-invite-${inviteId}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "session_invites",
+            filter: `id=eq.${inviteId}`,
+          },
+          (payload) => {
+            const row = payload.new as {
+              status: SessionInviteStatus;
+              inviter_session_id: string | null;
+            };
+            if (row.status === "accepted" && row.inviter_session_id) {
+              router.push(`/session/${row.inviter_session_id}`);
+              return;
+            }
+            setStatus(row.status);
+          },
+        )
+        .subscribe();
+    });
 
     return () => {
-      void supabase.removeChannel(channel);
+      cancelled = true;
+      if (channel) void supabase.removeChannel(channel);
     };
   }, [inviteId, status, router]);
 
