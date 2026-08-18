@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 
@@ -12,24 +12,33 @@ const SESSION_KEY = "pf-launch-shown";
  * movimiento" la vea aparecer y desaparecer sin animación, no que no la vea
  * en absoluto (el hueco de tiempo en sí no es "movimiento").
  *
- * La visibilidad inicial se calcula en el propio render (useState perezoso),
- * no en un efecto: un efecto se dispara DESPUÉS de que el navegador ya
- * pintó el primer fotograma, así que la pantalla de inicio se veía un
- * instante antes de que el splash apareciera encima. Calculándolo aquí, el
- * splash ya está en el primer fotograma que se pinta — no hay salto. */
-function shouldPlayOnMount(): boolean {
-  if (typeof window === "undefined") return false;
-  return !sessionStorage.getItem(SESSION_KEY);
-}
-
+ * `visible` arranca en `true` tanto en el servidor como en el primer render
+ * del cliente — antes se calculaba mirando `sessionStorage` ya en ese primer
+ * render (`typeof window !== "undefined"`), pero eso es justo el patrón que
+ * React avisa que rompe la hidratación: el servidor nunca puede ver esa
+ * rama, así que el HTML que pinta y lo que React espera al hidratar nunca
+ * coincidían, y en cada carga se descartaba y volvía a renderizar medio
+ * árbol de la página. Ahora la comprobación de sessionStorage vive en un
+ * `useLayoutEffect` (se ejecuta antes de que el navegador pinte, así que
+ * sigue sin verse el salto que este componente ya evitaba) — el único coste
+ * es que una recarga dura dentro de la misma pestaña, con el splash ya
+ * mostrado antes, puede volver a verlo un instante; abrir la PWA de cero
+ * siempre empieza con sessionStorage vacío, así que ese caso no cambia. */
 export function LaunchAnimation() {
-  const [visible, setVisible] = useState(shouldPlayOnMount);
+  const [visible, setVisible] = useState(true);
   const [exiting, setExiting] = useState(false);
+
+  useLayoutEffect(() => {
+    if (sessionStorage.getItem(SESSION_KEY)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setVisible(false);
+      return;
+    }
+    sessionStorage.setItem(SESSION_KEY, "1");
+  }, []);
 
   useEffect(() => {
     if (!visible) return;
-    sessionStorage.setItem(SESSION_KEY, "1");
-
     const exitTimer = setTimeout(() => setExiting(true), 750);
     const removeTimer = setTimeout(() => setVisible(false), 1050);
     return () => {

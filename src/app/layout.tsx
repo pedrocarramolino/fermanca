@@ -96,12 +96,12 @@ export default async function RootLayout({
       lang={locale}
       data-style={settings?.visualStyle ?? "classic"}
       // Si el usuario tiene un tema explícito guardado (no "system"), se
-      // pinta ya en el HTML del servidor en vez de esperar al script que
-      // inyecta next-themes en el cliente — ese script evita el flash en una
-      // pestaña normal, pero en el arranque de la PWA instalada (justo
-      // cuando se ve LaunchAnimation) parece llegar tarde: se veía un
-      // instante en tema claro, y la barra de estado "black-translucent"
-      // mezclada con ese fondo claro es lo que se veía como gris.
+      // pinta ya en el HTML del servidor en vez de esperar al script anti-
+      // flash de <head> — ese script evita el flash en una pestaña normal,
+      // pero en el arranque de la PWA instalada (justo cuando se ve
+      // LaunchAnimation) parece llegar tarde: se veía un instante en tema
+      // claro, y la barra de estado "black-translucent" mezclada con ese
+      // fondo claro es lo que se veía como gris.
       className={cn(
         "font-sans",
         geist.variable,
@@ -112,6 +112,22 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        {/* Evita el flash de tema incorrecto antes del primer pintado —
+            reemplaza al script que antes inyectaba next-themes como elemento
+            de React (ver theme-provider.tsx): ese vivía dentro del árbol que
+            React hidrata en <body> y provocaba un error de hidratación en
+            cada carga. Este es HTML estático del propio Server Component, no
+            se hidrata como elemento — no puede chocar con nada del lado del
+            cliente. El propio <html> de arriba ya cubre server-side el caso
+            "dark" explícito; este script solo hace falta para el caso
+            "system" con el sistema operativo en oscuro, que no se puede
+            saber en el servidor. */}
+        <script
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("theme")||${JSON.stringify(settings?.theme ?? "system")};var d=t==="dark"||(t==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);var r=document.documentElement;r.classList.toggle("dark",d);r.style.colorScheme=d?"dark":"light"}catch(e){}})();`,
+          }}
+        />
         {settings && settings.accentColor && (
           <style
             dangerouslySetInnerHTML={{
