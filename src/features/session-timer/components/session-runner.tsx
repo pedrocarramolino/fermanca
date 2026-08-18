@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
@@ -78,6 +79,25 @@ export function SessionRunner({
 
   return (
     <main className="mx-auto flex min-h-svh max-w-md flex-col items-center justify-center gap-8 p-8 lg:max-w-lg xl:max-w-xl">
+      {/* Fija arriba a la izquierda, no dentro del bloque centrado: así
+          siempre está en el mismo sitio sin importar cuánto contenido haya
+          encima. Siempre visible, tanto con la fase corriendo como en la
+          pantalla de fin de fase — navegar atrás no toca el cronómetro (vive
+          en la BD por timestamps, no en este componente), así que el tiempo
+          sigue corriendo igual aunque salgas de esta pantalla. */}
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-sm"
+        aria-label={t("backHome")}
+        render={<Link href="/" />}
+        nativeButton={false}
+        className="fixed left-4 z-10"
+        style={{ top: "calc(env(safe-area-inset-top, 0px) + 1rem)" }}
+      >
+        <ArrowLeft className="size-4" />
+      </Button>
+
       {peerUsername && (
         <p className="text-muted-foreground -mb-4 text-sm">
           {t("practicingWith", { name: peerUsername })}
@@ -115,17 +135,6 @@ export function SessionRunner({
               {t("finishPhaseNow")}
             </Button>
           </div>
-          {runtime.isPaused && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              render={<Link href="/" />}
-              nativeButton={false}
-            >
-              {t("backHome")}
-            </Button>
-          )}
         </div>
       )}
 

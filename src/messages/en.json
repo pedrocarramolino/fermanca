@@ -101,7 +101,11 @@
     "greetingAfternoon": "Good afternoon, {username}",
     "greetingEvening": "Good evening, {username}",
     "greetingNeutral": "Hi, {username}",
-    "greetingQuestion": "What will you achieve today?"
+    "greetingQuestion": "What will you achieve today?",
+    "activeSession": {
+      "title": "Session in progress",
+      "resume": "Resume"
+    }
   },
   "WeeklyGoal": {
     "title": "Weekly goal",

@@ -15,6 +15,7 @@ import { SupabaseWeeklyGoalRepository } from "@/core/infrastructure/supabase/rep
 import { currentWeekStartKey, weeklyGoalProgress } from "@/core/domain/weekly-goal";
 import { mondayOf } from "@/core/domain/streaks";
 import { WeeklyGoalCard } from "@/features/weekly-goals/components/weekly-goal-card";
+import { ActiveSessionCard } from "@/features/session-timer/components/active-session-card";
 
 const RECENT_SESSIONS_PREVIEW = 3;
 
@@ -43,6 +44,11 @@ export default async function Home() {
       )
     : null;
 
+  // Si hay una sesión sin terminar, se destaca aparte arriba (ActiveSessionCard)
+  // en vez de dejarla mezclada abajo con las ya terminadas.
+  const activeSession = recentSessions.find((session) => session.status === "in_progress");
+  const finishedRecentSessions = recentSessions.filter((session) => session.id !== activeSession?.id);
+
   return (
     <main className="mx-auto flex min-h-svh max-w-4xl flex-col gap-8 p-8 pb-32 lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl">
       <AppHeader />
@@ -51,9 +57,11 @@ export default async function Home() {
 
       <WeeklyGoalCard initialGoal={weeklyGoal} progress={weeklyProgress} />
 
+      {activeSession && <ActiveSessionCard session={activeSession} />}
+
       <SessionBuilder initialCategories={categories} initialTemplates={templates} />
 
-      {recentSessions.length > 0 && (
+      {finishedRecentSessions.length > 0 && (
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <h2 className="text-foreground text-base font-semibold">{t("recentSessions")}</h2>
@@ -62,7 +70,7 @@ export default async function Home() {
             </Link>
           </div>
           <div className="flex flex-col gap-2">
-            {recentSessions.map((session) => (
+            {finishedRecentSessions.map((session) => (
               <SessionHistoryItem key={session.id} session={session} />
             ))}
           </div>
