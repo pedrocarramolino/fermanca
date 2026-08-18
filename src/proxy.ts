@@ -82,14 +82,16 @@ export const config = {
      * Aplica a todas las rutas excepto assets estáticos, PWA (manifest,
      * iconos, service worker), rutas internas de Next, /api (cada endpoint
      * gestiona su propia autenticación — p. ej. /api/cron/reminders usa un
-     * bearer token fijo, no una sesión de usuario), y las rutas de metadatos
+     * bearer token fijo, no una sesión de usuario), las rutas de metadatos
      * para SEO/redes (robots.txt, sitemap.xml, opengraph-image,
-     * twitter-image): las piden rastreadores sin cookies (Google, el
-     * previsualizador de enlaces de WhatsApp/Twitter...), así que también
-     * tienen que quedar fuera de la comprobación de sesión, no solo del
-     * listado de PUBLIC_ROUTES de arriba (ese solo decide qué ve un
-     * navegador real, esto decide qué ve el proxy siquiera).
+     * twitter-image) y el archivo de verificación de Google Search Console
+     * (google*.html, en public/): todo esto lo piden rastreadores sin
+     * cookies (Google, el verificador de Search Console, el previsualizador
+     * de enlaces de WhatsApp/Twitter...), así que también tiene que quedar
+     * fuera de la comprobación de sesión, no solo del listado de
+     * PUBLIC_ROUTES de arriba (ese solo decide qué ve un navegador real,
+     * esto decide qué ve el proxy siquiera).
      */
-    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|icon|apple-icon|sw.js|auth/callback|api/|robots.txt|sitemap.xml|opengraph-image|twitter-image).*)",
+    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|icon|apple-icon|sw.js|auth/callback|api/|robots.txt|sitemap.xml|opengraph-image|twitter-image|google[^/]*\\.html).*)",
   ],
 };
