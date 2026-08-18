@@ -38,12 +38,12 @@ export function HomeGreeting({ username }: { username: string | null }) {
     setTimeOfDay(timeOfDayForHour(new Date().getHours()));
   }, []);
 
-  if (!username) return null;
+  const key = timeOfDay ? GREETING_KEY[timeOfDay] : "greetingNeutral";
 
   return (
     <div className="flex flex-col gap-1">
       <h1 className="text-2xl font-bold text-balance">
-        {t(timeOfDay ? GREETING_KEY[timeOfDay] : "greetingNeutral", { username })}
+        {username ? t(key, { username }) : t("greetingFallback")}
       </h1>
       <p className="text-muted-foreground">{t("greetingQuestion")}</p>
     </div>

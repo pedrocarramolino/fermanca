@@ -46,6 +46,7 @@ export function SessionHistoryItem({ session }: { session: Session }) {
             aria-hidden
           />
         ))}
+        <span className="sr-only">{session.blocks.map((block) => block.name).join(", ")}</span>
         <span className="text-muted-foreground text-xs">
           {t("blocksCount", { count: session.blocks.length })} · {formatDurationShort(duration)}
         </span>

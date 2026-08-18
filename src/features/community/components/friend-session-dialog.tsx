@@ -43,7 +43,7 @@ function SessionBlockList({ session }: { session: FriendSession }) {
               style={{ backgroundColor: block.color }}
               aria-hidden
             />
-            <span className="flex-1">{block.name}</span>
+            <span className="min-w-0 flex-1 truncate">{block.name}</span>
             <span className="text-muted-foreground font-mono tabular-nums">
               {formatDurationShort(block.actualDurationSeconds)}
             </span>
@@ -128,7 +128,7 @@ function FriendSessionContent({ friend }: { friend: FriendWithProgress }) {
                 <li key={session.id} className="border-border rounded-lg border">
                   <button
                     type="button"
-                    className="hover:bg-muted flex w-full flex-col gap-2 rounded-lg p-3 text-left transition-colors"
+                    className="hover:bg-muted focus-visible:ring-ring/50 flex w-full flex-col gap-2 rounded-lg p-3 text-left transition-colors focus-visible:ring-3 focus-visible:outline-none"
                     onClick={() => setExpandedId(expanded ? null : session.id)}
                     aria-expanded={expanded}
                   >

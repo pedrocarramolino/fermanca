@@ -4,6 +4,14 @@ import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { formatDurationShort } from "@/core/domain/duration";
 import { templateTotalDurationSeconds, type Template } from "@/core/domain/template";
 import { deleteTemplate, renameTemplate } from "@/features/session-builder/application/actions";
@@ -23,11 +31,28 @@ export function TemplateList({
   const t = useTranslations("TemplateList");
   const [isPending, startTransition] = useTransition();
   const [renamingTemplate, setRenamingTemplate] = useState<Template | null>(null);
+  const [deletingTemplate, setDeletingTemplate] = useState<Template | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   async function handleRename(name: string) {
     if (!renamingTemplate) return;
     const updated = await renameTemplate(renamingTemplate.id, name);
     onRenamed(updated);
+  }
+
+  function handleConfirmDelete() {
+    if (!deletingTemplate) return;
+    const deletedId = deletingTemplate.id;
+    startTransition(async () => {
+      try {
+        await deleteTemplate(deletedId);
+        onDeleted(deletedId);
+        setDeletingTemplate(null);
+        setDeleteError(null);
+      } catch {
+        setDeleteError(t("deleteError"));
+      }
+    });
   }
 
   if (templates.length === 0) {
@@ -72,12 +97,7 @@ export function TemplateList({
                 variant="ghost"
                 aria-label={t("delete", { name: template.name })}
                 disabled={isPending}
-                onClick={() =>
-                  startTransition(async () => {
-                    await deleteTemplate(template.id);
-                    onDeleted(template.id);
-                  })
-                }
+                onClick={() => setDeletingTemplate(template)}
               >
                 <Trash2 className="size-4" />
               </Button>
@@ -98,6 +118,33 @@ export function TemplateList({
         savingLabel={t("renaming")}
         onSave={handleRename}
       />
+
+      <Dialog
+        open={deletingTemplate !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeletingTemplate(null);
+            setDeleteError(null);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("deleteConfirmTitle", { name: deletingTemplate?.name ?? "" })}</DialogTitle>
+            <DialogDescription>{deleteError ?? t("deleteConfirmDescription")}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={isPending}
+              onClick={handleConfirmDelete}
+            >
+              {isPending ? t("deleting") : t("deleteConfirmCta")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

@@ -10,6 +10,7 @@
   },
   "Settings": {
     "title": "Einstellungen",
+    "back": "Zurück",
     "theme": {
       "title": "Design",
       "light": "Hell",
@@ -101,6 +102,7 @@
     "greetingAfternoon": "Guten Tag, {username}",
     "greetingEvening": "Guten Abend, {username}",
     "greetingNeutral": "Hallo, {username}",
+    "greetingFallback": "Hallo",
     "greetingQuestion": "Was erreichst du heute?",
     "activeSession": {
       "title": "Sitzung läuft",
@@ -118,9 +120,12 @@
     "form": {
       "days": "Tage pro Woche",
       "hours": "Stunden pro Woche",
+      "daysHint": "Zwischen 1 und 7 Tagen",
+      "hoursHint": "Mindestens 0,5 Stunden",
       "save": "Ziel speichern",
       "saving": "Speichern…",
-      "cancel": "Abbrechen"
+      "cancel": "Abbrechen",
+      "saveError": "Das Ziel konnte nicht gespeichert werden. Bitte versuche es erneut."
     }
   },
   "SessionBuilder": {
@@ -182,7 +187,12 @@
     "delete": "Vorlage {name} löschen",
     "renameTitle": "Vorlage umbenennen",
     "renameSave": "Umbenennen",
-    "renaming": "Wird umbenannt…"
+    "renaming": "Wird umbenannt…",
+    "deleteConfirmTitle": "Vorlage {name} löschen?",
+    "deleteConfirmDescription": "Diese Aktion kann nicht rückgängig gemacht werden.",
+    "deleteConfirmCta": "Löschen",
+    "deleting": "Wird gelöscht…",
+    "deleteError": "Die Vorlage konnte nicht gelöscht werden. Bitte versuche es erneut."
   },
   "SaveTemplateDialog": {
     "createTitle": "Als Vorlage speichern",
@@ -199,6 +209,7 @@
   },
   "History": {
     "title": "Verlauf",
+    "back": "Zurück",
     "empty": "Du hast noch keine Sitzung abgeschlossen.",
     "loading": "Wird geladen…",
     "loadMore": "Mehr laden"
@@ -355,7 +366,12 @@
       "title": "Freunde",
       "empty": "Du hast noch keine Freunde — frag jemanden nach seinem Einladungscode und füge ihn oben hinzu.",
       "thisWeek": "diese Woche",
-      "remove": "{name} nicht mehr befreundet"
+      "remove": "{name} nicht mehr befreundet",
+      "removeConfirmTitle": "{name} nicht mehr befreundet sein?",
+      "removeConfirmDescription": "Diese Aktion kann nicht rückgängig gemacht werden.",
+      "removeConfirmCta": "Freundschaft beenden",
+      "removing": "Wird entfernt…",
+      "removeError": "Die Freundschaft konnte nicht entfernt werden. Bitte versuche es erneut."
     },
     "session": {
       "recentSessions": "Letzte Sitzungen",
@@ -428,7 +444,12 @@
     "finishPhaseNow": "Phase jetzt beenden",
     "activateSound": "Ton aktivieren",
     "backHome": "Zurück zum Start",
-    "practicingWith": "Übt gerade mit @{name}"
+    "practicingWith": "Übt gerade mit @{name}",
+    "transitionError": "Der Phasenwechsel konnte nicht gespeichert werden. Prüfe deine Verbindung.",
+    "extendError": "Die Zeit konnte nicht verlängert werden. Prüfe deine Verbindung.",
+    "pauseError": "Pausieren fehlgeschlagen. Prüfe deine Verbindung.",
+    "resumeError": "Fortsetzen fehlgeschlagen. Prüfe deine Verbindung.",
+    "reorderError": "Die neue Reihenfolge konnte nicht gespeichert werden. Prüfe deine Verbindung."
   },
   "SessionInvites": {
     "dialog": {
@@ -445,8 +466,12 @@
       "declined": "@{name} hat die Einladung abgelehnt.",
       "cancelled": "Du hast die Einladung storniert.",
       "backToBuilder": "Zurück",
+      "backHint": "Die Einladung bleibt im Hintergrund aktiv.",
       "cancel": "Einladung stornieren",
-      "cancelling": "Wird storniert…"
+      "cancelling": "Wird storniert…",
+      "cancelConfirmTitle": "Einladung stornieren?",
+      "cancelConfirmDescription": "Diese Aktion kann nicht rückgängig gemacht werden.",
+      "cancelConfirmCta": "Einladung stornieren"
     },
     "pending": {
       "title": "Einladungen zum gemeinsamen Üben",
@@ -454,7 +479,10 @@
       "summary": "{count, plural, one {# Phase} other {# Phasen}} · {duration}",
       "accept": "Annehmen",
       "reject": "Ablehnen",
-      "responding": "Wird beantwortet…"
+      "responding": "Wird beantwortet…",
+      "declineConfirmTitle": "Einladung von @{name} ablehnen?",
+      "declineConfirmDescription": "Diese Aktion kann nicht rückgängig gemacht werden.",
+      "declineConfirmCta": "Ablehnen"
     },
     "notices": {
       "paused": "@{name} hat die Phase pausiert",
@@ -518,6 +546,7 @@
   "StoryCreator": {
     "trigger": "Story mit Foto erstellen",
     "close": "Schließen",
+    "back": "Zurück",
     "capturePrompt": "Mach ein Foto beim Üben",
     "captureButton": "Kamera öffnen",
     "continueToPreview": "Weiter",

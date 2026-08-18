@@ -87,7 +87,7 @@ export function CategoryDialog({
                 aria-label={option.label}
                 aria-pressed={color === option.value}
                 onClick={() => setColor(option.value)}
-                className="ring-offset-background data-[selected]:ring-foreground size-7 rounded-full ring-offset-2 outline-none data-[selected]:ring-2"
+                className="ring-offset-background data-[selected]:ring-foreground relative size-7 rounded-full ring-offset-2 outline-none before:absolute before:-inset-1 before:content-[''] data-[selected]:ring-2"
                 data-selected={color === option.value || undefined}
                 style={{ backgroundColor: option.value }}
               />

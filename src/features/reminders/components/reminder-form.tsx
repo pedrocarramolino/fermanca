@@ -63,7 +63,7 @@ export function ReminderForm({ onCreated }: { onCreated: (reminder: Reminder) =>
                 type="button"
                 aria-pressed={days.includes(value)}
                 onClick={() => toggleDay(value)}
-                className="border-border data-[selected]:border-primary data-[selected]:bg-primary data-[selected]:text-primary-foreground flex size-8 items-center justify-center rounded-full border text-sm"
+                className="border-border data-[selected]:border-primary data-[selected]:bg-primary data-[selected]:text-primary-foreground focus-visible:ring-ring/50 flex size-8 items-center justify-center rounded-full border text-sm focus-visible:ring-3 focus-visible:outline-none"
                 data-selected={days.includes(value) || undefined}
               >
                 {t(`day.${key}`)}

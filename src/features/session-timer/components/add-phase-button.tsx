@@ -179,6 +179,7 @@ export function AddPhaseButton({
                 <div className="flex items-center gap-3">
                   <Slider
                     className="flex-1"
+                    aria-label={t("minutes")}
                     value={[Math.min(Math.max(minutes, 5), 120)]}
                     min={5}
                     max={120}

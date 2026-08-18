@@ -45,9 +45,7 @@ export function AddFriendForm() {
         </Button>
       </div>
       {error && <p className="text-destructive text-sm">{error}</p>}
-      {success && (
-        <p className="text-sm text-emerald-600 dark:text-emerald-400">{t("success")}</p>
-      )}
+      {success && <p className="text-primary text-sm">{t("success")}</p>}
     </div>
   );
 }

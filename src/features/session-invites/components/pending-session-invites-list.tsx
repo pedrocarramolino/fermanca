@@ -5,6 +5,14 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { formatDurationShort } from "@/core/domain/duration";
 import {
   acceptSessionInvite,
@@ -21,6 +29,7 @@ export function PendingSessionInvitesList({
   const router = useRouter();
   const [invites, setInvites] = useState(initialInvites);
   const [respondingTo, setRespondingTo] = useState<string | null>(null);
+  const [decliningInvite, setDecliningInvite] = useState<IncomingSessionInvite | null>(null);
   const [isPending, startTransition] = useTransition();
 
   if (invites.length === 0) return null;
@@ -33,11 +42,14 @@ export function PendingSessionInvitesList({
     });
   }
 
-  function handleDecline(inviteId: string) {
+  function handleConfirmDecline() {
+    if (!decliningInvite) return;
+    const inviteId = decliningInvite.id;
     setRespondingTo(inviteId);
     startTransition(async () => {
       await declineSessionInvite(inviteId);
       setInvites((prev) => prev.filter((invite) => invite.id !== inviteId));
+      setDecliningInvite(null);
     });
   }
 
@@ -50,8 +62,10 @@ export function PendingSessionInvitesList({
             key={invite.id}
             className="border-border flex items-center justify-between gap-3 rounded-lg border p-3"
           >
-            <div className="flex flex-col">
-              <span className="font-medium">{t("from", { name: invite.inviterUsername })}</span>
+            <div className="flex min-w-0 flex-col">
+              <span className="truncate font-medium">
+                {t("from", { name: invite.inviterUsername })}
+              </span>
               <span className="text-muted-foreground text-xs">
                 {t("summary", {
                   count: invite.blockCount,
@@ -59,7 +73,7 @@ export function PendingSessionInvitesList({
                 })}
               </span>
             </div>
-            <div className="flex gap-2">
+            <div className="flex shrink-0 gap-2">
               <Button
                 type="button"
                 size="icon-sm"
@@ -71,11 +85,11 @@ export function PendingSessionInvitesList({
               </Button>
               <Button
                 type="button"
-                variant="outline"
+                variant="destructive"
                 size="icon-sm"
                 aria-label={t("reject")}
                 disabled={isPending}
-                onClick={() => handleDecline(invite.id)}
+                onClick={() => setDecliningInvite(invite)}
               >
                 <X className="size-4" />
               </Button>
@@ -86,6 +100,32 @@ export function PendingSessionInvitesList({
           </li>
         ))}
       </ul>
+
+      <Dialog
+        open={decliningInvite !== null}
+        onOpenChange={(open) => {
+          if (!open) setDecliningInvite(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {t("declineConfirmTitle", { name: decliningInvite?.inviterUsername ?? "" })}
+            </DialogTitle>
+            <DialogDescription>{t("declineConfirmDescription")}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={isPending}
+              onClick={handleConfirmDecline}
+            >
+              {t("declineConfirmCta")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

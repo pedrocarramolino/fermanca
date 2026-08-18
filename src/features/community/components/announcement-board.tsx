@@ -140,7 +140,7 @@ export function AnnouncementBoard({
                     </Button>
                   )}
                 </div>
-                <p className="text-sm whitespace-pre-wrap">{announcement.body}</p>
+                <p className="text-sm break-words whitespace-pre-wrap">{announcement.body}</p>
               </li>
             ))}
           </ul>

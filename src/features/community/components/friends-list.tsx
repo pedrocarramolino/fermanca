@@ -4,6 +4,14 @@ import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { Flame, Trophy, UserMinus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { formatDurationShort } from "@/core/domain/duration";
 import { removeFriendship } from "@/features/community/application/actions";
 import { FriendSessionDialog } from "@/features/community/components/friend-session-dialog";
@@ -38,6 +46,23 @@ export function FriendsList({
   const tStreaks = useTranslations("Streaks");
   const [isPending, startTransition] = useTransition();
   const [selectedFriend, setSelectedFriend] = useState<FriendWithProgress | null>(null);
+  const [removingFriend, setRemovingFriend] = useState<FriendWithProgress | null>(null);
+  const [removeError, setRemoveError] = useState<string | null>(null);
+
+  function handleConfirmRemove() {
+    if (!removingFriend) return;
+    const friendshipId = removingFriend.friendshipId;
+    startTransition(async () => {
+      try {
+        await removeFriendship(friendshipId);
+        onRemoved(friendshipId);
+        setRemovingFriend(null);
+        setRemoveError(null);
+      } catch {
+        setRemoveError(t("removeError"));
+      }
+    });
+  }
 
   if (friends.length === 0) {
     return (
@@ -59,19 +84,16 @@ export function FriendsList({
           >
             <button
               type="button"
-              className="flex flex-1 items-center gap-3 text-left"
+              className="focus-visible:ring-ring/50 flex min-w-0 flex-1 items-center gap-3 rounded-lg text-left focus-visible:ring-3 focus-visible:outline-none"
               onClick={() => setSelectedFriend(friend)}
             >
               <FriendAvatar username={friend.username} avatarUrl={friend.avatarUrl} />
-              <div className="flex flex-col items-start gap-1">
-                <span className="flex items-center gap-1.5 font-medium">
+              <div className="flex min-w-0 flex-col items-start gap-1">
+                <span className="flex min-w-0 max-w-full items-center gap-1.5 font-medium">
                   {index === 0 && friend.weeklySeconds > 0 && (
-                    <Trophy
-                      className="size-4 text-amber-500 dark:text-amber-400"
-                      aria-hidden
-                    />
+                    <Trophy className="text-primary size-4 shrink-0" aria-hidden />
                   )}
-                  {friend.username}
+                  <span className="truncate">{friend.username}</span>
                 </span>
                 <div className="text-muted-foreground flex items-center gap-3 text-sm">
                   <span>
@@ -90,12 +112,10 @@ export function FriendsList({
               size="icon-sm"
               aria-label={t("remove", { name: friend.username })}
               disabled={isPending}
-              onClick={() =>
-                startTransition(async () => {
-                  await removeFriendship(friend.friendshipId);
-                  onRemoved(friend.friendshipId);
-                })
-              }
+              onClick={() => {
+                setRemoveError(null);
+                setRemovingFriend(friend);
+              }}
             >
               <UserMinus className="size-4" />
             </Button>
@@ -109,6 +129,35 @@ export function FriendsList({
           if (!open) setSelectedFriend(null);
         }}
       />
+
+      <Dialog
+        open={removingFriend !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setRemovingFriend(null);
+            setRemoveError(null);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {t("removeConfirmTitle", { name: removingFriend?.username ?? "" })}
+            </DialogTitle>
+            <DialogDescription>{removeError ?? t("removeConfirmDescription")}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={isPending}
+              onClick={handleConfirmRemove}
+            >
+              {isPending ? t("removing") : t("removeConfirmCta")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

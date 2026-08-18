@@ -32,8 +32,8 @@ export function PendingRequestsList({
             key={request.friendshipId}
             className="border-border hover:bg-muted flex items-center justify-between gap-3 rounded-lg border p-3 transition-colors"
           >
-            <span className="font-medium">{request.fromUsername}</span>
-            <div className="flex gap-2">
+            <span className="min-w-0 flex-1 truncate font-medium">{request.fromUsername}</span>
+            <div className="flex shrink-0 gap-2">
               <Button
                 type="button"
                 size="icon-sm"

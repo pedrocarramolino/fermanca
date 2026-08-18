@@ -31,7 +31,7 @@ function Toast({ notice, onDismiss }: { notice: CoopNotice; onDismiss: () => voi
   return (
     <div
       role="status"
-      className="bg-foreground text-background pointer-events-auto rounded-full px-4 py-2 text-sm font-medium shadow-lg motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-top-2"
+      className="bg-foreground text-background pointer-events-auto max-w-[calc(100%-7rem)] truncate rounded-full px-4 py-2 text-sm font-medium shadow-lg motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-top-2"
     >
       {t(notice.type, { name: notice.actorUsername })}
     </div>

@@ -10,6 +10,7 @@
   },
   "Settings": {
     "title": "Settings",
+    "back": "Back",
     "theme": {
       "title": "Theme",
       "light": "Light",
@@ -101,6 +102,7 @@
     "greetingAfternoon": "Good afternoon, {username}",
     "greetingEvening": "Good evening, {username}",
     "greetingNeutral": "Hi, {username}",
+    "greetingFallback": "Hi",
     "greetingQuestion": "What will you achieve today?",
     "activeSession": {
       "title": "Session in progress",
@@ -118,9 +120,12 @@
     "form": {
       "days": "Days per week",
       "hours": "Hours per week",
+      "daysHint": "Between 1 and 7 days",
+      "hoursHint": "0.5 hours minimum",
       "save": "Save goal",
       "saving": "Saving…",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "saveError": "Couldn't save the goal. Please try again."
     }
   },
   "SessionBuilder": {
@@ -182,7 +187,12 @@
     "delete": "Delete template {name}",
     "renameTitle": "Rename template",
     "renameSave": "Rename",
-    "renaming": "Renaming…"
+    "renaming": "Renaming…",
+    "deleteConfirmTitle": "Delete template {name}?",
+    "deleteConfirmDescription": "This action cannot be undone.",
+    "deleteConfirmCta": "Delete",
+    "deleting": "Deleting…",
+    "deleteError": "Couldn't delete the template. Please try again."
   },
   "SaveTemplateDialog": {
     "createTitle": "Save as template",
@@ -199,6 +209,7 @@
   },
   "History": {
     "title": "History",
+    "back": "Back",
     "empty": "You haven't completed any sessions yet.",
     "loading": "Loading…",
     "loadMore": "Load more"
@@ -355,7 +366,12 @@
       "title": "Friends",
       "empty": "You don't have any friends yet — ask someone for their invite code and add it above.",
       "thisWeek": "this week",
-      "remove": "Unfriend {name}"
+      "remove": "Unfriend {name}",
+      "removeConfirmTitle": "Unfriend {name}?",
+      "removeConfirmDescription": "This action cannot be undone.",
+      "removeConfirmCta": "Unfriend",
+      "removing": "Removing…",
+      "removeError": "Couldn't remove the friendship. Please try again."
     },
     "session": {
       "recentSessions": "Recent sessions",
@@ -428,7 +444,12 @@
     "finishPhaseNow": "Finish phase now",
     "activateSound": "Enable sound",
     "backHome": "Back to home",
-    "practicingWith": "Practicing with @{name}"
+    "practicingWith": "Practicing with @{name}",
+    "transitionError": "Couldn't save the phase change. Check your connection.",
+    "extendError": "Couldn't extend the time. Check your connection.",
+    "pauseError": "Couldn't pause. Check your connection.",
+    "resumeError": "Couldn't resume. Check your connection.",
+    "reorderError": "Couldn't save the new order. Check your connection."
   },
   "SessionInvites": {
     "dialog": {
@@ -445,8 +466,12 @@
       "declined": "@{name} declined the invite.",
       "cancelled": "You cancelled the invite.",
       "backToBuilder": "Back",
+      "backHint": "The invite will stay active in the background.",
       "cancel": "Cancel invite",
-      "cancelling": "Cancelling…"
+      "cancelling": "Cancelling…",
+      "cancelConfirmTitle": "Cancel the invite?",
+      "cancelConfirmDescription": "This action cannot be undone.",
+      "cancelConfirmCta": "Cancel invite"
     },
     "pending": {
       "title": "Invites to practice together",
@@ -454,7 +479,10 @@
       "summary": "{count, plural, one {# phase} other {# phases}} · {duration}",
       "accept": "Accept",
       "reject": "Reject",
-      "responding": "Responding…"
+      "responding": "Responding…",
+      "declineConfirmTitle": "Decline @{name}'s invite?",
+      "declineConfirmDescription": "This action cannot be undone.",
+      "declineConfirmCta": "Decline"
     },
     "notices": {
       "paused": "@{name} paused the phase",
@@ -518,6 +546,7 @@
   "StoryCreator": {
     "trigger": "Create photo Story",
     "close": "Close",
+    "back": "Back",
     "capturePrompt": "Take a photo while you practice",
     "captureButton": "Open camera",
     "continueToPreview": "Continue",

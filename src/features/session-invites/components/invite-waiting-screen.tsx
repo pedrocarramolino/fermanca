@@ -6,6 +6,14 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { authenticateRealtime, createClient } from "@/core/infrastructure/supabase/client";
 import { cancelSessionInvite } from "@/features/session-invites/application/actions";
 import type { SessionInviteStatus } from "@/core/domain/session-invite";
@@ -23,6 +31,7 @@ export function InviteWaitingScreen({
   const router = useRouter();
   const [status, setStatus] = useState<SessionInviteStatus>(initialStatus);
   const [isCancelling, startCancelling] = useTransition();
+  const [confirmingCancel, setConfirmingCancel] = useState(false);
 
   useEffect(() => {
     if (status !== "pending") return;
@@ -71,6 +80,7 @@ export function InviteWaitingScreen({
     startCancelling(async () => {
       await cancelSessionInvite(inviteId);
       setStatus("cancelled");
+      setConfirmingCancel(false);
     });
   }
 
@@ -100,9 +110,41 @@ export function InviteWaitingScreen({
     <main className="mx-auto flex min-h-svh max-w-md flex-col items-center justify-center gap-6 p-8 text-center">
       <p className="text-muted-foreground text-sm">{t("waitingFor", { name: friendUsername })}</p>
       <p className="text-2xl font-semibold">{t("title")}</p>
-      <Button type="button" variant="outline" disabled={isCancelling} onClick={handleCancel}>
-        {isCancelling ? t("cancelling") : t("cancel")}
-      </Button>
+      <div className="flex flex-col items-center gap-2">
+        <div className="flex gap-2">
+          <Button type="button" variant="ghost" render={<Link href="/" />} nativeButton={false}>
+            {t("backToBuilder")}
+          </Button>
+          <Button
+            type="button"
+            variant="destructive"
+            disabled={isCancelling}
+            onClick={() => setConfirmingCancel(true)}
+          >
+            {t("cancel")}
+          </Button>
+        </div>
+        <p className="text-muted-foreground text-xs">{t("backHint")}</p>
+      </div>
+
+      <Dialog open={confirmingCancel} onOpenChange={setConfirmingCancel}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("cancelConfirmTitle")}</DialogTitle>
+            <DialogDescription>{t("cancelConfirmDescription")}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={isCancelling}
+              onClick={handleCancel}
+            >
+              {isCancelling ? t("cancelling") : t("cancelConfirmCta")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }

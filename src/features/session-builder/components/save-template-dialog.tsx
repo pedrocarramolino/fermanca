@@ -59,6 +59,7 @@ export function SaveTemplateDialog({
             value={name}
             onChange={(event) => setName(event.target.value)}
             placeholder={t("namePlaceholder")}
+            maxLength={60}
             autoFocus
           />
         </div>

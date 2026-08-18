@@ -87,7 +87,7 @@ export function CalendarEventList({
             >
               <button
                 type="button"
-                className="flex min-w-0 flex-1 flex-col items-start gap-0.5 text-left"
+                className="focus-visible:ring-ring/50 flex min-w-0 flex-1 flex-col items-start gap-0.5 rounded-lg text-left focus-visible:ring-3 focus-visible:outline-none"
                 onClick={() => onSelect(event)}
               >
                 <span className="flex items-center gap-1.5 truncate font-medium">

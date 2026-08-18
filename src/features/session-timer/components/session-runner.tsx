@@ -16,6 +16,7 @@ import { TimerDisplay } from "@/features/session-timer/components/timer-display"
 import { PhaseCompleteCard } from "@/features/session-timer/components/phase-complete-card";
 import { QuickNoteField } from "@/features/session-timer/components/quick-note-field";
 import { SessionSummary } from "@/features/session-timer/components/session-summary";
+import { SessionErrorToast } from "@/features/session-timer/components/session-error-toast";
 
 export function SessionRunner({
   sessionId,
@@ -98,6 +99,10 @@ export function SessionRunner({
         <ArrowLeft className="size-4" />
       </Button>
 
+      {runtime.errorMessage && (
+        <SessionErrorToast message={runtime.errorMessage} onDismiss={runtime.dismissError} />
+      )}
+
       {peerUsername && (
         <p className="text-muted-foreground -mb-4 text-sm">
           {t("practicingWith", { name: peerUsername })}
@@ -126,12 +131,12 @@ export function SessionRunner({
             <Button
               type="button"
               variant="outline"
-              size="sm"
+              size="lg"
               onClick={runtime.isPaused ? runtime.resumeTimer : runtime.pauseTimer}
             >
               {runtime.isPaused ? t("resume") : t("pause")}
             </Button>
-            <Button type="button" variant="outline" size="sm" onClick={runtime.finishPhaseNow}>
+            <Button type="button" variant="outline" size="lg" onClick={runtime.finishPhaseNow}>
               {t("finishPhaseNow")}
             </Button>
           </div>

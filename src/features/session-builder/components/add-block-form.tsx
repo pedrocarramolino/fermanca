@@ -194,6 +194,7 @@ export function AddBlockForm({
         <div className="flex items-center gap-3">
           <Slider
             className="flex-1"
+            aria-label={t("minutes")}
             value={[Math.min(Math.max(minutes, 5), 120)]}
             min={5}
             max={120}
@@ -227,7 +228,11 @@ export function AddBlockForm({
         </div>
       </div>
 
-      <Button type="button" onClick={handleAdd} disabled={!categoryId || !name.trim()}>
+      <Button
+        type="button"
+        onClick={handleAdd}
+        disabled={!categoryId || !name.trim() || minutes <= 0}
+      >
         <Plus className="size-4" />
         {t("add")}
       </Button>

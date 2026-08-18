@@ -31,13 +31,19 @@ export function WeeklyGoalCard({
     initialGoal ? initialGoal.targetSeconds / 3600 : DEFAULT_TARGET_HOURS,
   );
   const [isPending, startTransition] = useTransition();
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   function handleSave() {
+    setSaveError(null);
     startTransition(async () => {
-      const saved = await saveWeeklyGoal(days, hours);
-      setGoal(saved);
-      setEditing(false);
-      router.refresh();
+      try {
+        const saved = await saveWeeklyGoal(days, hours);
+        setGoal(saved);
+        setEditing(false);
+        router.refresh();
+      } catch {
+        setSaveError(t("form.saveError"));
+      }
     });
   }
 
@@ -54,7 +60,7 @@ export function WeeklyGoalCard({
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-1.5 text-base">
+          <CardTitle as="h2" className="flex items-center gap-1.5 text-base">
             <Target className="size-4" aria-hidden />
             {t("title")}
           </CardTitle>
@@ -73,6 +79,7 @@ export function WeeklyGoalCard({
                   setDays(Math.min(7, Math.max(1, Number(event.target.value) || 1)))
                 }
               />
+              <span className="text-muted-foreground text-xs">{t("form.daysHint")}</span>
             </div>
             <div className="flex flex-1 flex-col gap-2">
               <Label htmlFor="goal-hours">{t("form.hours")}</Label>
@@ -84,8 +91,10 @@ export function WeeklyGoalCard({
                 value={hours}
                 onChange={(event) => setHours(Math.max(0.5, Number(event.target.value) || 0.5))}
               />
+              <span className="text-muted-foreground text-xs">{t("form.hoursHint")}</span>
             </div>
           </div>
+          {saveError && <p className="text-destructive text-sm">{saveError}</p>}
           <div className="flex gap-2">
             <Button type="button" onClick={handleSave} disabled={isPending}>
               {isPending ? t("form.saving") : t("form.save")}
@@ -111,18 +120,14 @@ export function WeeklyGoalCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center justify-between text-base">
+        <CardTitle as="h2" className="flex items-center justify-between text-base">
           <span className="flex items-center gap-1.5">
             <Target className="size-4" aria-hidden />
             {t("title")}
           </span>
-          <button
-            type="button"
-            onClick={() => setEditing(true)}
-            className="text-muted-foreground hover:text-foreground text-xs underline underline-offset-4"
-          >
+          <Button type="button" variant="ghost" size="sm" onClick={() => setEditing(true)}>
             {t("edit")}
-          </button>
+          </Button>
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">

@@ -507,6 +507,7 @@ export function CreateStoryOverlay({
             variant="ghost"
             size="icon"
             onClick={handleBack}
+            aria-label={t("back")}
             className="text-white hover:bg-white/10 hover:text-white"
           >
             <ChevronLeft className="size-5" />
@@ -581,6 +582,7 @@ export function CreateStoryOverlay({
               min={1}
               max={3}
               step={0.01}
+              aria-label={t("zoomLabel")}
               onValueChange={handleZoomChange}
             />
           </div>
@@ -590,6 +592,7 @@ export function CreateStoryOverlay({
               <button
                 key={variant}
                 type="button"
+                aria-pressed={styleVariant === variant}
                 onClick={() => setStyleVariant(variant)}
                 className={`flex-1 rounded-full px-3 py-2 text-sm font-medium transition-colors ${
                   styleVariant === variant ? "bg-white text-black" : "bg-white/10 text-white"

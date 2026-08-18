@@ -51,7 +51,7 @@ export function CommunityManager({
 
       <button
         type="button"
-        className="border-border hover:bg-muted flex items-center justify-between gap-3 rounded-lg border p-4 text-left transition-colors"
+        className="border-border hover:bg-muted focus-visible:ring-ring/50 flex items-center justify-between gap-3 rounded-lg border p-4 text-left transition-colors focus-visible:ring-3 focus-visible:outline-none"
         onClick={() => setFriendsDialogOpen(true)}
       >
         <span className="flex items-center gap-2">

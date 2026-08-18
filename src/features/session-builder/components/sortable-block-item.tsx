@@ -27,15 +27,17 @@ export function SortableBlockItem({
       className="border-border bg-card hover:bg-muted flex items-center gap-3 rounded-lg border p-3 transition-colors"
       data-dragging={isDragging || undefined}
     >
-      <button
+      <Button
         type="button"
+        variant="ghost"
+        size="icon-sm"
         aria-label={t("reorder", { name: block.name })}
         className="text-muted-foreground hover:text-foreground cursor-grab touch-none active:cursor-grabbing"
         {...attributes}
         {...listeners}
       >
         <GripVertical className="size-4" />
-      </button>
+      </Button>
 
       <span
         className="size-2.5 shrink-0 rounded-full"

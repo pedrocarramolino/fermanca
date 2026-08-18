@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { resolveRuntimeState, type RuntimeBlock, type RuntimeState } from "@/core/domain/session-runtime";
 import { playNotificationSound, vibrate } from "@/features/session-timer/application/sounds";
 import {
@@ -53,6 +54,7 @@ export function useSessionRuntime({
   blocks: RuntimeBlockInput[];
   playbackSettings: PlaybackSettings;
 }) {
+  const t = useTranslations("SessionRunner");
   const [initial] = useState(() => {
     const index = findActiveIndex(blocks);
     const block = blocks[index];
@@ -101,6 +103,11 @@ export function useSessionRuntime({
   // Mientras está pausado, congelamos el "now" que ve resolveRuntimeState en
   // el instante de la pausa en vez de dejarlo avanzar con el reloj real.
   const [pausedAt, setPausedAt] = useState<Date | null>(initial.pausedAt);
+  // Las mutaciones de abajo (pausar, reanudar, confirmar fase, pedir tiempo,
+  // reordenar) ya actualizaron la UI de forma optimista antes de llamar al
+  // servidor — si la llamada falla, este mensaje es la única señal visible
+  // de que el estado local puede haberse desincronizado del guardado.
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   // El usuario ha pulsado "terminar fase ahora" antes de que se agote el
   // tiempo — a diferencia de una pausa, esto no es reversible con "reanudar":
   // fuerza el estado a "awaiting-confirmation" (con la hora exacta del click,
@@ -216,6 +223,7 @@ export function useSessionRuntime({
       nextStartedAt: clickedAt.toISOString(),
     }).catch((error: unknown) => {
       console.error("No se pudo guardar la transición de bloque", error);
+      setErrorMessage(t("transitionError"));
     });
 
     setActiveBlockIndex(activeBlockIndex + 1);
@@ -232,6 +240,7 @@ export function useSessionRuntime({
         .then(() => finishSession(sessionId, null))
         .catch((error: unknown) => {
           console.error("No se pudo finalizar la sesión", error);
+          setErrorMessage(t("transitionError"));
         })
         .finally(() => setFinishing(false));
       // activeBlockIndex ya queda >= blocks.length, así que
@@ -256,6 +265,7 @@ export function useSessionRuntime({
     announcedIndexRef.current = null;
     void extendActiveBlock(sessionId, blockId, seconds).catch((error: unknown) => {
       console.error("No se pudo ampliar el tiempo de la fase", error);
+      setErrorMessage(t("extendError"));
     });
   }
 
@@ -280,6 +290,7 @@ export function useSessionRuntime({
     void pauseActiveBlock(sessionId, activeBlock.id, runtimeState.remainingInActiveBlock).catch(
       (error: unknown) => {
         console.error("No se pudo pausar la fase", error);
+        setErrorMessage(t("pauseError"));
       },
     );
   }
@@ -307,6 +318,7 @@ export function useSessionRuntime({
     void resumeActiveBlock(sessionId, activeBlock.id, newStartedAt.toISOString(), remainingSeconds).catch(
       (error: unknown) => {
         console.error("No se pudo reanudar la fase", error);
+        setErrorMessage(t("resumeError"));
       },
     );
   }
@@ -359,6 +371,7 @@ export function useSessionRuntime({
     });
     void reorderSessionBlocks(sessionId, orderedBlockIds).catch((error: unknown) => {
       console.error("No se pudo reordenar las fases", error);
+      setErrorMessage(t("reorderError"));
     });
   }
 
@@ -399,5 +412,7 @@ export function useSessionRuntime({
     reorderBlocks,
     pauseTimer,
     resumeTimer,
+    errorMessage,
+    dismissError: () => setErrorMessage(null),
   };
 }

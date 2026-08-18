@@ -10,6 +10,7 @@
   },
   "Settings": {
     "title": "Ajustes",
+    "back": "Volver",
     "theme": {
       "title": "Tema",
       "light": "Claro",
@@ -101,6 +102,7 @@
     "greetingAfternoon": "Buenas tardes, {username}",
     "greetingEvening": "Buenas noches, {username}",
     "greetingNeutral": "Hola, {username}",
+    "greetingFallback": "Hola",
     "greetingQuestion": "¿Qué vas a conseguir hoy?",
     "activeSession": {
       "title": "Sesión en curso",
@@ -118,9 +120,12 @@
     "form": {
       "days": "Días a la semana",
       "hours": "Horas a la semana",
+      "daysHint": "Entre 1 y 7 días",
+      "hoursHint": "Mínimo 0,5 horas",
       "save": "Guardar objetivo",
       "saving": "Guardando…",
-      "cancel": "Cancelar"
+      "cancel": "Cancelar",
+      "saveError": "No se pudo guardar el objetivo. Inténtalo de nuevo."
     }
   },
   "SessionBuilder": {
@@ -182,7 +187,12 @@
     "delete": "Eliminar plantilla {name}",
     "renameTitle": "Renombrar plantilla",
     "renameSave": "Renombrar",
-    "renaming": "Renombrando…"
+    "renaming": "Renombrando…",
+    "deleteConfirmTitle": "¿Eliminar plantilla {name}?",
+    "deleteConfirmDescription": "Esta acción no se puede deshacer.",
+    "deleteConfirmCta": "Eliminar",
+    "deleting": "Eliminando…",
+    "deleteError": "No se pudo eliminar la plantilla. Inténtalo de nuevo."
   },
   "SaveTemplateDialog": {
     "createTitle": "Guardar como plantilla",
@@ -199,6 +209,7 @@
   },
   "History": {
     "title": "Historial",
+    "back": "Volver",
     "empty": "Todavía no has completado ninguna sesión.",
     "loading": "Cargando…",
     "loadMore": "Cargar más"
@@ -355,7 +366,12 @@
       "title": "Amigos",
       "empty": "Todavía no tienes amigos — pide el código de invitación de alguien y añádelo arriba.",
       "thisWeek": "esta semana",
-      "remove": "Dejar de ser amigo de {name}"
+      "remove": "Dejar de ser amigo de {name}",
+      "removeConfirmTitle": "¿Dejar de ser amigo de {name}?",
+      "removeConfirmDescription": "Esta acción no se puede deshacer.",
+      "removeConfirmCta": "Dejar de ser amigos",
+      "removing": "Eliminando…",
+      "removeError": "No se pudo eliminar la amistad. Inténtalo de nuevo."
     },
     "session": {
       "recentSessions": "Últimas sesiones",
@@ -428,7 +444,12 @@
     "finishPhaseNow": "Terminar fase ahora",
     "activateSound": "Activar sonido",
     "backHome": "Volver al inicio",
-    "practicingWith": "Practicando con @{name}"
+    "practicingWith": "Practicando con @{name}",
+    "transitionError": "No se pudo guardar el cambio de fase. Comprueba tu conexión.",
+    "extendError": "No se pudo ampliar el tiempo. Comprueba tu conexión.",
+    "pauseError": "No se pudo pausar. Comprueba tu conexión.",
+    "resumeError": "No se pudo reanudar. Comprueba tu conexión.",
+    "reorderError": "No se pudo guardar el nuevo orden. Comprueba tu conexión."
   },
   "SessionInvites": {
     "dialog": {
@@ -445,8 +466,12 @@
       "declined": "@{name} ha rechazado la invitación.",
       "cancelled": "Has cancelado la invitación.",
       "backToBuilder": "Volver",
+      "backHint": "La invitación seguirá activa en segundo plano.",
       "cancel": "Cancelar invitación",
-      "cancelling": "Cancelando…"
+      "cancelling": "Cancelando…",
+      "cancelConfirmTitle": "¿Cancelar la invitación?",
+      "cancelConfirmDescription": "Esta acción no se puede deshacer.",
+      "cancelConfirmCta": "Cancelar invitación"
     },
     "pending": {
       "title": "Invitaciones a practicar juntos",
@@ -454,7 +479,10 @@
       "summary": "{count, plural, one {# fase} other {# fases}} · {duration}",
       "accept": "Aceptar",
       "reject": "Rechazar",
-      "responding": "Respondiendo…"
+      "responding": "Respondiendo…",
+      "declineConfirmTitle": "¿Rechazar la invitación de @{name}?",
+      "declineConfirmDescription": "Esta acción no se puede deshacer.",
+      "declineConfirmCta": "Rechazar"
     },
     "notices": {
       "paused": "@{name} ha pausado la fase",
@@ -518,6 +546,7 @@
   "StoryCreator": {
     "trigger": "Crear Story con foto",
     "close": "Cerrar",
+    "back": "Volver",
     "capturePrompt": "Hazte una foto practicando",
     "captureButton": "Abrir cámara",
     "continueToPreview": "Continuar",

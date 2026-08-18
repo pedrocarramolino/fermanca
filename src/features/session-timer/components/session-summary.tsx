@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Camera } from "lucide-react";
+import { ArrowLeft, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -59,6 +59,21 @@ export function SessionSummary({
 
   return (
     <main className="mx-auto flex min-h-svh max-w-md flex-col items-center justify-center gap-6 p-8 text-center lg:max-w-lg xl:max-w-xl">
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-sm"
+        aria-label={t("backHome")}
+        render={<Link href="/" />}
+        nativeButton={false}
+        disabled={finishing}
+        aria-busy={finishing}
+        className="fixed left-4 z-10"
+        style={{ top: "calc(env(safe-area-inset-top, 0px) + 1rem)" }}
+      >
+        <ArrowLeft className="size-4" />
+      </Button>
+
       <h1 className="text-2xl font-semibold">{t("title")}</h1>
       <p className="text-muted-foreground">
         {t("practiced", { duration: formatDurationShort(totalSeconds), count: visibleBlocks.length })}

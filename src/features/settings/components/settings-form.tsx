@@ -188,6 +188,7 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
                 type="button"
                 variant={locale === option.value ? "default" : "outline"}
                 size="sm"
+                aria-pressed={locale === option.value}
                 onClick={() => handleLocaleChange(option.value)}
               >
                 {option.label}
@@ -212,6 +213,7 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
                 type="button"
                 variant={mounted && theme === option.value ? "default" : "outline"}
                 size="sm"
+                aria-pressed={mounted && theme === option.value}
                 onClick={() => handleThemeChange(option.value)}
               >
                 {option.label}
@@ -236,6 +238,7 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
                 type="button"
                 variant={visualStyle === option.value ? "default" : "outline"}
                 size="sm"
+                aria-pressed={visualStyle === option.value}
                 onClick={() => handleVisualStyleChange(option.value)}
               >
                 {option.label}
@@ -276,8 +279,9 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
                 key={key}
                 type="button"
                 aria-label={preset.label}
+                aria-pressed={accentColor === key}
                 onClick={() => handleAccentChange(key)}
-                className="ring-border ring-offset-background flex size-9 items-center justify-center rounded-full ring-1 ring-offset-2 transition-transform hover:scale-105"
+                className="ring-border ring-offset-background focus-visible:ring-ring/50 relative flex size-9 items-center justify-center rounded-full ring-1 ring-offset-2 transition-transform before:absolute before:-inset-1 before:content-[''] hover:scale-105 focus-visible:ring-3 focus-visible:outline-none"
                 style={{ backgroundColor: preset.swatch }}
               >
                 {accentColor === key && <Check className="size-4 text-white drop-shadow" />}
@@ -321,9 +325,9 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
         <CardContent className="flex flex-col gap-4">
           <div className="flex items-end gap-2">
             <div className="flex flex-1 flex-col gap-2">
-              <Label>{t("sound.label")}</Label>
+              <Label htmlFor="sound-select">{t("sound.label")}</Label>
               <Select value={sound} onValueChange={handleSoundChange}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger id="sound-select" className="w-full">
                   <SelectValue>{SOUND_LABELS[sound]}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
@@ -403,9 +407,9 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-2">
-            <Label>{t("alert.label")}</Label>
+            <Label htmlFor="alert-select">{t("alert.label")}</Label>
             <Select value={String(visualAlertDurationMs)} onValueChange={handleVisualAlertChange}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger id="alert-select" className="w-full">
                 <SelectValue>{`${visualAlertDurationMs / 1000} s`}</SelectValue>
               </SelectTrigger>
               <SelectContent>

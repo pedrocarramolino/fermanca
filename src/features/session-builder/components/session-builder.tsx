@@ -93,7 +93,7 @@ export function SessionBuilder({
     <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
       <Card>
         <CardHeader>
-          <CardTitle>{t("title")}</CardTitle>
+          <CardTitle as="h2">{t("title")}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <AddBlockForm
@@ -130,9 +130,11 @@ export function SessionBuilder({
                   disabled={isSavingChanges || draft.blocks.length === 0}
                   onClick={handleSaveChanges}
                 >
-                  {isSavingChanges
-                    ? t("saving")
-                    : t("saveChangesTo", { name: loadedTemplate.name })}
+                  <span className="max-w-48 truncate">
+                    {isSavingChanges
+                      ? t("saving")
+                      : t("saveChangesTo", { name: loadedTemplate.name })}
+                  </span>
                 </Button>
               )}
               <Button
@@ -157,7 +159,7 @@ export function SessionBuilder({
 
       <Card>
         <CardHeader>
-          <CardTitle>{t("savedTemplates")}</CardTitle>
+          <CardTitle as="h2">{t("savedTemplates")}</CardTitle>
         </CardHeader>
         <CardContent>
           <TemplateList
