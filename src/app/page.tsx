@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { AppHeader } from "@/components/app-header";
 import { HomeGreeting } from "@/components/home-greeting";
+import { LandingPage } from "@/components/landing-page";
 import { SessionBuilder } from "@/features/session-builder/components/session-builder";
 import { SessionHistoryItem } from "@/features/history/components/session-history-item";
 import {
@@ -21,6 +22,13 @@ const RECENT_SESSIONS_PREVIEW = 3;
 
 export default async function Home() {
   const { supabase, userId } = await getAuthenticatedUser();
+
+  // Sin sesión, "/" es la única página con contenido público de verdad que
+  // un buscador puede indexar (ver robots.ts/sitemap.ts) — antes se
+  // renderizaba igual el panel de la app, vacío y roto para quien no tiene
+  // cuenta todavía.
+  if (!userId) return <LandingPage />;
+
   const [t, tCommon] = await Promise.all([getTranslations("Home"), getTranslations("Common")]);
 
   const categoryRepo = new SupabaseCategoryRepository(supabase);

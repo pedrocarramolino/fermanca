@@ -24,6 +24,15 @@ const PUBLIC_ROUTES = [
 ];
 const PUBLIC_ROUTES_ALWAYS_ACCESSIBLE = ["/terms", "/privacy", "/compartir", "/community/join"];
 
+// "/" es pública (sin sesión, page.tsx ya renderiza la landing en vez del
+// panel) Y siempre accesible (con sesión, sigue siendo la home de siempre) —
+// pero no puede sumarse a los arrays de arriba: ahí se comparan con
+// `startsWith`, y "/" es prefijo de cualquier ruta, así que habría
+// convertido toda la app en pública.
+function isRoot(pathname: string): boolean {
+  return pathname === "/";
+}
+
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
@@ -50,7 +59,7 @@ export async function proxy(request: NextRequest) {
   const claims = data?.claims ?? null;
 
   const pathname = request.nextUrl.pathname;
-  const isPublicRoute = PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
+  const isPublicRoute = isRoot(pathname) || PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
 
   if (!claims && !isPublicRoute) {
     const redirectUrl = new URL("/login", request.url);
@@ -58,9 +67,8 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  const isAlwaysAccessible = PUBLIC_ROUTES_ALWAYS_ACCESSIBLE.some((route) =>
-    pathname.startsWith(route),
-  );
+  const isAlwaysAccessible =
+    isRoot(pathname) || PUBLIC_ROUTES_ALWAYS_ACCESSIBLE.some((route) => pathname.startsWith(route));
   if (claims && isPublicRoute && !isAlwaysAccessible) {
     return NextResponse.redirect(new URL("/", request.url));
   }
@@ -72,10 +80,16 @@ export const config = {
   matcher: [
     /*
      * Aplica a todas las rutas excepto assets estáticos, PWA (manifest,
-     * iconos, service worker), rutas internas de Next y /api (cada endpoint
-     * de API gestiona su propia autenticación — p. ej. /api/cron/reminders
-     * usa un bearer token fijo, no una sesión de usuario).
+     * iconos, service worker), rutas internas de Next, /api (cada endpoint
+     * gestiona su propia autenticación — p. ej. /api/cron/reminders usa un
+     * bearer token fijo, no una sesión de usuario), y las rutas de metadatos
+     * para SEO/redes (robots.txt, sitemap.xml, opengraph-image,
+     * twitter-image): las piden rastreadores sin cookies (Google, el
+     * previsualizador de enlaces de WhatsApp/Twitter...), así que también
+     * tienen que quedar fuera de la comprobación de sesión, no solo del
+     * listado de PUBLIC_ROUTES de arriba (ese solo decide qué ve un
+     * navegador real, esto decide qué ve el proxy siquiera).
      */
-    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|icon|apple-icon|sw.js|auth/callback|api/).*)",
+    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|icon|apple-icon|sw.js|auth/callback|api/|robots.txt|sitemap.xml|opengraph-image|twitter-image).*)",
   ],
 };

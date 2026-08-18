@@ -8,6 +8,32 @@
     "signOut": "Sign out",
     "footerCredit": "© {year} Pedro Carramolino · Original idea: Alejandro Mas"
   },
+  "Landing": {
+    "signIn": "Sign in",
+    "heroTitle": "Practice with intention, not on autopilot",
+    "heroSubtitle": "Organize your practice sessions into timed blocks that chain automatically, keep your streak going, and see how you progress week by week.",
+    "ctaPrimary": "Start for free",
+    "ctaSecondary": "I already have an account",
+    "finalCtaTitle": "Your next practice session, better organized",
+    "features": {
+      "sessions": {
+        "title": "Block-based sessions",
+        "description": "Warm-up, technique, repertoire... each block with its own time, chaining automatically until the session ends."
+      },
+      "streaks": {
+        "title": "Streaks and goals",
+        "description": "Set a weekly goal of hours or days and keep your practice streak going without losing sight of your progress."
+      },
+      "cooperative": {
+        "title": "Practice with friends",
+        "description": "Invite a friend and do the same session together, live, with a synced timer."
+      },
+      "stats": {
+        "title": "Stats by category",
+        "description": "How much you've practiced, on what, and how it evolves week by week and month by month."
+      }
+    }
+  },
   "Settings": {
     "title": "Settings",
     "back": "Back",

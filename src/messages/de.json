@@ -8,6 +8,32 @@
     "signOut": "Abmelden",
     "footerCredit": "© {year} Pedro Carramolino · Ursprüngliche Idee: Alejandro Mas"
   },
+  "Landing": {
+    "signIn": "Anmelden",
+    "heroTitle": "Übe mit Absicht, nicht auf Autopilot",
+    "heroSubtitle": "Organisiere deine Übungseinheiten in zeitlich begrenzten Blöcken, die automatisch aufeinanderfolgen, halte deine Serie am Laufen und sieh, wie du dich Woche für Woche entwickelst.",
+    "ctaPrimary": "Kostenlos starten",
+    "ctaSecondary": "Ich habe schon ein Konto",
+    "finalCtaTitle": "Deine nächste Übungseinheit, besser organisiert",
+    "features": {
+      "sessions": {
+        "title": "Sitzungen in Blöcken",
+        "description": "Aufwärmen, Technik, Repertoire... jeder Block mit eigener Zeit, die automatisch aufeinanderfolgen, bis die Sitzung endet."
+      },
+      "streaks": {
+        "title": "Serien und Ziele",
+        "description": "Setze dir ein Wochenziel aus Stunden oder Tagen und halte deine Übungsserie am Laufen, ohne den Fortschritt aus den Augen zu verlieren."
+      },
+      "cooperative": {
+        "title": "Mit Freunden üben",
+        "description": "Lade einen Freund ein und macht dieselbe Sitzung gemeinsam, live, mit synchronisiertem Timer."
+      },
+      "stats": {
+        "title": "Statistiken nach Kategorie",
+        "description": "Wie viel du geübt hast, woran, und wie es sich Woche für Woche und Monat für Monat entwickelt."
+      }
+    }
+  },
   "Settings": {
     "title": "Einstellungen",
     "back": "Zurück",

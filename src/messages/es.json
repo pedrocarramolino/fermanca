@@ -8,6 +8,32 @@
     "signOut": "Cerrar sesión",
     "footerCredit": "© {year} Pedro Carramolino · Idea original: Alejandro Mas"
   },
+  "Landing": {
+    "signIn": "Iniciar sesión",
+    "heroTitle": "Practica con intención, no a ciegas",
+    "heroSubtitle": "Organiza tus sesiones de práctica en bloques temporizados que se encadenan solos, mantén la racha y mira cuánto avanzas semana a semana.",
+    "ctaPrimary": "Empezar gratis",
+    "ctaSecondary": "Ya tengo cuenta",
+    "finalCtaTitle": "Tu próxima sesión de práctica, mejor organizada",
+    "features": {
+      "sessions": {
+        "title": "Sesiones por bloques",
+        "description": "Calentamiento, técnica, repertorio... cada bloque con su tiempo, encadenados solos hasta terminar la sesión."
+      },
+      "streaks": {
+        "title": "Rachas y objetivos",
+        "description": "Ponte un objetivo semanal de horas o días y mantén la racha de práctica sin perder de vista el progreso."
+      },
+      "cooperative": {
+        "title": "Practica con amigos",
+        "description": "Invita a un amigo y haced la misma sesión juntos, en directo, con el cronómetro sincronizado."
+      },
+      "stats": {
+        "title": "Estadísticas por categoría",
+        "description": "Cuánto has practicado, en qué, y cómo evoluciona semana a semana y mes a mes."
+      }
+    }
+  },
   "Settings": {
     "title": "Ajustes",
     "back": "Volver",
