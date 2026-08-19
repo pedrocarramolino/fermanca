@@ -8,6 +8,7 @@ import { Slider } from "@/components/ui/slider";
 import { formatDurationShort } from "@/core/domain/duration";
 import {
   getCurrentStreakDays,
+  getSessionPeerUsername,
   getSessionStartedAt,
   getSessionTemplateName,
 } from "@/features/session-timer/application/actions";
@@ -143,6 +144,7 @@ function StoryStatsPreview({
   blocks,
   streakDays,
   sessionName,
+  peerUsername,
   date,
   startedAt,
   endedAt,
@@ -154,14 +156,17 @@ function StoryStatsPreview({
   blocks: StoryBlock[];
   streakDays: number;
   sessionName: string | null;
+  peerUsername: string | null;
   date: Date;
   startedAt: Date | null;
   endedAt: Date | null;
   locale: string;
 }) {
+  const t = useTranslations("StoryCreator");
   const timeText = formatDurationShort(totalSeconds);
   const dateText = formatPreviewDate(date, locale);
   const timeRangeText = formatPreviewTimeRange(startedAt, endedAt, locale);
+  const peerText = peerUsername ? t("withFriend", { name: peerUsername }) : null;
   const visibleBlocks = blocks.slice(0, MAX_VISIBLE_BLOCKS_PREVIEW);
   const extraCount = blocks.length - visibleBlocks.length;
 
@@ -194,6 +199,7 @@ function StoryStatsPreview({
           <div className="text-4xl leading-none font-extrabold">{timeText}</div>
           <div className="mt-1 text-sm text-white/80">de práctica</div>
           {timeRangeText && <div className="mt-1 text-xs text-white/60">{timeRangeText}</div>}
+          {peerText && <div className="mt-1 text-xs text-white/60">{peerText}</div>}
         </div>
       </div>
     );
@@ -211,6 +217,7 @@ function StoryStatsPreview({
           {streakDays > 1 && (
             <div className="text-xs text-white/70">🔥 Racha de {streakDays} días</div>
           )}
+          {peerText && <div className="text-xs text-white/70">{peerText}</div>}
         </div>
         {visibleBlocks.length > 0 && (
           <div className="pointer-events-none absolute inset-x-4 bottom-4 rounded-xl bg-black/45 p-3 backdrop-blur-sm">
@@ -235,7 +242,7 @@ function StoryStatsPreview({
         </div>
         <div className="mt-1">{categoryRows}</div>
         <div className="mt-1 text-xs text-white/60">
-          {[dateText, timeRangeText, streakDays > 1 ? `🔥 ${streakDays} días` : null]
+          {[dateText, timeRangeText, streakDays > 1 ? `🔥 ${streakDays} días` : null, peerText]
             .filter(Boolean)
             .join(" · ")}
         </div>
@@ -268,6 +275,7 @@ export function CreateStoryOverlay({
   const [resultBlob, setResultBlob] = useState<Blob | null>(null);
   const [streakDays, setStreakDays] = useState(0);
   const [sessionName, setSessionName] = useState<string | null>(null);
+  const [peerUsername, setPeerUsername] = useState<string | null>(null);
   // Hora a la que empezó la sesión, para el rango "18:30–19:45" de la
   // imagen — null hasta que llega del servidor (o si falla la lectura, en
   // cuyo caso el rango se omite del todo, ver formatStoryTimeRange).
@@ -308,6 +316,11 @@ export function CreateStoryOverlay({
       .then((iso) => setStartedAt(iso ? new Date(iso) : null))
       .catch(() => {
         // Fallo de red — se omite el rango de horas del todo.
+      });
+    void getSessionPeerUsername(sessionId)
+      .then(setPeerUsername)
+      .catch(() => {
+        // Sesión no cooperativa o fallo de red — se omite quién más practicó.
       });
   }, [sessionId]);
 
@@ -439,6 +452,7 @@ export function CreateStoryOverlay({
         blocks,
         streakDays,
         sessionName,
+        peerUsername,
         date: captureDate,
         startedAt,
         endedAt,
@@ -568,6 +582,7 @@ export function CreateStoryOverlay({
               blocks={blocks}
               streakDays={streakDays}
               sessionName={sessionName}
+              peerUsername={peerUsername}
               date={captureDate}
               startedAt={startedAt}
               endedAt={endedAt}

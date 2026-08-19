@@ -283,6 +283,16 @@ export async function getSessionTemplateName(sessionId: string): Promise<string 
   return template?.name ?? null;
 }
 
+/** Username del amigo con quien se hizo la sesión, si era cooperativa — se
+ * usa en la Story con foto para que se note con quién se practicó. Sesiones
+ * normales (sin `linked_session_id`) devuelven null y esa línea se omite. */
+export async function getSessionPeerUsername(sessionId: string): Promise<string | null> {
+  const { userId, client } = await requireUserId();
+  const sessionRepo = new SupabaseSessionRepository(client);
+  const session = await sessionRepo.getById(sessionId as SessionId, userId);
+  return session?.linkedSessionPeerUsername ?? null;
+}
+
 /** Para el texto del botón de compartir — "racha de N días" es más
  * motivador que solo el tiempo practicado, así que se calcula aparte
  * (mismo cálculo que la pantalla de Rachas) en vez de mandarlo desde el

@@ -582,7 +582,8 @@
     "styleBold": "Auffällig",
     "zoomLabel": "Zoom",
     "save": "Speichern",
-    "share": "Teilen"
+    "share": "Teilen",
+    "withFriend": "Mit @{name}"
   },
   "SharedSession": {
     "title": "Übungssitzung",

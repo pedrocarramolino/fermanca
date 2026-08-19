@@ -80,6 +80,9 @@ interface StoryCardInput {
   blocks: { name: string; color: string; actualDurationSeconds: number }[];
   streakDays: number;
   sessionName: string | null;
+  /** Username del amigo con quien se hizo la sesión, si era cooperativa —
+   * null en sesiones normales, y esa línea se omite del todo. */
+  peerUsername: string | null;
   date: Date;
   /** Hora de inicio/fin de la sesión — se muestran como "18:30–19:45" junto
    * a la fecha. startedAt puede faltar (fallo de red al leerlo); en ese
@@ -183,6 +186,7 @@ function drawClassicLayout(
   const dateLineParts = [formatStoryDate(input.date, input.locale ?? "es")];
   if (timeRange) dateLineParts.push(timeRange);
   if (input.streakDays > 1) dateLineParts.push(`🔥 ${input.streakDays} días`);
+  if (input.peerUsername) dateLineParts.push(`Con @${input.peerUsername}`);
   ctx.fillText(truncateToWidth(ctx, dateLineParts.join(" · "), WIDTH - marginX * 2), marginX, y);
   y -= 64;
 
@@ -234,8 +238,9 @@ function drawMinimalLayout(
 ) {
   const centerX = WIDTH / 2;
   const timeRange = formatStoryTimeRange(input.startedAt, input.endedAt, input.locale ?? "es");
+  const peerText = input.peerUsername ? `Con @${input.peerUsername}` : null;
   const pillBottom = HEIGHT - 220;
-  const pillHeight = timeRange ? 234 : 190;
+  const pillHeight = (timeRange ? 234 : 190) + (peerText ? 36 : 0);
 
   ctx.font = "700 104px system-ui, sans-serif";
   const timeText = formatDurationShort(input.totalSeconds);
@@ -244,7 +249,8 @@ function drawMinimalLayout(
   const labelWidth = ctx.measureText("de práctica").width;
   ctx.font = "500 28px system-ui, sans-serif";
   const rangeWidth = timeRange ? ctx.measureText(timeRange).width : 0;
-  const pillWidth = Math.max(timeWidth, labelWidth, rangeWidth) + 120;
+  const peerWidth = peerText ? ctx.measureText(peerText).width : 0;
+  const pillWidth = Math.max(timeWidth, labelWidth, rangeWidth, peerWidth) + 120;
 
   const scrim = ctx.createRadialGradient(
     centerX,
@@ -271,7 +277,13 @@ function drawMinimalLayout(
   if (timeRange) {
     ctx.fillStyle = MUTED_ON_PHOTO;
     ctx.font = "500 28px system-ui, sans-serif";
-    ctx.fillText(timeRange, centerX, pillBottom - 2);
+    ctx.fillText(timeRange, centerX, pillBottom - (peerText ? 38 : 2));
+  }
+
+  if (peerText) {
+    ctx.fillStyle = MUTED_ON_PHOTO;
+    ctx.font = "500 28px system-ui, sans-serif";
+    ctx.fillText(peerText, centerX, pillBottom - 2);
   }
 
   if (input.streakDays > 1) {
@@ -318,6 +330,13 @@ function drawBoldLayout(
     ctx.font = "600 34px system-ui, sans-serif";
     ctx.fillStyle = MUTED_ON_PHOTO;
     ctx.fillText(`🔥 Racha de ${input.streakDays} días`, marginX, y);
+  }
+
+  if (input.peerUsername) {
+    y += 70;
+    ctx.font = "600 34px system-ui, sans-serif";
+    ctx.fillStyle = MUTED_ON_PHOTO;
+    ctx.fillText(`Con @${input.peerUsername}`, marginX, y);
   }
 
   // Panel translúcido con las categorías, apoyado en la zona baja — la foto

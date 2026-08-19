@@ -582,7 +582,8 @@
     "styleBold": "Destacado",
     "zoomLabel": "Zoom",
     "save": "Guardar",
-    "share": "Compartir"
+    "share": "Compartir",
+    "withFriend": "Con @{name}"
   },
   "SharedSession": {
     "title": "Sesión de práctica",
