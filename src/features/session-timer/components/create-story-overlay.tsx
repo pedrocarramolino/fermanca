@@ -512,7 +512,10 @@ export function CreateStoryOverlay({
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-black text-white">
-      <div className="flex items-center justify-between p-3">
+      <div
+        className="flex items-center justify-between p-3"
+        style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 0.75rem)" }}
+      >
         {step === "capture" ? (
           <span />
         ) : (
