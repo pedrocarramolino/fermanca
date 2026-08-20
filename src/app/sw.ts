@@ -104,6 +104,92 @@ interface ShowNotificationOptions extends NotificationOptions {
   vibrate?: number[];
 }
 
+// Contador del icono de la app (Badging API — navigator.setAppBadge), solo
+// visible con la PWA instalada en la pantalla de inicio (no en una pestaña
+// normal del navegador; Safari de iOS lo soporta desde 16.4, Firefox no lo
+// soporta en absoluto). El propio service worker se reinicia entre eventos
+// push, así que no puede llevar la cuenta en una variable en memoria — se
+// guarda en IndexedDB, lo único persistente al alcance de un service worker.
+const BADGE_DB_NAME = "fermanca-badge";
+const BADGE_STORE_NAME = "kv";
+const BADGE_COUNT_KEY = "count";
+
+function openBadgeDb(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(BADGE_DB_NAME, 1);
+    request.onupgradeneeded = () => {
+      request.result.createObjectStore(BADGE_STORE_NAME);
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error as unknown);
+  });
+}
+
+async function readBadgeCount(): Promise<number> {
+  try {
+    const db = await openBadgeDb();
+    return await new Promise((resolve) => {
+      const request = db.transaction(BADGE_STORE_NAME, "readonly").objectStore(BADGE_STORE_NAME).get(BADGE_COUNT_KEY);
+      request.onsuccess = () => resolve(typeof request.result === "number" ? request.result : 0);
+      request.onerror = () => resolve(0);
+    });
+  } catch {
+    return 0;
+  }
+}
+
+async function writeBadgeCount(count: number): Promise<void> {
+  try {
+    const db = await openBadgeDb();
+    await new Promise<void>((resolve) => {
+      const tx = db.transaction(BADGE_STORE_NAME, "readwrite");
+      tx.objectStore(BADGE_STORE_NAME).put(count, BADGE_COUNT_KEY);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => resolve();
+    });
+  } catch {
+    // Sin IndexedDB no se puede persistir el contador entre reinicios del
+    // service worker — el badge de este evento concreto igualmente se
+    // habrá puesto bien (ver applyBadge), solo se pierde el acumulado.
+  }
+}
+
+async function applyBadge(count: number): Promise<void> {
+  const nav = self.navigator as Navigator & {
+    setAppBadge?: (count?: number) => Promise<void>;
+    clearAppBadge?: () => Promise<void>;
+  };
+  try {
+    if (count > 0) {
+      await nav.setAppBadge?.(count);
+    } else {
+      await nav.clearAppBadge?.();
+    }
+  } catch {
+    // Badging API no soportada en este navegador/plataforma — no pasa nada,
+    // simplemente no habrá número sobre el icono.
+  }
+}
+
+async function incrementBadge(): Promise<void> {
+  const next = (await readBadgeCount()) + 1;
+  await writeBadgeCount(next);
+  await applyBadge(next);
+}
+
+async function clearBadge(): Promise<void> {
+  await writeBadgeCount(0);
+  await applyBadge(0);
+}
+
+/** Envoltorio de showNotification que además suma 1 al badge del icono —
+ * así cada rama del handler de 'push' no tiene que acordarse de hacerlo por
+ * su cuenta. */
+async function notifyAndBadge(title: string, options: ShowNotificationOptions): Promise<void> {
+  await self.registration.showNotification(title, options);
+  await incrementBadge();
+}
+
 self.addEventListener("push", (event: PushEvent) => {
   const payload: IncomingPushPayload = event.data?.json() ?? {
     kind: "reminder",
@@ -133,13 +219,13 @@ self.addEventListener("push", (event: PushEvent) => {
       vibrate: [300, 150, 300, 150, 300, 150, 600],
       requireInteraction: true,
     };
-    event.waitUntil(self.registration.showNotification(payload.title, options));
+    event.waitUntil(notifyAndBadge(payload.title, options));
     return;
   }
 
   if (payload.kind === "friend-request") {
     event.waitUntil(
-      self.registration.showNotification(payload.title, {
+      notifyAndBadge(payload.title, {
         body: payload.body,
         icon: "/icons/icon-192x192.png",
         badge: "/icons/icon-192x192.png",
@@ -152,7 +238,7 @@ self.addEventListener("push", (event: PushEvent) => {
 
   if (payload.kind === "announcement") {
     event.waitUntil(
-      self.registration.showNotification(payload.title, {
+      notifyAndBadge(payload.title, {
         body: payload.body,
         icon: "/icons/icon-192x192.png",
         badge: "/icons/icon-192x192.png",
@@ -165,7 +251,7 @@ self.addEventListener("push", (event: PushEvent) => {
 
   if (payload.kind === "session-invite") {
     event.waitUntil(
-      self.registration.showNotification(payload.title, {
+      notifyAndBadge(payload.title, {
         body: payload.body,
         icon: "/icons/icon-192x192.png",
         badge: "/icons/icon-192x192.png",
@@ -178,7 +264,7 @@ self.addEventListener("push", (event: PushEvent) => {
 
   if (payload.kind === "session-invite-accepted") {
     event.waitUntil(
-      self.registration.showNotification(payload.title, {
+      notifyAndBadge(payload.title, {
         body: payload.body,
         icon: "/icons/icon-192x192.png",
         badge: "/icons/icon-192x192.png",
@@ -191,7 +277,7 @@ self.addEventListener("push", (event: PushEvent) => {
 
   if (payload.kind === "session-coop-notice") {
     event.waitUntil(
-      self.registration.showNotification(payload.title, {
+      notifyAndBadge(payload.title, {
         body: payload.body,
         icon: "/icons/icon-192x192.png",
         badge: "/icons/icon-192x192.png",
@@ -205,7 +291,7 @@ self.addEventListener("push", (event: PushEvent) => {
   }
 
   event.waitUntil(
-    self.registration.showNotification(payload.title, {
+    notifyAndBadge(payload.title, {
       body: payload.body,
       icon: "/icons/icon-192x192.png",
       badge: "/icons/icon-192x192.png",
@@ -223,6 +309,10 @@ interface NotificationClickData {
 
 self.addEventListener("notificationclick", (event: NotificationEvent) => {
   event.notification.close();
+  // Tocar una notificación es una de las dos formas de "abrir la app" (la
+  // otra es tocar el propio icono, ver el listener de 'message' más abajo)
+  // — en cualquiera de las dos se da por vista y se limpia el contador.
+  event.waitUntil(clearBadge());
   const data = event.notification.data as NotificationClickData | undefined;
   const url = data?.url ?? "/";
 
@@ -265,4 +355,14 @@ self.addEventListener("notificationclick", (event: NotificationEvent) => {
       await self.clients.openWindow(url);
     })(),
   );
+});
+
+// Segunda forma de "dar por vista" el badge: la página lo pide directamente
+// al abrirse/pasar a primer plano (ver register-service-worker.tsx), sin
+// pasar por tocar una notificación concreta.
+self.addEventListener("message", (event: ExtendableMessageEvent) => {
+  const data = event.data as { type?: string } | undefined;
+  if (data?.type === "CLEAR_BADGE") {
+    event.waitUntil(clearBadge());
+  }
 });

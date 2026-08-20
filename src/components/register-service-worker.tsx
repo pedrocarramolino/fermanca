@@ -22,8 +22,26 @@ export function RegisterServiceWorker() {
       window.location.reload();
     }
     navigator.serviceWorker.addEventListener("controllerchange", handleControllerChange);
+
+    // Abrir la app (al cargarla o al volver a primer plano tras estar en
+    // segundo plano) cuenta como "ya has visto las notificaciones" — se
+    // avisa al service worker para que ponga a cero el contador del icono
+    // (ver el listener de 'message' en sw.ts; él es quien de verdad guarda
+    // el contador en IndexedDB, esta página no lo toca directamente).
+    function clearBadge() {
+      void navigator.serviceWorker.ready.then((registration) => {
+        registration.active?.postMessage({ type: "CLEAR_BADGE" });
+      });
+    }
+    function handleVisibilityChange() {
+      if (document.visibilityState === "visible") clearBadge();
+    }
+    clearBadge();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     return () => {
       navigator.serviceWorker.removeEventListener("controllerchange", handleControllerChange);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
 
