@@ -408,6 +408,32 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["session_events"]["Insert"]>;
         Relationships: [];
       };
+      session_shares: {
+        Row: {
+          id: string;
+          session_id: string;
+          owner_id: string;
+          owner_username: string;
+          owner_avatar_url: string | null;
+          started_at: string;
+          total_duration_seconds: number;
+          blocks: unknown;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          session_id: string;
+          owner_id: string;
+          owner_username: string;
+          owner_avatar_url?: string | null;
+          started_at: string;
+          total_duration_seconds: number;
+          blocks: unknown;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["session_shares"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

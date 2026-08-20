@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDurationShort } from "@/core/domain/duration";
 import { finishSession, listGhostCategoryIds } from "@/features/session-timer/application/actions";
 import { ShareSessionButton } from "@/features/session-timer/components/share-session-button";
+import { ShareToFeedButton } from "@/features/session-timer/components/share-to-feed-button";
 import { CreateStoryOverlay } from "@/features/session-timer/components/create-story-overlay";
 import type { RuntimeBlockInput } from "@/features/session-timer/hooks/use-session-runtime";
 
@@ -45,6 +46,7 @@ export function SessionSummary({
   const visibleBlocks = blocks.filter((block) => !ghostCategoryIds.includes(block.categoryId));
   const totalSeconds = visibleBlocks.reduce((total, block) => total + block.actualDurationSeconds, 0);
   const shareBlocks = visibleBlocks.map((block) => ({
+    id: block.id,
     name: block.name,
     color: block.color,
     actualDurationSeconds: block.actualDurationSeconds,
@@ -90,6 +92,7 @@ export function SessionSummary({
           <Camera className="size-4" />
           {tStory("trigger")}
         </Button>
+        <ShareToFeedButton sessionId={sessionId} blocks={shareBlocks} />
       </div>
 
       {storyOpen && (

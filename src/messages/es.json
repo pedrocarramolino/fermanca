@@ -122,8 +122,6 @@
     "reminders": "Avisos"
   },
   "Home": {
-    "recentSessions": "Últimas sesiones",
-    "viewAll": "Ver todo",
     "greetingMorning": "Buenos días, {username}",
     "greetingAfternoon": "Buenas tardes, {username}",
     "greetingEvening": "Buenas noches, {username}",
@@ -134,6 +132,21 @@
       "title": "Sesión en curso",
       "resume": "Continuar"
     }
+  },
+  "Feed": {
+    "title": "Feed",
+    "empty": "Todavía no hay nada por aquí — comparte una sesión o espera a que tus amigos compartan la suya.",
+    "blocksCount": "{count, plural, one {# bloque} other {# bloques}}",
+    "viewMore": "Ver {count} más",
+    "remove": "Eliminar del feed",
+    "removeConfirmTitle": "¿Quitar esta sesión del feed?",
+    "removeConfirmDescription": "Dejará de verse en el feed de tus amigos. Esta acción no se puede deshacer.",
+    "removeConfirmCta": "Quitar",
+    "removing": "Quitando…",
+    "shareToFeed": "Compartir en el Feed",
+    "unshare": "Quitar del feed",
+    "sharing": "Compartiendo…",
+    "unsharing": "Quitando…"
   },
   "WeeklyGoal": {
     "title": "Objetivo semanal",
@@ -291,7 +304,9 @@
     "tooltipPracticed": "Practicado",
     "tooltipTime": "Tiempo",
     "categoryOthers": "Otras",
-    "empty": "Todavía no has completado ninguna sesión. Empieza una desde el inicio para ver tus estadísticas aquí."
+    "empty": "Todavía no has completado ninguna sesión. Empieza una desde el inicio para ver tus estadísticas aquí.",
+    "recentSessions": "Últimas sesiones",
+    "viewAll": "Ver todo"
   },
   "Streaks": {
     "title": "Rachas",

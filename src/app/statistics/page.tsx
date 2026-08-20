@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { CalendarCheck, Clock, Hourglass } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
@@ -18,6 +19,9 @@ import { StatTile } from "@/features/statistics/components/stat-tile";
 import { WeeklyChart } from "@/features/statistics/components/weekly-chart";
 import { MonthlyTrendChart } from "@/features/statistics/components/monthly-trend-chart";
 import { CategoryBreakdownChart } from "@/features/statistics/components/category-breakdown-chart";
+import { SessionHistoryItem } from "@/features/history/components/session-history-item";
+
+const RECENT_SESSIONS_PREVIEW = 3;
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Statistics");
@@ -76,6 +80,22 @@ export default async function StatisticsPage() {
         <p className="border-border text-muted-foreground rounded-lg border border-dashed p-6 text-center text-sm">
           {t("empty")}
         </p>
+      )}
+
+      {sessions.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-foreground text-base font-semibold">{t("recentSessions")}</h2>
+            <Link href="/history" className="text-sm underline underline-offset-4">
+              {t("viewAll")}
+            </Link>
+          </div>
+          <div className="flex flex-col gap-2">
+            {sessions.slice(0, RECENT_SESSIONS_PREVIEW).map((session) => (
+              <SessionHistoryItem key={session.id} session={session} />
+            ))}
+          </div>
+        </div>
       )}
     </main>
   );

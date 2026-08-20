@@ -122,8 +122,6 @@
     "reminders": "Alerts"
   },
   "Home": {
-    "recentSessions": "Recent sessions",
-    "viewAll": "View all",
     "greetingMorning": "Good morning, {username}",
     "greetingAfternoon": "Good afternoon, {username}",
     "greetingEvening": "Good evening, {username}",
@@ -134,6 +132,21 @@
       "title": "Session in progress",
       "resume": "Resume"
     }
+  },
+  "Feed": {
+    "title": "Feed",
+    "empty": "Nothing here yet — share a session, or wait for a friend to share theirs.",
+    "blocksCount": "{count, plural, one {# block} other {# blocks}}",
+    "viewMore": "View {count} more",
+    "remove": "Remove from feed",
+    "removeConfirmTitle": "Remove this session from the feed?",
+    "removeConfirmDescription": "It will no longer be visible to your friends. This action cannot be undone.",
+    "removeConfirmCta": "Remove",
+    "removing": "Removing…",
+    "shareToFeed": "Share to Feed",
+    "unshare": "Remove from feed",
+    "sharing": "Sharing…",
+    "unsharing": "Removing…"
   },
   "WeeklyGoal": {
     "title": "Weekly goal",
@@ -291,7 +304,9 @@
     "tooltipPracticed": "Practiced",
     "tooltipTime": "Time",
     "categoryOthers": "Other",
-    "empty": "You haven't completed any sessions yet. Start one from Home to see your stats here."
+    "empty": "You haven't completed any sessions yet. Start one from Home to see your stats here.",
+    "recentSessions": "Recent sessions",
+    "viewAll": "View all"
   },
   "Streaks": {
     "title": "Streaks",

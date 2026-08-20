@@ -122,8 +122,6 @@
     "reminders": "Hinweise"
   },
   "Home": {
-    "recentSessions": "Letzte Sitzungen",
-    "viewAll": "Alle anzeigen",
     "greetingMorning": "Guten Morgen, {username}",
     "greetingAfternoon": "Guten Tag, {username}",
     "greetingEvening": "Guten Abend, {username}",
@@ -134,6 +132,21 @@
       "title": "Sitzung läuft",
       "resume": "Fortsetzen"
     }
+  },
+  "Feed": {
+    "title": "Feed",
+    "empty": "Hier ist noch nichts los — teile eine Sitzung oder warte, bis ein Freund seine teilt.",
+    "blocksCount": "{count, plural, one {# Block} other {# Blöcke}}",
+    "viewMore": "{count} mehr anzeigen",
+    "remove": "Aus dem Feed entfernen",
+    "removeConfirmTitle": "Diese Sitzung aus dem Feed entfernen?",
+    "removeConfirmDescription": "Sie ist dann nicht mehr für deine Freunde sichtbar. Diese Aktion kann nicht rückgängig gemacht werden.",
+    "removeConfirmCta": "Entfernen",
+    "removing": "Wird entfernt…",
+    "shareToFeed": "Im Feed teilen",
+    "unshare": "Aus dem Feed entfernen",
+    "sharing": "Wird geteilt…",
+    "unsharing": "Wird entfernt…"
   },
   "WeeklyGoal": {
     "title": "Wochenziel",
@@ -291,7 +304,9 @@
     "tooltipPracticed": "Geübt",
     "tooltipTime": "Zeit",
     "categoryOthers": "Andere",
-    "empty": "Du hast noch keine Sitzung abgeschlossen. Starte eine vom Start aus, um hier deine Statistik zu sehen."
+    "empty": "Du hast noch keine Sitzung abgeschlossen. Starte eine vom Start aus, um hier deine Statistik zu sehen.",
+    "recentSessions": "Letzte Sitzungen",
+    "viewAll": "Alle anzeigen"
   },
   "Streaks": {
     "title": "Serien",
