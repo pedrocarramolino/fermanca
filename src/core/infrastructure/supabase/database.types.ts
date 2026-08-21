@@ -15,7 +15,6 @@ export type SessionBlockStatus = "pending" | "active" | "completed" | "skipped";
 export type ThemePreference = "light" | "dark" | "system";
 export type SoundChoice = "classic" | "bell" | "metronome" | "piano" | "alarm" | "none";
 export type Locale = "es" | "en" | "de";
-export type VisualStyle = "classic" | "glass" | "minimal" | "futuristic";
 export type FriendshipStatus = "pending" | "accepted";
 export type SessionInviteStatus = "pending" | "accepted" | "declined" | "cancelled";
 export type SessionEventType =
@@ -215,7 +214,6 @@ export interface Database {
           accent_color: string | null;
           timezone: string;
           locale: Locale;
-          visual_style: VisualStyle;
           glass_intensity: number;
           updated_at: string;
         };
@@ -229,7 +227,6 @@ export interface Database {
           accent_color?: string | null;
           timezone?: string;
           locale?: Locale;
-          visual_style?: VisualStyle;
           glass_intensity?: number;
           updated_at?: string;
         };

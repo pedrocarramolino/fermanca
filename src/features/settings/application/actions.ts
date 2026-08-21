@@ -17,7 +17,7 @@ import type { UserId } from "@/core/domain/ids";
 const HEX_COLOR_PATTERN = /^#[0-9a-f]{6}$/i;
 
 /** `accentColor` no tiene columna con CHECK en BD (a diferencia de theme,
- * sound, visualStyle...) porque acepta tanto un preset como un hex libre —
+ * sound...) porque acepta tanto un preset como un hex libre —
  * y se interpola tal cual en un <style> del layout raíz (ver
  * accentOverrideCssFromHex), así que hay que validarlo aquí antes de
  * guardarlo. El <input type="color"> del navegador ya solo produce

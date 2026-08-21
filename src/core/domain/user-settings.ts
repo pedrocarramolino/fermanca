@@ -3,10 +3,6 @@ import type { UserId } from "@/core/domain/ids";
 export type ThemePreference = "light" | "dark" | "system";
 export type SoundChoice = "classic" | "bell" | "metronome" | "piano" | "alarm" | "none";
 export type Locale = "es" | "en" | "de";
-/** "glass" = Liquid Glass (vidrio esmerilado translúcido), "minimal" =
- * plano y silencioso (sin sombra, ring más tenue), "futuristic" = borde y
- * resplandor de neón en el color de acento. */
-export type VisualStyle = "classic" | "glass" | "minimal" | "futuristic";
 
 export interface UserSettings {
   ownerId: UserId;
@@ -21,7 +17,6 @@ export interface UserSettings {
   /** IANA (p. ej. "Europe/Madrid"). Se detecta sola en el navegador. */
   timezone: string;
   locale: Locale;
-  visualStyle: VisualStyle;
-  /** 0-100. Solo tiene efecto visible cuando visualStyle = "glass". */
+  /** 0-100 — único estilo visual de la app es Liquid Glass, permanente. */
   glassIntensity: number;
 }

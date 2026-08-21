@@ -43,12 +43,8 @@
       "dark": "Dark",
       "system": "System"
     },
-    "visualStyle": {
-      "title": "Visual style",
-      "classic": "Classic",
-      "glass": "Liquid Glass",
-      "minimal": "Minimal",
-      "futuristic": "Futuristic",
+    "glass": {
+      "title": "Liquid Glass",
       "intensity": "Effect intensity: {value}%"
     },
     "accent": {

@@ -37,18 +37,11 @@ import {
   unlockAudio,
   vibrate,
 } from "@/features/session-timer/application/sounds";
-import type {
-  Locale,
-  SoundChoice,
-  ThemePreference,
-  UserSettings,
-  VisualStyle,
-} from "@/core/domain/user-settings";
+import type { Locale, SoundChoice, ThemePreference, UserSettings } from "@/core/domain/user-settings";
 
 const VISUAL_ALERT_OPTIONS = [1500, 3000, 5000, 8000];
 const THEME_VALUES: ThemePreference[] = ["light", "dark", "system"];
 const LOCALE_VALUES: Locale[] = ["es", "en", "de"];
-const VISUAL_STYLE_VALUES: VisualStyle[] = ["classic", "glass", "minimal", "futuristic"];
 
 export function SettingsForm({ initialSettings }: { initialSettings: UserSettings }) {
   const t = useTranslations("Settings");
@@ -65,7 +58,6 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
   );
   const [accentColor, setAccentColor] = useState(initialSettings.accentColor);
   const [locale, setLocale] = useState(initialSettings.locale);
-  const [visualStyle, setVisualStyle] = useState(initialSettings.visualStyle);
   const [glassIntensity, setGlassIntensity] = useState(initialSettings.glassIntensity);
 
   const SOUND_LABELS: Record<SoundChoice, string> = {
@@ -85,10 +77,6 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
     value,
     label: t(`language.${value}`),
   }));
-
-  const VISUAL_STYLE_OPTIONS: { value: VisualStyle; label: string }[] = VISUAL_STYLE_VALUES.map(
-    (value) => ({ value, label: t(`visualStyle.${value}`) }),
-  );
 
   function handleThemeChange(value: ThemePreference) {
     setTheme(value);
@@ -136,21 +124,10 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
     });
   }
 
-  function handleVisualStyleChange(value: VisualStyle) {
-    setVisualStyle(value);
-    startTransition(async () => {
-      // Igual que accentColor: se lee en el layout raíz vía un atributo en
-      // <html>, en el servidor — sin refresh no se vería el cambio hasta la
-      // siguiente navegación.
-      await updateSettings({ visualStyle: value });
-      router.refresh();
-    });
-  }
-
   function handleGlassIntensityCommit(value: number) {
     startTransition(async () => {
-      // Igual que visualStyle: las variables --glass-* se inyectan en el
-      // servidor (layout raíz), así que hace falta refresh para verlas.
+      // Las variables --glass-* se inyectan en el servidor (layout raíz),
+      // así que hace falta refresh para verlas.
       await updateSettings({ glassIntensity: value });
       router.refresh();
     });
@@ -227,41 +204,23 @@ export function SettingsForm({ initialSettings }: { initialSettings: UserSetting
         <CardHeader>
           <CardTitle className="flex items-center gap-1.5 text-base">
             <Sparkles className="size-4" aria-hidden />
-            {t("visualStyle.title")}
+            {t("glass.title")}
           </CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <div className="flex flex-wrap gap-2">
-            {VISUAL_STYLE_OPTIONS.map((option) => (
-              <Button
-                key={option.value}
-                type="button"
-                variant={visualStyle === option.value ? "default" : "outline"}
-                size="sm"
-                aria-pressed={visualStyle === option.value}
-                onClick={() => handleVisualStyleChange(option.value)}
-              >
-                {option.label}
-              </Button>
-            ))}
+        <CardContent>
+          <div className="flex flex-col gap-2">
+            <Label>{t("glass.intensity", { value: glassIntensity })}</Label>
+            <Slider
+              value={[glassIntensity]}
+              min={0}
+              max={100}
+              step={5}
+              onValueChange={(value) => setGlassIntensity(Array.isArray(value) ? value[0]! : value)}
+              onValueCommitted={(value) =>
+                handleGlassIntensityCommit(Array.isArray(value) ? value[0]! : value)
+              }
+            />
           </div>
-          {visualStyle === "glass" && (
-            <div className="flex flex-col gap-2">
-              <Label>{t("visualStyle.intensity", { value: glassIntensity })}</Label>
-              <Slider
-                value={[glassIntensity]}
-                min={0}
-                max={100}
-                step={5}
-                onValueChange={(value) =>
-                  setGlassIntensity(Array.isArray(value) ? value[0]! : value)
-                }
-                onValueCommitted={(value) =>
-                  handleGlassIntensityCommit(Array.isArray(value) ? value[0]! : value)
-                }
-              />
-            </div>
-          )}
         </CardContent>
       </Card>
 

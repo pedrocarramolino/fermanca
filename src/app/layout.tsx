@@ -119,7 +119,10 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      data-style={settings?.visualStyle ?? "classic"}
+      // Único estilo visual de la app — antes era elegible en Ajustes
+      // (Clásico/Liquid Glass/Minimalista/Futurista); ahora Liquid Glass es
+      // permanente, así que el atributo ya no se lee de ajustes del usuario.
+      data-style="glass"
       // Si el usuario tiene un tema explícito guardado (no "system"), se
       // pinta ya en el HTML del servidor en vez de esperar al script anti-
       // flash de <head> — ese script evita el flash en una pestaña normal,

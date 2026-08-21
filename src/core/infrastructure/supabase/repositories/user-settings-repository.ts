@@ -15,7 +15,6 @@ const DEFAULTS: Omit<UserSettings, "ownerId"> = {
   accentColor: null,
   timezone: "UTC",
   locale: "es",
-  visualStyle: "classic",
   glassIntensity: 100,
 };
 
@@ -31,7 +30,6 @@ function toDomain(ownerId: UserId, row: Row | null): UserSettings {
     accentColor: row.accent_color,
     timezone: row.timezone,
     locale: row.locale,
-    visualStyle: row.visual_style,
     glassIntensity: row.glass_intensity,
   };
 }
@@ -69,7 +67,6 @@ export class SupabaseUserSettingsRepository implements UserSettingsRepository {
         accent_color: merged.accentColor,
         timezone: merged.timezone,
         locale: merged.locale,
-        visual_style: merged.visualStyle,
         glass_intensity: merged.glassIntensity,
       })
       .select("*")
