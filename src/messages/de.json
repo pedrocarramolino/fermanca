@@ -429,6 +429,11 @@
       "add": "Hinzufügen",
       "sending": "Wird gesendet…"
     },
+    "suggestions": {
+      "title": "Vorgeschlagene Freunde",
+      "mutualCount": "{count, plural, one {# gemeinsamer Freund} other {# gemeinsame Freunde}}",
+      "add": "{name} hinzufügen"
+    },
     "invite": {
       "title": "Dein Einladungscode",
       "copy": "Kopieren",

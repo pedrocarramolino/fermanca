@@ -324,3 +324,71 @@ export async function getFriendsOfFriend(friendOwnerId: string): Promise<FriendO
   }
   return results;
 }
+
+export interface SuggestedFriend {
+  ownerId: string;
+  username: string;
+  avatarUrl: string | null;
+  /** Cuántos de tus amigos ya son amigos de esta persona — el único criterio
+   * de orden hoy (no hay ninguna señal de "activo recientemente" guardada). */
+  mutualCount: number;
+}
+
+const MAX_SUGGESTED_FRIENDS = 10;
+
+/**
+ * "Amigos de tus amigos" agregado sobre TODOS tus amigos aceptados, no uno
+ * en concreto (a diferencia de getFriendsOfFriend, que es por amigo y
+ * alimenta el diálogo de un amigo individual) — para el apartado de
+ * sugerencias de Comunidad, así no hace falta compartir un código/enlace
+ * para encontrar gente con quien ya tienes amigos en común. Mismo patrón de
+ * las demás consultas "entre usuarios": tu propia lista de amistades decide
+ * quién excluir (ya amigo, o solicitud pendiente en cualquier sentido) con
+ * tu cliente normal; la travesía de las amistades de cada amigo tuyo (que
+ * RLS no te deja ver directamente) va con la clave de servicio, y el
+ * resultado nunca expone más que username/avatar/el recuento.
+ */
+export async function listSuggestedFriends(): Promise<SuggestedFriend[]> {
+  const { userId, client } = await requireUserId();
+
+  const myFriendships = await new SupabaseFriendshipRepository(client).listByOwner(userId);
+  const myAcceptedFriendIds = myFriendships
+    .filter((f) => f.status === "accepted")
+    .map((f) => (f.requesterId === userId ? f.addresseeId : f.requesterId));
+  if (myAcceptedFriendIds.length === 0) return [];
+
+  // Cualquiera con quien ya tengas una fila en friendships (aceptada o
+  // pendiente, en cualquier sentido) no debe sugerirse — ya sois amigos, o
+  // ya hay una solicitud en curso entre vosotros.
+  const excludedIds = new Set(
+    myFriendships.map((f) => (f.requesterId === userId ? f.addresseeId : f.requesterId)),
+  );
+
+  const serviceClient = createServiceClient();
+  const friendshipRepo = new SupabaseFriendshipRepository(serviceClient);
+
+  const mutualCounts = new Map<UserId, number>();
+  for (const friendId of myAcceptedFriendIds) {
+    const theirFriendships = await friendshipRepo.listByOwner(friendId);
+    for (const f of theirFriendships) {
+      if (f.status !== "accepted") continue;
+      const otherId = f.requesterId === friendId ? f.addresseeId : f.requesterId;
+      if (otherId === userId || excludedIds.has(otherId)) continue;
+      mutualCounts.set(otherId, (mutualCounts.get(otherId) ?? 0) + 1);
+    }
+  }
+
+  const topCandidateIds = [...mutualCounts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, MAX_SUGGESTED_FRIENDS);
+  if (topCandidateIds.length === 0) return [];
+
+  const profileRepo = new SupabaseProfileRepository(serviceClient);
+  const results: SuggestedFriend[] = [];
+  for (const [ownerId, mutualCount] of topCandidateIds) {
+    const profile = await profileRepo.getByOwnerId(ownerId);
+    if (!profile) continue;
+    results.push({ ownerId, username: profile.username, avatarUrl: profile.avatarUrl, mutualCount });
+  }
+  return results;
+}
