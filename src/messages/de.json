@@ -195,7 +195,6 @@
     "deleteConfirmCta": "Löschen",
     "deleting": "Wird gelöscht…",
     "deleteError": "Die Kategorie konnte nicht gelöscht werden. Sie wird möglicherweise bereits in einer Sitzung oder Vorlage verwendet.",
-    "blockName": "Blockname",
     "minutes": "Minuten",
     "add": "Hinzufügen"
   },
@@ -561,7 +560,6 @@
     "category": "Kategorie",
     "categoryPlaceholder": "Kategorie wählen",
     "newCategory": "Neue Kategorie…",
-    "phaseName": "Name der Phase",
     "minutes": "Minuten",
     "add": "Phase hinzufügen",
     "adding": "Wird hinzugefügt…",

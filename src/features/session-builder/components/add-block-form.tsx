@@ -57,9 +57,6 @@ export function AddBlockForm({
   const t = useTranslations("AddBlockForm");
   const tCategories = useTranslations("Categories");
   const [categoryId, setCategoryId] = useState<string>(categories[0]?.id ?? "");
-  const [name, setName] = useState(
-    categories[0] ? categoryDisplayName(categories[0], tCategories) : "",
-  );
   const [minutes, setMinutes] = useState(10);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<CustomCategory | null>(null);
@@ -76,19 +73,15 @@ export function AddBlockForm({
       return;
     }
     setCategoryId(value);
-    const category = categories.find((c) => c.id === value);
-    if (category) setName(categoryDisplayName(category, tCategories));
   }
 
   function handleCategoryCreated(category: CustomCategory) {
     onCategoryCreated(category);
     setCategoryId(category.id);
-    setName(categoryDisplayName(category, tCategories));
   }
 
   function handleCategoryUpdated(category: CustomCategory) {
     onCategoryUpdated(category);
-    if (categoryId === category.id) setName(categoryDisplayName(category, tCategories));
   }
 
   function handleConfirmDelete() {
@@ -103,7 +96,6 @@ export function AddBlockForm({
         if (categoryId === deletedId) {
           const fallback = categories.find((c) => c.id !== deletedId) ?? null;
           setCategoryId(fallback?.id ?? "");
-          setName(fallback ? categoryDisplayName(fallback, tCategories) : "");
         }
       } catch {
         setDeleteError(t("deleteError"));
@@ -113,10 +105,10 @@ export function AddBlockForm({
 
   function handleAdd() {
     const category = categories.find((c) => c.id === categoryId);
-    if (!category || !name.trim() || minutes <= 0) return;
+    if (!category || minutes <= 0) return;
     onAdd({
       categoryId: category.id,
-      name: name.trim(),
+      name: categoryDisplayName(category, tCategories),
       durationSeconds: Math.round(minutes * 60),
       color: category.color,
     });
@@ -184,17 +176,13 @@ export function AddBlockForm({
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col gap-2">
-        <Label htmlFor="block-name">{t("blockName")}</Label>
-        <Input id="block-name" value={name} onChange={(event) => setName(event.target.value)} />
-      </div>
-
       <div className="flex flex-1 flex-col gap-2 sm:min-w-56">
         <Label htmlFor="block-minutes">{t("minutes")}</Label>
         <div className="flex items-center gap-3">
           <Slider
             className="flex-1"
             aria-label={t("minutes")}
+            accentColor={selectedCategory?.color}
             value={[Math.min(Math.max(minutes, 5), 120)]}
             min={5}
             max={120}
@@ -228,11 +216,7 @@ export function AddBlockForm({
         </div>
       </div>
 
-      <Button
-        type="button"
-        onClick={handleAdd}
-        disabled={!categoryId || !name.trim() || minutes <= 0}
-      >
+      <Button type="button" onClick={handleAdd} disabled={!categoryId || minutes <= 0}>
         <Plus className="size-4" />
         {t("add")}
       </Button>

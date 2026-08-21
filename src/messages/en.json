@@ -195,7 +195,6 @@
     "deleteConfirmCta": "Delete",
     "deleting": "Deleting…",
     "deleteError": "Couldn't delete the category. It may already be used in a session or template.",
-    "blockName": "Block name",
     "minutes": "Minutes",
     "add": "Add"
   },
@@ -561,7 +560,6 @@
     "category": "Category",
     "categoryPlaceholder": "Choose a category",
     "newCategory": "New category…",
-    "phaseName": "Phase name",
     "minutes": "Minutes",
     "add": "Add phase",
     "adding": "Adding…",

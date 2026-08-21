@@ -9,8 +9,10 @@ function Slider({
   min = 0,
   max = 100,
   "aria-label": ariaLabel,
+  accentColor,
+  style,
   ...props
-}: SliderPrimitive.Root.Props & { "aria-label"?: string }) {
+}: SliderPrimitive.Root.Props & { "aria-label"?: string; accentColor?: string }) {
   const _values = Array.isArray(value)
     ? value
     : Array.isArray(defaultValue)
@@ -19,7 +21,17 @@ function Slider({
 
   return (
     <SliderPrimitive.Root
-      className={cn("data-horizontal:w-full data-vertical:h-full", className)}
+      // El color por defecto es --primary (variable con ese mismo nombre,
+      // como fallback); accentColor lo pisa vía --slider-accent inline, que
+      // por especificidad siempre gana sobre la clase de abajo en este mismo
+      // elemento — así un slider normal (volumen, intensidad del cristal…)
+      // no cambia nada, y solo el que pase accentColor (p. ej. el de minutos
+      // de un bloque, con el color de su categoría) se pinta distinto.
+      className={cn(
+        "data-horizontal:w-full data-vertical:h-full [--slider-accent:var(--primary)]",
+        className,
+      )}
+      style={accentColor ? ({ ...style, "--slider-accent": accentColor } as React.CSSProperties) : style}
       data-slot="slider"
       defaultValue={defaultValue}
       value={value}
@@ -35,7 +47,7 @@ function Slider({
         >
           <SliderPrimitive.Indicator
             data-slot="slider-range"
-            className="bg-primary select-none data-horizontal:h-full data-vertical:w-full"
+            className="bg-(--slider-accent) select-none data-horizontal:h-full data-vertical:w-full"
           />
         </SliderPrimitive.Track>
         {Array.from({ length: _values.length }, (_, index) => (
@@ -43,7 +55,7 @@ function Slider({
             data-slot="slider-thumb"
             key={index}
             getAriaLabel={ariaLabel ? () => ariaLabel : undefined}
-            className="border-ring ring-ring/50 relative block size-3 shrink-0 rounded-full border bg-white transition-[color,box-shadow] select-none after:absolute after:-inset-2 hover:ring-3 focus-visible:ring-3 focus-visible:outline-hidden active:ring-3 disabled:pointer-events-none disabled:opacity-50"
+            className="border-(--slider-accent) ring-(--slider-accent)/50 relative block size-3 shrink-0 rounded-full border bg-white transition-[color,box-shadow] select-none after:absolute after:-inset-2 hover:ring-3 focus-visible:ring-3 focus-visible:outline-hidden active:ring-3 disabled:pointer-events-none disabled:opacity-50"
           />
         ))}
       </SliderPrimitive.Control>

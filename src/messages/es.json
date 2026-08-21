@@ -195,7 +195,6 @@
     "deleteConfirmCta": "Borrar",
     "deleting": "Borrando…",
     "deleteError": "No se pudo borrar la categoría. Puede que ya se haya usado en alguna sesión o plantilla.",
-    "blockName": "Nombre del bloque",
     "minutes": "Minutos",
     "add": "Añadir"
   },
@@ -561,7 +560,6 @@
     "category": "Categoría",
     "categoryPlaceholder": "Elige una categoría",
     "newCategory": "Nueva categoría…",
-    "phaseName": "Nombre de la fase",
     "minutes": "Minutos",
     "add": "Añadir fase",
     "adding": "Añadiendo…",

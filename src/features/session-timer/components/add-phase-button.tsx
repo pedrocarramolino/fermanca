@@ -59,7 +59,6 @@ export function AddPhaseButton({
   const [open, setOpen] = useState(false);
   const [categories, setCategories] = useState<Category[] | null>(null);
   const [categoryId, setCategoryId] = useState("");
-  const [name, setName] = useState("");
   const [minutes, setMinutes] = useState(10);
   const [createCategoryOpen, setCreateCategoryOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -72,10 +71,7 @@ export function AddPhaseButton({
     if (categories === null) {
       void listSessionCategories().then((result) => {
         setCategories(result);
-        if (result[0]) {
-          setCategoryId(result[0].id);
-          setName(categoryDisplayName(result[0], tCategories));
-        }
+        if (result[0]) setCategoryId(result[0].id);
       });
     }
   }
@@ -87,24 +83,21 @@ export function AddPhaseButton({
       return;
     }
     setCategoryId(value);
-    const category = categories?.find((c) => c.id === value);
-    if (category) setName(categoryDisplayName(category, tCategories));
   }
 
   function handleCategoryCreated(category: CustomCategory) {
     setCategories((prev) => (prev ? [...prev, category] : [category]));
     setCategoryId(category.id);
-    setName(category.name);
   }
 
   async function handleAdd() {
-    if (!selectedCategory || !name.trim() || minutes <= 0) return;
+    if (!selectedCategory || minutes <= 0) return;
     setIsSaving(true);
     setError(null);
     try {
       await onAdd({
         categoryId: selectedCategory.id,
-        name: name.trim(),
+        name: categoryDisplayName(selectedCategory, tCategories),
         color: selectedCategory.color,
         plannedDurationSeconds: Math.round(minutes * 60),
         beforeBlockId: null,
@@ -166,20 +159,12 @@ export function AddPhaseButton({
               </div>
 
               <div className="flex flex-col gap-2">
-                <Label htmlFor="phase-name">{t("phaseName")}</Label>
-                <Input
-                  id="phase-name"
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                />
-              </div>
-
-              <div className="flex flex-col gap-2">
                 <Label htmlFor="phase-minutes">{t("minutes")}</Label>
                 <div className="flex items-center gap-3">
                   <Slider
                     className="flex-1"
                     aria-label={t("minutes")}
+                    accentColor={selectedCategory?.color}
                     value={[Math.min(Math.max(minutes, 5), 120)]}
                     min={5}
                     max={120}
@@ -221,7 +206,7 @@ export function AddPhaseButton({
             <Button
               type="button"
               onClick={handleAdd}
-              disabled={isSaving || !categoryId || !name.trim() || categories === null}
+              disabled={isSaving || !categoryId || categories === null}
             >
               {isSaving ? t("adding") : t("add")}
             </Button>
