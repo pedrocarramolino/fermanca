@@ -494,7 +494,8 @@
     "extendError": "Die Zeit konnte nicht verlängert werden. Prüfe deine Verbindung.",
     "pauseError": "Pausieren fehlgeschlagen. Prüfe deine Verbindung.",
     "resumeError": "Fortsetzen fehlgeschlagen. Prüfe deine Verbindung.",
-    "reorderError": "Die neue Reihenfolge konnte nicht gespeichert werden. Prüfe deine Verbindung."
+    "reorderError": "Die neue Reihenfolge konnte nicht gespeichert werden. Prüfe deine Verbindung.",
+    "removeError": "Die Phase konnte nicht entfernt werden. Prüfe deine Verbindung."
   },
   "SessionInvites": {
     "dialog": {
@@ -567,7 +568,9 @@
   },
   "RemainingPhases": {
     "title": "Anstehende Phasen — zum Umordnen ziehen",
-    "reorder": "{name} neu anordnen"
+    "reorder": "{name} neu anordnen",
+    "remove": "{name} entfernen",
+    "deleteLabel": "Löschen"
   },
   "QuickNote": {
     "label": "Kurze Notiz zu \"{name}\"",

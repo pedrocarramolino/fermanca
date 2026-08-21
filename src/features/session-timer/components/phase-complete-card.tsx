@@ -14,6 +14,7 @@ export function PhaseCompleteCard({
   onAddTime,
   onAddPhase,
   onReorderPhases,
+  onRemovePhase,
 }: {
   completedBlock: RuntimeBlockInput;
   nextBlock: RuntimeBlockInput | null;
@@ -28,6 +29,7 @@ export function PhaseCompleteCard({
     beforeBlockId: string | null;
   }) => Promise<void>;
   onReorderPhases: (orderedBlockIds: string[]) => void;
+  onRemovePhase: (blockId: string) => void;
 }) {
   const t = useTranslations("PhaseComplete");
 
@@ -61,7 +63,11 @@ export function PhaseCompleteCard({
 
       <AddPhaseButton onAdd={onAddPhase} />
 
-      <RemainingPhasesList blocks={remainingBlocks} onReorder={onReorderPhases} />
+      <RemainingPhasesList
+        blocks={remainingBlocks}
+        onReorder={onReorderPhases}
+        onRemove={onRemovePhase}
+      />
 
       <div className="flex flex-col items-center gap-2">
         <p className="text-muted-foreground text-xs">

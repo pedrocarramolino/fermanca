@@ -12,6 +12,7 @@ import {
   resumeActiveBlock,
   insertSessionBlock,
   reorderSessionBlocks,
+  removeSessionBlock,
 } from "@/features/session-timer/application/actions";
 import type { SoundChoice } from "@/core/domain/user-settings";
 import type { SessionBlockStatus } from "@/core/domain/session";
@@ -375,6 +376,16 @@ export function useSessionRuntime({
     });
   }
 
+  /** Quita una fase pendiente (deslizar en RemainingPhasesList) — igual que
+   * reorderBlocks, optimista: se quita ya de la UI y la petición va detrás. */
+  function removeBlock(blockId: string) {
+    setDynamicBlocks((prev) => prev.filter((block) => block.id !== blockId));
+    void removeSessionBlock(sessionId, blockId).catch((error: unknown) => {
+      console.error("No se pudo eliminar la fase", error);
+      setErrorMessage(t("removeError"));
+    });
+  }
+
   const confirmNextPhaseRef = useRef(confirmNextPhase);
   useEffect(() => {
     confirmNextPhaseRef.current = confirmNextPhase;
@@ -410,6 +421,7 @@ export function useSessionRuntime({
     addExtraTime,
     addBlock,
     reorderBlocks,
+    removeBlock,
     pauseTimer,
     resumeTimer,
     errorMessage,

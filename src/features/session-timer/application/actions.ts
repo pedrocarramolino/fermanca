@@ -14,12 +14,14 @@ import {
 } from "@/core/infrastructure/qstash/client";
 import {
   getCoopPeer,
+  mirrorDeleteBlock,
   mirrorExtend,
   mirrorInsertBlock,
   mirrorPause,
   mirrorReorderBlocks,
   mirrorResume,
   mirrorTransition,
+  resolveCoopDeleteTarget,
   resolveCoopInsertTarget,
   resolveCoopReorderTarget,
 } from "@/features/session-timer/application/coop-mirror";
@@ -420,6 +422,43 @@ export async function reorderSessionBlocks(sessionId: string, orderedBlockIds: s
       userId,
       await actorUsername(client, userId),
       coopTarget.peerOrderedBlockIds,
+    );
+  }
+}
+
+/**
+ * Quita una fase todavía pendiente (deslizar en RemainingPhasesList). Mismas
+ * salvaguardas que insertSessionBlock/reorderSessionBlocks: rechaza sesiones
+ * que ya no estén en curso; el repositorio, a su vez, solo borra si el
+ * bloque sigue en `pending` (nunca uno activo o completado).
+ */
+export async function removeSessionBlock(sessionId: string, blockId: string) {
+  const { userId, client } = await requireUserId();
+  const repo = new SupabaseSessionRepository(client);
+
+  const session = await repo.getById(sessionId as SessionId, userId);
+  if (!session || session.status !== "in_progress") {
+    throw new Error("La sesión no está en curso.");
+  }
+
+  // Igual que insertar/reordenar: se resuelve el gemelo ANTES de borrar aquí.
+  const coopTarget = await resolveCoopDeleteTarget(
+    client,
+    sessionId as SessionId,
+    userId,
+    blockId as SessionBlockId,
+  );
+
+  await repo.deleteBlock(blockId as SessionBlockId, userId);
+
+  if (coopTarget) {
+    await mirrorDeleteBlock(
+      client,
+      coopTarget.peer,
+      sessionId as SessionId,
+      userId,
+      await actorUsername(client, userId),
+      coopTarget.peerBlockId,
     );
   }
 }

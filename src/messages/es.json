@@ -494,7 +494,8 @@
     "extendError": "No se pudo ampliar el tiempo. Comprueba tu conexión.",
     "pauseError": "No se pudo pausar. Comprueba tu conexión.",
     "resumeError": "No se pudo reanudar. Comprueba tu conexión.",
-    "reorderError": "No se pudo guardar el nuevo orden. Comprueba tu conexión."
+    "reorderError": "No se pudo guardar el nuevo orden. Comprueba tu conexión.",
+    "removeError": "No se pudo eliminar la fase. Comprueba tu conexión."
   },
   "SessionInvites": {
     "dialog": {
@@ -567,7 +568,9 @@
   },
   "RemainingPhases": {
     "title": "Fases pendientes — arrastra para reordenar",
-    "reorder": "Reordenar {name}"
+    "reorder": "Reordenar {name}",
+    "remove": "Eliminar {name}",
+    "deleteLabel": "Eliminar"
   },
   "QuickNote": {
     "label": "Nota rápida sobre \"{name}\"",

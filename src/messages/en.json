@@ -494,7 +494,8 @@
     "extendError": "Couldn't extend the time. Check your connection.",
     "pauseError": "Couldn't pause. Check your connection.",
     "resumeError": "Couldn't resume. Check your connection.",
-    "reorderError": "Couldn't save the new order. Check your connection."
+    "reorderError": "Couldn't save the new order. Check your connection.",
+    "removeError": "Couldn't remove the phase. Check your connection."
   },
   "SessionInvites": {
     "dialog": {
@@ -567,7 +568,9 @@
   },
   "RemainingPhases": {
     "title": "Upcoming phases — drag to reorder",
-    "reorder": "Reorder {name}"
+    "reorder": "Reorder {name}",
+    "remove": "Remove {name}",
+    "deleteLabel": "Delete"
   },
   "QuickNote": {
     "label": "Quick note about \"{name}\"",

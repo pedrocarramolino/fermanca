@@ -95,6 +95,9 @@ export interface SessionRepository {
     ownerId: UserId,
     orderedBlockIds: SessionBlockId[],
   ): Promise<void>;
+  /** Quita una fase todavía pendiente (deslizar en RemainingPhasesList) —
+   * solo borra si sigue en `pending`, nunca una activa o ya completada. */
+  deleteBlock(id: SessionBlockId, ownerId: UserId): Promise<void>;
   /** Sin filtrar por dueño — solo para el enlace público de compartir;
    * llamar siempre con el cliente de servicio. Nunca expone notas ni de
    * quién es la sesión, y devuelve null si aún está en curso. */

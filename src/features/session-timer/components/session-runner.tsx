@@ -117,6 +117,7 @@ export function SessionRunner({
           onAddTime={runtime.addExtraTime}
           onAddPhase={runtime.addBlock}
           onReorderPhases={runtime.reorderBlocks}
+          onRemovePhase={runtime.removeBlock}
         />
       ) : (
         <div className="flex flex-col items-center gap-4">

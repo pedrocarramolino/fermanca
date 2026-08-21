@@ -24,6 +24,7 @@ export type SessionEventType =
   | "time_extended"
   | "phase_added"
   | "phases_reordered"
+  | "phase_removed"
   | "session_finished";
 
 export interface Database {

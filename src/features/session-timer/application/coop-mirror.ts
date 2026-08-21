@@ -21,6 +21,7 @@ const EVENT_NOTICE_TEXT: Record<SessionEventType, (name: string) => { title: str
     title: "Fases reordenadas",
     body: `${name} ha reordenado las fases pendientes.`,
   }),
+  phase_removed: (name) => ({ title: "Fase eliminada", body: `${name} ha eliminado una fase pendiente.` }),
   session_finished: (name) => ({ title: "Sesión terminada", body: `${name} ha terminado la sesión.` }),
 };
 
@@ -364,4 +365,34 @@ export async function mirrorReorderBlocks(
 ): Promise<void> {
   await peer.peerRepo.reorderBlocks(peer.peerSessionId, peer.peerOwnerId, peerOrderedBlockIds);
   await recordCoopEvent(client, peer, sessionId, userId, actorUsername, "phases_reordered");
+}
+
+/** Se resuelve ANTES de borrar localmente, por el mismo motivo que las
+ * anteriores — aunque borrar no desplaza posiciones, mantiene el mismo
+ * orden de operaciones que insertar/reordenar por consistencia. */
+export async function resolveCoopDeleteTarget(
+  client: Client,
+  sessionId: SessionId,
+  userId: UserId,
+  blockId: SessionBlockId,
+): Promise<{ peer: CoopPeer; peerBlockId: SessionBlockId } | null> {
+  const peer = await getCoopPeer(sessionId, userId, client);
+  if (!peer) return null;
+
+  const peerBlockId = (await resolvePeerBlockIds(client, peer, [blockId])).get(blockId);
+  if (!peerBlockId) return null;
+
+  return { peer, peerBlockId };
+}
+
+export async function mirrorDeleteBlock(
+  client: Client,
+  peer: CoopPeer,
+  sessionId: SessionId,
+  userId: UserId,
+  actorUsername: string,
+  peerBlockId: SessionBlockId,
+): Promise<void> {
+  await peer.peerRepo.deleteBlock(peerBlockId, peer.peerOwnerId);
+  await recordCoopEvent(client, peer, sessionId, userId, actorUsername, "phase_removed");
 }

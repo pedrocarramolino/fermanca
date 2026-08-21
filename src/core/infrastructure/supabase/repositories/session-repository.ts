@@ -350,6 +350,16 @@ export class SupabaseSessionRepository implements SessionRepository {
     }
   }
 
+  async deleteBlock(id: SessionBlockId, ownerId: UserId): Promise<void> {
+    void ownerId; // RLS ya exige que la sesión pertenezca al usuario.
+    const { error } = await this.client
+      .from("session_blocks")
+      .delete()
+      .eq("id", id)
+      .eq("status", "pending");
+    if (error) throw error;
+  }
+
   async getPublicSummary(id: SessionId): Promise<PublicSessionSummary | null> {
     const { data, error } = await this.client
       .from("sessions")
