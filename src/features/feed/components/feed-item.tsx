@@ -88,6 +88,8 @@ export function FeedItem({
           )}
         </div>
 
+        {share.title && <p className="text-sm font-medium">{share.title}</p>}
+
         <div className="flex items-baseline gap-2">
           <span className="text-2xl font-bold">{formatDurationShort(share.totalDurationSeconds)}</span>
           <span className="text-muted-foreground text-sm">

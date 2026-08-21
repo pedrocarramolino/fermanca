@@ -142,7 +142,11 @@
     "shareToFeed": "Share to Feed",
     "unshare": "Remove from feed",
     "sharing": "Sharing…",
-    "unsharing": "Removing…"
+    "unsharing": "Removing…",
+    "shareDialogTitle": "Share to Feed",
+    "shareDialogDescription": "Your friends will see this session in their feed.",
+    "titleLabel": "Title (optional)",
+    "titlePlaceholder": "E.g. Repertoire session"
   },
   "WeeklyGoal": {
     "title": "Weekly goal",

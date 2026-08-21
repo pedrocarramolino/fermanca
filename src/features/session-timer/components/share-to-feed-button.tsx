@@ -5,12 +5,24 @@ import { useTranslations } from "next-intl";
 import { Loader2, Rss, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
   getMySessionShare,
   shareSessionToFeed,
   unshareFromFeed,
 } from "@/features/feed/application/actions";
 
 type StoryBlock = { id: string; name: string; color: string; actualDurationSeconds: number };
+
+const MAX_TITLE_LENGTH = 100;
 
 /** Publica (o quita) la sesión en el Feed de amigos — a diferencia de
  * ShareSessionButton (enlace público para cualquiera), esto solo lo ven los
@@ -27,6 +39,8 @@ export function ShareToFeedButton({
 }) {
   const t = useTranslations("Feed");
   const [shareId, setShareId] = useState<string | null | undefined>(undefined);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [title, setTitle] = useState("");
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -37,8 +51,9 @@ export function ShareToFeedButton({
 
   function handleShare() {
     startTransition(async () => {
-      const share = await shareSessionToFeed(sessionId, blocks);
+      const share = await shareSessionToFeed(sessionId, blocks, title.trim() || null);
       setShareId(share.id);
+      setDialogOpen(false);
     });
   }
 
@@ -64,9 +79,37 @@ export function ShareToFeedButton({
   }
 
   return (
-    <Button type="button" variant="outline" size="sm" onClick={handleShare} disabled={isPending}>
-      {isPending ? <Loader2 className="size-4 animate-spin" /> : <Rss className="size-4" />}
-      {isPending ? t("sharing") : t("shareToFeed")}
-    </Button>
+    <>
+      <Button type="button" variant="outline" size="sm" onClick={() => setDialogOpen(true)}>
+        <Rss className="size-4" />
+        {t("shareToFeed")}
+      </Button>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("shareDialogTitle")}</DialogTitle>
+            <DialogDescription>{t("shareDialogDescription")}</DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="feed-share-title">{t("titleLabel")}</Label>
+            <Input
+              id="feed-share-title"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder={t("titlePlaceholder")}
+              maxLength={MAX_TITLE_LENGTH}
+              autoFocus
+            />
+          </div>
+          <DialogFooter>
+            <Button type="button" onClick={handleShare} disabled={isPending}>
+              {isPending && <Loader2 className="size-4 animate-spin" />}
+              {isPending ? t("sharing") : t("shareToFeed")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

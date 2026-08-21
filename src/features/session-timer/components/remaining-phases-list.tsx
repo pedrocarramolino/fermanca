@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   DndContext,
@@ -18,7 +19,8 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical } from "lucide-react";
+import { ChevronDown, GripVertical } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { formatDurationShort } from "@/core/domain/duration";
 import type { RuntimeBlockInput } from "@/features/session-timer/hooks/use-session-runtime";
 
@@ -74,6 +76,9 @@ export function RemainingPhasesList({
   onReorder: (orderedBlockIds: string[]) => void;
 }) {
   const t = useTranslations("RemainingPhases");
+  // Colapsada por defecto: en la pantalla de fin de fase el foco es "siguiente
+  // fase" / "más tiempo", no reordenar — se despliega solo si se pide.
+  const [expanded, setExpanded] = useState(false);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
@@ -94,21 +99,36 @@ export function RemainingPhasesList({
 
   return (
     <div className="flex w-full flex-col gap-2">
-      <p className="text-muted-foreground text-xs">{t("title")}</p>
-      <DndContext
-        id="remaining-phases"
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
+      <button
+        type="button"
+        onClick={() => setExpanded((prev) => !prev)}
+        aria-expanded={expanded}
+        className="text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 flex w-full items-center justify-center gap-1 rounded p-1 text-xs focus-visible:ring-3 focus-visible:outline-none"
       >
-        <SortableContext items={blocks.map((block) => block.id)} strategy={verticalListSortingStrategy}>
-          <ul className="flex flex-col gap-1.5">
-            {blocks.map((block) => (
-              <SortablePhaseItem key={block.id} block={block} />
-            ))}
-          </ul>
-        </SortableContext>
-      </DndContext>
+        {t("title")}
+        <ChevronDown
+          className={cn("size-3.5 motion-safe:transition-transform", expanded && "rotate-180")}
+        />
+      </button>
+      {expanded && (
+        <DndContext
+          id="remaining-phases"
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={blocks.map((block) => block.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <ul className="flex flex-col gap-1.5">
+              {blocks.map((block) => (
+                <SortablePhaseItem key={block.id} block={block} />
+              ))}
+            </ul>
+          </SortableContext>
+        </DndContext>
+      )}
     </div>
   );
 }

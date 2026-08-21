@@ -32,11 +32,19 @@ export async function getMySessionShare(sessionId: string): Promise<SessionShare
   return new SupabaseSessionShareRepository(client).findBySessionId(sessionId as SessionId, userId);
 }
 
+const MAX_TITLE_LENGTH = 100;
+
 export async function shareSessionToFeed(
   sessionId: string,
   blocks: { id: string; name: string; color: string; actualDurationSeconds: number }[],
+  title: string | null,
 ): Promise<SessionShare> {
   const { userId, client } = await requireUserId();
+
+  const trimmedTitle = title?.trim() || null;
+  if (trimmedTitle && trimmedTitle.length > MAX_TITLE_LENGTH) {
+    throw new Error(`El título no puede tener más de ${MAX_TITLE_LENGTH} caracteres.`);
+  }
 
   const [session, profile] = await Promise.all([
     new SupabaseSessionRepository(client).getById(sessionId as SessionId, userId),
@@ -52,6 +60,7 @@ export async function shareSessionToFeed(
     ownerId: userId,
     ownerUsername: profile.username,
     ownerAvatarUrl: profile.avatarUrl,
+    title: trimmedTitle,
     startedAt: session.startedAt,
     totalDurationSeconds,
     blocks: blocks.map((block) => ({ ...block, id: block.id as SessionBlockId })),

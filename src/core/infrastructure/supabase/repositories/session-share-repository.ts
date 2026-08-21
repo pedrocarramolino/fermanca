@@ -13,6 +13,7 @@ function toDomain(row: Row): SessionShare {
     ownerId: row.owner_id as UserId,
     ownerUsername: row.owner_username,
     ownerAvatarUrl: row.owner_avatar_url,
+    title: row.title,
     startedAt: new Date(row.started_at),
     totalDurationSeconds: row.total_duration_seconds,
     blocks: row.blocks as SessionShare["blocks"],
@@ -28,6 +29,7 @@ export class SupabaseSessionShareRepository implements SessionShareRepository {
     ownerId: UserId;
     ownerUsername: string;
     ownerAvatarUrl: string | null;
+    title: string | null;
     startedAt: Date;
     totalDurationSeconds: number;
     blocks: { id: SessionBlockId; name: string; color: string; actualDurationSeconds: number }[];
@@ -39,6 +41,7 @@ export class SupabaseSessionShareRepository implements SessionShareRepository {
         owner_id: input.ownerId,
         owner_username: input.ownerUsername,
         owner_avatar_url: input.ownerAvatarUrl,
+        title: input.title,
         started_at: input.startedAt.toISOString(),
         total_duration_seconds: input.totalDurationSeconds,
         blocks: input.blocks,

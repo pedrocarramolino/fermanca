@@ -9,6 +9,8 @@ export interface SessionShare {
   ownerId: UserId;
   ownerUsername: string;
   ownerAvatarUrl: string | null;
+  /** Puesto por quien comparte, opcional — la sesión en sí no tiene título. */
+  title: string | null;
   startedAt: Date;
   totalDurationSeconds: number;
   blocks: {

@@ -7,6 +7,7 @@ export interface SessionShareRepository {
     ownerId: UserId;
     ownerUsername: string;
     ownerAvatarUrl: string | null;
+    title: string | null;
     startedAt: Date;
     totalDurationSeconds: number;
     blocks: { id: SessionBlockId; name: string; color: string; actualDurationSeconds: number }[];

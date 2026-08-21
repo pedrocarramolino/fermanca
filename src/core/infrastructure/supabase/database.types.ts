@@ -412,6 +412,7 @@ export interface Database {
           owner_id: string;
           owner_username: string;
           owner_avatar_url: string | null;
+          title: string | null;
           started_at: string;
           total_duration_seconds: number;
           blocks: unknown;
@@ -423,6 +424,7 @@ export interface Database {
           owner_id: string;
           owner_username: string;
           owner_avatar_url?: string | null;
+          title?: string | null;
           started_at: string;
           total_duration_seconds: number;
           blocks: unknown;
