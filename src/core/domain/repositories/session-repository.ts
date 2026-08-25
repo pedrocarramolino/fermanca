@@ -29,6 +29,11 @@ export interface SessionHistoryFilter {
 export interface SessionRepository {
   listByOwner(ownerId: UserId, filter?: SessionHistoryFilter): Promise<Session[]>;
   getById(id: SessionId, ownerId: UserId): Promise<Session | null>;
+  /** Borra del historial una sesión ya terminada — nunca una en curso (esa
+   * se abandona explícitamente desde su propia pantalla, no se borra a
+   * mitad). session_blocks y cualquier session_share se borran en cascada
+   * por FK. */
+  remove(id: SessionId, ownerId: UserId): Promise<void>;
   start(input: {
     ownerId: UserId;
     templateId: TemplateId | null;

@@ -88,6 +88,16 @@ export class SupabaseSessionRepository implements SessionRepository {
     return data ? toDomain(data as SessionWithBlocksRow) : null;
   }
 
+  async remove(id: SessionId, ownerId: UserId): Promise<void> {
+    const { error } = await this.client
+      .from("sessions")
+      .delete()
+      .eq("id", id)
+      .eq("owner_id", ownerId)
+      .neq("status", "in_progress");
+    if (error) throw error;
+  }
+
   async start(input: {
     ownerId: UserId;
     templateId: TemplateId | null;

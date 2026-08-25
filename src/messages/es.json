@@ -243,7 +243,13 @@
     "statusCompleted": "Completada",
     "statusAbandoned": "Abandonada",
     "statusInProgress": "En curso",
-    "blocksCount": "{count, plural, one {# bloque} other {# bloques}}"
+    "blocksCount": "{count, plural, one {# bloque} other {# bloques}}",
+    "viewSession": "Ver sesión del {date}",
+    "remove": "Eliminar sesión",
+    "removeConfirmTitle": "¿Eliminar esta sesión del historial?",
+    "removeConfirmDescription": "Se borrará también de tus estadísticas y, si la habías compartido, del feed de tus amigos. Esta acción no se puede deshacer.",
+    "removeConfirmCta": "Eliminar",
+    "removing": "Eliminando…"
   },
   "History": {
     "title": "Historial",

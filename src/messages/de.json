@@ -243,7 +243,13 @@
     "statusCompleted": "Abgeschlossen",
     "statusAbandoned": "Abgebrochen",
     "statusInProgress": "Läuft",
-    "blocksCount": "{count, plural, one {# Block} other {# Blöcke}}"
+    "blocksCount": "{count, plural, one {# Block} other {# Blöcke}}",
+    "viewSession": "Sitzung vom {date} ansehen",
+    "remove": "Sitzung löschen",
+    "removeConfirmTitle": "Diese Sitzung aus deinem Verlauf löschen?",
+    "removeConfirmDescription": "Sie wird auch aus deinen Statistiken entfernt und, falls geteilt, aus dem Feed deiner Freunde. Diese Aktion kann nicht rückgängig gemacht werden.",
+    "removeConfirmCta": "Löschen",
+    "removing": "Wird gelöscht…"
   },
   "History": {
     "title": "Verlauf",
