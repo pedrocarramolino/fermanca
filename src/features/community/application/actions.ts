@@ -273,6 +273,19 @@ export async function getFriendProgress(friendOwnerId: string): Promise<FriendPr
   };
 }
 
+/** `listFriends` + `getFriendProgress` combinados — usado tanto por la
+ * página de Comunidad (resumen) como por la de Amigos (lista completa), así
+ * que vive aquí una sola vez en lugar de en cada page.tsx. */
+export async function listFriendsWithProgress(): Promise<(Friend & FriendProgress)[]> {
+  const friends = await listFriends();
+  return Promise.all(
+    friends.map(async (friend) => ({
+      ...friend,
+      ...(await getFriendProgress(friend.ownerId)),
+    })),
+  );
+}
+
 export interface FriendOfFriend {
   ownerId: string;
   username: string;

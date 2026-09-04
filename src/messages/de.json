@@ -410,6 +410,7 @@
     },
     "friends": {
       "title": "Freunde",
+      "back": "Zurück",
       "empty": "Du hast noch keine Freunde — frag jemanden nach seinem Einladungscode und füge ihn oben hinzu.",
       "thisWeek": "diese Woche",
       "remove": "{name} nicht mehr befreundet",

@@ -410,6 +410,7 @@
     },
     "friends": {
       "title": "Friends",
+      "back": "Back",
       "empty": "You don't have any friends yet — ask someone for their invite code and add it above.",
       "thisWeek": "this week",
       "remove": "Unfriend {name}",

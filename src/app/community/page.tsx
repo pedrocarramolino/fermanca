@@ -5,9 +5,8 @@ import { WhatsAppIcon } from "@/components/icons/whatsapp-icon";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  getFriendProgress,
   getMyProfile,
-  listFriends,
+  listFriendsWithProgress,
   listPendingRequests,
   listSuggestedFriends,
 } from "@/features/community/application/actions";
@@ -17,7 +16,6 @@ import { CommunityManager } from "@/features/community/components/community-mana
 import { AnnouncementBoard } from "@/features/community/components/announcement-board";
 import { SuggestedFriendsList } from "@/features/community/components/suggested-friends-list";
 import { PendingSessionInvitesList } from "@/features/session-invites/components/pending-session-invites-list";
-import type { FriendWithProgress } from "@/features/community/components/friends-list";
 
 const WHATSAPP_COMMUNITY_URL = "https://whatsapp.com/channel/0029VbEHCgA9cDDhpNVcWk0M";
 
@@ -28,22 +26,21 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function CommunityPage() {
   const t = await getTranslations("Community.whatsapp");
-  const [profile, pendingRequests, friends, announcements, pendingSessionInvites, suggestedFriends] =
-    await Promise.all([
-      getMyProfile(),
-      listPendingRequests(),
-      listFriends(),
-      listAnnouncements(),
-      listIncomingPendingSessionInvites(),
-      listSuggestedFriends(),
-    ]);
-
-  const friendsWithProgress: FriendWithProgress[] = await Promise.all(
-    friends.map(async (friend) => ({
-      ...friend,
-      ...(await getFriendProgress(friend.ownerId)),
-    })),
-  );
+  const [
+    profile,
+    pendingRequests,
+    friendsWithProgress,
+    announcements,
+    pendingSessionInvites,
+    suggestedFriends,
+  ] = await Promise.all([
+    getMyProfile(),
+    listPendingRequests(),
+    listFriendsWithProgress(),
+    listAnnouncements(),
+    listIncomingPendingSessionInvites(),
+    listSuggestedFriends(),
+  ]);
 
   // CommunityManager guarda estas listas en su propio estado local (para
   // las actualizaciones optimistas al aceptar/quitar) — solo las relee al
