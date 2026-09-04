@@ -134,6 +134,7 @@
     "empty": "Hier ist noch nichts los — teile eine Sitzung oder warte, bis ein Freund seine teilt.",
     "blocksCount": "{count, plural, one {# Block} other {# Blöcke}}",
     "viewMore": "{count} mehr anzeigen",
+    "react": "Mit {emoji} reagieren",
     "remove": "Aus dem Feed entfernen",
     "removeConfirmTitle": "Diese Sitzung aus dem Feed entfernen?",
     "removeConfirmDescription": "Sie ist dann nicht mehr für deine Freunde sichtbar. Diese Aktion kann nicht rückgängig gemacht werden.",

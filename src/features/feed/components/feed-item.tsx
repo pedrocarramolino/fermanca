@@ -15,8 +15,10 @@ import {
 } from "@/components/ui/dialog";
 import { formatDurationShort } from "@/core/domain/duration";
 import { hasPracticedTime } from "@/core/domain/session";
+import { REACTION_EMOJIS, type ReactionEmoji, type ReactionSummary } from "@/core/domain/reaction";
 import { formatSessionDate } from "@/lib/format-date";
-import { unshareFromFeed } from "@/features/feed/application/actions";
+import { cn } from "@/lib/utils";
+import { toggleReaction, unshareFromFeed } from "@/features/feed/application/actions";
 import type { SessionShare } from "@/core/domain/session-share";
 import type { Locale } from "@/core/domain/user-settings";
 
@@ -37,6 +39,47 @@ function FeedAvatar({ username, avatarUrl }: { username: string; avatarUrl: stri
   );
 }
 
+/** Los 5 emojis posibles se muestran siempre, con o sin reacciones — así se
+ * puede reaccionar directamente sin un selector aparte, y el que ya tiene
+ * alguna reacción se distingue por el recuento junto al emoji. */
+function ReactionBar({
+  reactions,
+  onToggle,
+}: {
+  reactions: ReactionSummary[];
+  onToggle: (emoji: ReactionEmoji) => void;
+}) {
+  const t = useTranslations("Feed");
+
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {REACTION_EMOJIS.map((emoji) => {
+        const summary = reactions.find((r) => r.emoji === emoji);
+        const count = summary?.count ?? 0;
+        const reactedByMe = summary?.reactedByMe ?? false;
+        return (
+          <button
+            key={emoji}
+            type="button"
+            onClick={() => onToggle(emoji)}
+            aria-pressed={reactedByMe}
+            aria-label={t("react", { emoji })}
+            className={cn(
+              "focus-visible:ring-ring/50 flex items-center gap-1 rounded-full border px-2 py-1 text-xs transition-colors focus-visible:ring-3 focus-visible:outline-none",
+              reactedByMe
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border text-muted-foreground hover:bg-muted",
+            )}
+          >
+            <span aria-hidden>{emoji}</span>
+            {count > 0 && <span className="tabular-nums">{count}</span>}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export function FeedItem({
   share,
   isOwn,
@@ -51,6 +94,7 @@ export function FeedItem({
   const [expanded, setExpanded] = useState(false);
   const [confirmingRemove, setConfirmingRemove] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [reactions, setReactions] = useState(share.reactions);
 
   const practicedBlocks = share.blocks.filter(hasPracticedTime);
   const visibleBlocks = expanded ? practicedBlocks : practicedBlocks.slice(0, MAX_VISIBLE_BLOCKS);
@@ -62,6 +106,25 @@ export function FeedItem({
       onRemoved(share.id);
       setConfirmingRemove(false);
     });
+  }
+
+  // Optimista: el conteo/estado local cambia al instante, sin esperar al
+  // servidor — si la llamada falla, se revierte al estado de antes de tocar.
+  function handleToggleReaction(emoji: ReactionEmoji) {
+    const previous = reactions;
+    const existing = previous.find((r) => r.emoji === emoji);
+    const next = !existing
+      ? [...previous, { emoji, count: 1, reactedByMe: true }]
+      : existing.reactedByMe && existing.count <= 1
+        ? previous.filter((r) => r.emoji !== emoji)
+        : previous.map((r) =>
+            r.emoji === emoji
+              ? { ...r, reactedByMe: !r.reactedByMe, count: r.count + (r.reactedByMe ? -1 : 1) }
+              : r,
+          );
+
+    setReactions(next);
+    toggleReaction(share.id, emoji).catch(() => setReactions(previous));
   }
 
   return (
@@ -126,6 +189,8 @@ export function FeedItem({
             {t("viewMore", { count: hiddenCount })}
           </Button>
         )}
+
+        <ReactionBar reactions={reactions} onToggle={handleToggleReaction} />
       </CardContent>
 
       <Dialog open={confirmingRemove} onOpenChange={setConfirmingRemove}>

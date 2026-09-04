@@ -5,9 +5,12 @@ import { createClient } from "@/core/infrastructure/supabase/server";
 import { SupabaseProfileRepository } from "@/core/infrastructure/supabase/repositories/profile-repository";
 import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/repositories/session-repository";
 import { SupabaseSessionShareRepository } from "@/core/infrastructure/supabase/repositories/session-share-repository";
+import { SupabaseSessionShareReactionRepository } from "@/core/infrastructure/supabase/repositories/session-share-reaction-repository";
 import { UnauthorizedError } from "@/core/domain/errors";
 import { hasPracticedTime } from "@/core/domain/session";
+import { isReactionEmoji, REACTION_EMOJIS, type ReactionSummary } from "@/core/domain/reaction";
 import type { SessionShare } from "@/core/domain/session-share";
+import type { SessionShareReactionRow } from "@/core/domain/repositories/session-share-reaction-repository";
 import type { SessionBlockId, SessionId, SessionShareId, UserId } from "@/core/domain/ids";
 
 async function requireUserId() {
@@ -20,9 +23,41 @@ async function requireUserId() {
 
 const FEED_LIMIT = 30;
 
+/** Solo los emojis con al menos una reacción, contados y marcados según si
+ * el que mira el feed es uno de quienes reaccionó así. */
+function summarizeReactions(
+  rows: SessionShareReactionRow[],
+  shareId: SessionShareId,
+  viewerId: UserId,
+): ReactionSummary[] {
+  const forShare = rows.filter((r) => r.sessionShareId === shareId);
+  return REACTION_EMOJIS.map((emoji) => {
+    const matches = forShare.filter((r) => r.emoji === emoji);
+    return { emoji, count: matches.length, reactedByMe: matches.some((r) => r.ownerId === viewerId) };
+  }).filter((r) => r.count > 0);
+}
+
 export async function listFeed(): Promise<SessionShare[]> {
   const { userId, client } = await requireUserId();
-  return new SupabaseSessionShareRepository(client).listFeed(userId, FEED_LIMIT);
+  const shares = await new SupabaseSessionShareRepository(client).listFeed(userId, FEED_LIMIT);
+  const reactionRows = await new SupabaseSessionShareReactionRepository(client).listForShares(
+    shares.map((s) => s.id),
+  );
+  return shares.map((share) => ({
+    ...share,
+    reactions: summarizeReactions(reactionRows, share.id, userId),
+  }));
+}
+
+export async function toggleReaction(sessionShareId: string, emoji: string): Promise<void> {
+  const { userId, client } = await requireUserId();
+  if (!isReactionEmoji(emoji)) throw new Error("Emoji no válido.");
+  await new SupabaseSessionShareReactionRepository(client).toggle(
+    sessionShareId as SessionShareId,
+    userId,
+    emoji,
+  );
+  revalidatePath("/");
 }
 
 /** Para que el botón de "Compartir en el Feed" del resumen de sesión sepa

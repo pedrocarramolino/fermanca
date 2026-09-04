@@ -1,3 +1,4 @@
+import type { ReactionSummary } from "@/core/domain/reaction";
 import type { SessionBlockId, SessionId, SessionShareId, UserId } from "@/core/domain/ids";
 
 /** Instantánea de una sesión compartida al feed — mismos campos que
@@ -20,4 +21,8 @@ export interface SessionShare {
     actualDurationSeconds: number;
   }[];
   createdAt: Date;
+  /** Solo los emojis con al menos una reacción — se calcula al listar el
+   * feed (tabla aparte, session_share_reactions), no viaja con el resto de
+   * la instantánea porque cambia después de compartir, a diferencia del resto. */
+  reactions: ReactionSummary[];
 }

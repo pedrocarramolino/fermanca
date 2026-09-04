@@ -134,6 +134,7 @@
     "empty": "Nothing here yet — share a session, or wait for a friend to share theirs.",
     "blocksCount": "{count, plural, one {# block} other {# blocks}}",
     "viewMore": "View {count} more",
+    "react": "React with {emoji}",
     "remove": "Remove from feed",
     "removeConfirmTitle": "Remove this session from the feed?",
     "removeConfirmDescription": "It will no longer be visible to your friends. This action cannot be undone.",

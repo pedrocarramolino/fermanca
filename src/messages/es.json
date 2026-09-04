@@ -134,6 +134,7 @@
     "empty": "Todavía no hay nada por aquí — comparte una sesión o espera a que tus amigos compartan la suya.",
     "blocksCount": "{count, plural, one {# bloque} other {# bloques}}",
     "viewMore": "Ver {count} más",
+    "react": "Reaccionar con {emoji}",
     "remove": "Eliminar del feed",
     "removeConfirmTitle": "¿Quitar esta sesión del feed?",
     "removeConfirmDescription": "Dejará de verse en el feed de tus amigos. Esta acción no se puede deshacer.",

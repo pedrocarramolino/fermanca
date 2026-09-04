@@ -18,6 +18,9 @@ function toDomain(row: Row): SessionShare {
     totalDurationSeconds: row.total_duration_seconds,
     blocks: row.blocks as SessionShare["blocks"],
     createdAt: new Date(row.created_at),
+    // Se calculan aparte (tabla session_share_reactions) y las rellena
+    // quien llama cuando las necesita — ver listFeed() en application/actions.ts.
+    reactions: [],
   };
 }
 

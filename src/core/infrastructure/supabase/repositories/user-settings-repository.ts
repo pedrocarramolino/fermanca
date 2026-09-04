@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { UserSettings } from "@/core/domain/user-settings";
+import type { Locale, UserSettings } from "@/core/domain/user-settings";
 import type { UserId } from "@/core/domain/ids";
 import type { UserSettingsRepository } from "@/core/domain/repositories/user-settings-repository";
 import type { Database } from "@/core/infrastructure/supabase/database.types";
@@ -29,7 +29,7 @@ function toDomain(ownerId: UserId, row: Row | null): UserSettings {
     visualAlertDurationMs: row.visual_alert_duration_ms,
     accentColor: row.accent_color,
     timezone: row.timezone,
-    locale: row.locale,
+    locale: row.locale as Locale,
     glassIntensity: row.glass_intensity,
   };
 }

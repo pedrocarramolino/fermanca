@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Friendship } from "@/core/domain/friendship";
+import type { Friendship, FriendshipStatus } from "@/core/domain/friendship";
 import type { FriendshipId, UserId } from "@/core/domain/ids";
 import type { FriendshipRepository } from "@/core/domain/repositories/friendship-repository";
 import type { Database } from "@/core/infrastructure/supabase/database.types";
@@ -12,7 +12,7 @@ function toDomain(row: Row): Friendship {
     id: row.id as FriendshipId,
     requesterId: row.requester_id as UserId,
     addresseeId: row.addressee_id as UserId,
-    status: row.status,
+    status: row.status as FriendshipStatus,
     createdAt: new Date(row.created_at),
   };
 }

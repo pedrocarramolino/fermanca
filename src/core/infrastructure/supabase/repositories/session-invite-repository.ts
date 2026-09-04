@@ -1,8 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { InviteDraftBlock, SessionInvite } from "@/core/domain/session-invite";
+import type {
+  InviteDraftBlock,
+  SessionInvite,
+  SessionInviteStatus,
+} from "@/core/domain/session-invite";
 import type { SessionId, SessionInviteId, TemplateId, UserId } from "@/core/domain/ids";
 import type { SessionInviteRepository } from "@/core/domain/repositories/session-invite-repository";
-import type { Database } from "@/core/infrastructure/supabase/database.types";
+import type { Database, Json } from "@/core/infrastructure/supabase/database.types";
 import { assertUuid } from "@/lib/uuid";
 
 type Row = Database["public"]["Tables"]["session_invites"]["Row"];
@@ -13,8 +17,8 @@ function toDomain(row: Row): SessionInvite {
     inviterId: row.inviter_id as UserId,
     inviteeId: row.invitee_id as UserId,
     templateId: row.template_id as TemplateId | null,
-    blocks: row.blocks as InviteDraftBlock[],
-    status: row.status,
+    blocks: row.blocks as unknown as InviteDraftBlock[],
+    status: row.status as SessionInviteStatus,
     inviterSessionId: row.inviter_session_id as SessionId | null,
     inviteeSessionId: row.invitee_session_id as SessionId | null,
     createdAt: new Date(row.created_at),
@@ -37,7 +41,7 @@ export class SupabaseSessionInviteRepository implements SessionInviteRepository 
         inviter_id: input.inviterId,
         invitee_id: input.inviteeId,
         template_id: input.templateId,
-        blocks: input.blocks,
+        blocks: input.blocks as unknown as Json,
       })
       .select("*")
       .single();
