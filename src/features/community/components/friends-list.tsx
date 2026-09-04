@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 import { formatDurationShort } from "@/core/domain/duration";
 import { removeFriendship } from "@/features/community/application/actions";
 import { FriendSessionDialog } from "@/features/community/components/friend-session-dialog";
@@ -20,18 +21,59 @@ import type { FriendProgress } from "@/features/community/application/actions";
 
 export type FriendWithProgress = Friend & FriendProgress;
 
-function FriendAvatar({ username, avatarUrl }: { username: string; avatarUrl: string | null }) {
-  return (
-    <span className="border-border bg-muted flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full border">
-      {avatarUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={avatarUrl} alt="" className="size-full object-cover" />
-      ) : (
+/** Sin foto no hay nada que ampliar, así que se queda como `span` inerte;
+ * con foto se convierte en botón para no anidarlo dentro de otro `<button>`
+ * (la fila de amigos ya es uno) y poder abrir el visor a tamaño grande. */
+export function FriendAvatar({
+  username,
+  avatarUrl,
+  className,
+}: {
+  username: string;
+  avatarUrl: string | null;
+  className?: string;
+}) {
+  const [expanded, setExpanded] = useState(false);
+
+  if (!avatarUrl) {
+    return (
+      <span
+        className={cn(
+          "border-border bg-muted flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full border",
+          className,
+        )}
+      >
         <span className="text-muted-foreground text-xs font-medium">
           {username.slice(0, 2).toUpperCase()}
         </span>
-      )}
-    </span>
+      </span>
+    );
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={(event) => {
+          event.stopPropagation();
+          setExpanded(true);
+        }}
+        className={cn(
+          "border-border bg-muted focus-visible:ring-ring/50 flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full border focus-visible:ring-3 focus-visible:outline-none",
+          className,
+        )}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={avatarUrl} alt="" className="size-full object-cover" />
+      </button>
+      <Dialog open={expanded} onOpenChange={setExpanded}>
+        <DialogContent className="max-w-xs p-0 sm:max-w-xs" showCloseButton>
+          <DialogTitle className="sr-only">{username}</DialogTitle>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={avatarUrl} alt="" className="aspect-square w-full rounded-xl object-cover" />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
@@ -82,13 +124,13 @@ export function FriendsList({
             key={friend.friendshipId}
             className="border-border hover:bg-muted flex items-center justify-between gap-3 rounded-lg border p-3 transition-colors"
           >
-            <button
-              type="button"
-              className="focus-visible:ring-ring/50 flex min-w-0 flex-1 items-center gap-3 rounded-lg text-left focus-visible:ring-3 focus-visible:outline-none"
-              onClick={() => setSelectedFriend(friend)}
-            >
+            <div className="flex min-w-0 flex-1 items-center gap-3">
               <FriendAvatar username={friend.username} avatarUrl={friend.avatarUrl} />
-              <div className="flex min-w-0 flex-col items-start gap-1">
+              <button
+                type="button"
+                className="focus-visible:ring-ring/50 flex min-w-0 flex-col items-start gap-1 rounded-lg text-left focus-visible:ring-3 focus-visible:outline-none"
+                onClick={() => setSelectedFriend(friend)}
+              >
                 <span className="flex min-w-0 max-w-full items-center gap-1.5 font-medium">
                   {index === 0 && friend.weeklySeconds > 0 && (
                     <Trophy className="text-primary size-4 shrink-0" aria-hidden />
@@ -104,8 +146,8 @@ export function FriendsList({
                     {tStreaks("days", { count: friend.currentStreak })}
                   </span>
                 </div>
-              </div>
-            </button>
+              </button>
+            </div>
             <Button
               type="button"
               variant="ghost"

@@ -22,7 +22,7 @@ import {
   type FriendOfFriend,
 } from "@/features/community/application/actions";
 import type { Locale } from "@/core/domain/user-settings";
-import type { FriendWithProgress } from "@/features/community/components/friends-list";
+import { FriendAvatar, type FriendWithProgress } from "@/features/community/components/friends-list";
 
 function sessionTotalSeconds(session: FriendSession): number {
   return session.blocks.reduce((total, block) => total + block.actualDurationSeconds, 0);
@@ -107,11 +107,18 @@ function FriendSessionContent({ friend }: { friend: FriendWithProgress }) {
 
   return (
     <>
-      <DialogHeader>
-        <DialogTitle>{friend.username}</DialogTitle>
-        <DialogDescription>
-          {t("monthTotal", { duration: formatDurationShort(friend.monthlySeconds) })}
-        </DialogDescription>
+      <DialogHeader className="flex-row items-center gap-3">
+        <FriendAvatar
+          username={friend.username}
+          avatarUrl={friend.avatarUrl}
+          className="size-12"
+        />
+        <div className="flex min-w-0 flex-col gap-1">
+          <DialogTitle className="truncate">{friend.username}</DialogTitle>
+          <DialogDescription>
+            {t("monthTotal", { duration: formatDurationShort(friend.monthlySeconds) })}
+          </DialogDescription>
+        </div>
       </DialogHeader>
 
       {status === "loading" && <p className="text-muted-foreground text-sm">{t("loading")}</p>}
