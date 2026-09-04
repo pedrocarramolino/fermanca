@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
+import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
-import { Flame, Trophy, UserMinus } from "lucide-react";
+import { Flame, Trophy, UserMinus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,6 +21,54 @@ import type { Friend } from "@/core/domain/friendship";
 import type { FriendProgress } from "@/features/community/application/actions";
 
 export type FriendWithProgress = Friend & FriendProgress;
+
+/** Overlay propio (no otro `<Dialog>`) a propósito: este visor puede abrirse
+ * desde dentro del diálogo de sesiones recientes de un amigo, que ya es un
+ * `<Dialog>` abierto — anidar ahí el `<Dialog>` de base-ui dejaba tanto el
+ * visor como el diálogo de debajo con opacidad 0 en pruebas (su lógica de
+ * diálogos anidados no encaja con las clases de animación que usa este
+ * proyecto). Un overlay corriente, portal a `body`, evita ese riesgo. */
+function AvatarLightbox({
+  src,
+  username,
+  onClose,
+}: {
+  src: string;
+  username: string;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") onClose();
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  return createPortal(
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={username}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+      onClick={onClose}
+    >
+      <div className="relative w-full max-w-xs" onClick={(event) => event.stopPropagation()}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt="" className="aspect-square w-full rounded-xl object-cover" />
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Cerrar"
+          className="bg-background/80 text-foreground hover:bg-background focus-visible:ring-ring/50 absolute top-2 right-2 flex size-7 items-center justify-center rounded-full focus-visible:ring-3 focus-visible:outline-none"
+        >
+          <X className="size-4" />
+        </button>
+      </div>
+    </div>,
+    document.body,
+  );
+}
 
 /** Sin foto no hay nada que ampliar, así que se queda como `span` inerte;
  * con foto se convierte en botón para no anidarlo dentro de otro `<button>`
@@ -66,13 +115,9 @@ export function FriendAvatar({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={avatarUrl} alt="" className="size-full object-cover" />
       </button>
-      <Dialog open={expanded} onOpenChange={setExpanded}>
-        <DialogContent className="max-w-xs p-0 sm:max-w-xs" showCloseButton>
-          <DialogTitle className="sr-only">{username}</DialogTitle>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={avatarUrl} alt="" className="aspect-square w-full rounded-xl object-cover" />
-        </DialogContent>
-      </Dialog>
+      {expanded && (
+        <AvatarLightbox src={avatarUrl} username={username} onClose={() => setExpanded(false)} />
+      )}
     </>
   );
 }
