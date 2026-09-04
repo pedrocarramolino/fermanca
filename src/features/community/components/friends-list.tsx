@@ -16,7 +16,6 @@ import {
 import { cn } from "@/lib/utils";
 import { formatDurationShort } from "@/core/domain/duration";
 import { removeFriendship } from "@/features/community/application/actions";
-import { FriendSessionDialog } from "@/features/community/components/friend-session-dialog";
 import type { Friend } from "@/core/domain/friendship";
 import type { FriendProgress } from "@/features/community/application/actions";
 
@@ -125,14 +124,15 @@ export function FriendAvatar({
 export function FriendsList({
   friends,
   onRemoved,
+  onSelectFriend,
 }: {
   friends: FriendWithProgress[];
   onRemoved: (friendshipId: string) => void;
+  onSelectFriend: (friend: FriendWithProgress) => void;
 }) {
   const t = useTranslations("Community.friends");
   const tStreaks = useTranslations("Streaks");
   const [isPending, startTransition] = useTransition();
-  const [selectedFriend, setSelectedFriend] = useState<FriendWithProgress | null>(null);
   const [removingFriend, setRemovingFriend] = useState<FriendWithProgress | null>(null);
   const [removeError, setRemoveError] = useState<string | null>(null);
 
@@ -174,7 +174,7 @@ export function FriendsList({
               <button
                 type="button"
                 className="focus-visible:ring-ring/50 flex min-w-0 flex-col items-start gap-1 rounded-lg text-left focus-visible:ring-3 focus-visible:outline-none"
-                onClick={() => setSelectedFriend(friend)}
+                onClick={() => onSelectFriend(friend)}
               >
                 <span className="flex min-w-0 max-w-full items-center gap-1.5 font-medium">
                   {index === 0 && friend.weeklySeconds > 0 && (
@@ -209,13 +209,6 @@ export function FriendsList({
           </li>
         ))}
       </ul>
-      <FriendSessionDialog
-        friend={selectedFriend}
-        open={selectedFriend !== null}
-        onOpenChange={(open) => {
-          if (!open) setSelectedFriend(null);
-        }}
-      />
 
       <Dialog
         open={removingFriend !== null}

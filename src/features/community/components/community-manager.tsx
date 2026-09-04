@@ -14,6 +14,7 @@ import { InviteCodeCard } from "@/features/community/components/invite-code-card
 import { AddFriendForm } from "@/features/community/components/add-friend-form";
 import { PendingRequestsList } from "@/features/community/components/pending-requests-list";
 import { FriendsList, type FriendWithProgress } from "@/features/community/components/friends-list";
+import { FriendSessionDialog } from "@/features/community/components/friend-session-dialog";
 import type { PendingRequest } from "@/features/community/application/actions";
 
 export function CommunityManager({
@@ -29,6 +30,7 @@ export function CommunityManager({
   const [pendingRequests, setPendingRequests] = useState(initialPendingRequests);
   const [friends, setFriends] = useState(initialFriends);
   const [friendsDialogOpen, setFriendsDialogOpen] = useState(false);
+  const [selectedFriend, setSelectedFriend] = useState<FriendWithProgress | null>(null);
 
   return (
     <div className="flex flex-col gap-6">
@@ -69,9 +71,25 @@ export function CommunityManager({
           <FriendsList
             friends={friends}
             onRemoved={(id) => setFriends((prev) => prev.filter((f) => f.friendshipId !== id))}
+            onSelectFriend={(friend) => {
+              // Cierra la lista antes de abrir el detalle: dos <Dialog> de
+              // base-ui abiertos a la vez (uno anidado dentro del otro) deja
+              // contenido del de dentro sin renderizar bien — mejor que solo
+              // haya uno abierto en cada momento.
+              setFriendsDialogOpen(false);
+              setSelectedFriend(friend);
+            }}
           />
         </DialogContent>
       </Dialog>
+
+      <FriendSessionDialog
+        friend={selectedFriend}
+        open={selectedFriend !== null}
+        onOpenChange={(open) => {
+          if (!open) setSelectedFriend(null);
+        }}
+      />
     </div>
   );
 }
