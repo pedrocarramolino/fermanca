@@ -6,6 +6,7 @@ import { SupabaseProfileRepository } from "@/core/infrastructure/supabase/reposi
 import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/repositories/session-repository";
 import { SupabaseSessionShareRepository } from "@/core/infrastructure/supabase/repositories/session-share-repository";
 import { UnauthorizedError } from "@/core/domain/errors";
+import { hasPracticedTime } from "@/core/domain/session";
 import type { SessionShare } from "@/core/domain/session-share";
 import type { SessionBlockId, SessionId, SessionShareId, UserId } from "@/core/domain/ids";
 
@@ -53,7 +54,11 @@ export async function shareSessionToFeed(
   if (!session) throw new Error("Sesión no encontrada.");
   if (!profile) throw new Error("Perfil no encontrado.");
 
-  const totalDurationSeconds = blocks.reduce((total, block) => total + block.actualDurationSeconds, 0);
+  const practicedBlocks = blocks.filter(hasPracticedTime);
+  const totalDurationSeconds = practicedBlocks.reduce(
+    (total, block) => total + block.actualDurationSeconds,
+    0,
+  );
 
   const share = await new SupabaseSessionShareRepository(client).create({
     sessionId: session.id,
@@ -63,7 +68,7 @@ export async function shareSessionToFeed(
     title: trimmedTitle,
     startedAt: session.startedAt,
     totalDurationSeconds,
-    blocks: blocks.map((block) => ({ ...block, id: block.id as SessionBlockId })),
+    blocks: practicedBlocks.map((block) => ({ ...block, id: block.id as SessionBlockId })),
   });
 
   revalidatePath("/");

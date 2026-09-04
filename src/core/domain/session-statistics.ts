@@ -1,4 +1,4 @@
-import type { Session } from "@/core/domain/session";
+import { hasPracticedTime, type Session } from "@/core/domain/session";
 
 /** Sesiones que cuentan para las estadísticas: no las que aún están en curso. */
 function finishedSessions(sessions: Session[]): Session[] {
@@ -85,7 +85,7 @@ export function categoryBreakdown(sessions: Session[]): CategoryStat[] {
   const byCategory = new Map<string, CategoryStat>();
 
   for (const session of finishedSessions(sessions)) {
-    for (const block of session.blocks) {
+    for (const block of session.blocks.filter(hasPracticedTime)) {
       const existing = byCategory.get(block.categoryId);
       if (existing) {
         existing.seconds += block.actualDurationSeconds;

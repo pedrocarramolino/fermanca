@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDurationShort } from "@/core/domain/duration";
+import { hasPracticedTime } from "@/core/domain/session";
 import { finishSession, listGhostCategoryIds } from "@/features/session-timer/application/actions";
 import { ShareSessionButton } from "@/features/session-timer/components/share-session-button";
 import { ShareToFeedButton } from "@/features/session-timer/components/share-to-feed-button";
@@ -41,9 +42,12 @@ export function SessionSummary({
       });
   }, []);
 
-  // Los bloques de categorías "fantasma" no cuentan aquí: ni en la lista, ni
-  // en el tiempo total, ni en lo que se manda a compartir/Story.
-  const visibleBlocks = blocks.filter((block) => !ghostCategoryIds.includes(block.categoryId));
+  // Los bloques de categorías "fantasma" y las fases terminadas a los 0s no
+  // cuentan aquí: ni en la lista, ni en el tiempo total, ni en lo que se
+  // manda a compartir/Story.
+  const visibleBlocks = blocks
+    .filter((block) => !ghostCategoryIds.includes(block.categoryId))
+    .filter(hasPracticedTime);
   const totalSeconds = visibleBlocks.reduce((total, block) => total + block.actualDurationSeconds, 0);
   const shareBlocks = visibleBlocks.map((block) => ({
     id: block.id,

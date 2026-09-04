@@ -9,6 +9,7 @@ import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/reposi
 import { SupabasePushSubscriptionRepository } from "@/core/infrastructure/supabase/repositories/push-subscription-repository";
 import { sendPush } from "@/core/infrastructure/push/send-push";
 import { UnauthorizedError } from "@/core/domain/errors";
+import { hasPracticedTime } from "@/core/domain/session";
 import { currentStreakDays, practiceSecondsByDay } from "@/core/domain/streaks";
 import { monthlySeries, weeklySeries } from "@/core/domain/session-statistics";
 import type { Friend } from "@/core/domain/friendship";
@@ -228,12 +229,14 @@ export async function getFriendRecentSessions(friendOwnerId: string): Promise<Fr
       id: session.id,
       startedAt: session.startedAt.toISOString(),
       status: session.status as "completed" | "abandoned",
-      blocks: session.blocks.map((block) => ({
-        id: block.id,
-        name: block.name,
-        color: block.color,
-        actualDurationSeconds: block.actualDurationSeconds,
-      })),
+      blocks: session.blocks
+        .filter(hasPracticedTime)
+        .map((block) => ({
+          id: block.id,
+          name: block.name,
+          color: block.color,
+          actualDurationSeconds: block.actualDurationSeconds,
+        })),
     }));
 }
 

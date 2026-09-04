@@ -34,6 +34,15 @@ export interface PublicSessionSummary {
   }[];
 }
 
+/** Una fase terminada al instante (0s reales) no cuenta como practicada —
+ * se usa para excluirla de recuentos y totales sin tener que borrarla ni
+ * bloquear que exista. Genérico porque se aplica tanto a `SessionBlock`
+ * como a las variantes reducidas que viajan en el resumen público, el
+ * detalle de un amigo y el Feed — todas comparten este campo. */
+export function hasPracticedTime(block: { actualDurationSeconds: number }): boolean {
+  return block.actualDurationSeconds > 0;
+}
+
 export interface Session {
   id: SessionId;
   ownerId: UserId;

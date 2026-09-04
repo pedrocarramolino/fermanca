@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { formatDurationShort } from "@/core/domain/duration";
+import { hasPracticedTime } from "@/core/domain/session";
 import { formatSessionDate } from "@/lib/format-date";
 import { unshareFromFeed } from "@/features/feed/application/actions";
 import type { SessionShare } from "@/core/domain/session-share";
@@ -51,8 +52,9 @@ export function FeedItem({
   const [confirmingRemove, setConfirmingRemove] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  const visibleBlocks = expanded ? share.blocks : share.blocks.slice(0, MAX_VISIBLE_BLOCKS);
-  const hiddenCount = share.blocks.length - visibleBlocks.length;
+  const practicedBlocks = share.blocks.filter(hasPracticedTime);
+  const visibleBlocks = expanded ? practicedBlocks : practicedBlocks.slice(0, MAX_VISIBLE_BLOCKS);
+  const hiddenCount = practicedBlocks.length - visibleBlocks.length;
 
   function handleConfirmRemove() {
     startTransition(async () => {
@@ -93,7 +95,7 @@ export function FeedItem({
         <div className="flex items-baseline gap-2">
           <span className="text-2xl font-bold">{formatDurationShort(share.totalDurationSeconds)}</span>
           <span className="text-muted-foreground text-sm">
-            {t("blocksCount", { count: share.blocks.length })}
+            {t("blocksCount", { count: practicedBlocks.length })}
           </span>
         </div>
 

@@ -1,9 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type {
-  PublicSessionSummary,
-  Session,
-  SessionBlock,
-  SessionStatus,
+import {
+  hasPracticedTime,
+  type PublicSessionSummary,
+  type Session,
+  type SessionBlock,
+  type SessionStatus,
 } from "@/core/domain/session";
 import type { CategoryId, SessionBlockId, SessionId, TemplateId, UserId } from "@/core/domain/ids";
 import type {
@@ -389,7 +390,8 @@ export class SupabaseSessionRepository implements SessionRepository {
           name: block.name,
           color: block.color,
           actualDurationSeconds: block.actual_duration_seconds,
-        })),
+        }))
+        .filter(hasPracticedTime),
     };
   }
 
@@ -403,7 +405,9 @@ export class SupabaseSessionRepository implements SessionRepository {
     // de que quien llame la calcule bien.
     const current = await this.getById(id, ownerId);
     const actualDurationSeconds =
-      current?.blocks.reduce((total, block) => total + block.actualDurationSeconds, 0) ?? 0;
+      current?.blocks
+        .filter(hasPracticedTime)
+        .reduce((total, block) => total + block.actualDurationSeconds, 0) ?? 0;
 
     const { error } = await this.client
       .from("sessions")

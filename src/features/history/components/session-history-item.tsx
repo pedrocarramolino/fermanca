@@ -18,7 +18,7 @@ import { formatDurationShort } from "@/core/domain/duration";
 import { formatSessionDate } from "@/lib/format-date";
 import { deleteSession } from "@/features/history/application/actions";
 import type { Locale } from "@/core/domain/user-settings";
-import type { Session } from "@/core/domain/session";
+import { hasPracticedTime, type Session } from "@/core/domain/session";
 
 export function SessionHistoryItem({ session }: { session: Session }) {
   const t = useTranslations("SessionHistory");
@@ -37,6 +37,12 @@ export function SessionHistoryItem({ session }: { session: Session }) {
     session.status === "in_progress"
       ? session.plannedDurationSeconds
       : session.actualDurationSeconds;
+
+  // Una sesión en curso todavía tiene fases pendientes con 0s reales — eso
+  // es normal y deben seguir viéndose. Solo en una sesión ya terminada un
+  // bloque a 0s es una fase que se cerró al instante y no debe contar.
+  const displayedBlocks =
+    session.status === "in_progress" ? session.blocks : session.blocks.filter(hasPracticedTime);
 
   function handleConfirmDelete() {
     startTransition(async () => {
@@ -85,7 +91,7 @@ export function SessionHistoryItem({ session }: { session: Session }) {
       </div>
 
       <div className="flex items-center gap-2">
-        {session.blocks.map((block) => (
+        {displayedBlocks.map((block) => (
           <span
             key={block.id}
             className="size-2.5 shrink-0 rounded-full"
@@ -93,9 +99,9 @@ export function SessionHistoryItem({ session }: { session: Session }) {
             aria-hidden
           />
         ))}
-        <span className="sr-only">{session.blocks.map((block) => block.name).join(", ")}</span>
+        <span className="sr-only">{displayedBlocks.map((block) => block.name).join(", ")}</span>
         <span className="text-muted-foreground text-xs">
-          {t("blocksCount", { count: session.blocks.length })} · {formatDurationShort(duration)}
+          {t("blocksCount", { count: displayedBlocks.length })} · {formatDurationShort(duration)}
         </span>
       </div>
 
