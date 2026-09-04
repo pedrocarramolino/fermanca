@@ -16,6 +16,9 @@ export interface SessionShareRepository {
    * amigos aceptados — la RLS ya limita esto, este método solo pide "lo que
    * pueda ver" ordenado por fecha de publicación. */
   listFeed(viewerId: UserId, limit: number): Promise<SessionShare[]>;
+  /** Para saber a quién avisar cuando alguien reacciona — null si la
+   * publicación ya no existe (se quitó del feed entre medias). */
+  getById(id: SessionShareId): Promise<SessionShare | null>;
   /** Para que el botón de la sesión sepa si ya está compartida (y ofrezca
    * "quitar del feed" en vez de "compartir" otra vez). */
   findBySessionId(sessionId: SessionId, ownerId: UserId): Promise<SessionShare | null>;

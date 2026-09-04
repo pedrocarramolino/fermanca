@@ -72,6 +72,13 @@ export interface SessionCoopNoticePushPayload {
   sessionId: string;
 }
 
+export interface SessionShareReactionPushPayload {
+  kind: "session-share-reaction";
+  title: string;
+  body: string;
+  sessionShareId: string;
+}
+
 export type PushPayload =
   | ReminderPushPayload
   | SessionPhasePushPayload
@@ -79,7 +86,8 @@ export type PushPayload =
   | AnnouncementPushPayload
   | SessionInvitePushPayload
   | SessionInviteAcceptedPushPayload
-  | SessionCoopNoticePushPayload;
+  | SessionCoopNoticePushPayload
+  | SessionShareReactionPushPayload;
 
 /** `expired: true` cuando el servicio push responde 404/410 — la
  * suscripción ya no es válida y hay que borrarla, no reintentar. */

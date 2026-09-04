@@ -90,6 +90,13 @@ interface SessionCoopNoticePushPayload {
   sessionId: string;
 }
 
+interface SessionShareReactionPushPayload {
+  kind: "session-share-reaction";
+  title: string;
+  body: string;
+  sessionShareId: string;
+}
+
 type IncomingPushPayload =
   | ReminderPushPayload
   | SessionPhasePushPayload
@@ -97,7 +104,8 @@ type IncomingPushPayload =
   | AnnouncementPushPayload
   | SessionInvitePushPayload
   | SessionInviteAcceptedPushPayload
-  | SessionCoopNoticePushPayload;
+  | SessionCoopNoticePushPayload
+  | SessionShareReactionPushPayload;
 
 interface ShowNotificationOptions extends NotificationOptions {
   actions?: { action: string; title: string }[];
@@ -285,6 +293,22 @@ self.addEventListener("push", (event: PushEvent) => {
         // Tag fijo (no por sesión): un pause/resume seguido del otro
         // reemplaza la notificación anterior en vez de amontonarlas.
         tag: "practiceflow-session-coop-notice",
+      }),
+    );
+    return;
+  }
+
+  if (payload.kind === "session-share-reaction") {
+    event.waitUntil(
+      notifyAndBadge(payload.title, {
+        body: payload.body,
+        icon: "/icons/icon-192x192.png",
+        badge: "/icons/icon-192x192.png",
+        data: { url: "/" },
+        // Tag por publicación: varias reacciones seguidas a la misma
+        // publicación reemplazan la notificación anterior en vez de
+        // amontonarlas, mismo motivo que session-coop-notice.
+        tag: `practiceflow-reaction-${payload.sessionShareId}`,
       }),
     );
     return;

@@ -69,6 +69,16 @@ export class SupabaseSessionShareRepository implements SessionShareRepository {
     return data.map(toDomain);
   }
 
+  async getById(id: SessionShareId): Promise<SessionShare | null> {
+    const { data, error } = await this.client
+      .from("session_shares")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+    if (error) throw error;
+    return data ? toDomain(data) : null;
+  }
+
   async findBySessionId(sessionId: SessionId, ownerId: UserId): Promise<SessionShare | null> {
     const { data, error } = await this.client
       .from("session_shares")

@@ -2,10 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/core/infrastructure/supabase/server";
+import { createServiceClient } from "@/core/infrastructure/supabase/service-client";
 import { SupabaseProfileRepository } from "@/core/infrastructure/supabase/repositories/profile-repository";
 import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/repositories/session-repository";
 import { SupabaseSessionShareRepository } from "@/core/infrastructure/supabase/repositories/session-share-repository";
 import { SupabaseSessionShareReactionRepository } from "@/core/infrastructure/supabase/repositories/session-share-reaction-repository";
+import { SupabasePushSubscriptionRepository } from "@/core/infrastructure/supabase/repositories/push-subscription-repository";
+import { sendPush } from "@/core/infrastructure/push/send-push";
 import { UnauthorizedError } from "@/core/domain/errors";
 import { hasPracticedTime } from "@/core/domain/session";
 import { isReactionEmoji, REACTION_EMOJIS, type ReactionSummary } from "@/core/domain/reaction";
@@ -49,14 +52,60 @@ export async function listFeed(): Promise<SessionShare[]> {
   }));
 }
 
+/** El dueño de la publicación no tiene ninguna sesión abierta en este
+ * request — sus suscripciones solo se pueden leer con la clave de
+ * servicio, mismo patrón que el aviso de solicitud de amistad. */
+async function notifyReaction(
+  share: SessionShare,
+  reactorId: UserId,
+  emoji: string,
+  client: Awaited<ReturnType<typeof createClient>>,
+) {
+  if (share.ownerId === reactorId) return; // reaccionar a tu propia publicación no avisa a nadie
+
+  const reactor = await new SupabaseProfileRepository(client).getByOwnerId(reactorId);
+  const serviceClient = createServiceClient();
+  const { data: subscriptions, error } = await serviceClient
+    .from("push_subscriptions")
+    .select("*")
+    .eq("owner_id", share.ownerId);
+  if (error) throw error;
+
+  const reactorUsername = reactor?.username ?? "Alguien";
+  const pushRepo = new SupabasePushSubscriptionRepository(serviceClient);
+  for (const sub of subscriptions) {
+    const result = await sendPush(
+      { endpoint: sub.endpoint, p256dh: sub.p256dh, auth: sub.auth },
+      {
+        kind: "session-share-reaction",
+        title: "Nueva reacción",
+        body: `${reactorUsername} ha reaccionado con ${emoji} a tu sesión compartida.`,
+        sessionShareId: share.id,
+      },
+    );
+    if (result.expired) await pushRepo.deleteByEndpoint(sub.endpoint);
+  }
+}
+
 export async function toggleReaction(sessionShareId: string, emoji: string): Promise<void> {
   const { userId, client } = await requireUserId();
   if (!isReactionEmoji(emoji)) throw new Error("Emoji no válido.");
-  await new SupabaseSessionShareReactionRepository(client).toggle(
-    sessionShareId as SessionShareId,
-    userId,
-    emoji,
-  );
+
+  const repo = new SupabaseSessionShareReactionRepository(client);
+  const reacted = await repo.toggle(sessionShareId as SessionShareId, userId, emoji);
+
+  if (reacted) {
+    const share = await new SupabaseSessionShareRepository(client).getById(
+      sessionShareId as SessionShareId,
+    );
+    if (share) {
+      await notifyReaction(share, userId, emoji, client).catch((error: unknown) => {
+        // El aviso es un extra, no debe tumbar la reacción si falla.
+        console.error("No se pudo enviar el aviso de reacción", error);
+      });
+    }
+  }
+
   revalidatePath("/");
 }
 
