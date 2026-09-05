@@ -16,13 +16,15 @@ import {
 import { formatDurationShort } from "@/core/domain/duration";
 import { formatSessionDate } from "@/lib/format-date";
 import { unshareWeeklyGoalFromFeed } from "@/features/feed/application/actions";
+import { useReactions } from "@/features/feed/hooks/use-reactions";
 import { FeedAvatar } from "@/features/feed/components/feed-avatar";
+import { ReactionBar, ReactionDetails } from "@/features/feed/components/reaction-bar";
 import type { WeeklyGoalShare } from "@/core/domain/weekly-goal-share";
 import type { Locale } from "@/core/domain/user-settings";
 
-/** Publicación de "objetivo semanal cumplido" — misma cabecera y diálogo de
- * confirmación que FeedItem, pero sin bloques ni reacciones: es un logro
- * puntual, no una sesión con detalle que expandir. */
+/** Publicación de "objetivo semanal cumplido" — misma cabecera, diálogo de
+ * confirmación y barra de reacciones que FeedItem, pero sin bloques que
+ * expandir: es un logro puntual, no una sesión con detalle. */
 export function WeeklyGoalFeedItem({
   share,
   isOwn,
@@ -37,6 +39,11 @@ export function WeeklyGoalFeedItem({
   const locale = useLocale();
   const [confirmingRemove, setConfirmingRemove] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const { reactions, toggle: handleToggleReaction } = useReactions(
+    "weekly-goal",
+    share.id,
+    share.reactions,
+  );
 
   function handleConfirmRemove() {
     startTransition(async () => {
@@ -92,6 +99,9 @@ export function WeeklyGoalFeedItem({
             {tStreaks("days", { count: share.streakDays })}
           </span>
         )}
+
+        <ReactionBar reactions={reactions} onToggle={handleToggleReaction} />
+        {isOwn && <ReactionDetails reactions={reactions} />}
       </CardContent>
 
       <Dialog open={confirmingRemove} onOpenChange={setConfirmingRemove}>

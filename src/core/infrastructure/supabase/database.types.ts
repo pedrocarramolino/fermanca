@@ -652,6 +652,38 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_goal_share_reactions: {
+        Row: {
+          created_at: string
+          emoji: string
+          id: string
+          owner_id: string
+          weekly_goal_share_id: string
+        }
+        Insert: {
+          created_at?: string
+          emoji: string
+          id?: string
+          owner_id: string
+          weekly_goal_share_id: string
+        }
+        Update: {
+          created_at?: string
+          emoji?: string
+          id?: string
+          owner_id?: string
+          weekly_goal_share_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weekly_goal_share_reactions_weekly_goal_share_id_fkey"
+            columns: ["weekly_goal_share_id"]
+            isOneToOne: false
+            referencedRelation: "weekly_goal_shares"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       weekly_goal_shares: {
         Row: {
           created_at: string

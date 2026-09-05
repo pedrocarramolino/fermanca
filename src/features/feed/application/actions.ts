@@ -8,6 +8,7 @@ import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/reposi
 import { SupabaseSessionShareRepository } from "@/core/infrastructure/supabase/repositories/session-share-repository";
 import { SupabaseSessionShareReactionRepository } from "@/core/infrastructure/supabase/repositories/session-share-reaction-repository";
 import { SupabaseWeeklyGoalShareRepository } from "@/core/infrastructure/supabase/repositories/weekly-goal-share-repository";
+import { SupabaseWeeklyGoalShareReactionRepository } from "@/core/infrastructure/supabase/repositories/weekly-goal-share-reaction-repository";
 import { SupabasePushSubscriptionRepository } from "@/core/infrastructure/supabase/repositories/push-subscription-repository";
 import { sendPush } from "@/core/infrastructure/push/send-push";
 import { UnauthorizedError } from "@/core/domain/errors";
@@ -15,7 +16,6 @@ import { hasPracticedTime } from "@/core/domain/session";
 import { isReactionEmoji, REACTION_EMOJIS, type ReactionSummary } from "@/core/domain/reaction";
 import type { SessionShare } from "@/core/domain/session-share";
 import type { WeeklyGoalShare } from "@/core/domain/weekly-goal-share";
-import type { SessionShareReactionRow } from "@/core/domain/repositories/session-share-reaction-repository";
 import type {
   SessionBlockId,
   SessionId,
@@ -32,6 +32,11 @@ export type FeedEntry =
   | { kind: "session"; share: SessionShare }
   | { kind: "weekly-goal"; share: WeeklyGoalShare };
 
+/** Las reacciones de sesiones y de objetivos viven en tablas separadas
+ * (session_share_reactions / weekly_goal_share_reactions) — `kind` decide
+ * cuál usar en toggleReaction sin exponer dos acciones distintas al cliente. */
+export type ShareKind = "session" | "weekly-goal";
+
 async function requireUserId() {
   const client = await createClient();
   const { data } = await client.auth.getClaims();
@@ -42,18 +47,43 @@ async function requireUserId() {
 
 const FEED_LIMIT = 30;
 
-/** Solo los emojis con al menos una reacción, contados y marcados según si
- * el que mira el feed es uno de quienes reaccionó así. */
+/** Solo los emojis con al menos una reacción. `reactedByUsernames` solo se
+ * calcula para quien publicó (usernameByOwnerId ya viene vacío para el
+ * resto) — el resto de gente ve el recuento, no quién es cada uno. */
 function summarizeReactions(
-  rows: SessionShareReactionRow[],
-  shareId: SessionShareId,
+  matchingRows: { ownerId: UserId; emoji: string }[],
   viewerId: UserId,
+  isOwner: boolean,
+  usernameByOwnerId: Map<UserId, string>,
 ): ReactionSummary[] {
-  const forShare = rows.filter((r) => r.sessionShareId === shareId);
   return REACTION_EMOJIS.map((emoji) => {
-    const matches = forShare.filter((r) => r.emoji === emoji);
-    return { emoji, count: matches.length, reactedByMe: matches.some((r) => r.ownerId === viewerId) };
+    const matches = matchingRows.filter((r) => r.emoji === emoji);
+    return {
+      emoji,
+      count: matches.length,
+      reactedByMe: matches.some((r) => r.ownerId === viewerId),
+      reactedByUsernames: isOwner
+        ? matches.map((r) => usernameByOwnerId.get(r.ownerId)).filter((u): u is string => !!u)
+        : undefined,
+    };
   }).filter((r) => r.count > 0);
+}
+
+/** Nombres de quienes han reaccionado a TUS publicaciones — se piden de
+ * golpe para todos los reactores relevantes en vez de uno a uno. La RLS de
+ * profiles ya permite verlos: cualquiera que haya podido reaccionar es o tú
+ * mismo, o un amigo aceptado (RLS de *_share_reactions_insert_own así lo exige). */
+async function fetchUsernames(
+  client: Awaited<ReturnType<typeof createClient>>,
+  ownerIds: UserId[],
+): Promise<Map<UserId, string>> {
+  if (ownerIds.length === 0) return new Map();
+  const { data, error } = await client
+    .from("profiles")
+    .select("owner_id, username")
+    .in("owner_id", ownerIds);
+  if (error) throw error;
+  return new Map(data.map((p) => [p.owner_id as UserId, p.username]));
 }
 
 export async function listFeed(): Promise<FeedEntry[]> {
@@ -62,16 +92,55 @@ export async function listFeed(): Promise<FeedEntry[]> {
     new SupabaseSessionShareRepository(client).listFeed(userId, FEED_LIMIT),
     new SupabaseWeeklyGoalShareRepository(client).listFeed(userId, FEED_LIMIT),
   ]);
-  const reactionRows = await new SupabaseSessionShareReactionRepository(client).listForShares(
-    shares.map((s) => s.id),
-  );
+  const [sessionReactionRows, goalReactionRows] = await Promise.all([
+    new SupabaseSessionShareReactionRepository(client).listForShares(shares.map((s) => s.id)),
+    new SupabaseWeeklyGoalShareReactionRepository(client).listForShares(goalShares.map((s) => s.id)),
+  ]);
+
+  // Solo hace falta el nombre de quien reaccionó en TUS publicaciones — para
+  // las de un amigo, ver el recuento ya es suficiente.
+  const reactorIdsNeedingNames = new Set<UserId>();
+  for (const share of shares) {
+    if (share.ownerId !== userId) continue;
+    for (const row of sessionReactionRows) if (row.sessionShareId === share.id) reactorIdsNeedingNames.add(row.ownerId);
+  }
+  for (const share of goalShares) {
+    if (share.ownerId !== userId) continue;
+    for (const row of goalReactionRows) if (row.weeklyGoalShareId === share.id) reactorIdsNeedingNames.add(row.ownerId);
+  }
+  const usernameByOwnerId = await fetchUsernames(client, [...reactorIdsNeedingNames]);
 
   const entries: FeedEntry[] = [
-    ...shares.map((share): FeedEntry => ({
-      kind: "session",
-      share: { ...share, reactions: summarizeReactions(reactionRows, share.id, userId) },
-    })),
-    ...goalShares.map((share): FeedEntry => ({ kind: "weekly-goal", share })),
+    ...shares.map((share): FeedEntry => {
+      const isOwner = share.ownerId === userId;
+      return {
+        kind: "session",
+        share: {
+          ...share,
+          reactions: summarizeReactions(
+            sessionReactionRows.filter((r) => r.sessionShareId === share.id),
+            userId,
+            isOwner,
+            usernameByOwnerId,
+          ),
+        },
+      };
+    }),
+    ...goalShares.map((share): FeedEntry => {
+      const isOwner = share.ownerId === userId;
+      return {
+        kind: "weekly-goal",
+        share: {
+          ...share,
+          reactions: summarizeReactions(
+            goalReactionRows.filter((r) => r.weeklyGoalShareId === share.id),
+            userId,
+            isOwner,
+            usernameByOwnerId,
+          ),
+        },
+      };
+    }),
   ];
 
   // Las dos consultas ya vienen ordenadas por su cuenta (más reciente
@@ -85,7 +154,7 @@ export async function listFeed(): Promise<FeedEntry[]> {
 /** El dueño de la publicación no tiene ninguna sesión abierta en este
  * request — sus suscripciones solo se pueden leer con la clave de
  * servicio, mismo patrón que el aviso de solicitud de amistad. */
-async function notifyReaction(
+async function notifySessionReaction(
   share: SessionShare,
   reactorId: UserId,
   emoji: string,
@@ -117,22 +186,69 @@ async function notifyReaction(
   }
 }
 
-export async function toggleReaction(sessionShareId: string, emoji: string): Promise<void> {
+/** Mismo patrón que notifySessionReaction, para un objetivo semanal
+ * compartido en vez de una sesión. */
+async function notifyGoalReaction(
+  share: WeeklyGoalShare,
+  reactorId: UserId,
+  emoji: string,
+  client: Awaited<ReturnType<typeof createClient>>,
+) {
+  if (share.ownerId === reactorId) return;
+
+  const reactor = await new SupabaseProfileRepository(client).getByOwnerId(reactorId);
+  const serviceClient = createServiceClient();
+  const { data: subscriptions, error } = await serviceClient
+    .from("push_subscriptions")
+    .select("*")
+    .eq("owner_id", share.ownerId);
+  if (error) throw error;
+
+  const reactorUsername = reactor?.username ?? "Alguien";
+  const pushRepo = new SupabasePushSubscriptionRepository(serviceClient);
+  for (const sub of subscriptions) {
+    const result = await sendPush(
+      { endpoint: sub.endpoint, p256dh: sub.p256dh, auth: sub.auth },
+      {
+        kind: "weekly-goal-share-reaction",
+        title: "Nueva reacción",
+        body: `${reactorUsername} ha reaccionado con ${emoji} a tu objetivo semanal cumplido.`,
+        weeklyGoalShareId: share.id,
+      },
+    );
+    if (result.expired) await pushRepo.deleteByEndpoint(sub.endpoint);
+  }
+}
+
+export async function toggleReaction(kind: ShareKind, shareId: string, emoji: string): Promise<void> {
   const { userId, client } = await requireUserId();
   if (!isReactionEmoji(emoji)) throw new Error("Emoji no válido.");
 
-  const repo = new SupabaseSessionShareReactionRepository(client);
-  const reacted = await repo.toggle(sessionShareId as SessionShareId, userId, emoji);
-
-  if (reacted) {
-    const share = await new SupabaseSessionShareRepository(client).getById(
-      sessionShareId as SessionShareId,
-    );
-    if (share) {
-      await notifyReaction(share, userId, emoji, client).catch((error: unknown) => {
-        // El aviso es un extra, no debe tumbar la reacción si falla.
-        console.error("No se pudo enviar el aviso de reacción", error);
-      });
+  if (kind === "session") {
+    const repo = new SupabaseSessionShareReactionRepository(client);
+    const reacted = await repo.toggle(shareId as SessionShareId, userId, emoji);
+    if (reacted) {
+      const share = await new SupabaseSessionShareRepository(client).getById(shareId as SessionShareId);
+      if (share) {
+        await notifySessionReaction(share, userId, emoji, client).catch((error: unknown) => {
+          // El aviso es un extra, no debe tumbar la reacción si falla.
+          console.error("No se pudo enviar el aviso de reacción", error);
+        });
+      }
+    }
+  } else {
+    const repo = new SupabaseWeeklyGoalShareReactionRepository(client);
+    const reacted = await repo.toggle(shareId as WeeklyGoalShareId, userId, emoji);
+    if (reacted) {
+      const share = await new SupabaseWeeklyGoalShareRepository(client).getById(
+        shareId as WeeklyGoalShareId,
+      );
+      if (share) {
+        await notifyGoalReaction(share, userId, emoji, client).catch((error: unknown) => {
+          // El aviso es un extra, no debe tumbar la reacción si falla.
+          console.error("No se pudo enviar el aviso de reacción", error);
+        });
+      }
     }
   }
 

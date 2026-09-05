@@ -110,6 +110,13 @@ interface StreakAlertPushPayload {
   body: string;
 }
 
+interface WeeklyGoalShareReactionPushPayload {
+  kind: "weekly-goal-share-reaction";
+  title: string;
+  body: string;
+  weeklyGoalShareId: string;
+}
+
 type IncomingPushPayload =
   | ReminderPushPayload
   | SessionPhasePushPayload
@@ -120,7 +127,8 @@ type IncomingPushPayload =
   | SessionCoopNoticePushPayload
   | SessionShareReactionPushPayload
   | SessionPhaseFiveMinAlertPushPayload
-  | StreakAlertPushPayload;
+  | StreakAlertPushPayload
+  | WeeklyGoalShareReactionPushPayload;
 
 interface ShowNotificationOptions extends NotificationOptions {
   actions?: { action: string; title: string }[];
@@ -351,6 +359,19 @@ self.addEventListener("push", (event: PushEvent) => {
         // publicación reemplazan la notificación anterior en vez de
         // amontonarlas, mismo motivo que session-coop-notice.
         tag: `practiceflow-reaction-${payload.sessionShareId}`,
+      }),
+    );
+    return;
+  }
+
+  if (payload.kind === "weekly-goal-share-reaction") {
+    event.waitUntil(
+      notifyAndBadge(payload.title, {
+        body: payload.body,
+        icon: "/icons/icon-192x192.png",
+        badge: "/icons/icon-192x192.png",
+        data: { url: "/" },
+        tag: `practiceflow-goal-reaction-${payload.weeklyGoalShareId}`,
       }),
     );
     return;

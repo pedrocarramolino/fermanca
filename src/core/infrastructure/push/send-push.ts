@@ -92,6 +92,13 @@ export interface StreakAlertPushPayload {
   body: string;
 }
 
+export interface WeeklyGoalShareReactionPushPayload {
+  kind: "weekly-goal-share-reaction";
+  title: string;
+  body: string;
+  weeklyGoalShareId: string;
+}
+
 export type PushPayload =
   | ReminderPushPayload
   | SessionPhasePushPayload
@@ -102,7 +109,8 @@ export type PushPayload =
   | SessionCoopNoticePushPayload
   | SessionShareReactionPushPayload
   | SessionPhaseFiveMinAlertPushPayload
-  | StreakAlertPushPayload;
+  | StreakAlertPushPayload
+  | WeeklyGoalShareReactionPushPayload;
 
 /** `expired: true` cuando el servicio push responde 404/410 — la
  * suscripción ya no es válida y hay que borrarla, no reintentar. */

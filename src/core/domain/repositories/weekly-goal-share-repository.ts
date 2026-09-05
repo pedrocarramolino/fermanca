@@ -16,6 +16,9 @@ export interface WeeklyGoalShareRepository {
   /** Mismo criterio que SessionShareRepository.listFeed: la RLS ya limita a
    * lo propio o lo de un amigo aceptado. */
   listFeed(viewerId: UserId, limit: number): Promise<WeeklyGoalShare[]>;
+  /** Para saber a quién avisar cuando alguien reacciona — mismo motivo que
+   * SessionShareRepository.getById. */
+  getById(id: WeeklyGoalShareId): Promise<WeeklyGoalShare | null>;
   /** Para que el botón de compartir sepa si el objetivo de esta semana ya
    * está compartido (y ofrezca quitarlo en vez de compartirlo otra vez). */
   findByWeek(ownerId: UserId, weekStart: string): Promise<WeeklyGoalShare | null>;

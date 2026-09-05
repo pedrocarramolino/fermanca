@@ -19,6 +19,9 @@ function toDomain(row: Row): WeeklyGoalShare {
     practicedSeconds: row.practiced_seconds,
     streakDays: row.streak_days,
     createdAt: new Date(row.created_at),
+    // Se calculan aparte (tabla weekly_goal_share_reactions) y las rellena
+    // quien llama cuando las necesita — ver listFeed() en application/actions.ts.
+    reactions: [],
   };
 }
 
@@ -63,6 +66,16 @@ export class SupabaseWeeklyGoalShareRepository implements WeeklyGoalShareReposit
       .limit(limit);
     if (error) throw error;
     return data.map(toDomain);
+  }
+
+  async getById(id: WeeklyGoalShareId): Promise<WeeklyGoalShare | null> {
+    const { data, error } = await this.client
+      .from("weekly_goal_shares")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+    if (error) throw error;
+    return data ? toDomain(data) : null;
   }
 
   async findByWeek(ownerId: UserId, weekStart: string): Promise<WeeklyGoalShare | null> {

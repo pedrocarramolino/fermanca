@@ -16,4 +16,10 @@ export interface ReactionSummary {
   emoji: ReactionEmoji;
   count: number;
   reactedByMe: boolean;
+  /** Solo se rellena para quien publicó — el resto de gente ve el recuento,
+   * pero no quién es cada uno. undefined (no []) para quien no es el dueño,
+   * así el componente distingue "no soy el dueño" de "el dueño, pero
+   * todavía nadie ha reaccionado con este emoji" (que ni aparece, ver
+   * arriba). */
+  reactedByUsernames?: string[];
 }
