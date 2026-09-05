@@ -17,6 +17,7 @@ import {
   PHASE_FIVE_MIN_ALERT_LEAD_SECONDS,
   scheduleSessionPhaseAlert,
   scheduleSessionPhaseFiveMinAlert,
+  scheduleStreakAlert,
 } from "@/core/infrastructure/qstash/client";
 
 type SessionRow = Database["public"]["Tables"]["sessions"]["Row"];
@@ -454,6 +455,13 @@ export class SupabaseSessionRepository implements SessionRepository {
       .eq("id", id)
       .eq("owner_id", ownerId);
     if (error) throw error;
+
+    // No debe tumbar el cierre de la sesión, que ya se guardó bien.
+    try {
+      await scheduleStreakAlert(ownerId, id);
+    } catch (scheduleError) {
+      console.error("No se pudo programar el aviso de racha", scheduleError);
+    }
 
     const updated = await this.getById(id, ownerId);
     if (!updated) throw new Error("Sesión no encontrada.");

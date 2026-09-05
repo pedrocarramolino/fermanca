@@ -86,6 +86,12 @@ export interface SessionPhaseFiveMinAlertPushPayload {
   sessionId: string;
 }
 
+export interface StreakAlertPushPayload {
+  kind: "streak-alert";
+  title: string;
+  body: string;
+}
+
 export type PushPayload =
   | ReminderPushPayload
   | SessionPhasePushPayload
@@ -95,7 +101,8 @@ export type PushPayload =
   | SessionInviteAcceptedPushPayload
   | SessionCoopNoticePushPayload
   | SessionShareReactionPushPayload
-  | SessionPhaseFiveMinAlertPushPayload;
+  | SessionPhaseFiveMinAlertPushPayload
+  | StreakAlertPushPayload;
 
 /** `expired: true` cuando el servicio push responde 404/410 — la
  * suscripción ya no es válida y hay que borrarla, no reintentar. */

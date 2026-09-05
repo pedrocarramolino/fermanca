@@ -64,6 +64,22 @@ export async function scheduleSessionPhaseFiveMinAlert(
   return messageId;
 }
 
+/** 20h sin practicar desde la última sesión (terminada o abandonada) — un
+ * solo mensaje QStash por sesión, programado al cerrarla. Si para cuando
+ * llegue el usuario ya ha hecho otra sesión, /api/qstash/streak-alert ve que
+ * esta ya no es la más reciente y no manda nada — así no hace falta cancelar
+ * nada al empezar una sesión nueva, ni una columna que lleve la cuenta. */
+const STREAK_ALERT_DELAY_SECONDS = 20 * 60 * 60;
+
+export async function scheduleStreakAlert(ownerId: string, sessionId: string): Promise<string> {
+  const { messageId } = await getClient().publishJSON({
+    url: `${appUrl()}/api/qstash/streak-alert`,
+    body: { ownerId, sessionId },
+    delay: STREAK_ALERT_DELAY_SECONDS,
+  });
+  return messageId;
+}
+
 /** Best-effort: si el mensaje ya se entregó o ya no existe, no hay nada que
  * deshacer — no debe tumbar la transición de fase por esto. */
 export async function cancelQstashMessage(messageId: string): Promise<void> {

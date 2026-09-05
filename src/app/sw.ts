@@ -104,6 +104,12 @@ interface SessionPhaseFiveMinAlertPushPayload {
   sessionId: string;
 }
 
+interface StreakAlertPushPayload {
+  kind: "streak-alert";
+  title: string;
+  body: string;
+}
+
 type IncomingPushPayload =
   | ReminderPushPayload
   | SessionPhasePushPayload
@@ -113,7 +119,8 @@ type IncomingPushPayload =
   | SessionInviteAcceptedPushPayload
   | SessionCoopNoticePushPayload
   | SessionShareReactionPushPayload
-  | SessionPhaseFiveMinAlertPushPayload;
+  | SessionPhaseFiveMinAlertPushPayload
+  | StreakAlertPushPayload;
 
 interface ShowNotificationOptions extends NotificationOptions {
   actions?: { action: string; title: string }[];
@@ -248,6 +255,19 @@ self.addEventListener("push", (event: PushEvent) => {
         tag: "practiceflow-session-phase-five-min",
         data: { url: `/session/${payload.sessionId}` },
         vibrate: [200, 100, 200],
+      }),
+    );
+    return;
+  }
+
+  if (payload.kind === "streak-alert") {
+    event.waitUntil(
+      notifyAndBadge(payload.title, {
+        body: payload.body,
+        icon: "/icons/icon-192x192.png",
+        badge: "/icons/icon-192x192.png",
+        tag: "practiceflow-streak-alert",
+        data: { url: "/" },
       }),
     );
     return;
