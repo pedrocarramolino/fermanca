@@ -70,7 +70,7 @@ export default async function Home() {
 
       <SessionBuilder initialCategories={categories} initialTemplates={templates} />
 
-      <FeedList initialShares={feedShares} currentUserId={userId} />
+      <FeedList initialEntries={feedShares} currentUserId={userId} />
 
       <p className="text-muted-foreground text-center text-xs">
         {tCommon("footerCredit", { year: new Date().getFullYear() })}

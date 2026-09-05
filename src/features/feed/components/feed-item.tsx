@@ -19,25 +19,11 @@ import { REACTION_EMOJIS, type ReactionEmoji, type ReactionSummary } from "@/cor
 import { formatSessionDate } from "@/lib/format-date";
 import { cn } from "@/lib/utils";
 import { toggleReaction, unshareFromFeed } from "@/features/feed/application/actions";
+import { FeedAvatar } from "@/features/feed/components/feed-avatar";
 import type { SessionShare } from "@/core/domain/session-share";
 import type { Locale } from "@/core/domain/user-settings";
 
 const MAX_VISIBLE_BLOCKS = 4;
-
-function FeedAvatar({ username, avatarUrl }: { username: string; avatarUrl: string | null }) {
-  return (
-    <span className="border-border bg-muted flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full border">
-      {avatarUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={avatarUrl} alt="" className="size-full object-cover" />
-      ) : (
-        <span className="text-muted-foreground text-xs font-medium">
-          {username.slice(0, 2).toUpperCase()}
-        </span>
-      )}
-    </span>
-  );
-}
 
 /** Los 5 emojis posibles se muestran siempre, con o sin reacciones — así se
  * puede reaccionar directamente sin un selector aparte, y el que ya tiene

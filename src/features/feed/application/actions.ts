@@ -7,14 +7,30 @@ import { SupabaseProfileRepository } from "@/core/infrastructure/supabase/reposi
 import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/repositories/session-repository";
 import { SupabaseSessionShareRepository } from "@/core/infrastructure/supabase/repositories/session-share-repository";
 import { SupabaseSessionShareReactionRepository } from "@/core/infrastructure/supabase/repositories/session-share-reaction-repository";
+import { SupabaseWeeklyGoalShareRepository } from "@/core/infrastructure/supabase/repositories/weekly-goal-share-repository";
 import { SupabasePushSubscriptionRepository } from "@/core/infrastructure/supabase/repositories/push-subscription-repository";
 import { sendPush } from "@/core/infrastructure/push/send-push";
 import { UnauthorizedError } from "@/core/domain/errors";
 import { hasPracticedTime } from "@/core/domain/session";
 import { isReactionEmoji, REACTION_EMOJIS, type ReactionSummary } from "@/core/domain/reaction";
 import type { SessionShare } from "@/core/domain/session-share";
+import type { WeeklyGoalShare } from "@/core/domain/weekly-goal-share";
 import type { SessionShareReactionRow } from "@/core/domain/repositories/session-share-reaction-repository";
-import type { SessionBlockId, SessionId, SessionShareId, UserId } from "@/core/domain/ids";
+import type {
+  SessionBlockId,
+  SessionId,
+  SessionShareId,
+  UserId,
+  WeeklyGoalShareId,
+} from "@/core/domain/ids";
+
+/** Une los dos tipos de publicación del Feed (sesión compartida, objetivo
+ * semanal cumplido) en una sola línea de tiempo — FeedList/FeedItem
+ * distinguen cuál es cuál por `kind` en vez de necesitar dos listas y dos
+ * mecanismos de scroll aparte. */
+export type FeedEntry =
+  | { kind: "session"; share: SessionShare }
+  | { kind: "weekly-goal"; share: WeeklyGoalShare };
 
 async function requireUserId() {
   const client = await createClient();
@@ -40,16 +56,30 @@ function summarizeReactions(
   }).filter((r) => r.count > 0);
 }
 
-export async function listFeed(): Promise<SessionShare[]> {
+export async function listFeed(): Promise<FeedEntry[]> {
   const { userId, client } = await requireUserId();
-  const shares = await new SupabaseSessionShareRepository(client).listFeed(userId, FEED_LIMIT);
+  const [shares, goalShares] = await Promise.all([
+    new SupabaseSessionShareRepository(client).listFeed(userId, FEED_LIMIT),
+    new SupabaseWeeklyGoalShareRepository(client).listFeed(userId, FEED_LIMIT),
+  ]);
   const reactionRows = await new SupabaseSessionShareReactionRepository(client).listForShares(
     shares.map((s) => s.id),
   );
-  return shares.map((share) => ({
-    ...share,
-    reactions: summarizeReactions(reactionRows, share.id, userId),
-  }));
+
+  const entries: FeedEntry[] = [
+    ...shares.map((share): FeedEntry => ({
+      kind: "session",
+      share: { ...share, reactions: summarizeReactions(reactionRows, share.id, userId) },
+    })),
+    ...goalShares.map((share): FeedEntry => ({ kind: "weekly-goal", share })),
+  ];
+
+  // Las dos consultas ya vienen ordenadas por su cuenta (más reciente
+  // primero) — al mezclarlas hay que reordenar la unión entera, y recortar
+  // otra vez al límite del feed (juntas podrían sumar más de FEED_LIMIT).
+  return entries
+    .sort((a, b) => b.share.createdAt.getTime() - a.share.createdAt.getTime())
+    .slice(0, FEED_LIMIT);
 }
 
 /** El dueño de la publicación no tiene ninguna sesión abierta en este
@@ -162,5 +192,51 @@ export async function shareSessionToFeed(
 export async function unshareFromFeed(sessionShareId: string): Promise<void> {
   const { userId, client } = await requireUserId();
   await new SupabaseSessionShareRepository(client).remove(sessionShareId as SessionShareId, userId);
+  revalidatePath("/");
+}
+
+/** Para que el botón de compartir del objetivo semanal sepa si el de esta
+ * semana ya está compartido (y ofrezca quitarlo en vez de compartirlo otra
+ * vez) — mismo patrón que getMySessionShare. */
+export async function getMyWeeklyGoalShare(weekStart: string): Promise<WeeklyGoalShare | null> {
+  const { userId, client } = await requireUserId();
+  return new SupabaseWeeklyGoalShareRepository(client).findByWeek(userId, weekStart);
+}
+
+export async function shareWeeklyGoalToFeed(input: {
+  weekStart: string;
+  targetDays: number;
+  targetSeconds: number;
+  practicedDays: number;
+  practicedSeconds: number;
+  streakDays: number;
+}): Promise<WeeklyGoalShare> {
+  const { userId, client } = await requireUserId();
+
+  const profile = await new SupabaseProfileRepository(client).getByOwnerId(userId);
+  if (!profile) throw new Error("Perfil no encontrado.");
+
+  const share = await new SupabaseWeeklyGoalShareRepository(client).create({
+    ownerId: userId,
+    ownerUsername: profile.username,
+    ownerAvatarUrl: profile.avatarUrl,
+    weekStart: input.weekStart,
+    targetDays: input.targetDays,
+    targetSeconds: input.targetSeconds,
+    practicedDays: input.practicedDays,
+    practicedSeconds: input.practicedSeconds,
+    streakDays: input.streakDays,
+  });
+
+  revalidatePath("/");
+  return share;
+}
+
+export async function unshareWeeklyGoalFromFeed(weeklyGoalShareId: string): Promise<void> {
+  const { userId, client } = await requireUserId();
+  await new SupabaseWeeklyGoalShareRepository(client).remove(
+    weeklyGoalShareId as WeeklyGoalShareId,
+    userId,
+  );
   revalidatePath("/");
 }

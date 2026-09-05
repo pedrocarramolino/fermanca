@@ -652,6 +652,48 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_goal_shares: {
+        Row: {
+          created_at: string
+          id: string
+          owner_avatar_url: string | null
+          owner_id: string
+          owner_username: string
+          practiced_days: number
+          practiced_seconds: number
+          streak_days: number
+          target_days: number
+          target_seconds: number
+          week_start: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          owner_avatar_url?: string | null
+          owner_id: string
+          owner_username: string
+          practiced_days: number
+          practiced_seconds: number
+          streak_days: number
+          target_days: number
+          target_seconds: number
+          week_start: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          owner_avatar_url?: string | null
+          owner_id?: string
+          owner_username?: string
+          practiced_days?: number
+          practiced_seconds?: number
+          streak_days?: number
+          target_days?: number
+          target_seconds?: number
+          week_start?: string
+        }
+        Relationships: []
+      }
       weekly_goals: {
         Row: {
           completed: boolean

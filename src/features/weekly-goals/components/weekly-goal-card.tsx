@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatDurationShort } from "@/core/domain/duration";
 import { saveWeeklyGoal, setWeeklyGoalCompleted } from "@/features/weekly-goals/application/actions";
+import { ShareWeeklyGoalButton } from "@/features/weekly-goals/components/share-weekly-goal-button";
 import type { WeeklyGoal, WeeklyGoalProgress } from "@/core/domain/weekly-goal";
 
 const DEFAULT_TARGET_DAYS = 5;
@@ -167,9 +168,12 @@ export function WeeklyGoalCard({
         </div>
 
         {goal.completed ? (
-          <div className="text-primary flex items-center gap-1.5 text-sm font-medium">
-            <CheckCircle2 className="size-4" aria-hidden />
-            {t("completed")}
+          <div className="flex flex-col gap-2">
+            <div className="text-primary flex items-center gap-1.5 text-sm font-medium">
+              <CheckCircle2 className="size-4" aria-hidden />
+              {t("completed")}
+            </div>
+            <ShareWeeklyGoalButton goal={goal} progress={progress} />
           </div>
         ) : (
           progress.reached && (
