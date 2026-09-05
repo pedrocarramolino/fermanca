@@ -481,7 +481,9 @@
       "save": "Speichern",
       "saving": "Wird gespeichert…",
       "cancel": "Abbrechen",
-      "editError": "Die Ankündigung konnte nicht gespeichert werden."
+      "editError": "Die Ankündigung konnte nicht gespeichert werden.",
+      "viewAll": "Alle anzeigen",
+      "back": "Zurück"
     }
   },
   "Share": {

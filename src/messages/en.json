@@ -481,7 +481,9 @@
       "save": "Save",
       "saving": "Saving…",
       "cancel": "Cancel",
-      "editError": "Couldn't save the announcement."
+      "editError": "Couldn't save the announcement.",
+      "viewAll": "View all",
+      "back": "Back"
     }
   },
   "Share": {

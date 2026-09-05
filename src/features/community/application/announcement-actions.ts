@@ -56,6 +56,13 @@ export async function listAnnouncements() {
   return new SupabaseAnnouncementRepository(client).list(BOARD_LIST_LIMIT);
 }
 
+/** Para la página "Ver todos" — sin límite propio, se queda con el que
+ * trae por defecto el repositorio. */
+export async function listAllAnnouncements() {
+  const { client } = await requireUserId();
+  return new SupabaseAnnouncementRepository(client).list();
+}
+
 export async function createAnnouncement(body: string) {
   const { userId, client } = await requireUserId();
   const trimmed = body.trim();

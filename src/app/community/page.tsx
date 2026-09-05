@@ -75,6 +75,7 @@ export default async function CommunityPage() {
           createdAt: a.createdAt.toISOString(),
         }))}
         isAdmin={profile.isAdmin}
+        viewAllHref="/community/announcements"
       />
 
       <Card>

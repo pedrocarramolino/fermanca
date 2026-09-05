@@ -481,7 +481,9 @@
       "save": "Guardar",
       "saving": "Guardando…",
       "cancel": "Cancelar",
-      "editError": "No se pudo guardar el anuncio."
+      "editError": "No se pudo guardar el anuncio.",
+      "viewAll": "Ver todos",
+      "back": "Volver"
     }
   },
   "Share": {

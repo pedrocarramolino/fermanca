@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { Megaphone, Pencil, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -79,12 +80,26 @@ function AnnouncementForm({ onCreated }: { onCreated: (announcement: Announcemen
   );
 }
 
+/** Cuántos anuncios trae la portada de Comunidad (ver BOARD_LIST_LIMIT en
+ * announcement-actions.ts) — si llegan justo esos, puede haber más, así que
+ * se ofrece el enlace a "Ver todos"; si hay menos, no hace falta. */
+const BOARD_PREVIEW_LIMIT = 3;
+
 export function AnnouncementBoard({
   initialAnnouncements,
   isAdmin,
+  viewAllHref,
+  showHeader = true,
 }: {
   initialAnnouncements: AnnouncementItem[];
   isAdmin: boolean;
+  /** Si se pasa, y hay al menos BOARD_PREVIEW_LIMIT anuncios, se muestra un
+   * enlace a la página con el listado completo — omitido en esa propia
+   * página, que ya los enseña todos. */
+  viewAllHref?: string;
+  /** La página "Ver todos" ya trae su propio <h1> con el mismo título — sin
+   * esto, se vería repetido dos veces seguidas. */
+  showHeader?: boolean;
 }) {
   const t = useTranslations("Community.board");
   const locale = useLocale() as Locale;
@@ -132,12 +147,14 @@ export function AnnouncementBoard({
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-base">
-          <Megaphone className="size-4" aria-hidden />
-          {t("title")}
-        </CardTitle>
-      </CardHeader>
+      {showHeader && (
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Megaphone className="size-4" aria-hidden />
+            {t("title")}
+          </CardTitle>
+        </CardHeader>
+      )}
       <CardContent className="flex flex-col gap-4">
         {isAdmin && (
           <AnnouncementForm onCreated={(a) => setAnnouncements((prev) => [a, ...prev])} />
@@ -222,6 +239,19 @@ export function AnnouncementBoard({
               );
             })}
           </ul>
+        )}
+
+        {viewAllHref && announcements.length >= BOARD_PREVIEW_LIMIT && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="self-start"
+            render={<Link href={viewAllHref} />}
+            nativeButton={false}
+          >
+            {t("viewAll")}
+          </Button>
         )}
       </CardContent>
 
