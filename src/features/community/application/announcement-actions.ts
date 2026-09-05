@@ -8,9 +8,13 @@ import { SupabaseProfileRepository } from "@/core/infrastructure/supabase/reposi
 import { SupabasePushSubscriptionRepository } from "@/core/infrastructure/supabase/repositories/push-subscription-repository";
 import { sendPush } from "@/core/infrastructure/push/send-push";
 import { UnauthorizedError } from "@/core/domain/errors";
+import { canEditAnnouncement } from "@/core/domain/announcement";
 import type { AnnouncementId, UserId } from "@/core/domain/ids";
 
 const NOTIFICATION_BODY_LIMIT = 150;
+/** El tablón solo enseña los últimos 3 — no es un historial, es "qué está
+ * pasando ahora"; anuncios más viejos ya cumplieron su función. */
+const BOARD_LIST_LIMIT = 3;
 
 async function requireUserId() {
   const client = await createClient();
@@ -49,7 +53,7 @@ async function notifyAnnouncementSubscribers(authorId: UserId, body: string) {
 
 export async function listAnnouncements() {
   const { client } = await requireUserId();
-  return new SupabaseAnnouncementRepository(client).list();
+  return new SupabaseAnnouncementRepository(client).list(BOARD_LIST_LIMIT);
 }
 
 export async function createAnnouncement(body: string) {
@@ -73,6 +77,29 @@ export async function createAnnouncement(body: string) {
 
   revalidatePath("/community");
   return announcement;
+}
+
+export async function updateAnnouncement(id: string, body: string) {
+  const { userId, client } = await requireUserId();
+  const trimmed = body.trim();
+  if (!trimmed) throw new Error("El anuncio necesita contenido.");
+
+  const profile = await new SupabaseProfileRepository(client).getByOwnerId(userId);
+  if (!profile?.isAdmin) throw new UnauthorizedError();
+
+  const repo = new SupabaseAnnouncementRepository(client);
+  const current = await repo.getById(id as AnnouncementId);
+  if (!current) throw new Error("Anuncio no encontrado.");
+  // La RLS ya lo bloquearía igualmente (announcements_update_admin_recent),
+  // pero comprobarlo aquí da un mensaje claro en vez del error genérico de
+  // Postgres por "ninguna fila actualizada".
+  if (!canEditAnnouncement(current.createdAt)) {
+    throw new Error("Ya no se puede editar: han pasado más de 24 horas desde que se publicó.");
+  }
+
+  const updated = await repo.update(id as AnnouncementId, trimmed);
+  revalidatePath("/community");
+  return updated;
 }
 
 export async function deleteAnnouncement(id: string) {

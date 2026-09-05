@@ -476,7 +476,12 @@
       "deleteConfirmTitle": "Diese Ankündigung löschen?",
       "deleteConfirmDescription": "Diese Aktion kann nicht rückgängig gemacht werden.",
       "deleteConfirmCta": "Löschen",
-      "deleting": "Wird gelöscht…"
+      "deleting": "Wird gelöscht…",
+      "edit": "Ankündigung bearbeiten",
+      "save": "Speichern",
+      "saving": "Wird gespeichert…",
+      "cancel": "Abbrechen",
+      "editError": "Die Ankündigung konnte nicht gespeichert werden."
     }
   },
   "Share": {

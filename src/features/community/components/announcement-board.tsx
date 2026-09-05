@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Megaphone, Trash2 } from "lucide-react";
+import { Megaphone, Pencil, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,7 +17,9 @@ import {
 import {
   createAnnouncement,
   deleteAnnouncement,
+  updateAnnouncement,
 } from "@/features/community/application/announcement-actions";
+import { canEditAnnouncement } from "@/core/domain/announcement";
 import { formatSessionDate } from "@/lib/format-date";
 import type { Locale } from "@/core/domain/user-settings";
 
@@ -89,6 +91,10 @@ export function AnnouncementBoard({
   const [announcements, setAnnouncements] = useState(initialAnnouncements);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editBody, setEditBody] = useState("");
+  const [editError, setEditError] = useState<string | null>(null);
+  const [isEditPending, startEditTransition] = useTransition();
 
   function handleConfirmDelete() {
     if (!deletingId) return;
@@ -97,6 +103,30 @@ export function AnnouncementBoard({
       await deleteAnnouncement(id);
       setAnnouncements((prev) => prev.filter((a) => a.id !== id));
       setDeletingId(null);
+    });
+  }
+
+  function startEditing(announcement: AnnouncementItem) {
+    setEditingId(announcement.id);
+    setEditBody(announcement.body);
+    setEditError(null);
+  }
+
+  function handleSaveEdit() {
+    if (!editingId) return;
+    const trimmed = editBody.trim();
+    if (!trimmed) return;
+    const id = editingId;
+    startEditTransition(async () => {
+      try {
+        const updated = await updateAnnouncement(id, trimmed);
+        setAnnouncements((prev) =>
+          prev.map((a) => (a.id === id ? { ...a, body: updated.body } : a)),
+        );
+        setEditingId(null);
+      } catch (err) {
+        setEditError(err instanceof Error ? err.message : t("editError"));
+      }
     });
   }
 
@@ -119,30 +149,78 @@ export function AnnouncementBoard({
           </p>
         ) : (
           <ul className="flex flex-col gap-3">
-            {announcements.map((announcement) => (
-              <li
-                key={announcement.id}
-                className="border-border flex flex-col gap-1 rounded-lg border p-3"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <span className="text-muted-foreground text-xs">
-                    {formatSessionDate(new Date(announcement.createdAt), locale)}
-                  </span>
-                  {isAdmin && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label={t("delete")}
-                      onClick={() => setDeletingId(announcement.id)}
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
+            {announcements.map((announcement) => {
+              const isEditing = editingId === announcement.id;
+              const canEdit = isAdmin && canEditAnnouncement(new Date(announcement.createdAt));
+              return (
+                <li
+                  key={announcement.id}
+                  className="border-border flex flex-col gap-1 rounded-lg border p-3"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="text-muted-foreground text-xs">
+                      {formatSessionDate(new Date(announcement.createdAt), locale)}
+                    </span>
+                    <div className="flex shrink-0 items-center gap-1">
+                      {canEdit && !isEditing && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label={t("edit")}
+                          onClick={() => startEditing(announcement)}
+                        >
+                          <Pencil className="size-4" />
+                        </Button>
+                      )}
+                      {isAdmin && !isEditing && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label={t("delete")}
+                          onClick={() => setDeletingId(announcement.id)}
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                  {isEditing ? (
+                    <div className="flex flex-col gap-2">
+                      <Textarea
+                        value={editBody}
+                        onChange={(event) => setEditBody(event.target.value)}
+                        rows={3}
+                        maxLength={2000}
+                      />
+                      {editError && <p className="text-destructive text-sm">{editError}</p>}
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          size="sm"
+                          disabled={isEditPending || !editBody.trim()}
+                          onClick={handleSaveEdit}
+                        >
+                          {isEditPending ? t("saving") : t("save")}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          disabled={isEditPending}
+                          onClick={() => setEditingId(null)}
+                        >
+                          {t("cancel")}
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-sm break-words whitespace-pre-wrap">{announcement.body}</p>
                   )}
-                </div>
-                <p className="text-sm break-words whitespace-pre-wrap">{announcement.body}</p>
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
         )}
       </CardContent>

@@ -476,7 +476,12 @@
       "deleteConfirmTitle": "¿Borrar este anuncio?",
       "deleteConfirmDescription": "Esta acción no se puede deshacer.",
       "deleteConfirmCta": "Borrar",
-      "deleting": "Borrando…"
+      "deleting": "Borrando…",
+      "edit": "Editar anuncio",
+      "save": "Guardar",
+      "saving": "Guardando…",
+      "cancel": "Cancelar",
+      "editError": "No se pudo guardar el anuncio."
     }
   },
   "Share": {

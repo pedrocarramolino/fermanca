@@ -476,7 +476,12 @@
       "deleteConfirmTitle": "Delete this announcement?",
       "deleteConfirmDescription": "This action can't be undone.",
       "deleteConfirmCta": "Delete",
-      "deleting": "Deleting…"
+      "deleting": "Deleting…",
+      "edit": "Edit announcement",
+      "save": "Save",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "editError": "Couldn't save the announcement."
     }
   },
   "Share": {

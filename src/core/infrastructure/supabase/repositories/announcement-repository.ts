@@ -31,10 +31,31 @@ export class SupabaseAnnouncementRepository implements AnnouncementRepository {
     return data.map(toDomain);
   }
 
+  async getById(id: AnnouncementId): Promise<Announcement | null> {
+    const { data, error } = await this.client
+      .from("announcements")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+    if (error) throw error;
+    return data ? toDomain(data) : null;
+  }
+
   async create(authorId: UserId, authorUsername: string, body: string): Promise<Announcement> {
     const { data, error } = await this.client
       .from("announcements")
       .insert({ author_id: authorId, author_username: authorUsername, body })
+      .select("*")
+      .single();
+    if (error) throw error;
+    return toDomain(data);
+  }
+
+  async update(id: AnnouncementId, body: string): Promise<Announcement> {
+    const { data, error } = await this.client
+      .from("announcements")
+      .update({ body })
+      .eq("id", id)
       .select("*")
       .single();
     if (error) throw error;
