@@ -47,17 +47,33 @@ export function ReactionBar({
   );
 }
 
+/** Cuántos nombres como mucho se listan por emoji antes de colapsar el
+ * resto en "y N más" — con ~50 personas registradas, un emoji popular podría
+ * si no acabar en una línea larguísima que se parte mal en una tarjeta
+ * estrecha. */
+const MAX_REACTOR_NAMES = 3;
+
 /** Solo para quien publicó: quién ha reaccionado con cada emoji.
  * `reactedByUsernames` viene undefined para cualquiera que no sea el dueño
  * (ver ReactionSummary), así que este componente ya sale vacío por su
  * cuenta cuando no toca mostrarlo — no hace falta que quien lo usa decida. */
 export function ReactionDetails({ reactions }: { reactions: ReactionSummary[] }) {
+  const t = useTranslations("Feed");
   const withNames = reactions.filter((r) => r.reactedByUsernames && r.reactedByUsernames.length > 0);
   if (withNames.length === 0) return null;
 
   return (
     <p className="text-muted-foreground text-xs">
-      {withNames.map((r) => `${r.emoji} ${r.reactedByUsernames!.join(", ")}`).join("  ·  ")}
+      {withNames
+        .map((r) => {
+          const names = r.reactedByUsernames!;
+          const visible = names.slice(0, MAX_REACTOR_NAMES);
+          const extra = names.length - visible.length;
+          const label =
+            extra > 0 ? `${visible.join(", ")} ${t("andMore", { count: extra })}` : visible.join(", ");
+          return `${r.emoji} ${label}`;
+        })
+        .join("  ·  ")}
     </p>
   );
 }

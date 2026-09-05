@@ -137,6 +137,7 @@
     "react": "React with {emoji}",
     "weeklyGoalAchieved": "Weekly goal achieved",
     "weeklyGoalStats": "{duration} practiced over {days} of {target} days",
+    "andMore": "and {count, plural, one {# more} other {# more}}",
     "remove": "Remove from feed",
     "removeConfirmTitle": "Remove this session from the feed?",
     "removeConfirmDescription": "It will no longer be visible to your friends. This action cannot be undone.",

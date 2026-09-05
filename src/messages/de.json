@@ -137,6 +137,7 @@
     "react": "Mit {emoji} reagieren",
     "weeklyGoalAchieved": "Wochenziel erreicht",
     "weeklyGoalStats": "{duration} geübt an {days} von {target} Tagen",
+    "andMore": "und {count, plural, one {# weitere} other {# weitere}}",
     "remove": "Aus dem Feed entfernen",
     "removeConfirmTitle": "Diese Sitzung aus dem Feed entfernen?",
     "removeConfirmDescription": "Sie ist dann nicht mehr für deine Freunde sichtbar. Diese Aktion kann nicht rückgängig gemacht werden.",
