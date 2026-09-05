@@ -266,7 +266,17 @@
     "back": "Zurück",
     "empty": "Du hast noch keine Sitzung abgeschlossen.",
     "loading": "Wird geladen…",
-    "loadMore": "Mehr laden"
+    "loadMore": "Mehr laden",
+    "logSession": "Sitzung erfassen"
+  },
+  "ManualSession": {
+    "dialogTitle": "Geübte Sitzung erfassen",
+    "dialogDescription": "Füge die geübten Phasen und den Zeitpunkt hinzu — sie erscheint in deinem Verlauf, als hättest du sie über die App gemacht.",
+    "dateTime": "Wann du geübt hast",
+    "totalDuration": "Gesamtdauer:",
+    "submit": "Erfassen",
+    "submitting": "Wird erfasst…",
+    "error": "Die Sitzung konnte nicht erfasst werden. Bitte versuche es erneut."
   },
   "Auth": {
     "login": {

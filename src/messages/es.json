@@ -266,7 +266,17 @@
     "back": "Volver",
     "empty": "Todavía no has completado ninguna sesión.",
     "loading": "Cargando…",
-    "loadMore": "Cargar más"
+    "loadMore": "Cargar más",
+    "logSession": "Registrar sesión"
+  },
+  "ManualSession": {
+    "dialogTitle": "Registrar sesión practicada",
+    "dialogDescription": "Añade las fases que practicaste y cuándo, y quedará en tu historial como si la hubieses hecho desde la app.",
+    "dateTime": "Cuándo la practicaste",
+    "totalDuration": "Duración total:",
+    "submit": "Registrar",
+    "submitting": "Registrando…",
+    "error": "No se pudo registrar la sesión. Inténtalo de nuevo."
   },
   "Auth": {
     "login": {

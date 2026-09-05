@@ -6,6 +6,10 @@ import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/reposi
 import { UnauthorizedError } from "@/core/domain/errors";
 import type { SessionId, UserId } from "@/core/domain/ids";
 import { HISTORY_PAGE_SIZE } from "@/features/history/application/constants";
+import {
+  toNewSessionBlocks,
+  type DraftBlockInput,
+} from "@/features/session-builder/application/draft-block";
 
 export async function loadMoreSessions(offset: number) {
   const client = await createClient();
@@ -37,4 +41,33 @@ export async function deleteSession(sessionId: string) {
   revalidatePath("/history");
   revalidatePath("/statistics");
   revalidatePath("/");
+}
+
+/** Registra a mano una sesión ya practicada (fuera de la app, o que se
+ * olvidó cronometrar) — queda en el historial como 'completed' igual que
+ * una sesión normal, contando para estadísticas, rachas y el objetivo
+ * semanal. `startedAt` llega ya resuelto a ISO absoluto desde el cliente
+ * (ahí se conoce la zona horaria real del usuario). */
+export async function logManualSession(startedAt: string, blocks: DraftBlockInput[]) {
+  const client = await createClient();
+  const { data } = await client.auth.getClaims();
+  const userId = data?.claims.sub;
+  if (!userId) throw new UnauthorizedError();
+
+  if (blocks.length === 0) throw new Error("Añade al menos una fase.");
+  const start = new Date(startedAt);
+  if (Number.isNaN(start.getTime())) throw new Error("Fecha no válida.");
+  if (start.getTime() > Date.now()) throw new Error("La fecha no puede ser futura.");
+
+  const repo = new SupabaseSessionRepository(client);
+  const session = await repo.logManual({
+    ownerId: userId as UserId,
+    startedAt: start,
+    blocks: toNewSessionBlocks(blocks),
+  });
+
+  revalidatePath("/history");
+  revalidatePath("/statistics");
+  revalidatePath("/");
+  return session;
 }

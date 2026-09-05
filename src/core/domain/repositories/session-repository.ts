@@ -40,6 +40,12 @@ export interface SessionRepository {
     plannedDurationSeconds: number;
     blocks: NewSessionBlock[];
   }): Promise<Session>;
+  /** Registra una sesión ya practicada sin pasar por el temporizador —
+   * entra directamente como 'completed', con cada bloque también
+   * 'completed' y sus started_at/ended_at encadenados uno tras otro a
+   * partir de startedAt. No programa ningún aviso QStash: no hay nada que
+   * avisar de una sesión que ya ha pasado. */
+  logManual(input: { ownerId: UserId; startedAt: Date; blocks: NewSessionBlock[] }): Promise<Session>;
   updateBlock(
     id: SessionBlockId,
     ownerId: UserId,

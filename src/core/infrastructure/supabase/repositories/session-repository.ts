@@ -172,6 +172,61 @@ export class SupabaseSessionRepository implements SessionRepository {
     return created;
   }
 
+  async logManual(input: {
+    ownerId: UserId;
+    startedAt: Date;
+    blocks: NewSessionBlock[];
+  }): Promise<Session> {
+    const plannedDurationSeconds = input.blocks.reduce(
+      (total, block) => total + block.plannedDurationSeconds,
+      0,
+    );
+    const endedAt = new Date(input.startedAt.getTime() + plannedDurationSeconds * 1000);
+
+    const { data: sessionRow, error: sessionError } = await this.client
+      .from("sessions")
+      .insert({
+        owner_id: input.ownerId,
+        template_id: null,
+        planned_duration_seconds: plannedDurationSeconds,
+        actual_duration_seconds: plannedDurationSeconds,
+        status: "completed",
+        started_at: input.startedAt.toISOString(),
+        ended_at: endedAt.toISOString(),
+      })
+      .select("*")
+      .single();
+    if (sessionError) throw sessionError;
+
+    // Cada bloque encadena started_at/ended_at uno detrás de otro a partir
+    // de startedAt, en el mismo orden en que llegan — una sesión registrada
+    // a mano no tiene pausas entre fases que reconstruir.
+    let cursorMs = input.startedAt.getTime();
+    const blockRows = input.blocks.map((block) => {
+      const blockStartedAt = new Date(cursorMs);
+      cursorMs += block.plannedDurationSeconds * 1000;
+      return {
+        session_id: sessionRow.id,
+        category_id: block.categoryId,
+        name: block.name,
+        color: block.color,
+        position: block.position,
+        planned_duration_seconds: block.plannedDurationSeconds,
+        actual_duration_seconds: block.plannedDurationSeconds,
+        status: "completed" as const,
+        started_at: blockStartedAt.toISOString(),
+        ended_at: new Date(cursorMs).toISOString(),
+      };
+    });
+
+    const { error: blocksError } = await this.client.from("session_blocks").insert(blockRows);
+    if (blocksError) throw blocksError;
+
+    const created = await this.getById(sessionRow.id as SessionId, input.ownerId);
+    if (!created) throw new Error("No se pudo crear la sesión.");
+    return created;
+  }
+
   async updateBlock(
     id: SessionBlockId,
     ownerId: UserId,

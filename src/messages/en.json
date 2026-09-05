@@ -266,7 +266,17 @@
     "back": "Back",
     "empty": "You haven't completed any sessions yet.",
     "loading": "Loading…",
-    "loadMore": "Load more"
+    "loadMore": "Load more",
+    "logSession": "Log a session"
+  },
+  "ManualSession": {
+    "dialogTitle": "Log a practiced session",
+    "dialogDescription": "Add the phases you practiced and when, and it'll show up in your history exactly as if you'd done it from the app.",
+    "dateTime": "When you practiced it",
+    "totalDuration": "Total duration:",
+    "submit": "Log session",
+    "submitting": "Logging…",
+    "error": "Couldn't log the session. Please try again."
   },
   "Auth": {
     "login": {
