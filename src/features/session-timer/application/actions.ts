@@ -10,7 +10,9 @@ import { currentStreakDays, practiceSecondsByDay } from "@/core/domain/streaks";
 import type { CategoryId, SessionBlockId, SessionId, UserId } from "@/core/domain/ids";
 import {
   cancelQstashMessage,
+  PHASE_FIVE_MIN_ALERT_LEAD_SECONDS,
   scheduleSessionPhaseAlert,
+  scheduleSessionPhaseFiveMinAlert,
 } from "@/core/infrastructure/qstash/client";
 import {
   getCoopPeer,
@@ -71,9 +73,14 @@ export async function transitionBlock(input: {
   for (const block of input.completedBlocks) {
     // Se confirmó a mano antes de que llegara el aviso programado — se
     // cancela para que no llegue después un push de una fase que ya se
-    // cerró.
+    // cerró. El de "quedan 5 minutos" es un mensaje aparte (ver
+    // scheduleSessionPhaseFiveMinAlert), así que se cancela por su cuenta.
     const pendingMessageId = await repo.getBlockQstashMessageId(block.id as SessionBlockId);
     if (pendingMessageId) await cancelQstashMessage(pendingMessageId);
+    const pendingFiveMinMessageId = await repo.getBlockFiveMinQstashMessageId(
+      block.id as SessionBlockId,
+    );
+    if (pendingFiveMinMessageId) await cancelQstashMessage(pendingFiveMinMessageId);
 
     // transitionBlockIfStatus, no updateBlock a secas: en una sesión
     // cooperativa, la réplica del compañero puede llegar a esta misma fila
@@ -98,6 +105,15 @@ export async function transitionBlock(input: {
         input.nextBlockPlannedDurationSeconds,
       );
       await repo.setBlockQstashMessageId(input.nextBlockId as SessionBlockId, messageId);
+
+      const fiveMinMessageId =
+        input.nextBlockPlannedDurationSeconds > PHASE_FIVE_MIN_ALERT_LEAD_SECONDS
+          ? await scheduleSessionPhaseFiveMinAlert(
+              input.nextBlockId,
+              input.nextBlockPlannedDurationSeconds - PHASE_FIVE_MIN_ALERT_LEAD_SECONDS,
+            )
+          : null;
+      await repo.setBlockFiveMinQstashMessageId(input.nextBlockId as SessionBlockId, fiveMinMessageId);
     }
   }
 
@@ -128,9 +144,15 @@ export async function extendActiveBlock(sessionId: string, blockId: string, extr
 
   const pendingMessageId = await repo.getBlockQstashMessageId(blockId as SessionBlockId);
   if (pendingMessageId) await cancelQstashMessage(pendingMessageId);
+  const pendingFiveMinMessageId = await repo.getBlockFiveMinQstashMessageId(blockId as SessionBlockId);
+  if (pendingFiveMinMessageId) await cancelQstashMessage(pendingFiveMinMessageId);
 
   const messageId = await scheduleSessionPhaseAlert(blockId, extraSeconds);
-  await repo.extendBlock(blockId as SessionBlockId, userId, extraSeconds, messageId);
+  const fiveMinMessageId =
+    extraSeconds > PHASE_FIVE_MIN_ALERT_LEAD_SECONDS
+      ? await scheduleSessionPhaseFiveMinAlert(blockId, extraSeconds - PHASE_FIVE_MIN_ALERT_LEAD_SECONDS)
+      : null;
+  await repo.extendBlock(blockId as SessionBlockId, userId, extraSeconds, messageId, fiveMinMessageId);
 
   const peer = await getCoopPeer(sessionId as SessionId, userId, client);
   if (peer) {
@@ -165,6 +187,9 @@ export async function pauseActiveBlock(
   const pendingMessageId = await repo.getBlockQstashMessageId(blockId as SessionBlockId);
   if (pendingMessageId) await cancelQstashMessage(pendingMessageId);
   await repo.setBlockQstashMessageId(blockId as SessionBlockId, null);
+  const pendingFiveMinMessageId = await repo.getBlockFiveMinQstashMessageId(blockId as SessionBlockId);
+  if (pendingFiveMinMessageId) await cancelQstashMessage(pendingFiveMinMessageId);
+  await repo.setBlockFiveMinQstashMessageId(blockId as SessionBlockId, null);
   await repo.setBlockPausedRemainingSeconds(blockId as SessionBlockId, Math.round(remainingSeconds));
 
   const peer = await getCoopPeer(sessionId as SessionId, userId, client);
@@ -200,6 +225,15 @@ export async function resumeActiveBlock(
   const messageId = await scheduleSessionPhaseAlert(blockId, remainingSeconds);
   await repo.updateBlock(blockId as SessionBlockId, userId, { startedAt: new Date(newStartedAt) });
   await repo.setBlockQstashMessageId(blockId as SessionBlockId, messageId);
+
+  if (remainingSeconds > PHASE_FIVE_MIN_ALERT_LEAD_SECONDS) {
+    const fiveMinMessageId = await scheduleSessionPhaseFiveMinAlert(
+      blockId,
+      remainingSeconds - PHASE_FIVE_MIN_ALERT_LEAD_SECONDS,
+    );
+    await repo.setBlockFiveMinQstashMessageId(blockId as SessionBlockId, fiveMinMessageId);
+  }
+
   await repo.setBlockPausedRemainingSeconds(blockId as SessionBlockId, null);
 
   const peer = await getCoopPeer(sessionId as SessionId, userId, client);

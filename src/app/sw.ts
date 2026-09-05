@@ -97,6 +97,13 @@ interface SessionShareReactionPushPayload {
   sessionShareId: string;
 }
 
+interface SessionPhaseFiveMinAlertPushPayload {
+  kind: "session-phase-five-min";
+  title: string;
+  body: string;
+  sessionId: string;
+}
+
 type IncomingPushPayload =
   | ReminderPushPayload
   | SessionPhasePushPayload
@@ -105,7 +112,8 @@ type IncomingPushPayload =
   | SessionInvitePushPayload
   | SessionInviteAcceptedPushPayload
   | SessionCoopNoticePushPayload
-  | SessionShareReactionPushPayload;
+  | SessionShareReactionPushPayload
+  | SessionPhaseFiveMinAlertPushPayload;
 
 interface ShowNotificationOptions extends NotificationOptions {
   actions?: { action: string; title: string }[];
@@ -228,6 +236,20 @@ self.addEventListener("push", (event: PushEvent) => {
       requireInteraction: true,
     };
     event.waitUntil(notifyAndBadge(payload.title, options));
+    return;
+  }
+
+  if (payload.kind === "session-phase-five-min") {
+    event.waitUntil(
+      notifyAndBadge(payload.title, {
+        body: payload.body,
+        icon: "/icons/icon-192x192.png",
+        badge: "/icons/icon-192x192.png",
+        tag: "practiceflow-session-phase-five-min",
+        data: { url: `/session/${payload.sessionId}` },
+        vibrate: [200, 100, 200],
+      }),
+    );
     return;
   }
 

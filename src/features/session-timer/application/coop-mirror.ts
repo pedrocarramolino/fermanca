@@ -4,7 +4,12 @@ import { createServiceClient } from "@/core/infrastructure/supabase/service-clie
 import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/repositories/session-repository";
 import { SupabasePushSubscriptionRepository } from "@/core/infrastructure/supabase/repositories/push-subscription-repository";
 import { sendPush } from "@/core/infrastructure/push/send-push";
-import { cancelQstashMessage, scheduleSessionPhaseAlert } from "@/core/infrastructure/qstash/client";
+import {
+  cancelQstashMessage,
+  PHASE_FIVE_MIN_ALERT_LEAD_SECONDS,
+  scheduleSessionPhaseAlert,
+  scheduleSessionPhaseFiveMinAlert,
+} from "@/core/infrastructure/qstash/client";
 import type { Database } from "@/core/infrastructure/supabase/database.types";
 import type { CategoryId, SessionBlockId, SessionId, UserId } from "@/core/domain/ids";
 import type { SessionEventType } from "@/core/domain/session-event";
@@ -186,6 +191,8 @@ export async function mirrorTransition(
 
     const pendingMessageId = await peer.peerRepo.getBlockQstashMessageId(peerBlockId);
     if (pendingMessageId) await cancelQstashMessage(pendingMessageId);
+    const pendingFiveMinMessageId = await peer.peerRepo.getBlockFiveMinQstashMessageId(peerBlockId);
+    if (pendingFiveMinMessageId) await cancelQstashMessage(pendingFiveMinMessageId);
 
     await peer.peerRepo.transitionBlockIfStatus(peerBlockId, peer.peerOwnerId, "active", {
       status: "completed",
@@ -212,6 +219,15 @@ export async function mirrorTransition(
           input.nextBlockPlannedDurationSeconds,
         );
         await peer.peerRepo.setBlockQstashMessageId(peerNextId, messageId);
+
+        const fiveMinMessageId =
+          input.nextBlockPlannedDurationSeconds > PHASE_FIVE_MIN_ALERT_LEAD_SECONDS
+            ? await scheduleSessionPhaseFiveMinAlert(
+                peerNextId,
+                input.nextBlockPlannedDurationSeconds - PHASE_FIVE_MIN_ALERT_LEAD_SECONDS,
+              )
+            : null;
+        await peer.peerRepo.setBlockFiveMinQstashMessageId(peerNextId, fiveMinMessageId);
       }
     }
     await recordCoopEvent(client, peer, sessionId, userId, actorUsername, "phase_confirmed");
@@ -238,8 +254,21 @@ export async function mirrorExtend(
 
   const pendingMessageId = await peer.peerRepo.getBlockQstashMessageId(peerBlockId);
   if (pendingMessageId) await cancelQstashMessage(pendingMessageId);
+  const pendingFiveMinMessageId = await peer.peerRepo.getBlockFiveMinQstashMessageId(peerBlockId);
+  if (pendingFiveMinMessageId) await cancelQstashMessage(pendingFiveMinMessageId);
+
   const messageId = await scheduleSessionPhaseAlert(peerBlockId, extraSeconds);
-  await peer.peerRepo.extendBlock(peerBlockId, peer.peerOwnerId, extraSeconds, messageId);
+  const fiveMinMessageId =
+    extraSeconds > PHASE_FIVE_MIN_ALERT_LEAD_SECONDS
+      ? await scheduleSessionPhaseFiveMinAlert(peerBlockId, extraSeconds - PHASE_FIVE_MIN_ALERT_LEAD_SECONDS)
+      : null;
+  await peer.peerRepo.extendBlock(
+    peerBlockId,
+    peer.peerOwnerId,
+    extraSeconds,
+    messageId,
+    fiveMinMessageId,
+  );
 
   await recordCoopEvent(client, peer, sessionId, userId, actorUsername, "time_extended");
 }
@@ -259,6 +288,9 @@ export async function mirrorPause(
   const pendingMessageId = await peer.peerRepo.getBlockQstashMessageId(peerBlockId);
   if (pendingMessageId) await cancelQstashMessage(pendingMessageId);
   await peer.peerRepo.setBlockQstashMessageId(peerBlockId, null);
+  const pendingFiveMinMessageId = await peer.peerRepo.getBlockFiveMinQstashMessageId(peerBlockId);
+  if (pendingFiveMinMessageId) await cancelQstashMessage(pendingFiveMinMessageId);
+  await peer.peerRepo.setBlockFiveMinQstashMessageId(peerBlockId, null);
   await peer.peerRepo.setBlockPausedRemainingSeconds(peerBlockId, Math.round(remainingSeconds));
 
   await recordCoopEvent(client, peer, sessionId, userId, actorUsername, "paused");
@@ -282,6 +314,15 @@ export async function mirrorResume(
     startedAt: new Date(newStartedAtIso),
   });
   await peer.peerRepo.setBlockQstashMessageId(peerBlockId, messageId);
+
+  if (remainingSeconds > PHASE_FIVE_MIN_ALERT_LEAD_SECONDS) {
+    const fiveMinMessageId = await scheduleSessionPhaseFiveMinAlert(
+      peerBlockId,
+      remainingSeconds - PHASE_FIVE_MIN_ALERT_LEAD_SECONDS,
+    );
+    await peer.peerRepo.setBlockFiveMinQstashMessageId(peerBlockId, fiveMinMessageId);
+  }
+
   await peer.peerRepo.setBlockPausedRemainingSeconds(peerBlockId, null);
 
   await recordCoopEvent(client, peer, sessionId, userId, actorUsername, "resumed");

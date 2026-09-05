@@ -236,9 +236,11 @@ export type Database = {
           note: string | null
           paused_remaining_seconds: number | null
           phase_alert_sent: boolean
+          phase_five_min_alert_sent: boolean
           phase_reminder_sent: boolean
           planned_duration_seconds: number
           position: number
+          qstash_five_min_message_id: string | null
           qstash_message_id: string | null
           session_id: string
           started_at: string | null
@@ -254,9 +256,11 @@ export type Database = {
           note?: string | null
           paused_remaining_seconds?: number | null
           phase_alert_sent?: boolean
+          phase_five_min_alert_sent?: boolean
           phase_reminder_sent?: boolean
           planned_duration_seconds: number
           position: number
+          qstash_five_min_message_id?: string | null
           qstash_message_id?: string | null
           session_id: string
           started_at?: string | null
@@ -272,9 +276,11 @@ export type Database = {
           note?: string | null
           paused_remaining_seconds?: number | null
           phase_alert_sent?: boolean
+          phase_five_min_alert_sent?: boolean
           phase_reminder_sent?: boolean
           planned_duration_seconds?: number
           position?: number
+          qstash_five_min_message_id?: string | null
           qstash_message_id?: string | null
           session_id?: string
           started_at?: string | null

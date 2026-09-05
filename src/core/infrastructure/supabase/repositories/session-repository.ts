@@ -13,7 +13,11 @@ import type {
   SessionRepository,
 } from "@/core/domain/repositories/session-repository";
 import type { Database } from "@/core/infrastructure/supabase/database.types";
-import { scheduleSessionPhaseAlert } from "@/core/infrastructure/qstash/client";
+import {
+  PHASE_FIVE_MIN_ALERT_LEAD_SECONDS,
+  scheduleSessionPhaseAlert,
+  scheduleSessionPhaseFiveMinAlert,
+} from "@/core/infrastructure/qstash/client";
 
 type SessionRow = Database["public"]["Tables"]["sessions"]["Row"];
 type SessionBlockRow = Database["public"]["Tables"]["session_blocks"]["Row"];
@@ -146,9 +150,18 @@ export class SupabaseSessionRepository implements SessionRepository {
         firstBlock.id,
         firstBlock.planned_duration_seconds,
       );
+      // El de "quedan 5 minutos" solo tiene sentido si la fase dura más que
+      // ese margen — una fase de 3 minutos no tiene un "quedan 5" que avisar.
+      const fiveMinMessageId =
+        firstBlock.planned_duration_seconds > PHASE_FIVE_MIN_ALERT_LEAD_SECONDS
+          ? await scheduleSessionPhaseFiveMinAlert(
+              firstBlock.id,
+              firstBlock.planned_duration_seconds - PHASE_FIVE_MIN_ALERT_LEAD_SECONDS,
+            )
+          : null;
       const { error: messageIdError } = await this.client
         .from("session_blocks")
-        .update({ qstash_message_id: messageId })
+        .update({ qstash_message_id: messageId, qstash_five_min_message_id: fiveMinMessageId })
         .eq("id", firstBlock.id);
       if (messageIdError) throw messageIdError;
     }
@@ -231,6 +244,24 @@ export class SupabaseSessionRepository implements SessionRepository {
     if (error) throw error;
   }
 
+  async getBlockFiveMinQstashMessageId(id: SessionBlockId): Promise<string | null> {
+    const { data, error } = await this.client
+      .from("session_blocks")
+      .select("qstash_five_min_message_id")
+      .eq("id", id)
+      .maybeSingle();
+    if (error) throw error;
+    return data?.qstash_five_min_message_id ?? null;
+  }
+
+  async setBlockFiveMinQstashMessageId(id: SessionBlockId, messageId: string | null): Promise<void> {
+    const { error } = await this.client
+      .from("session_blocks")
+      .update({ qstash_five_min_message_id: messageId })
+      .eq("id", id);
+    if (error) throw error;
+  }
+
   async setBlockPausedRemainingSeconds(id: SessionBlockId, seconds: number | null): Promise<void> {
     const { error } = await this.client
       .from("session_blocks")
@@ -244,6 +275,7 @@ export class SupabaseSessionRepository implements SessionRepository {
     ownerId: UserId,
     extraSeconds: number,
     qstashMessageId: string,
+    fiveMinQstashMessageId: string | null,
   ): Promise<void> {
     void ownerId; // RLS ya exige que el bloque pertenezca a una sesión del usuario.
     const { data: current, error: readError } = await this.client
@@ -259,7 +291,9 @@ export class SupabaseSessionRepository implements SessionRepository {
         planned_duration_seconds: current.planned_duration_seconds + extraSeconds,
         phase_alert_sent: false,
         phase_reminder_sent: false,
+        phase_five_min_alert_sent: false,
         qstash_message_id: qstashMessageId,
+        qstash_five_min_message_id: fiveMinQstashMessageId,
       })
       .eq("id", id);
     if (error) throw error;

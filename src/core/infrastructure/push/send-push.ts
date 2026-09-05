@@ -79,6 +79,13 @@ export interface SessionShareReactionPushPayload {
   sessionShareId: string;
 }
 
+export interface SessionPhaseFiveMinAlertPushPayload {
+  kind: "session-phase-five-min";
+  title: string;
+  body: string;
+  sessionId: string;
+}
+
 export type PushPayload =
   | ReminderPushPayload
   | SessionPhasePushPayload
@@ -87,7 +94,8 @@ export type PushPayload =
   | SessionInvitePushPayload
   | SessionInviteAcceptedPushPayload
   | SessionCoopNoticePushPayload
-  | SessionShareReactionPushPayload;
+  | SessionShareReactionPushPayload
+  | SessionPhaseFiveMinAlertPushPayload;
 
 /** `expired: true` cuando el servicio push responde 404/410 — la
  * suscripción ya no es válida y hay que borrarla, no reintentar. */

@@ -15,6 +15,11 @@ function appUrl(): string {
   return url;
 }
 
+/** Con cuánta antelación al fin de fase se manda el aviso de "quedan 5
+ * minutos" — quien programa este aviso resta esto a lo que quede de fase, y
+ * se salta la programación por completo si no llega a haber ese margen. */
+export const PHASE_FIVE_MIN_ALERT_LEAD_SECONDS = 5 * 60;
+
 export async function scheduleSessionPhaseAlert(
   blockId: string,
   delaySeconds: number,
@@ -38,6 +43,21 @@ export async function scheduleSessionPhaseReminder(
 ): Promise<string> {
   const { messageId } = await getClient().publishJSON({
     url: `${appUrl()}/api/qstash/session-phase-reminder`,
+    body: { blockId },
+    delay: Math.max(0, Math.round(delaySeconds)),
+  });
+  return messageId;
+}
+
+/** Aviso de "quedan 5 minutos", independiente del de fin de fase — mensaje
+ * QStash aparte (columna qstash_five_min_message_id) para poder cancelarlo o
+ * reprogramarlo sin tocar el slot que ya usa scheduleSessionPhaseAlert. */
+export async function scheduleSessionPhaseFiveMinAlert(
+  blockId: string,
+  delaySeconds: number,
+): Promise<string> {
+  const { messageId } = await getClient().publishJSON({
+    url: `${appUrl()}/api/qstash/session-phase-five-min-alert`,
     body: { blockId },
     delay: Math.max(0, Math.round(delaySeconds)),
   });
