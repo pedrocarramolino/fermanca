@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { REACTION_EMOJIS, type ReactionEmoji, type ReactionSummary } from "@/core/domain/reaction";
 import { cn } from "@/lib/utils";
@@ -56,24 +57,42 @@ const MAX_REACTOR_NAMES = 3;
 /** Solo para quien publicó: quién ha reaccionado con cada emoji.
  * `reactedByUsernames` viene undefined para cualquiera que no sea el dueño
  * (ver ReactionSummary), así que este componente ya sale vacío por su
- * cuenta cuando no toca mostrarlo — no hace falta que quien lo usa decida. */
+ * cuenta cuando no toca mostrarlo — no hace falta que quien lo usa decida.
+ * "y N más" se puede tocar para desplegar el resto de esa fila en concreto
+ * (cada emoji lleva su propio estado, no hay un "todo expandido" global). */
 export function ReactionDetails({ reactions }: { reactions: ReactionSummary[] }) {
   const t = useTranslations("Feed");
+  const [expandedEmojis, setExpandedEmojis] = useState<Set<string>>(new Set());
   const withNames = reactions.filter((r) => r.reactedByUsernames && r.reactedByUsernames.length > 0);
   if (withNames.length === 0) return null;
 
+  function expand(emoji: string) {
+    setExpandedEmojis((prev) => new Set(prev).add(emoji));
+  }
+
   return (
-    <p className="text-muted-foreground text-xs">
-      {withNames
-        .map((r) => {
-          const names = r.reactedByUsernames!;
-          const visible = names.slice(0, MAX_REACTOR_NAMES);
-          const extra = names.length - visible.length;
-          const label =
-            extra > 0 ? `${visible.join(", ")} ${t("andMore", { count: extra })}` : visible.join(", ");
-          return `${r.emoji} ${label}`;
-        })
-        .join("  ·  ")}
+    <p className="text-muted-foreground flex flex-wrap items-baseline gap-x-1 text-xs">
+      {withNames.map((r, index) => {
+        const names = r.reactedByUsernames!;
+        const isExpanded = expandedEmojis.has(r.emoji);
+        const visible = isExpanded ? names : names.slice(0, MAX_REACTOR_NAMES);
+        const extra = names.length - visible.length;
+        return (
+          <span key={r.emoji}>
+            {index > 0 && <span className="mr-1">·</span>}
+            {r.emoji} {visible.join(", ")}
+            {extra > 0 && (
+              <button
+                type="button"
+                className="text-foreground ml-1 underline underline-offset-2 hover:no-underline"
+                onClick={() => expand(r.emoji)}
+              >
+                {t("andMore", { count: extra })}
+              </button>
+            )}
+          </span>
+        );
+      })}
     </p>
   );
 }
