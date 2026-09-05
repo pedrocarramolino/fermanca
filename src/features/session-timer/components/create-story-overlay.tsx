@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type ChangeEvent, type PointerEvent } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Camera, ChevronLeft, Download, Loader2, Share2, X } from "lucide-react";
+import { Camera, ChevronLeft, Download, Images, Loader2, Share2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { formatDurationShort } from "@/core/domain/duration";
@@ -546,19 +546,36 @@ export function CreateStoryOverlay({
         <div className="flex flex-1 flex-col items-center justify-center gap-6 p-8 text-center">
           <Camera className="size-16 text-white/60" />
           <p className="text-lg font-medium">{t("capturePrompt")}</p>
-          <label>
-            <input
-              type="file"
-              accept="image/*"
-              capture="environment"
-              onChange={handleFileSelected}
-              className="hidden"
-            />
-            <span className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-medium text-black">
-              <Camera className="size-4" />
-              {t("captureButton")}
-            </span>
-          </label>
+          <div className="flex flex-col items-center gap-3">
+            <label>
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={handleFileSelected}
+                className="hidden"
+              />
+              <span className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-medium text-black">
+                <Camera className="size-4" />
+                {t("captureButton")}
+              </span>
+            </label>
+            {/* Mismo input de archivo, sin `capture`: en móvil eso hace que
+                el sistema ofrezca la galería en vez de abrir la cámara
+                directamente. */}
+            <label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelected}
+                className="hidden"
+              />
+              <span className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-white/30 px-5 py-2.5 text-sm font-medium text-white">
+                <Images className="size-4" />
+                {t("galleryButton")}
+              </span>
+            </label>
+          </div>
         </div>
       )}
 
