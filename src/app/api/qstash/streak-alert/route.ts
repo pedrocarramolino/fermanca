@@ -52,7 +52,7 @@ export async function POST(request: Request) {
       {
         kind: "streak-alert",
         title: "¡No dejes que se apague el fuego! 🔥",
-        body: "Llevas casi un día sin practicar — oye, no querrás que se apague el fuegito, ¿no? Pues a estudiar.",
+        body: "Llevas casi un día sin practicar — oye, no querrás que se apague el fuegito 🔥, ¿no? Pues a estudiar 🫵🏼.",
       },
     );
     if (result.ok) sent += 1;
