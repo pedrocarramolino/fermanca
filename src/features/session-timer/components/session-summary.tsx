@@ -2,15 +2,25 @@
 
 import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, Camera, Repeat } from "lucide-react";
+import { ArrowLeft, Camera, Repeat, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { formatDurationShort } from "@/core/domain/duration";
 import { hasPracticedTime } from "@/core/domain/session";
 import { finishSession, listGhostCategoryIds } from "@/features/session-timer/application/actions";
 import { startSession } from "@/features/session-builder/application/actions";
+import { deleteSession } from "@/features/history/application/actions";
 import { ShareSessionButton } from "@/features/session-timer/components/share-session-button";
 import { ShareToFeedButton } from "@/features/session-timer/components/share-to-feed-button";
 import { CreateStoryOverlay } from "@/features/session-timer/components/create-story-overlay";
@@ -29,12 +39,15 @@ export function SessionSummary({
 }) {
   const t = useTranslations("SessionSummaryScreen");
   const tStory = useTranslations("StoryCreator");
+  const router = useRouter();
   const [note, setNote] = useState(initialFinalNote);
   const [saved, setSaved] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [storyOpen, setStoryOpen] = useState(false);
   const [ghostCategoryIds, setGhostCategoryIds] = useState<string[]>([]);
   const [isRepeating, startRepeating] = useTransition();
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [isDeleting, startDeleting] = useTransition();
 
   useEffect(() => {
     void listGhostCategoryIds()
@@ -79,6 +92,13 @@ export function SessionSummary({
         position,
       }));
       await startSession(null, draftBlocks);
+    });
+  }
+
+  function handleConfirmDelete() {
+    startDeleting(async () => {
+      await deleteSession(sessionId);
+      router.push("/");
     });
   }
 
@@ -194,6 +214,36 @@ export function SessionSummary({
           {finishing ? t("finishingSession") : t("backHome")}
         </Button>
       </div>
+
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        className="text-destructive hover:text-destructive"
+        onClick={() => setDeleteOpen(true)}
+      >
+        <Trash2 className="size-4" />
+        {t("deleteSession")}
+      </Button>
+
+      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("deleteConfirmTitle")}</DialogTitle>
+            <DialogDescription>{t("deleteConfirmDescription")}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={isDeleting}
+              onClick={handleConfirmDelete}
+            >
+              {isDeleting ? t("deletingSession") : t("deleteConfirmCta")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }

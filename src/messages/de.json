@@ -701,7 +701,6 @@
     "resume": "Fortsetzen",
     "pause": "Pausieren",
     "finishPhaseNow": "Phase jetzt beenden",
-    "activateSound": "Ton aktivieren",
     "backHome": "Zurück zum Start",
     "practicingWith": "Übt gerade mit @{name}",
     "transitionError": "Der Phasenwechsel konnte nicht gespeichert werden. Prüfe deine Verbindung.",
@@ -813,7 +812,12 @@
     "backHome": "Zurück zum Start",
     "finishingSession": "Sitzung wird gespeichert…",
     "repeatSession": "Sitzung wiederholen",
-    "repeatingSession": "Wird vorbereitet…"
+    "repeatingSession": "Wird vorbereitet…",
+    "deleteSession": "Sitzung löschen",
+    "deleteConfirmTitle": "Diese Sitzung löschen?",
+    "deleteConfirmDescription": "Sie wird aus deinem Verlauf und deinen Statistiken entfernt. Das kann nicht rückgängig gemacht werden.",
+    "deleteConfirmCta": "Löschen",
+    "deletingSession": "Wird gelöscht…"
   },
   "StoryCreator": {
     "trigger": "Story mit Foto erstellen",

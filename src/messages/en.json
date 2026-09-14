@@ -701,7 +701,6 @@
     "resume": "Resume",
     "pause": "Pause",
     "finishPhaseNow": "Finish phase now",
-    "activateSound": "Enable sound",
     "backHome": "Back to home",
     "practicingWith": "Practicing with @{name}",
     "transitionError": "Couldn't save the phase change. Check your connection.",
@@ -813,7 +812,12 @@
     "backHome": "Back to home",
     "finishingSession": "Saving session…",
     "repeatSession": "Repeat session",
-    "repeatingSession": "Preparing…"
+    "repeatingSession": "Preparing…",
+    "deleteSession": "Delete session",
+    "deleteConfirmTitle": "Delete this session?",
+    "deleteConfirmDescription": "It'll be removed from your history and statistics. This can't be undone.",
+    "deleteConfirmCta": "Delete",
+    "deletingSession": "Deleting…"
   },
   "StoryCreator": {
     "trigger": "Create photo Story",

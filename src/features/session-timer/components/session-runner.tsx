@@ -10,7 +10,7 @@ import {
   type PlaybackSettings,
   type RuntimeBlockInput,
 } from "@/features/session-timer/hooks/use-session-runtime";
-import { isAudioUnlocked, unlockAudio } from "@/features/session-timer/application/sounds";
+import { unlockAudio } from "@/features/session-timer/application/sounds";
 import { getFreshBlocks } from "@/features/session-timer/application/actions";
 import { TimerDisplay } from "@/features/session-timer/components/timer-display";
 import { PhaseCompleteCard } from "@/features/session-timer/components/phase-complete-card";
@@ -32,7 +32,6 @@ export function SessionRunner({
   peerUsername?: string | null;
 }) {
   const t = useTranslations("SessionRunner");
-  const [audioReady, setAudioReady] = useState(false);
   const [freshBlocks, setFreshBlocks] = useState<RuntimeBlockInput[] | null>(null);
 
   const runtime = useSessionRuntime({ sessionId, blocks, playbackSettings });
@@ -40,7 +39,12 @@ export function SessionRunner({
   const finished = runtime.status === "finished";
 
   useEffect(() => {
-    void unlockAudio().then(() => setAudioReady(isAudioUnlocked()));
+    // Intento silencioso al cargar — no es un gesto real, así que en
+    // Safari/iOS normalmente no basta por sí solo. El desbloqueo que de
+    // verdad funciona va enganchado a Pausar/Reanudar y Terminar fase
+    // ahora más abajo: cualquier botón que ya se pulse durante la sesión
+    // sirve, sin necesitar uno aparte solo para esto.
+    void unlockAudio();
   }, []);
 
   useEffect(() => {
@@ -53,10 +57,6 @@ export function SessionRunner({
       );
     }
   }, [finished, sessionId]);
-
-  function handleUnlockAudio() {
-    void unlockAudio().then(() => setAudioReady(isAudioUnlocked()));
-  }
 
   if (finished) {
     // El runtime ya conoce la duración real de cada bloque cerrado (se
@@ -133,11 +133,22 @@ export function SessionRunner({
               type="button"
               variant="outline"
               size="lg"
-              onClick={runtime.isPaused ? runtime.resumeTimer : runtime.pauseTimer}
+              onClick={() => {
+                void unlockAudio();
+                (runtime.isPaused ? runtime.resumeTimer : runtime.pauseTimer)();
+              }}
             >
               {runtime.isPaused ? t("resume") : t("pause")}
             </Button>
-            <Button type="button" variant="outline" size="lg" onClick={runtime.finishPhaseNow}>
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              onClick={() => {
+                void unlockAudio();
+                runtime.finishPhaseNow();
+              }}
+            >
               {t("finishPhaseNow")}
             </Button>
           </div>
@@ -150,12 +161,6 @@ export function SessionRunner({
           blockId={noteableBlock.id}
           blockName={noteableBlock.name}
         />
-      )}
-
-      {!audioReady && (
-        <Button type="button" variant="outline" size="sm" onClick={handleUnlockAudio}>
-          {t("activateSound")}
-        </Button>
       )}
     </main>
   );
