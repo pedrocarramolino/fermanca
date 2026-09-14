@@ -17,6 +17,7 @@ import { WeeklyGoalCard } from "@/features/weekly-goals/components/weekly-goal-c
 import { ActiveSessionCard } from "@/features/session-timer/components/active-session-card";
 import { FeedList } from "@/features/feed/components/feed-list";
 import { listFeed } from "@/features/feed/application/actions";
+import { PulsoWidget } from "@/features/pulso/components/pulso-widget";
 
 const RECENT_SESSIONS_PREVIEW = 3;
 
@@ -75,6 +76,8 @@ export default async function Home() {
       <p className="text-muted-foreground text-center text-xs">
         {tCommon("footerCredit", { year: new Date().getFullYear() })}
       </p>
+
+      <PulsoWidget categories={categories} />
     </main>
   );
 }

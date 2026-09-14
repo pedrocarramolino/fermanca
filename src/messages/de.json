@@ -195,6 +195,36 @@
     "technique": "Technik",
     "repertoire": "Repertoire"
   },
+  "Pulso": {
+    "trigger": "Pulso öffnen",
+    "back": "Zurück",
+    "intentionTitle": "Woran möchtest du heute arbeiten?",
+    "intentionDescription": "Wähle aus, und ich erstelle den Sitzungsplan.",
+    "intention": {
+      "technique": {
+        "title": "Technik",
+        "description": "Tonleitern, Fingersatz, Klang…"
+      },
+      "repertoire": {
+        "title": "Repertoire",
+        "description": "Fortschritte bei deinen Stücken"
+      },
+      "prepare": {
+        "title": "Etwas vorbereiten",
+        "description": "Ein bevorstehendes Konzert oder Vorspiel"
+      }
+    },
+    "timeTitle": "Wie viel Zeit hast du?",
+    "timeDescription": "Ich passe die Dauer jeder Phase daran an.",
+    "previewTitle": "Deine Sitzung",
+    "previewDescription": "{duration}, aufgeteilt auf diese Phasen.",
+    "previewError": "Der Plan konnte nicht erstellt werden. Versuch es noch einmal.",
+    "start": "Sitzung starten",
+    "starting": "Wird gestartet…",
+    "phase": {
+      "closing": "Rückblick und Abschluss"
+    }
+  },
   "AddBlockForm": {
     "category": "Kategorie",
     "categoryPlaceholder": "Kategorie wählen",
