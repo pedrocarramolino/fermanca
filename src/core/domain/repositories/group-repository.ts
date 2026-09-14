@@ -13,6 +13,12 @@ export interface GroupRepository {
   isMember(groupId: GroupId, userId: UserId): Promise<boolean>;
   /** owner_id incluido: por convención el dueño es también un GroupMember. */
   listMembers(groupId: GroupId): Promise<UserId[]>;
+  /** Nº de miembros de cada grupo en una sola consulta — evita N+1 al listar
+   * varios grupos (ver listMyGroups en la capa de aplicación). */
+  countMembersByGroup(groupIds: GroupId[]): Promise<Map<GroupId, number>>;
+  /** Solo el número total de grupos de los que es miembro — para el
+   * contador de Comunidad, que no necesita nada más de cada grupo. */
+  countByMember(userId: UserId): Promise<number>;
 
   getWeeklyGoal(groupId: GroupId, weekStart: string): Promise<GroupWeeklyGoal | null>;
   upsertWeeklyGoal(input: {

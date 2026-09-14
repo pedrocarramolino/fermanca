@@ -12,7 +12,7 @@ import {
 } from "@/features/community/application/actions";
 import { listAnnouncements } from "@/features/community/application/announcement-actions";
 import { listIncomingPendingSessionInvites } from "@/features/session-invites/application/actions";
-import { listMyGroups } from "@/features/groups/application/actions";
+import { countMyGroups } from "@/features/groups/application/actions";
 import { CommunityManager } from "@/features/community/components/community-manager";
 import { AnnouncementBoard } from "@/features/community/components/announcement-board";
 import { SuggestedFriendsList } from "@/features/community/components/suggested-friends-list";
@@ -34,7 +34,7 @@ export default async function CommunityPage() {
     announcements,
     pendingSessionInvites,
     suggestedFriends,
-    groups,
+    groupCount,
   ] = await Promise.all([
     getMyProfile(),
     listPendingRequests(),
@@ -42,7 +42,7 @@ export default async function CommunityPage() {
     listAnnouncements(),
     listIncomingPendingSessionInvites(),
     listSuggestedFriends(),
-    listMyGroups(),
+    countMyGroups(),
   ]);
 
   // CommunityManager guarda estas listas en su propio estado local (para
@@ -64,7 +64,7 @@ export default async function CommunityPage() {
         inviteCode={profile.inviteCode}
         initialPendingRequests={pendingRequests}
         initialFriends={friendsWithProgress}
-        groupCount={groups.length}
+        groupCount={groupCount}
       />
 
       <SuggestedFriendsList suggestions={suggestedFriends} />

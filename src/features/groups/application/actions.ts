@@ -64,16 +64,26 @@ export async function listMyGroups(): Promise<MyGroup[]> {
   const { userId, client } = await requireUserId();
   const repo = new SupabaseGroupRepository(client);
   const groups = await repo.listByMember(userId);
+  // Una sola consulta para el recuento de miembros de TODOS los grupos a la
+  // vez — antes hacía una consulta por grupo (N+1), que era lo que hacía
+  // lenta la pantalla de Comunidad al cargar cada vez más grupos.
+  const counts = await repo.countMembersByGroup(groups.map((g) => g.id));
 
-  return Promise.all(
-    groups.map(async (group) => ({
-      id: group.id,
-      name: group.name,
-      kind: group.kind,
-      ownerId: group.ownerId,
-      memberCount: (await repo.listMembers(group.id)).length,
-    })),
-  );
+  return groups.map((group) => ({
+    id: group.id,
+    name: group.name,
+    kind: group.kind,
+    ownerId: group.ownerId,
+    memberCount: counts.get(group.id) ?? 0,
+  }));
+}
+
+/** Solo cuántos grupos hay, para el contador junto al enlace "Grupos" en
+ * Comunidad — a diferencia de listMyGroups, no necesita el nombre/tipo/
+ * recuento de miembros de cada uno. */
+export async function countMyGroups(): Promise<number> {
+  const { userId, client } = await requireUserId();
+  return new SupabaseGroupRepository(client).countByMember(userId);
 }
 
 /** Para el diálogo de "invitar al grupo" del creador de sesiones — solo los

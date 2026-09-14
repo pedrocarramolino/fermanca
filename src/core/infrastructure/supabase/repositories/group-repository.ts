@@ -146,6 +146,31 @@ export class SupabaseGroupRepository implements GroupRepository {
     return data.map((row) => row.user_id as UserId);
   }
 
+  async countMembersByGroup(groupIds: GroupId[]): Promise<Map<GroupId, number>> {
+    if (groupIds.length === 0) return new Map();
+    const { data, error } = await this.client
+      .from("group_members")
+      .select("group_id")
+      .in("group_id", groupIds);
+    if (error) throw error;
+
+    const counts = new Map<GroupId, number>();
+    for (const row of data) {
+      const id = row.group_id as GroupId;
+      counts.set(id, (counts.get(id) ?? 0) + 1);
+    }
+    return counts;
+  }
+
+  async countByMember(userId: UserId): Promise<number> {
+    const { count, error } = await this.client
+      .from("group_members")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId);
+    if (error) throw error;
+    return count ?? 0;
+  }
+
   async getWeeklyGoal(groupId: GroupId, weekStart: string): Promise<GroupWeeklyGoal | null> {
     const { data, error } = await this.client
       .from("group_weekly_goals")
