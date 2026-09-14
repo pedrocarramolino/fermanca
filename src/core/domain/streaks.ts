@@ -1,5 +1,12 @@
 import type { Session } from "@/core/domain/session";
 
+/** Aviso push de "racha en peligro" — compartido entre el disparo real de
+ * QStash (streak-alert/route.ts) y el botón de prueba en Recordatorios, para
+ * que no puedan desincronizarse. */
+export const STREAK_ALERT_TITLE = "¡No dejes que se apague el fuego! 🔥";
+export const STREAK_ALERT_BODY =
+  "Llevas casi un día sin practicar — oye, no querrás que se apague el fuegito 🔥, ¿no? Pues a estudiar 🫵🏼.";
+
 /** "YYYY-MM-DD" en UTC — misma convención de "día" que las estadísticas (Fase 7). */
 export function dayKey(date: Date): string {
   return date.toISOString().slice(0, 10);

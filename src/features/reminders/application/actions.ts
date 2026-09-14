@@ -9,6 +9,8 @@ import { UnauthorizedError } from "@/core/domain/errors";
 import type { DayOfWeek } from "@/core/domain/reminder";
 import type { ReminderId, UserId } from "@/core/domain/ids";
 import { createReminderSchedule, deleteQstashSchedule } from "@/core/infrastructure/qstash/client";
+import { sendPush } from "@/core/infrastructure/push/send-push";
+import { STREAK_ALERT_BODY, STREAK_ALERT_TITLE } from "@/core/domain/streaks";
 
 async function requireUserId() {
   const client = await createClient();
@@ -81,6 +83,30 @@ export async function removePushSubscription(endpoint: string) {
   const { client } = await requireUserId();
   const repo = new SupabasePushSubscriptionRepository(client);
   await repo.deleteByEndpoint(endpoint);
+}
+
+/** Manda a los dispositivos suscritos del usuario el mismo aviso de "racha en
+ * peligro" que dispara QStash 20h después de cerrar una sesión — para
+ * comprobar cómo se ve/suena sin esperar ese plazo. */
+export async function sendTestStreakAlert() {
+  const { userId, client } = await requireUserId();
+  const repo = new SupabasePushSubscriptionRepository(client);
+  const subscriptions = await repo.listByOwner(userId);
+
+  let sent = 0;
+  for (const sub of subscriptions) {
+    const result = await sendPush(
+      { endpoint: sub.endpoint, p256dh: sub.p256dh, auth: sub.auth },
+      {
+        kind: "streak-alert",
+        title: STREAK_ALERT_TITLE,
+        body: STREAK_ALERT_BODY,
+      },
+    );
+    if (result.ok) sent += 1;
+    if (result.expired) await repo.deleteByEndpoint(sub.endpoint);
+  }
+  return { sent };
 }
 
 /** Se llama sola al cargar la página de recordatorios (ver use-timezone-sync). */
