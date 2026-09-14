@@ -15,10 +15,12 @@ export function CommunityManager({
   inviteCode,
   initialPendingRequests,
   initialFriends,
+  groupCount,
 }: {
   inviteCode: string;
   initialPendingRequests: PendingRequest[];
   initialFriends: FriendWithProgress[];
+  groupCount: number;
 }) {
   const t = useTranslations("Community");
   const [pendingRequests, setPendingRequests] = useState(initialPendingRequests);
@@ -53,6 +55,17 @@ export function CommunityManager({
         <span className="flex items-center gap-2">
           <span className="text-base font-semibold">{t("friends.title")}</span>
           <span className="text-muted-foreground text-sm">{initialFriends.length}</span>
+        </span>
+        <ChevronRight className="text-muted-foreground size-5 shrink-0" aria-hidden />
+      </Link>
+
+      <Link
+        href="/community/groups"
+        className="border-border hover:bg-muted focus-visible:ring-ring/50 flex items-center justify-between gap-3 rounded-lg border p-4 text-left transition-colors focus-visible:ring-3 focus-visible:outline-none"
+      >
+        <span className="flex items-center gap-2">
+          <span className="text-base font-semibold">{t("groups.title")}</span>
+          <span className="text-muted-foreground text-sm">{groupCount}</span>
         </span>
         <ChevronRight className="text-muted-foreground size-5 shrink-0" aria-hidden />
       </Link>

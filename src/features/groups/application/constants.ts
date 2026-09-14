@@ -1,0 +1,1 @@
+export const GROUP_ACTIVITY_PAGE_SIZE = 20;

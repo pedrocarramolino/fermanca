@@ -7,6 +7,7 @@ import { SupabaseCategoryRepository } from "@/core/infrastructure/supabase/repos
 import { SupabaseProfileRepository } from "@/core/infrastructure/supabase/repositories/profile-repository";
 import { UnauthorizedError } from "@/core/domain/errors";
 import { currentStreakDays, practiceSecondsByDay } from "@/core/domain/streaks";
+import { recordSessionFinishedGroupEvents } from "@/features/groups/application/actions";
 import type { CategoryId, SessionBlockId, SessionId, UserId } from "@/core/domain/ids";
 import {
   cancelQstashMessage,
@@ -349,7 +350,18 @@ export async function saveBlockNote(blockId: string, note: string) {
 export async function finishSession(sessionId: string, finalNote: string | null) {
   const { userId, client } = await requireUserId();
   const repo = new SupabaseSessionRepository(client);
-  return repo.finish(sessionId as SessionId, userId, { status: "completed", finalNote });
+  const session = await repo.finish(sessionId as SessionId, userId, {
+    status: "completed",
+    finalNote,
+  });
+
+  // Deja constancia en el muro de todos los grupos del usuario — nunca
+  // debe tumbar el fin de la sesión si falla.
+  await recordSessionFinishedGroupEvents(userId, session.id).catch((error: unknown) => {
+    console.error("No se pudo registrar la sesión terminada en los grupos", error);
+  });
+
+  return session;
 }
 
 /** Categorías para el selector de "añadir fase" en la pantalla de fin de

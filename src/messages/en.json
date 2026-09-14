@@ -186,7 +186,8 @@
     "saving": "Saving…",
     "start": "Start session",
     "starting": "Starting…",
-    "inviteFriend": "Invite a friend"
+    "inviteFriend": "Invite a friend",
+    "inviteGroup": "Invite a group"
   },
   "Categories": {
     "warmup": "Warm-up",
@@ -344,11 +345,7 @@
       "enabled": "Notifications enabled on this device",
       "disabled": "Notifications disabled on this device",
       "activate": "Enable",
-      "deactivate": "Disable",
-      "test": "Test",
-      "testSending": "Sending…",
-      "testSent": "Sent — check this device's notifications.",
-      "testEmpty": "Couldn't send it. Try disabling and re-enabling notifications."
+      "deactivate": "Disable"
     },
     "form": {
       "title": "New reminder",
@@ -434,6 +431,9 @@
       "removing": "Removing…",
       "removeError": "Couldn't remove the friendship. Please try again."
     },
+    "groups": {
+      "title": "Groups"
+    },
     "session": {
       "recentSessions": "Recent sessions",
       "monthTotal": "{duration} this month",
@@ -497,6 +497,83 @@
       "editError": "Couldn't save the announcement.",
       "viewAll": "View all",
       "back": "Back"
+    }
+  },
+  "Groups": {
+    "title": "Groups",
+    "back": "Back",
+    "empty": "You're not in any group yet. Create one or join with a code.",
+    "createGroup": "Create group",
+    "joinGroup": "Join a group",
+    "memberCount": "{count, plural, one {# member} other {# members}}",
+    "create": {
+      "title": "Create group",
+      "description": "Choose a name and what kind of group you want.",
+      "nameLabel": "Group name",
+      "namePlaceholder": "E.g. Guitar students",
+      "kindLabel": "Group kind",
+      "kind": {
+        "creator": {
+          "title": "Friend group",
+          "description": "Any member can invite the whole group to practice together."
+        },
+        "admin": {
+          "title": "Class group",
+          "description": "You set a weekly goal for the whole group, yourself included."
+        }
+      },
+      "error": "Couldn't create the group.",
+      "creating": "Creating…",
+      "submit": "Create"
+    },
+    "join": {
+      "title": "Join a group",
+      "description": "Ask whoever created the group for its code.",
+      "codeLabel": "Group code",
+      "codePlaceholder": "E.g. AB23CD",
+      "error": "Couldn't join the group.",
+      "joining": "Joining…",
+      "submit": "Join"
+    },
+    "detail": {
+      "back": "Back",
+      "kind": {
+        "creator": "Friend group",
+        "admin": "Class group"
+      },
+      "leave": "Leave group",
+      "inviteCodeTitle": "Group code",
+      "copy": "Copy",
+      "copied": "Copied",
+      "membersTitle": "{count, plural, one {# member} other {# members}}",
+      "owner": "Owner",
+      "activityTitle": "Activity",
+      "leaveConfirmTitle": "Leave this group?",
+      "leaveConfirmDescription": "You'll stop seeing its activity and weekly goal, if it has one. You can rejoin with the code.",
+      "leaveConfirmCta": "Leave",
+      "leaving": "Leaving…"
+    },
+    "weeklyGoal": {
+      "title": "Group weekly goal",
+      "days": "Days",
+      "hours": "Hours",
+      "saveError": "Couldn't save the goal.",
+      "save": "Save",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "none": "The group doesn't have a goal set for this week yet.",
+      "edit": "Edit",
+      "hoursLabel": "Hours practiced",
+      "completed": "Goal completed",
+      "markCompleted": "Mark as completed"
+    },
+    "activity": {
+      "noChatHint": "Only shows when someone finishes a session or completes the goal — no chatting here.",
+      "empty": "No activity in this group yet.",
+      "sessionFinished": "{username} just finished a practice session",
+      "weeklyGoalCompleted": "{username} just completed the weekly goal",
+      "loadMore": "Load more",
+      "loading": "Loading…"
     }
   },
   "Share": {
@@ -566,6 +643,15 @@
       "phase_added": "@{name} added a phase",
       "phases_reordered": "@{name} reordered the upcoming phases",
       "session_finished": "@{name} finished the session"
+    },
+    "groupDialog": {
+      "title": "Invite a group",
+      "description": "An invitation will be sent to every member of the group, same as inviting them one by one.",
+      "loading": "Loading groups…",
+      "noGroups": "You don't have a friend group yet — create one from Community.",
+      "inviting": "Inviting…",
+      "sent": "{count, plural, =0 {Couldn't invite anyone} one {Invitation sent to # person} other {Invitations sent to # people}}",
+      "error": "Couldn't invite the group."
     }
   },
   "TimerDisplay": {
