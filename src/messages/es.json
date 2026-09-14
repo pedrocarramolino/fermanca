@@ -638,7 +638,10 @@
       "copy": "Copiar",
       "copied": "Copiado",
       "membersTitle": "{count, plural, one {# miembro} other {# miembros}}",
-      "owner": "Administrador",
+      "ownerLabel": {
+        "admin": "Administrador",
+        "creator": "Creador"
+      },
       "activityTitle": "Actividad",
       "leaveConfirmTitle": "¿Salir del grupo?",
       "leaveConfirmDescription": "Dejarás de ver su actividad y su objetivo semanal, si lo tiene. Podrás volver a unirte con el código.",

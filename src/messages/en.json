@@ -638,7 +638,10 @@
       "copy": "Copy",
       "copied": "Copied",
       "membersTitle": "{count, plural, one {# member} other {# members}}",
-      "owner": "Admin",
+      "ownerLabel": {
+        "admin": "Admin",
+        "creator": "Creator"
+      },
       "activityTitle": "Activity",
       "leaveConfirmTitle": "Leave this group?",
       "leaveConfirmDescription": "You'll stop seeing its activity and weekly goal, if it has one. You can rejoin with the code.",

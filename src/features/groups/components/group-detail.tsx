@@ -89,7 +89,7 @@ export function GroupDetail({ group, myOwnerId }: { group: GroupDetailData; myOw
               <li key={member.ownerId} className="flex items-center gap-2 text-sm">
                 <span className="truncate">{member.username}</span>
                 {member.ownerId === group.ownerId && (
-                  <Badge variant="outline">{t("owner")}</Badge>
+                  <Badge variant="outline">{t(`ownerLabel.${group.kind}`)}</Badge>
                 )}
               </li>
             ))}
