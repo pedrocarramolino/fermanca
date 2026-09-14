@@ -811,7 +811,9 @@
     "savingNote": "Wird gespeichert…",
     "noteSaved": "Notiz gespeichert",
     "backHome": "Zurück zum Start",
-    "finishingSession": "Sitzung wird gespeichert…"
+    "finishingSession": "Sitzung wird gespeichert…",
+    "repeatSession": "Sitzung wiederholen",
+    "repeatingSession": "Wird vorbereitet…"
   },
   "StoryCreator": {
     "trigger": "Story mit Foto erstellen",

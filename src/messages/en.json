@@ -811,7 +811,9 @@
     "savingNote": "Saving…",
     "noteSaved": "Note saved",
     "backHome": "Back to home",
-    "finishingSession": "Saving session…"
+    "finishingSession": "Saving session…",
+    "repeatSession": "Repeat session",
+    "repeatingSession": "Preparing…"
   },
   "StoryCreator": {
     "trigger": "Create photo Story",

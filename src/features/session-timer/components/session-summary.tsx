@@ -3,13 +3,14 @@
 import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, Camera } from "lucide-react";
+import { ArrowLeft, Camera, Repeat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDurationShort } from "@/core/domain/duration";
 import { hasPracticedTime } from "@/core/domain/session";
 import { finishSession, listGhostCategoryIds } from "@/features/session-timer/application/actions";
+import { startSession } from "@/features/session-builder/application/actions";
 import { ShareSessionButton } from "@/features/session-timer/components/share-session-button";
 import { ShareToFeedButton } from "@/features/session-timer/components/share-to-feed-button";
 import { CreateStoryOverlay } from "@/features/session-timer/components/create-story-overlay";
@@ -33,6 +34,7 @@ export function SessionSummary({
   const [isPending, startTransition] = useTransition();
   const [storyOpen, setStoryOpen] = useState(false);
   const [ghostCategoryIds, setGhostCategoryIds] = useState<string[]>([]);
+  const [isRepeating, startRepeating] = useTransition();
 
   useEffect(() => {
     void listGhostCategoryIds()
@@ -60,6 +62,23 @@ export function SessionSummary({
     startTransition(async () => {
       await finishSession(sessionId, note || null);
       setSaved(true);
+    });
+  }
+
+  function handleRepeat() {
+    startRepeating(async () => {
+      // El plan original (con la duración PLANEADA de cada bloque, no la
+      // que se practicó de verdad) — todos los bloques, no solo
+      // visibleBlocks: una fase saltada o de categoría fantasma seguía
+      // siendo parte del plan que se quiere repetir otro día.
+      const draftBlocks = blocks.map((block, position) => ({
+        categoryId: block.categoryId,
+        name: block.name,
+        durationSeconds: block.plannedDurationSeconds,
+        color: block.color,
+        position,
+      }));
+      await startSession(null, draftBlocks);
     });
   }
 
@@ -154,14 +173,27 @@ export function SessionSummary({
         </Button>
       </div>
 
-      <Button
-        render={<Link href="/" />}
-        nativeButton={false}
-        disabled={finishing}
-        aria-busy={finishing}
-      >
-        {finishing ? t("finishingSession") : t("backHome")}
-      </Button>
+      <div className="flex w-full flex-col gap-2 sm:flex-row">
+        <Button
+          type="button"
+          variant="outline"
+          className="flex-1"
+          onClick={handleRepeat}
+          disabled={isRepeating}
+        >
+          <Repeat className="size-4" />
+          {isRepeating ? t("repeatingSession") : t("repeatSession")}
+        </Button>
+        <Button
+          className="flex-1"
+          render={<Link href="/" />}
+          nativeButton={false}
+          disabled={finishing}
+          aria-busy={finishing}
+        >
+          {finishing ? t("finishingSession") : t("backHome")}
+        </Button>
+      </div>
     </main>
   );
 }

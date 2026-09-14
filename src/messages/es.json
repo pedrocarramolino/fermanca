@@ -811,7 +811,9 @@
     "savingNote": "Guardando…",
     "noteSaved": "Nota guardada",
     "backHome": "Volver al inicio",
-    "finishingSession": "Guardando sesión…"
+    "finishingSession": "Guardando sesión…",
+    "repeatSession": "Repetir sesión",
+    "repeatingSession": "Preparando…"
   },
   "StoryCreator": {
     "trigger": "Crear Story con foto",
