@@ -646,7 +646,17 @@
       "leaveConfirmTitle": "Leave this group?",
       "leaveConfirmDescription": "You'll stop seeing its activity and weekly goal, if it has one. You can rejoin with the code.",
       "leaveConfirmCta": "Leave",
-      "leaving": "Leaving…"
+      "leaving": "Leaving…",
+      "deleteGroup": "Delete group",
+      "deleteConfirmTitle": "Delete \"{name}\"?",
+      "deleteConfirmDescription": "It'll be removed for every member, along with its activity and weekly goal. This can't be undone.",
+      "deleteConfirmCta": "Delete group",
+      "deleting": "Deleting…",
+      "removeMember": "Remove {name}",
+      "removeMemberConfirmTitle": "Remove {name}?",
+      "removeMemberConfirmDescription": "They'll stop seeing the group's activity and weekly goal. They can rejoin with the code.",
+      "removeMemberConfirmCta": "Remove",
+      "removingMember": "Removing…"
     },
     "weeklyGoal": {
       "title": "Group weekly goal",

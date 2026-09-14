@@ -138,6 +138,30 @@ export async function leaveGroup(groupId: string) {
   revalidatePath("/community/groups");
 }
 
+/** Expulsar a otro miembro — solo el dueño (reforzado también por la
+ * política de borrado de group_members, que ya permite "tú mismo o el
+ * dueño"). Para salir tú mismo se usa leaveGroup. */
+export async function removeGroupMember(groupId: string, memberUserId: string) {
+  const { userId, client } = await requireUserId();
+  const { repo, group } = await requireMembership(groupId as GroupId, userId, client);
+  if (group.ownerId !== userId) throw new UnauthorizedError();
+  if (memberUserId === userId) throw new Error("Usa \"Salir del grupo\" para irte tú mismo.");
+
+  await repo.removeMember(group.id, memberUserId as UserId);
+  revalidatePath(`/community/groups/${groupId}`);
+}
+
+/** Solo el dueño puede borrar el grupo entero — el resto de miembros lo
+ * dejan de ver de inmediato (cascada por FK en la base de datos). */
+export async function deleteGroup(groupId: string) {
+  const { userId, client } = await requireUserId();
+  const { repo, group } = await requireMembership(groupId as GroupId, userId, client);
+  if (group.ownerId !== userId) throw new UnauthorizedError();
+
+  await repo.delete(group.id);
+  revalidatePath("/community/groups");
+}
+
 export interface GroupMemberInfo {
   ownerId: string;
   username: string;

@@ -75,6 +75,11 @@ export class SupabaseGroupRepository implements GroupRepository {
     throw new Error("No se pudo generar un código de invitación único para el grupo.");
   }
 
+  async delete(id: GroupId): Promise<void> {
+    const { error } = await this.client.from("groups").delete().eq("id", id);
+    if (error) throw error;
+  }
+
   async getById(id: GroupId): Promise<Group | null> {
     const { data, error } = await this.client.from("groups").select("*").eq("id", id).maybeSingle();
     if (error) throw error;

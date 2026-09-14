@@ -646,7 +646,17 @@
       "leaveConfirmTitle": "¿Salir del grupo?",
       "leaveConfirmDescription": "Dejarás de ver su actividad y su objetivo semanal, si lo tiene. Podrás volver a unirte con el código.",
       "leaveConfirmCta": "Salir",
-      "leaving": "Saliendo…"
+      "leaving": "Saliendo…",
+      "deleteGroup": "Eliminar grupo",
+      "deleteConfirmTitle": "¿Eliminar \"{name}\"?",
+      "deleteConfirmDescription": "Se eliminará para todos los miembros, junto con su actividad y su objetivo semanal. Esta acción no se puede deshacer.",
+      "deleteConfirmCta": "Eliminar grupo",
+      "deleting": "Eliminando…",
+      "removeMember": "Expulsar a {name}",
+      "removeMemberConfirmTitle": "¿Expulsar a {name}?",
+      "removeMemberConfirmDescription": "Dejará de ver la actividad y el objetivo semanal del grupo. Podrá volver a unirse con el código.",
+      "removeMemberConfirmCta": "Expulsar",
+      "removingMember": "Expulsando…"
     },
     "weeklyGoal": {
       "title": "Objetivo semanal del grupo",

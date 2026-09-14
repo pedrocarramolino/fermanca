@@ -646,7 +646,17 @@
       "leaveConfirmTitle": "Diese Gruppe verlassen?",
       "leaveConfirmDescription": "Du siehst dann nicht mehr ihre Aktivität und ihr Wochenziel, falls vorhanden. Mit dem Code kannst du wieder beitreten.",
       "leaveConfirmCta": "Verlassen",
-      "leaving": "Wird verlassen…"
+      "leaving": "Wird verlassen…",
+      "deleteGroup": "Gruppe löschen",
+      "deleteConfirmTitle": "\"{name}\" löschen?",
+      "deleteConfirmDescription": "Sie wird für alle Mitglieder entfernt, zusammen mit ihrer Aktivität und ihrem Wochenziel. Das kann nicht rückgängig gemacht werden.",
+      "deleteConfirmCta": "Gruppe löschen",
+      "deleting": "Wird gelöscht…",
+      "removeMember": "{name} entfernen",
+      "removeMemberConfirmTitle": "{name} entfernen?",
+      "removeMemberConfirmDescription": "Die Person sieht dann nicht mehr die Aktivität und das Wochenziel der Gruppe. Mit dem Code kann sie wieder beitreten.",
+      "removeMemberConfirmCta": "Entfernen",
+      "removingMember": "Wird entfernt…"
     },
     "weeklyGoal": {
       "title": "Wochenziel der Gruppe",
