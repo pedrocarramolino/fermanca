@@ -108,6 +108,9 @@ export interface GroupWeeklyGoalCompletedPushPayload {
   title: string;
   body: string;
   groupId: string;
+  /** Imagen grande en la notificación expandida — solo la pinta Android/
+   * Chrome; el resto de plataformas (iOS incluido) la ignora sin más. */
+  image?: string;
 }
 
 export type PushPayload =

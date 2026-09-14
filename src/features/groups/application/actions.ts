@@ -347,11 +347,51 @@ export async function markGroupWeeklyGoalCompleted(groupId: string, groupWeeklyG
     title: `¡Objetivo semanal completado en ${group.name}!`,
     body: `${myProfile?.username ?? "Alguien"} acaba de completar el objetivo semanal.`,
     groupId: group.id,
+    image: GROUP_WEEKLY_GOAL_PUSH_IMAGE,
   }).catch((error: unknown) => {
     console.error("No se pudo avisar del objetivo semanal de grupo completado", error);
   });
 
   revalidatePath(`/community/groups/${groupId}`);
+}
+
+/** Icono grande de la app, reutilizado como imagen de la notificación de
+ * objetivo semanal de grupo completado (ver GroupWeeklyGoalCompletedPushPayload) —
+ * solo la pintan Android/Chrome, el resto de plataformas la ignora sin más. */
+const GROUP_WEEKLY_GOAL_PUSH_IMAGE = "/icons/icon-512x512.png";
+
+/**
+ * Manda el mismo push de "objetivo semanal completado" pero SOLO a quien lo
+ * pide, a sus propias suscripciones — para poder ver cómo queda (incluida la
+ * imagen) sin avisar de mentira al resto del grupo.
+ */
+export async function sendTestGroupWeeklyGoalPush(groupId: string) {
+  const { userId, client } = await requireUserId();
+  const { group } = await requireMembership(groupId as GroupId, userId, client);
+
+  const myProfile = await new SupabaseProfileRepository(client).getByOwnerId(userId);
+  const serviceClient = createServiceClient();
+  const { data: subscriptions, error } = await serviceClient
+    .from("push_subscriptions")
+    .select("*")
+    .eq("owner_id", userId);
+  if (error) throw error;
+  if (subscriptions.length === 0) {
+    throw new Error("No tienes notificaciones activadas en este dispositivo.");
+  }
+
+  for (const sub of subscriptions) {
+    await sendPush(
+      { endpoint: sub.endpoint, p256dh: sub.p256dh, auth: sub.auth },
+      {
+        kind: "group-weekly-goal-completed",
+        title: `¡Objetivo semanal completado en ${group.name}!`,
+        body: `${myProfile?.username ?? "Alguien"} acaba de completar el objetivo semanal.`,
+        groupId: group.id,
+        image: GROUP_WEEKLY_GOAL_PUSH_IMAGE,
+      },
+    );
+  }
 }
 
 /**

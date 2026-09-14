@@ -670,7 +670,10 @@
       "edit": "Edit",
       "hoursLabel": "Hours practiced",
       "completed": "Goal completed",
-      "markCompleted": "Mark as completed"
+      "markCompleted": "Mark as completed",
+      "test": "Test notification",
+      "testSent": "Test notification sent — check your device.",
+      "testError": "Couldn't send it. Check that notifications are on in Reminders."
     },
     "activity": {
       "noChatHint": "Only shows when someone finishes a session or completes the goal — no chatting here.",

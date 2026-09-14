@@ -122,6 +122,7 @@ interface GroupWeeklyGoalCompletedPushPayload {
   title: string;
   body: string;
   groupId: string;
+  image?: string;
 }
 
 type IncomingPushPayload =
@@ -141,6 +142,9 @@ type IncomingPushPayload =
 interface ShowNotificationOptions extends NotificationOptions {
   actions?: { action: string; title: string }[];
   vibrate?: number[];
+  /** No está en el `NotificationOptions` de este lib de TS todavía, aunque
+   * el propio navegador sí lo soporta (Android/Chrome; el resto lo ignora). */
+  image?: string;
 }
 
 // Contador del icono de la app (Badging API — navigator.setAppBadge), solo
@@ -391,6 +395,7 @@ self.addEventListener("push", (event: PushEvent) => {
         body: payload.body,
         icon: "/icons/icon-192x192.png",
         badge: "/icons/icon-192x192.png",
+        image: payload.image,
         data: { url: `/community/groups/${payload.groupId}` },
         tag: `practiceflow-group-goal-${payload.groupId}`,
       }),

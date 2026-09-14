@@ -670,7 +670,10 @@
       "edit": "Bearbeiten",
       "hoursLabel": "Geübte Stunden",
       "completed": "Ziel erreicht",
-      "markCompleted": "Als erledigt markieren"
+      "markCompleted": "Als erledigt markieren",
+      "test": "Benachrichtigung testen",
+      "testSent": "Testbenachrichtigung gesendet — schau auf deinem Gerät nach.",
+      "testError": "Konnte nicht gesendet werden. Prüfe, ob Benachrichtigungen unter Erinnerungen aktiviert sind."
     },
     "activity": {
       "noChatHint": "Zeigt nur, wenn jemand eine Sitzung beendet oder das Ziel erreicht — hier kann man nicht chatten.",

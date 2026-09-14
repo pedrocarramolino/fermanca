@@ -670,7 +670,10 @@
       "edit": "Editar",
       "hoursLabel": "Horas practicadas",
       "completed": "Objetivo completado",
-      "markCompleted": "Marcar como completado"
+      "markCompleted": "Marcar como completado",
+      "test": "Probar notificación",
+      "testSent": "Notificación de prueba enviada — revisa tu dispositivo.",
+      "testError": "No se pudo enviar. Comprueba que tienes las notificaciones activadas en Recordatorios."
     },
     "activity": {
       "noChatHint": "Solo se ve cuándo alguien termina una sesión o completa el objetivo — no se puede chatear aquí.",
