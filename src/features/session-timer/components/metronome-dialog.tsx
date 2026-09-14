@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { motion, useReducedMotion } from "motion/react";
 import { Play, Square } from "lucide-react";
@@ -14,6 +15,17 @@ import {
 } from "@/components/ui/dialog";
 import { useMetronome } from "@/features/session-timer/hooks/use-metronome";
 
+/** iPadOS 13+ se identifica como "MacIntel" (mismo user agent que un Mac de
+ * verdad) — solo `maxTouchPoints > 1` lo distingue de un Mac real, que no
+ * tiene pantalla táctil. */
+function isIOS(): boolean {
+  if (typeof navigator === "undefined") return false;
+  return (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+  );
+}
+
 export function MetronomeDialog({
   open,
   onOpenChange,
@@ -26,6 +38,13 @@ export function MetronomeDialog({
   const t = useTranslations("Metronome");
   const reduceMotion = useReducedMotion();
   const { bpm, setBpm, minBpm, maxBpm, isPlaying, start, stop, beat } = useMetronome();
+  // navigator no existe en el servidor — se calcula tras hidratar, como el
+  // resto de detecciones de plataforma en la app (ver HomeGreeting).
+  const [showIOSHint, setShowIOSHint] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setShowIOSHint(isIOS());
+  }, []);
 
   function handleToggle() {
     if (isPlaying) {
@@ -47,6 +66,9 @@ export function MetronomeDialog({
         <DialogHeader className="items-center text-center">
           <DialogTitle>{t("title")}</DialogTitle>
           <DialogDescription>{t("description")}</DialogDescription>
+          {showIOSHint && (
+            <p className="text-muted-foreground text-xs">{t("iosSilentHint")}</p>
+          )}
         </DialogHeader>
 
         <div className="flex flex-col items-center gap-4">

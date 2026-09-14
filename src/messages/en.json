@@ -714,6 +714,7 @@
   "Metronome": {
     "title": "Metronome",
     "description": "Set the tempo and press Start to hear it.",
+    "iosSilentHint": "On iPhone, turn off the side silent switch — otherwise it won't be audible even with the volume up.",
     "bpm": "Beats per minute",
     "start": "Start",
     "stop": "Stop"

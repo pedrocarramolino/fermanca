@@ -714,6 +714,7 @@
   "Metronome": {
     "title": "Metronom",
     "description": "Stelle das Tempo ein und drücke Start, um es zu hören.",
+    "iosSilentHint": "Auf dem iPhone den seitlichen Stummschalter ausschalten — sonst ist nichts zu hören, selbst bei hoher Lautstärke.",
     "bpm": "Schläge pro Minute",
     "start": "Start",
     "stop": "Stopp"

@@ -714,6 +714,7 @@
   "Metronome": {
     "title": "Metrónomo",
     "description": "Ajusta el ritmo y pulsa Iniciar para escucharlo.",
+    "iosSilentHint": "En iPhone, quita el interruptor de silencio lateral — si no, no se oirá aunque subas el volumen.",
     "bpm": "Pulsaciones por minuto",
     "start": "Iniciar",
     "stop": "Detener"
