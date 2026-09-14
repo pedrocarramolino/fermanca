@@ -701,6 +701,7 @@
     "resume": "Reanudar",
     "pause": "Pausar",
     "finishPhaseNow": "Terminar fase ahora",
+    "metronome": "Metrónomo",
     "backHome": "Volver al inicio",
     "practicingWith": "Practicando con @{name}",
     "transitionError": "No se pudo guardar el cambio de fase. Comprueba tu conexión.",
@@ -709,6 +710,14 @@
     "resumeError": "No se pudo reanudar. Comprueba tu conexión.",
     "reorderError": "No se pudo guardar el nuevo orden. Comprueba tu conexión.",
     "removeError": "No se pudo eliminar la fase. Comprueba tu conexión."
+  },
+  "Metronome": {
+    "title": "Metrónomo",
+    "description": "Ajusta el ritmo y pulsa Iniciar para escucharlo.",
+    "iosSilentHint": "En iPhone, quita el interruptor de silencio lateral — si no, no se oirá aunque subas el volumen.",
+    "bpm": "Pulsaciones por minuto",
+    "start": "Iniciar",
+    "stop": "Detener"
   },
   "SessionInvites": {
     "dialog": {

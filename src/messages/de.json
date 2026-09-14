@@ -701,6 +701,7 @@
     "resume": "Fortsetzen",
     "pause": "Pausieren",
     "finishPhaseNow": "Phase jetzt beenden",
+    "metronome": "Metronom",
     "backHome": "Zurück zum Start",
     "practicingWith": "Übt gerade mit @{name}",
     "transitionError": "Der Phasenwechsel konnte nicht gespeichert werden. Prüfe deine Verbindung.",
@@ -709,6 +710,14 @@
     "resumeError": "Fortsetzen fehlgeschlagen. Prüfe deine Verbindung.",
     "reorderError": "Die neue Reihenfolge konnte nicht gespeichert werden. Prüfe deine Verbindung.",
     "removeError": "Die Phase konnte nicht entfernt werden. Prüfe deine Verbindung."
+  },
+  "Metronome": {
+    "title": "Metronom",
+    "description": "Stelle das Tempo ein und drücke Start, um es zu hören.",
+    "iosSilentHint": "Auf dem iPhone den seitlichen Stummschalter ausschalten — sonst ist nichts zu hören, selbst bei hoher Lautstärke.",
+    "bpm": "Schläge pro Minute",
+    "start": "Start",
+    "stop": "Stopp"
   },
   "SessionInvites": {
     "dialog": {
