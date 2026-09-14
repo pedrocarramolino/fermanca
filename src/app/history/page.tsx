@@ -5,7 +5,6 @@ import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { getAuthenticatedUser } from "@/core/infrastructure/supabase/current-user";
 import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/repositories/session-repository";
-import { SupabaseCategoryRepository } from "@/core/infrastructure/supabase/repositories/category-repository";
 import { HISTORY_PAGE_SIZE } from "@/features/history/application/constants";
 import { HistoryList } from "@/features/history/components/history-list";
 
@@ -19,11 +18,7 @@ export default async function HistoryPage() {
   const t = await getTranslations("History");
 
   const repo = new SupabaseSessionRepository(supabase);
-  const categoryRepo = new SupabaseCategoryRepository(supabase);
-  const [sessions, categories] = await Promise.all([
-    repo.listByOwner(userId, { limit: HISTORY_PAGE_SIZE }),
-    categoryRepo.listAvailable(userId),
-  ]);
+  const sessions = await repo.listByOwner(userId, { limit: HISTORY_PAGE_SIZE });
 
   return (
     <main className="mx-auto flex min-h-svh max-w-2xl flex-col gap-6 p-8 pb-32 md:max-w-3xl lg:max-w-4xl">
@@ -40,7 +35,7 @@ export default async function HistoryPage() {
         <h1 className="text-lg font-medium">{t("title")}</h1>
       </div>
 
-      <HistoryList initialSessions={sessions} categories={categories} />
+      <HistoryList initialSessions={sessions} />
     </main>
   );
 }
