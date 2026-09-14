@@ -344,11 +344,7 @@
       "enabled": "Notificaciones activadas en este dispositivo",
       "disabled": "Notificaciones desactivadas en este dispositivo",
       "activate": "Activar",
-      "deactivate": "Desactivar",
-      "test": "Probar",
-      "testSending": "Enviando…",
-      "testSent": "Enviada — revisa las notificaciones de este dispositivo.",
-      "testEmpty": "No se pudo enviar. Prueba a desactivar y volver a activar las notificaciones."
+      "deactivate": "Desactivar"
     },
     "form": {
       "title": "Nuevo recordatorio",

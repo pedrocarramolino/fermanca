@@ -344,11 +344,7 @@
       "enabled": "Notifications enabled on this device",
       "disabled": "Notifications disabled on this device",
       "activate": "Enable",
-      "deactivate": "Disable",
-      "test": "Test",
-      "testSending": "Sending…",
-      "testSent": "Sent — check this device's notifications.",
-      "testEmpty": "Couldn't send it. Try disabling and re-enabling notifications."
+      "deactivate": "Disable"
     },
     "form": {
       "title": "New reminder",
