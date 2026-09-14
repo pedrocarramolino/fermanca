@@ -535,6 +535,19 @@
       "joining": "Wird beigetreten…",
       "submit": "Beitreten"
     },
+    "joinLink": {
+      "metaTitle": "Gruppeneinladung",
+      "genericError": "Der Gruppe konnte nicht beigetreten werden.",
+      "invalidTitle": "Ungültiger Code",
+      "invalidDescription": "Dieser Einladungslink existiert nicht oder ist abgelaufen.",
+      "goToApp": "Zu Fermança",
+      "invitedBy": "Du wurdest zur Gruppe <strong>\"{name}\"</strong> auf Fermança eingeladen.",
+      "createAccount": "Konto erstellen und beitreten",
+      "alreadyHaveAccount": "Ich habe schon ein Konto",
+      "joining": "Du trittst \"{name}\" bei…",
+      "goToGroups": "Zu Gruppen",
+      "joinedTitle": "Du bist \"{name}\" beigetreten!"
+    },
     "detail": {
       "back": "Zurück",
       "kind": {
@@ -580,6 +593,7 @@
     "link": "Link teilen",
     "session": "Teilen",
     "inviteText": "Werde mein Freund auf Fermança 🎵",
+    "groupInviteText": "Tritt meiner Gruppe \"{name}\" auf Fermança bei 🎵",
     "sessionText": "Ich habe {duration} in {count, plural, one {# Block} other {# Blöcken}} mit Fermança geübt",
     "streakSuffix": "{count, plural, one {# Tag} other {# Tage}} Serie",
     "whatsapp": "WhatsApp",

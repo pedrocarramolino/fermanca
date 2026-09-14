@@ -535,6 +535,19 @@
       "joining": "Joining…",
       "submit": "Join"
     },
+    "joinLink": {
+      "metaTitle": "Group invitation",
+      "genericError": "Couldn't join the group.",
+      "invalidTitle": "Invalid code",
+      "invalidDescription": "This invite link doesn't exist or has expired.",
+      "goToApp": "Go to Fermança",
+      "invitedBy": "You've been invited to the group <strong>\"{name}\"</strong> on Fermança.",
+      "createAccount": "Create account and join",
+      "alreadyHaveAccount": "I already have an account",
+      "joining": "Joining \"{name}\"…",
+      "goToGroups": "Go to Groups",
+      "joinedTitle": "You've joined \"{name}\"!"
+    },
     "detail": {
       "back": "Back",
       "kind": {
@@ -580,6 +593,7 @@
     "link": "Share link",
     "session": "Share",
     "inviteText": "Join my friends on Fermança 🎵",
+    "groupInviteText": "Join my group \"{name}\" on Fermança 🎵",
     "sessionText": "I practiced {duration} across {count, plural, one {# block} other {# blocks}} with Fermança",
     "streakSuffix": "{count, plural, one {# day} other {# days}} streak",
     "whatsapp": "WhatsApp",

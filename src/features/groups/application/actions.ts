@@ -84,6 +84,20 @@ export async function listMyCreatorGroups(): Promise<MyGroup[]> {
 }
 
 /**
+ * Para la pantalla pública del enlace de invitación
+ * (/community/groups/join/[code]): hace falta poder decir "te han invitado
+ * al grupo X" antes incluso de saber si quien abrió el enlace tiene cuenta.
+ * Con la clave de servicio porque el grupo no es visible sin sesión (mismo
+ * motivo que getInviterByCode) — solo expone el nombre, nada más.
+ */
+export async function getGroupByInviteCode(code: string): Promise<{ name: string } | null> {
+  const group = await new SupabaseGroupRepository(createServiceClient()).getByInviteCode(
+    code.trim().toUpperCase(),
+  );
+  return group ? { name: group.name } : null;
+}
+
+/**
  * Buscar por código necesita ver un grupo del que aún no eres miembro — RLS
  * lo bloquea a propósito (para que no se puedan recorrer/enumerar grupos
  * ajenos), así que esta búsqueda va con la clave de servicio, mismo patrón
