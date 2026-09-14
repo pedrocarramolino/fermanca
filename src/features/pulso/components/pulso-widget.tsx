@@ -18,6 +18,7 @@ import {
   Target,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -305,18 +306,26 @@ export function PulsoWidget({
               <div className="flex flex-col gap-2">
                 {PULSO_INTENTIONS.map((value) => {
                   const Icon = INTENTION_ICONS[value];
+                  const selected = intention === value;
                   return (
                     <Button
                       key={value}
                       type="button"
-                      variant={intention === value ? "secondary" : "outline"}
+                      variant={selected ? "default" : "outline"}
                       className="h-auto justify-start gap-3 py-3"
                       onClick={() => handlePickIntention(value)}
                     >
-                      <Icon className="text-primary size-5 shrink-0" />
+                      <Icon
+                        className={cn("size-5 shrink-0", selected ? "text-primary-foreground" : "text-primary")}
+                      />
                       <span className="flex flex-col items-start gap-0.5">
                         <span className="font-medium">{t(`intention.${value}.title`)}</span>
-                        <span className="text-muted-foreground text-xs font-normal text-wrap">
+                        <span
+                          className={cn(
+                            "text-xs font-normal text-wrap",
+                            selected ? "text-primary-foreground/80" : "text-muted-foreground",
+                          )}
+                        >
                           {t(`intention.${value}.description`)}
                         </span>
                       </span>
@@ -385,7 +394,7 @@ export function PulsoWidget({
                       <Button
                         key={level}
                         type="button"
-                        variant={energy === level ? "secondary" : "outline"}
+                        variant={energy === level ? "default" : "outline"}
                         className="h-auto flex-col gap-1 py-3"
                         onClick={() => setEnergy(level)}
                       >
