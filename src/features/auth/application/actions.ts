@@ -11,6 +11,7 @@ import {
   signInSchema,
   signUpSchema,
 } from "@/features/auth/application/schemas";
+import { safeRedirectPath } from "@/features/auth/application/safe-redirect";
 
 export interface AuthActionState {
   error: string | null;
@@ -34,17 +35,6 @@ async function originUrl() {
   const proto = h.get("x-forwarded-proto") ?? "http";
   const host = h.get("host");
   return `${proto}://${host}`;
-}
-
-/**
- * `next` viene de un query param controlado por quien construye el enlace
- * de login, no del propio usuario — "/login?next=//evil.com" pasa
- * `startsWith("/")` (es una URL protocol-relative) y el navegador la
- * resuelve como "https://evil.com". Bloquear también "//" evita ese
- * open redirect tras un login legítimo.
- */
-function safeRedirectPath(next: string): string {
-  return next.startsWith("/") && !next.startsWith("//") ? next : "/";
 }
 
 /** El campo de login acepta email o nombre de usuario — si no hay "@" se
