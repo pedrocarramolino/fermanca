@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { CheckCircle2, Target } from "lucide-react";
+import { Bell, CheckCircle2, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { formatDurationShort } from "@/core/domain/duration";
 import {
   markGroupWeeklyGoalCompleted,
+  sendTestGroupWeeklyGoalPush,
   setGroupWeeklyGoal,
   type GroupWeeklyGoalInfo,
 } from "@/features/groups/application/actions";
@@ -36,6 +37,8 @@ export function GroupWeeklyGoalCard({
   );
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [isTesting, startTesting] = useTransition();
+  const [testResult, setTestResult] = useState<"sent" | "error" | null>(null);
 
   function handleSave() {
     setError(null);
@@ -55,6 +58,19 @@ export function GroupWeeklyGoalCard({
     startTransition(async () => {
       await markGroupWeeklyGoalCompleted(groupId, initialGoal.id);
       router.refresh();
+    });
+  }
+
+  function handleTest() {
+    setTestResult(null);
+    startTesting(async () => {
+      try {
+        await sendTestGroupWeeklyGoalPush(groupId);
+        setTestResult("sent");
+      } catch {
+        setTestResult("error");
+      }
+      setTimeout(() => setTestResult(null), 4000);
     });
   }
 
@@ -135,14 +151,31 @@ export function GroupWeeklyGoalCard({
             <Target className="size-4" aria-hidden />
             {t("title")}
           </span>
-          {isOwner && (
-            <Button type="button" variant="ghost" size="sm" onClick={() => setEditing(true)}>
-              {t("edit")}
+          <span className="flex items-center gap-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label={t("test")}
+              disabled={isTesting}
+              onClick={handleTest}
+            >
+              <Bell className="size-4" />
             </Button>
-          )}
+            {isOwner && (
+              <Button type="button" variant="ghost" size="sm" onClick={() => setEditing(true)}>
+                {t("edit")}
+              </Button>
+            )}
+          </span>
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
+        {testResult && (
+          <p className={testResult === "error" ? "text-destructive text-xs" : "text-muted-foreground text-xs"}>
+            {testResult === "sent" ? t("testSent") : t("testError")}
+          </p>
+        )}
         <div className="flex flex-col gap-1.5">
           <div className="flex items-baseline justify-between text-sm">
             <span className="text-muted-foreground">{t("hoursLabel")}</span>

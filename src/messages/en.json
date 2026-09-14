@@ -638,12 +638,25 @@
       "copy": "Copy",
       "copied": "Copied",
       "membersTitle": "{count, plural, one {# member} other {# members}}",
-      "owner": "Admin",
+      "ownerLabel": {
+        "admin": "Admin",
+        "creator": "Creator"
+      },
       "activityTitle": "Activity",
       "leaveConfirmTitle": "Leave this group?",
       "leaveConfirmDescription": "You'll stop seeing its activity and weekly goal, if it has one. You can rejoin with the code.",
       "leaveConfirmCta": "Leave",
-      "leaving": "Leaving…"
+      "leaving": "Leaving…",
+      "deleteGroup": "Delete group",
+      "deleteConfirmTitle": "Delete \"{name}\"?",
+      "deleteConfirmDescription": "It'll be removed for every member, along with its activity and weekly goal. This can't be undone.",
+      "deleteConfirmCta": "Delete group",
+      "deleting": "Deleting…",
+      "removeMember": "Remove {name}",
+      "removeMemberConfirmTitle": "Remove {name}?",
+      "removeMemberConfirmDescription": "They'll stop seeing the group's activity and weekly goal. They can rejoin with the code.",
+      "removeMemberConfirmCta": "Remove",
+      "removingMember": "Removing…"
     },
     "weeklyGoal": {
       "title": "Group weekly goal",
@@ -657,7 +670,10 @@
       "edit": "Edit",
       "hoursLabel": "Hours practiced",
       "completed": "Goal completed",
-      "markCompleted": "Mark as completed"
+      "markCompleted": "Mark as completed",
+      "test": "Test notification",
+      "testSent": "Test notification sent — check your device.",
+      "testError": "Couldn't send it. Check that notifications are on in Reminders."
     },
     "activity": {
       "noChatHint": "Only shows when someone finishes a session or completes the goal — no chatting here.",

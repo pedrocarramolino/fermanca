@@ -638,12 +638,25 @@
       "copy": "Kopieren",
       "copied": "Kopiert",
       "membersTitle": "{count, plural, one {# Mitglied} other {# Mitglieder}}",
-      "owner": "Admin",
+      "ownerLabel": {
+        "admin": "Admin",
+        "creator": "Ersteller"
+      },
       "activityTitle": "Aktivität",
       "leaveConfirmTitle": "Diese Gruppe verlassen?",
       "leaveConfirmDescription": "Du siehst dann nicht mehr ihre Aktivität und ihr Wochenziel, falls vorhanden. Mit dem Code kannst du wieder beitreten.",
       "leaveConfirmCta": "Verlassen",
-      "leaving": "Wird verlassen…"
+      "leaving": "Wird verlassen…",
+      "deleteGroup": "Gruppe löschen",
+      "deleteConfirmTitle": "\"{name}\" löschen?",
+      "deleteConfirmDescription": "Sie wird für alle Mitglieder entfernt, zusammen mit ihrer Aktivität und ihrem Wochenziel. Das kann nicht rückgängig gemacht werden.",
+      "deleteConfirmCta": "Gruppe löschen",
+      "deleting": "Wird gelöscht…",
+      "removeMember": "{name} entfernen",
+      "removeMemberConfirmTitle": "{name} entfernen?",
+      "removeMemberConfirmDescription": "Die Person sieht dann nicht mehr die Aktivität und das Wochenziel der Gruppe. Mit dem Code kann sie wieder beitreten.",
+      "removeMemberConfirmCta": "Entfernen",
+      "removingMember": "Wird entfernt…"
     },
     "weeklyGoal": {
       "title": "Wochenziel der Gruppe",
@@ -657,7 +670,10 @@
       "edit": "Bearbeiten",
       "hoursLabel": "Geübte Stunden",
       "completed": "Ziel erreicht",
-      "markCompleted": "Als erledigt markieren"
+      "markCompleted": "Als erledigt markieren",
+      "test": "Benachrichtigung testen",
+      "testSent": "Testbenachrichtigung gesendet — schau auf deinem Gerät nach.",
+      "testError": "Konnte nicht gesendet werden. Prüfe, ob Benachrichtigungen unter Erinnerungen aktiviert sind."
     },
     "activity": {
       "noChatHint": "Zeigt nur, wenn jemand eine Sitzung beendet oder das Ziel erreicht — hier kann man nicht chatten.",

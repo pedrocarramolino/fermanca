@@ -3,6 +3,10 @@ import type { GroupId, GroupWeeklyGoalId, SessionId, UserId } from "@/core/domai
 
 export interface GroupRepository {
   create(input: { name: string; kind: GroupKind; ownerId: UserId }): Promise<Group>;
+  /** Solo el dueño puede llamarla (reforzado también por RLS) — el resto de
+   * tablas del grupo (miembros, objetivo semanal y sus cumplimientos,
+   * actividad) cascadean por FK, así que borrar la fila del grupo basta. */
+  delete(id: GroupId): Promise<void>;
   getById(id: GroupId): Promise<Group | null>;
   getByInviteCode(code: string): Promise<Group | null>;
   /** Grupos de los que `userId` es miembro (dueño incluido, es miembro de su

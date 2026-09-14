@@ -138,6 +138,30 @@ export async function leaveGroup(groupId: string) {
   revalidatePath("/community/groups");
 }
 
+/** Expulsar a otro miembro — solo el dueño (reforzado también por la
+ * política de borrado de group_members, que ya permite "tú mismo o el
+ * dueño"). Para salir tú mismo se usa leaveGroup. */
+export async function removeGroupMember(groupId: string, memberUserId: string) {
+  const { userId, client } = await requireUserId();
+  const { repo, group } = await requireMembership(groupId as GroupId, userId, client);
+  if (group.ownerId !== userId) throw new UnauthorizedError();
+  if (memberUserId === userId) throw new Error("Usa \"Salir del grupo\" para irte tú mismo.");
+
+  await repo.removeMember(group.id, memberUserId as UserId);
+  revalidatePath(`/community/groups/${groupId}`);
+}
+
+/** Solo el dueño puede borrar el grupo entero — el resto de miembros lo
+ * dejan de ver de inmediato (cascada por FK en la base de datos). */
+export async function deleteGroup(groupId: string) {
+  const { userId, client } = await requireUserId();
+  const { repo, group } = await requireMembership(groupId as GroupId, userId, client);
+  if (group.ownerId !== userId) throw new UnauthorizedError();
+
+  await repo.delete(group.id);
+  revalidatePath("/community/groups");
+}
+
 export interface GroupMemberInfo {
   ownerId: string;
   username: string;
@@ -323,11 +347,51 @@ export async function markGroupWeeklyGoalCompleted(groupId: string, groupWeeklyG
     title: `¡Objetivo semanal completado en ${group.name}!`,
     body: `${myProfile?.username ?? "Alguien"} acaba de completar el objetivo semanal.`,
     groupId: group.id,
+    image: GROUP_WEEKLY_GOAL_PUSH_IMAGE,
   }).catch((error: unknown) => {
     console.error("No se pudo avisar del objetivo semanal de grupo completado", error);
   });
 
   revalidatePath(`/community/groups/${groupId}`);
+}
+
+/** Icono grande de la app, reutilizado como imagen de la notificación de
+ * objetivo semanal de grupo completado (ver GroupWeeklyGoalCompletedPushPayload) —
+ * solo la pintan Android/Chrome, el resto de plataformas la ignora sin más. */
+const GROUP_WEEKLY_GOAL_PUSH_IMAGE = "/icons/icon-512x512.png";
+
+/**
+ * Manda el mismo push de "objetivo semanal completado" pero SOLO a quien lo
+ * pide, a sus propias suscripciones — para poder ver cómo queda (incluida la
+ * imagen) sin avisar de mentira al resto del grupo.
+ */
+export async function sendTestGroupWeeklyGoalPush(groupId: string) {
+  const { userId, client } = await requireUserId();
+  const { group } = await requireMembership(groupId as GroupId, userId, client);
+
+  const myProfile = await new SupabaseProfileRepository(client).getByOwnerId(userId);
+  const serviceClient = createServiceClient();
+  const { data: subscriptions, error } = await serviceClient
+    .from("push_subscriptions")
+    .select("*")
+    .eq("owner_id", userId);
+  if (error) throw error;
+  if (subscriptions.length === 0) {
+    throw new Error("No tienes notificaciones activadas en este dispositivo.");
+  }
+
+  for (const sub of subscriptions) {
+    await sendPush(
+      { endpoint: sub.endpoint, p256dh: sub.p256dh, auth: sub.auth },
+      {
+        kind: "group-weekly-goal-completed",
+        title: `¡Objetivo semanal completado en ${group.name}!`,
+        body: `${myProfile?.username ?? "Alguien"} acaba de completar el objetivo semanal.`,
+        groupId: group.id,
+        image: GROUP_WEEKLY_GOAL_PUSH_IMAGE,
+      },
+    );
+  }
 }
 
 /**
