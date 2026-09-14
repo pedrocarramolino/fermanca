@@ -79,7 +79,11 @@ export const viewport: Viewport = {
   themeColor: siteConfig.themeColor,
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
+  // Sin maximumScale/userScalable: alguien con baja visión tiene que poder
+  // hacer pinch-to-zoom — desactivarlo es justo lo que evita el input de 16px
+  // (text-base) en los formularios: ese es el motivo real por el que Safari
+  // hace zoom solo al enfocar un campo, no algo que haya que bloquear del
+  // todo para toda la interfaz.
   viewportFit: "cover",
 };
 
