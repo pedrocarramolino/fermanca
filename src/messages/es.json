@@ -535,6 +535,19 @@
       "joining": "Uniendo…",
       "submit": "Unirme"
     },
+    "joinLink": {
+      "metaTitle": "Invitación a un grupo",
+      "genericError": "No se pudo unir al grupo.",
+      "invalidTitle": "Código no válido",
+      "invalidDescription": "Este enlace de invitación no existe o ha caducado.",
+      "goToApp": "Ir a Fermança",
+      "invitedBy": "Te han invitado al grupo <strong>\"{name}\"</strong> en Fermança.",
+      "createAccount": "Crear cuenta y unirme",
+      "alreadyHaveAccount": "Ya tengo cuenta",
+      "joining": "Uniéndote a \"{name}\"…",
+      "goToGroups": "Ir a Grupos",
+      "joinedTitle": "¡Te has unido a \"{name}\"!"
+    },
     "detail": {
       "back": "Volver",
       "kind": {
@@ -580,6 +593,7 @@
     "link": "Compartir enlace",
     "session": "Compartir",
     "inviteText": "Únete a mis amigos en Fermança 🎵",
+    "groupInviteText": "Únete a mi grupo \"{name}\" en Fermança 🎵",
     "sessionText": "He practicado {duration} en {count, plural, one {# bloque} other {# bloques}} con Fermança",
     "streakSuffix": "racha de {count, plural, one {# día} other {# días}}",
     "whatsapp": "WhatsApp",

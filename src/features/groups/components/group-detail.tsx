@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { GroupWeeklyGoalCard } from "@/features/groups/components/group-weekly-goal-card";
 import { GroupActivityFeed } from "@/features/groups/components/group-activity-feed";
+import { ShareGroupInviteButton } from "@/features/groups/components/share-group-invite-button";
 import { leaveGroup, type GroupDetail as GroupDetailData } from "@/features/groups/application/actions";
 
 export function GroupDetail({ group, myOwnerId }: { group: GroupDetailData; myOwnerId: string }) {
@@ -64,14 +65,17 @@ export function GroupDetail({ group, myOwnerId }: { group: GroupDetailData; myOw
         <CardHeader>
           <CardTitle className="text-base">{t("inviteCodeTitle")}</CardTitle>
         </CardHeader>
-        <CardContent className="flex items-center gap-3">
-          <span className="bg-muted rounded-lg px-4 py-2 font-mono text-xl tracking-widest">
-            {group.inviteCode}
-          </span>
-          <Button type="button" variant="outline" size="sm" onClick={handleCopy}>
-            {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
-            {copied ? t("copied") : t("copy")}
-          </Button>
+        <CardContent className="flex flex-col gap-3">
+          <div className="flex items-center gap-3">
+            <span className="bg-muted rounded-lg px-4 py-2 font-mono text-xl tracking-widest">
+              {group.inviteCode}
+            </span>
+            <Button type="button" variant="outline" size="sm" onClick={handleCopy}>
+              {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+              {copied ? t("copied") : t("copy")}
+            </Button>
+          </div>
+          <ShareGroupInviteButton groupName={group.name} inviteCode={group.inviteCode} />
         </CardContent>
       </Card>
 
