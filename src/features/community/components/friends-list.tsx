@@ -182,11 +182,11 @@ export function FriendsList({
                   )}
                   <span className="truncate">{friend.username}</span>
                 </span>
-                <div className="text-muted-foreground flex items-center gap-3 text-sm">
-                  <span>
+                <div className="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-0.5 text-sm">
+                  <span className="whitespace-nowrap">
                     {formatDurationShort(friend.weeklySeconds)} {t("thisWeek")}
                   </span>
-                  <span className="flex items-center gap-1">
+                  <span className="flex items-center gap-1 whitespace-nowrap">
                     <Flame className="size-3.5" />
                     {tStreaks("days", { count: friend.currentStreak })}
                   </span>
