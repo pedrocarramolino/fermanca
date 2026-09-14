@@ -3,6 +3,7 @@ import { createServiceClient } from "@/core/infrastructure/supabase/service-clie
 import { SupabasePushSubscriptionRepository } from "@/core/infrastructure/supabase/repositories/push-subscription-repository";
 import { sendPush } from "@/core/infrastructure/push/send-push";
 import { verifyQstashSignature } from "@/core/infrastructure/qstash/verify";
+import { STREAK_ALERT_BODY, STREAK_ALERT_TITLE } from "@/core/domain/streaks";
 
 /**
  * QStash llama aquí 20h después de que una sesión se cierre (terminada o
@@ -51,8 +52,8 @@ export async function POST(request: Request) {
       { endpoint: sub.endpoint, p256dh: sub.p256dh, auth: sub.auth },
       {
         kind: "streak-alert",
-        title: "¡No dejes que se apague el fuego! 🔥",
-        body: "Llevas casi un día sin practicar — oye, no querrás que se apague el fuegito 🔥, ¿no? Pues a estudiar 🫵🏼.",
+        title: STREAK_ALERT_TITLE,
+        body: STREAK_ALERT_BODY,
       },
     );
     if (result.ok) sent += 1;

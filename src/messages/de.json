@@ -344,7 +344,11 @@
       "enabled": "Benachrichtigungen auf diesem Gerät aktiviert",
       "disabled": "Benachrichtigungen auf diesem Gerät deaktiviert",
       "activate": "Aktivieren",
-      "deactivate": "Deaktivieren"
+      "deactivate": "Deaktivieren",
+      "test": "Testen",
+      "testSending": "Wird gesendet…",
+      "testSent": "Gesendet — schau in die Benachrichtigungen dieses Geräts.",
+      "testEmpty": "Konnte nicht gesendet werden. Deaktiviere die Benachrichtigungen und aktiviere sie erneut."
     },
     "form": {
       "title": "Neue Erinnerung",
