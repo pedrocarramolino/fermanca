@@ -15,7 +15,7 @@ import { getFreshBlocks } from "@/features/session-timer/application/actions";
 import { TimerDisplay } from "@/features/session-timer/components/timer-display";
 import { PhaseCompleteCard } from "@/features/session-timer/components/phase-complete-card";
 import { QuickNoteField } from "@/features/session-timer/components/quick-note-field";
-import { MetronomeDialog } from "@/features/session-timer/components/metronome-dialog";
+import { MetronomePanel } from "@/features/session-timer/components/metronome-panel";
 import { SessionSummary } from "@/features/session-timer/components/session-summary";
 import { SessionErrorToast } from "@/features/session-timer/components/session-error-toast";
 
@@ -154,15 +154,19 @@ export function SessionRunner({
               {t("finishPhaseNow")}
             </Button>
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setMetronomeOpen(true)}
-          >
-            <Gauge className="size-4" />
-            {t("metronome")}
-          </Button>
+          {metronomeOpen ? (
+            <MetronomePanel volumePercent={playbackSettings.volume} />
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setMetronomeOpen(true)}
+            >
+              <Gauge className="size-4" />
+              {t("metronome")}
+            </Button>
+          )}
         </div>
       )}
 
@@ -173,12 +177,6 @@ export function SessionRunner({
           blockName={noteableBlock.name}
         />
       )}
-
-      <MetronomeDialog
-        open={metronomeOpen}
-        onOpenChange={setMetronomeOpen}
-        volumePercent={playbackSettings.volume}
-      />
     </main>
   );
 }
