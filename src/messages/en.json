@@ -701,6 +701,7 @@
     "resume": "Resume",
     "pause": "Pause",
     "finishPhaseNow": "Finish phase now",
+    "metronome": "Metronome",
     "backHome": "Back to home",
     "practicingWith": "Practicing with @{name}",
     "transitionError": "Couldn't save the phase change. Check your connection.",
@@ -709,6 +710,13 @@
     "resumeError": "Couldn't resume. Check your connection.",
     "reorderError": "Couldn't save the new order. Check your connection.",
     "removeError": "Couldn't remove the phase. Check your connection."
+  },
+  "Metronome": {
+    "title": "Metronome",
+    "description": "Set the tempo and press Start to hear it.",
+    "bpm": "Beats per minute",
+    "start": "Start",
+    "stop": "Stop"
   },
   "SessionInvites": {
     "dialog": {

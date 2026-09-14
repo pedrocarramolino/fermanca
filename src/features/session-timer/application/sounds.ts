@@ -11,7 +11,11 @@ import type { SoundChoice } from "@/core/domain/user-settings";
 
 let audioContext: AudioContext | null = null;
 
-function getAudioContext(): AudioContext | null {
+/** Expuesto (no solo de uso interno) para que el metrónomo pueda agendar sus
+ * propios clics sobre el MISMO contexto ya desbloqueado por un gesto previo
+ * (p. ej. Pausar/Reanudar), en vez de crear uno nuevo que volvería a estar
+ * suspendido. */
+export function getAudioContext(): AudioContext | null {
   if (typeof window === "undefined") return null;
   audioContext ??= new AudioContext();
   return audioContext;

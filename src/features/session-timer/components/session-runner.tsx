@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Gauge } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +15,7 @@ import { getFreshBlocks } from "@/features/session-timer/application/actions";
 import { TimerDisplay } from "@/features/session-timer/components/timer-display";
 import { PhaseCompleteCard } from "@/features/session-timer/components/phase-complete-card";
 import { QuickNoteField } from "@/features/session-timer/components/quick-note-field";
+import { MetronomeDialog } from "@/features/session-timer/components/metronome-dialog";
 import { SessionSummary } from "@/features/session-timer/components/session-summary";
 import { SessionErrorToast } from "@/features/session-timer/components/session-error-toast";
 
@@ -33,6 +34,7 @@ export function SessionRunner({
 }) {
   const t = useTranslations("SessionRunner");
   const [freshBlocks, setFreshBlocks] = useState<RuntimeBlockInput[] | null>(null);
+  const [metronomeOpen, setMetronomeOpen] = useState(false);
 
   const runtime = useSessionRuntime({ sessionId, blocks, playbackSettings });
   const noteableBlock = runtime.lastCompletedBlock;
@@ -152,6 +154,15 @@ export function SessionRunner({
               {t("finishPhaseNow")}
             </Button>
           </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setMetronomeOpen(true)}
+          >
+            <Gauge className="size-4" />
+            {t("metronome")}
+          </Button>
         </div>
       )}
 
@@ -162,6 +173,12 @@ export function SessionRunner({
           blockName={noteableBlock.name}
         />
       )}
+
+      <MetronomeDialog
+        open={metronomeOpen}
+        onOpenChange={setMetronomeOpen}
+        volumePercent={playbackSettings.volume}
+      />
     </main>
   );
 }
