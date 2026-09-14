@@ -195,6 +195,36 @@
     "technique": "Técnica",
     "repertoire": "Obras"
   },
+  "Pulso": {
+    "trigger": "Abrir Pulso",
+    "back": "Atrás",
+    "intentionTitle": "¿Qué quieres trabajar hoy?",
+    "intentionDescription": "Elige y te preparo el plan de la sesión.",
+    "intention": {
+      "technique": {
+        "title": "Técnica",
+        "description": "Escalas, digitación, sonido…"
+      },
+      "repertoire": {
+        "title": "Repertorio",
+        "description": "Avanzar en tus obras"
+      },
+      "prepare": {
+        "title": "Preparar algo",
+        "description": "Un concierto o examen cercano"
+      }
+    },
+    "timeTitle": "¿Cuánto tiempo tienes?",
+    "timeDescription": "Ajusto la duración de cada fase.",
+    "previewTitle": "Tu sesión",
+    "previewDescription": "{duration} repartidos en estas fases.",
+    "previewError": "No se ha podido generar el plan. Inténtalo de nuevo.",
+    "start": "Iniciar sesión",
+    "starting": "Comenzando…",
+    "phase": {
+      "closing": "Repaso y cierre"
+    }
+  },
   "AddBlockForm": {
     "category": "Categoría",
     "categoryPlaceholder": "Elige una categoría",

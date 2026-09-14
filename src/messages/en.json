@@ -195,6 +195,36 @@
     "technique": "Technique",
     "repertoire": "Repertoire"
   },
+  "Pulso": {
+    "trigger": "Open Pulso",
+    "back": "Back",
+    "intentionTitle": "What do you want to work on today?",
+    "intentionDescription": "Pick one and I'll put together the session plan.",
+    "intention": {
+      "technique": {
+        "title": "Technique",
+        "description": "Scales, fingering, tone…"
+      },
+      "repertoire": {
+        "title": "Repertoire",
+        "description": "Make progress on your pieces"
+      },
+      "prepare": {
+        "title": "Prepare something",
+        "description": "An upcoming concert or exam"
+      }
+    },
+    "timeTitle": "How much time do you have?",
+    "timeDescription": "I'll size each phase to fit.",
+    "previewTitle": "Your session",
+    "previewDescription": "{duration} split across these phases.",
+    "previewError": "Couldn't generate the plan. Try again.",
+    "start": "Start session",
+    "starting": "Starting…",
+    "phase": {
+      "closing": "Review and wrap-up"
+    }
+  },
   "AddBlockForm": {
     "category": "Category",
     "categoryPlaceholder": "Choose a category",
