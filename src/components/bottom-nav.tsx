@@ -10,6 +10,7 @@ import {
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { motion, useReducedMotion } from "motion/react";
 import { Bell, Flame, Home, LineChart, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -51,6 +52,11 @@ export function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations("Nav");
+  // Motion no pasa por `transition`/`animation` de CSS (anima con RAF
+  // directamente), así que la red de seguridad global de
+  // prefers-reduced-motion en globals.css no llega hasta aquí — hay que
+  // leerlo a mano y desactivar el muelle.
+  const reduceMotion = useReducedMotion();
   const [compact, setCompact] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [pillStyle, setPillStyle] = useState<{ top: number; left: number } | null>(null);
@@ -218,17 +224,24 @@ export function BottomNav() {
         onPointerCancel={(event) => endDrag(event, false)}
       >
         {pillStyle && (
-          <div
+          <motion.div
             aria-hidden
-            className={cn(
-              "bg-muted pointer-events-none absolute top-0 left-0 rounded-full",
-              !compactJustChanged && "transition-transform duration-200 ease-out",
-            )}
-            style={{
-              width: HIGHLIGHT_SIZE,
-              height: HIGHLIGHT_SIZE,
-              transform: `translate(${pillStyle.left}px, ${pillStyle.top}px)`,
-            }}
+            className="bg-muted pointer-events-none absolute top-0 left-0 rounded-full"
+            style={{ width: HIGHLIGHT_SIZE, height: HIGHLIGHT_SIZE }}
+            initial={false}
+            animate={{ x: pillStyle.left, y: pillStyle.top }}
+            // Muelle críticamente amortiguado (sin rebote) en vez de una
+            // transición CSS de duración fija: al arrastrar rápido de un
+            // extremo a otro de la barra, retoma la velocidad que ya
+            // llevaba en vez de arrancar desde cero en cada pestaña
+            // cruzada — la diferencia se nota sobre todo ahí. "duration"
+            // en una spring de Motion es solo el tiempo aproximado hasta
+            // asentarse, no una duración fija como en CSS.
+            transition={
+              compactJustChanged || reduceMotion
+                ? { duration: 0 }
+                : { type: "spring", bounce: 0, duration: 0.35 }
+            }
           />
         )}
         {NAV_ITEMS.map(({ href, key, icon: Icon }, index) => {
