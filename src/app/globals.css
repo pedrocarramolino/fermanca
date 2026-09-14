@@ -170,6 +170,16 @@
        del todo. env() vale 0 en dispositivos sin notch, así que no cambia
        nada ahí. */
     padding-top: env(safe-area-inset-top, 0px);
+    /* Sin esto, tocar dos veces seguidas un botón (p. ej. un tap rápido tras
+       otro en la tab bar) puede interpretarse como doble-tap-para-zoom y
+       meter ~300ms de retraso antes de que el primer toque "cuente" — el
+       pinch-to-zoom en sí sigue intacto (viewport sin maximumScale), esto
+       solo quita ESE gesto concreto de doble-tap. El flash gris del tap
+       highlight nativo tampoco encaja con los estados propios de
+       hover/active de cada componente, así que se apaga aquí una vez para
+       toda la app. */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
   html {
     @apply font-sans;
@@ -211,6 +221,24 @@
   }
   .pf-launch-text {
     animation: pf-launch-pop 500ms cubic-bezier(0.34, 1.56, 0.64, 1) 180ms both;
+  }
+}
+
+/* Red de seguridad para el resto de animaciones (diálogos, menús, hover…),
+   la mayoría de las cuales vienen de utilidades de tw-animate-css que no
+   respetan "reducir movimiento" por sí solas — a diferencia de las de
+   arriba, que ya viven dentro de su propia media query. No las desactiva
+   del todo (evita depender de que algún código espere a un evento
+   animationend/transitionend que nunca llegaría): las deja casi
+   instantáneas, que es lo que pide la preferencia del sistema. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 

@@ -87,7 +87,7 @@ export function CategoryDialog({
                 aria-label={option.label}
                 aria-pressed={color === option.value}
                 onClick={() => setColor(option.value)}
-                className="ring-offset-background data-[selected]:ring-foreground relative size-7 rounded-full ring-offset-2 outline-none before:absolute before:-inset-1 before:content-[''] data-[selected]:ring-2"
+                className="ring-offset-background data-[selected]:ring-foreground relative size-7 rounded-full ring-offset-2 outline-none before:absolute before:-inset-1 before:content-[''] focus-visible:ring-3 focus-visible:ring-ring/50 data-[selected]:ring-2"
                 data-selected={color === option.value || undefined}
                 style={{ backgroundColor: option.value }}
               />
@@ -98,12 +98,12 @@ export function CategoryDialog({
                 value={isPresetColor ? "#888888" : color}
                 onChange={(event) => setColor(event.target.value)}
                 aria-label={t("customColor")}
-                className="absolute inset-0 size-7 cursor-pointer opacity-0"
+                className="peer absolute inset-0 size-7 cursor-pointer opacity-0"
               />
               <div
                 aria-hidden
                 data-selected={!isPresetColor || undefined}
-                className="ring-offset-background data-[selected]:ring-foreground pointer-events-none flex size-7 items-center justify-center rounded-full ring-offset-2 outline-none data-[selected]:ring-2"
+                className="ring-offset-background data-[selected]:ring-foreground pointer-events-none flex size-7 items-center justify-center rounded-full ring-offset-2 outline-none peer-focus-visible:ring-3 peer-focus-visible:ring-ring/50 data-[selected]:ring-2"
                 style={{
                   background: isPresetColor
                     ? "conic-gradient(from 0deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)"
