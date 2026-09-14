@@ -186,7 +186,8 @@
     "saving": "Wird gespeichert…",
     "start": "Sitzung starten",
     "starting": "Wird gestartet…",
-    "inviteFriend": "Einen Freund einladen"
+    "inviteFriend": "Einen Freund einladen",
+    "inviteGroup": "Eine Gruppe einladen"
   },
   "Categories": {
     "warmup": "Aufwärmen",
@@ -430,6 +431,9 @@
       "removing": "Wird entfernt…",
       "removeError": "Die Freundschaft konnte nicht entfernt werden. Bitte versuche es erneut."
     },
+    "groups": {
+      "title": "Gruppen"
+    },
     "session": {
       "recentSessions": "Letzte Sitzungen",
       "monthTotal": "{duration} diesen Monat",
@@ -493,6 +497,83 @@
       "editError": "Die Ankündigung konnte nicht gespeichert werden.",
       "viewAll": "Alle anzeigen",
       "back": "Zurück"
+    }
+  },
+  "Groups": {
+    "title": "Gruppen",
+    "back": "Zurück",
+    "empty": "Du bist noch in keiner Gruppe. Erstelle eine oder tritt mit einem Code bei.",
+    "createGroup": "Gruppe erstellen",
+    "joinGroup": "Einer Gruppe beitreten",
+    "memberCount": "{count, plural, one {# Mitglied} other {# Mitglieder}}",
+    "create": {
+      "title": "Gruppe erstellen",
+      "description": "Wähle einen Namen und welche Art von Gruppe du möchtest.",
+      "nameLabel": "Gruppenname",
+      "namePlaceholder": "Z. B. Gitarrenschüler",
+      "kindLabel": "Gruppenart",
+      "kind": {
+        "creator": {
+          "title": "Freundesgruppe",
+          "description": "Jedes Mitglied kann die ganze Gruppe einladen, zusammen zu üben."
+        },
+        "admin": {
+          "title": "Kursgruppe",
+          "description": "Du legst ein Wochenziel für die ganze Gruppe fest, dich eingeschlossen."
+        }
+      },
+      "error": "Die Gruppe konnte nicht erstellt werden.",
+      "creating": "Wird erstellt…",
+      "submit": "Erstellen"
+    },
+    "join": {
+      "title": "Einer Gruppe beitreten",
+      "description": "Frag denjenigen, der die Gruppe erstellt hat, nach dem Code.",
+      "codeLabel": "Gruppencode",
+      "codePlaceholder": "Z. B. AB23CD",
+      "error": "Der Gruppe konnte nicht beigetreten werden.",
+      "joining": "Wird beigetreten…",
+      "submit": "Beitreten"
+    },
+    "detail": {
+      "back": "Zurück",
+      "kind": {
+        "creator": "Freundesgruppe",
+        "admin": "Kursgruppe"
+      },
+      "leave": "Gruppe verlassen",
+      "inviteCodeTitle": "Gruppencode",
+      "copy": "Kopieren",
+      "copied": "Kopiert",
+      "membersTitle": "{count, plural, one {# Mitglied} other {# Mitglieder}}",
+      "owner": "Inhaber",
+      "activityTitle": "Aktivität",
+      "leaveConfirmTitle": "Diese Gruppe verlassen?",
+      "leaveConfirmDescription": "Du siehst dann nicht mehr ihre Aktivität und ihr Wochenziel, falls vorhanden. Mit dem Code kannst du wieder beitreten.",
+      "leaveConfirmCta": "Verlassen",
+      "leaving": "Wird verlassen…"
+    },
+    "weeklyGoal": {
+      "title": "Wochenziel der Gruppe",
+      "days": "Tage",
+      "hours": "Stunden",
+      "saveError": "Das Ziel konnte nicht gespeichert werden.",
+      "save": "Speichern",
+      "saving": "Wird gespeichert…",
+      "cancel": "Abbrechen",
+      "none": "Die Gruppe hat diese Woche noch kein Ziel festgelegt.",
+      "edit": "Bearbeiten",
+      "hoursLabel": "Geübte Stunden",
+      "completed": "Ziel erreicht",
+      "markCompleted": "Als erledigt markieren"
+    },
+    "activity": {
+      "noChatHint": "Zeigt nur, wenn jemand eine Sitzung beendet oder das Ziel erreicht — hier kann man nicht chatten.",
+      "empty": "Noch keine Aktivität in dieser Gruppe.",
+      "sessionFinished": "{username} hat gerade eine Übungseinheit beendet",
+      "weeklyGoalCompleted": "{username} hat gerade das Wochenziel erreicht",
+      "loadMore": "Mehr laden",
+      "loading": "Wird geladen…"
     }
   },
   "Share": {
@@ -562,6 +643,15 @@
       "phase_added": "@{name} hat eine Phase hinzugefügt",
       "phases_reordered": "@{name} hat die ausstehenden Phasen neu geordnet",
       "session_finished": "@{name} hat die Sitzung beendet"
+    },
+    "groupDialog": {
+      "title": "Eine Gruppe einladen",
+      "description": "Jedes Mitglied der Gruppe erhält eine Einladung, genau wie bei einer einzelnen Einladung.",
+      "loading": "Gruppen werden geladen…",
+      "noGroups": "Du hast noch keine Freundesgruppe — erstelle eine unter Community.",
+      "inviting": "Wird eingeladen…",
+      "sent": "{count, plural, =0 {Niemand konnte eingeladen werden} one {Einladung an # Person gesendet} other {Einladungen an # Personen gesendet}}",
+      "error": "Die Gruppe konnte nicht eingeladen werden."
     }
   },
   "TimerDisplay": {

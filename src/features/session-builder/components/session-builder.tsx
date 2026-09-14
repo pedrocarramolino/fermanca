@@ -13,6 +13,7 @@ import { BlockList } from "@/features/session-builder/components/block-list";
 import { TemplateList } from "@/features/session-builder/components/template-list";
 import { SaveTemplateDialog } from "@/features/session-builder/components/save-template-dialog";
 import { InviteFriendDialog } from "@/features/session-invites/components/invite-friend-dialog";
+import { InviteGroupDialog } from "@/features/groups/components/invite-group-dialog";
 import {
   saveAsNewTemplate,
   startSession,
@@ -31,6 +32,7 @@ export function SessionBuilder({
   const [templates, setTemplates] = useState(initialTemplates);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [inviteGroupDialogOpen, setInviteGroupDialogOpen] = useState(false);
   const [isStarting, startStarting] = useTransition();
   const [isSavingChanges, startSavingChanges] = useTransition();
 
@@ -147,6 +149,14 @@ export function SessionBuilder({
               </Button>
               <Button
                 type="button"
+                variant="outline"
+                disabled={draft.blocks.length === 0}
+                onClick={() => setInviteGroupDialogOpen(true)}
+              >
+                {t("inviteGroup")}
+              </Button>
+              <Button
+                type="button"
                 disabled={draft.blocks.length === 0 || isStarting}
                 onClick={handleStart}
               >
@@ -181,6 +191,13 @@ export function SessionBuilder({
       <InviteFriendDialog
         open={inviteDialogOpen}
         onOpenChange={setInviteDialogOpen}
+        templateId={draft.loadedTemplateId}
+        blocks={draft.blocksInput}
+      />
+
+      <InviteGroupDialog
+        open={inviteGroupDialogOpen}
+        onOpenChange={setInviteGroupDialogOpen}
         templateId={draft.loadedTemplateId}
         blocks={draft.blocksInput}
       />

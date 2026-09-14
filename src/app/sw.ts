@@ -117,6 +117,13 @@ interface WeeklyGoalShareReactionPushPayload {
   weeklyGoalShareId: string;
 }
 
+interface GroupWeeklyGoalCompletedPushPayload {
+  kind: "group-weekly-goal-completed";
+  title: string;
+  body: string;
+  groupId: string;
+}
+
 type IncomingPushPayload =
   | ReminderPushPayload
   | SessionPhasePushPayload
@@ -128,7 +135,8 @@ type IncomingPushPayload =
   | SessionShareReactionPushPayload
   | SessionPhaseFiveMinAlertPushPayload
   | StreakAlertPushPayload
-  | WeeklyGoalShareReactionPushPayload;
+  | WeeklyGoalShareReactionPushPayload
+  | GroupWeeklyGoalCompletedPushPayload;
 
 interface ShowNotificationOptions extends NotificationOptions {
   actions?: { action: string; title: string }[];
@@ -372,6 +380,19 @@ self.addEventListener("push", (event: PushEvent) => {
         badge: "/icons/icon-192x192.png",
         data: { url: "/" },
         tag: `practiceflow-goal-reaction-${payload.weeklyGoalShareId}`,
+      }),
+    );
+    return;
+  }
+
+  if (payload.kind === "group-weekly-goal-completed") {
+    event.waitUntil(
+      notifyAndBadge(payload.title, {
+        body: payload.body,
+        icon: "/icons/icon-192x192.png",
+        badge: "/icons/icon-192x192.png",
+        data: { url: `/community/groups/${payload.groupId}` },
+        tag: `practiceflow-group-goal-${payload.groupId}`,
       }),
     );
     return;

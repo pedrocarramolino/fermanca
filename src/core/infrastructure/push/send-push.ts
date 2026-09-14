@@ -99,6 +99,17 @@ export interface WeeklyGoalShareReactionPushPayload {
   weeklyGoalShareId: string;
 }
 
+/** Único aviso push que dispara la actividad de un grupo — ver
+ * features/groups/application/actions.ts: acabar una sesión solo se
+ * refleja en el muro del grupo, sin avisar; completar el objetivo semanal
+ * del grupo sí avisa al resto de miembros. */
+export interface GroupWeeklyGoalCompletedPushPayload {
+  kind: "group-weekly-goal-completed";
+  title: string;
+  body: string;
+  groupId: string;
+}
+
 export type PushPayload =
   | ReminderPushPayload
   | SessionPhasePushPayload
@@ -110,7 +121,8 @@ export type PushPayload =
   | SessionShareReactionPushPayload
   | SessionPhaseFiveMinAlertPushPayload
   | StreakAlertPushPayload
-  | WeeklyGoalShareReactionPushPayload;
+  | WeeklyGoalShareReactionPushPayload
+  | GroupWeeklyGoalCompletedPushPayload;
 
 /** `expired: true` cuando el servicio push responde 404/410 — la
  * suscripción ya no es válida y hay que borrarla, no reintentar. */

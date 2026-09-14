@@ -20,3 +20,6 @@ export type AnnouncementId = Brand<string, "AnnouncementId">;
 export type SessionInviteId = Brand<string, "SessionInviteId">;
 export type SessionShareId = Brand<string, "SessionShareId">;
 export type WeeklyGoalShareId = Brand<string, "WeeklyGoalShareId">;
+export type GroupId = Brand<string, "GroupId">;
+export type GroupWeeklyGoalId = Brand<string, "GroupWeeklyGoalId">;
+export type GroupActivityEventId = Brand<string, "GroupActivityEventId">;

@@ -186,7 +186,8 @@
     "saving": "Guardando…",
     "start": "Comenzar sesión",
     "starting": "Comenzando…",
-    "inviteFriend": "Invitar a un amigo"
+    "inviteFriend": "Invitar a un amigo",
+    "inviteGroup": "Invitar a un grupo"
   },
   "Categories": {
     "warmup": "Calentamiento",
@@ -430,6 +431,9 @@
       "removing": "Eliminando…",
       "removeError": "No se pudo eliminar la amistad. Inténtalo de nuevo."
     },
+    "groups": {
+      "title": "Grupos"
+    },
     "session": {
       "recentSessions": "Últimas sesiones",
       "monthTotal": "{duration} este mes",
@@ -493,6 +497,83 @@
       "editError": "No se pudo guardar el anuncio.",
       "viewAll": "Ver todos",
       "back": "Volver"
+    }
+  },
+  "Groups": {
+    "title": "Grupos",
+    "back": "Volver",
+    "empty": "Todavía no estás en ningún grupo. Crea uno o únete con un código.",
+    "createGroup": "Crear grupo",
+    "joinGroup": "Unirte a un grupo",
+    "memberCount": "{count, plural, one {# miembro} other {# miembros}}",
+    "create": {
+      "title": "Crear grupo",
+      "description": "Elige un nombre y qué tipo de grupo quieres.",
+      "nameLabel": "Nombre del grupo",
+      "namePlaceholder": "Ej. Alumnos de guitarra",
+      "kindLabel": "Tipo de grupo",
+      "kind": {
+        "creator": {
+          "title": "Grupo de amigos",
+          "description": "Cualquier miembro puede invitar a todo el grupo a practicar juntos."
+        },
+        "admin": {
+          "title": "Grupo de clase",
+          "description": "Tú fijas un objetivo semanal para todo el grupo, tú incluido."
+        }
+      },
+      "error": "No se pudo crear el grupo.",
+      "creating": "Creando…",
+      "submit": "Crear"
+    },
+    "join": {
+      "title": "Unirte a un grupo",
+      "description": "Pide el código del grupo a quien lo haya creado.",
+      "codeLabel": "Código del grupo",
+      "codePlaceholder": "Ej. AB23CD",
+      "error": "No se pudo unir al grupo.",
+      "joining": "Uniendo…",
+      "submit": "Unirme"
+    },
+    "detail": {
+      "back": "Volver",
+      "kind": {
+        "creator": "Grupo de amigos",
+        "admin": "Grupo de clase"
+      },
+      "leave": "Salir del grupo",
+      "inviteCodeTitle": "Código del grupo",
+      "copy": "Copiar",
+      "copied": "Copiado",
+      "membersTitle": "{count, plural, one {# miembro} other {# miembros}}",
+      "owner": "Dueño",
+      "activityTitle": "Actividad",
+      "leaveConfirmTitle": "¿Salir del grupo?",
+      "leaveConfirmDescription": "Dejarás de ver su actividad y su objetivo semanal, si lo tiene. Podrás volver a unirte con el código.",
+      "leaveConfirmCta": "Salir",
+      "leaving": "Saliendo…"
+    },
+    "weeklyGoal": {
+      "title": "Objetivo semanal del grupo",
+      "days": "Días",
+      "hours": "Horas",
+      "saveError": "No se pudo guardar el objetivo.",
+      "save": "Guardar",
+      "saving": "Guardando…",
+      "cancel": "Cancelar",
+      "none": "El grupo todavía no tiene un objetivo esta semana.",
+      "edit": "Editar",
+      "hoursLabel": "Horas practicadas",
+      "completed": "Objetivo completado",
+      "markCompleted": "Marcar como completado"
+    },
+    "activity": {
+      "noChatHint": "Solo se ve cuándo alguien termina una sesión o completa el objetivo — no se puede chatear aquí.",
+      "empty": "Todavía no hay actividad en este grupo.",
+      "sessionFinished": "{username} acaba de terminar una sesión de práctica",
+      "weeklyGoalCompleted": "{username} acaba de completar el objetivo semanal",
+      "loadMore": "Cargar más",
+      "loading": "Cargando…"
     }
   },
   "Share": {
@@ -562,6 +643,15 @@
       "phase_added": "@{name} ha añadido una fase",
       "phases_reordered": "@{name} ha reordenado las fases pendientes",
       "session_finished": "@{name} ha terminado la sesión"
+    },
+    "groupDialog": {
+      "title": "Invitar a un grupo",
+      "description": "Se enviará una invitación a cada miembro del grupo, igual que si les invitaras uno a uno.",
+      "loading": "Cargando grupos…",
+      "noGroups": "Todavía no tienes ningún grupo de amigos — crea uno desde Comunidad.",
+      "inviting": "Invitando…",
+      "sent": "{count, plural, =0 {No se pudo invitar a nadie} one {Invitación enviada a # persona} other {Invitaciones enviadas a # personas}}",
+      "error": "No se pudo invitar al grupo."
     }
   },
   "TimerDisplay": {

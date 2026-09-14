@@ -141,6 +141,129 @@ export type Database = {
         }
         Relationships: []
       }
+      group_activity_events: {
+        Row: {
+          actor_id: string
+          created_at: string
+          group_id: string
+          id: string
+          kind: string
+          session_id: string | null
+        }
+        Insert: {
+          actor_id: string
+          created_at?: string
+          group_id: string
+          id?: string
+          kind: string
+          session_id?: string | null
+        }
+        Update: {
+          actor_id?: string
+          created_at?: string
+          group_id?: string
+          id?: string
+          kind?: string
+          session_id?: string | null
+        }
+        Relationships: []
+      }
+      group_members: {
+        Row: {
+          group_id: string
+          id: string
+          joined_at: string
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          joined_at?: string
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          joined_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      group_weekly_goal_completions: {
+        Row: {
+          completed_at: string
+          group_weekly_goal_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          group_weekly_goal_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          group_weekly_goal_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      group_weekly_goals: {
+        Row: {
+          created_at: string
+          group_id: string
+          id: string
+          target_days: number
+          target_seconds: number
+          week_start: string
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          id?: string
+          target_days: number
+          target_seconds: number
+          week_start: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          id?: string
+          target_days?: number
+          target_seconds?: number
+          week_start?: string
+        }
+        Relationships: []
+      }
+      groups: {
+        Row: {
+          created_at: string
+          id: string
+          invite_code: string
+          kind: string
+          name: string
+          owner_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invite_code: string
+          kind: string
+          name: string
+          owner_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invite_code?: string
+          kind?: string
+          name?: string
+          owner_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
