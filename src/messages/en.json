@@ -198,8 +198,11 @@
   "Pulso": {
     "trigger": "Open Pulso",
     "back": "Back",
+    "continue": "Continue",
     "intentionTitle": "What do you want to work on today?",
     "intentionDescription": "Pick one and I'll put together the session plan.",
+    "reengagementTitle": "Shall we ease back in today?",
+    "reengagementDescription": "No pressure — even 15 minutes count.",
     "intention": {
       "technique": {
         "title": "Technique",
@@ -212,17 +215,63 @@
       "prepare": {
         "title": "Prepare something",
         "description": "An upcoming concert or exam"
+      },
+      "concentration": {
+        "title": "Concentration",
+        "description": "Slow, deliberate practice"
+      },
+      "other": {
+        "title": "Something else",
+        "description": "You tell me what"
       }
     },
+    "otherLabel": "What do you want to work on?",
+    "otherPlaceholder": "E.g. sight-reading",
     "timeTitle": "How much time do you have?",
     "timeDescription": "I'll size each phase to fit.",
+    "contextTitle": "A couple more things",
+    "contextDescription": "So the plan fits how you're feeling today.",
+    "energyLabel": "Energy level",
+    "energy": {
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High"
+    },
+    "focusLabel": "Anything to prioritize or avoid today? (optional)",
+    "focusPlaceholder": "E.g. avoid the tricky bar, prioritize vibrato…",
+    "useProgressLabel": "Use my recent progress",
+    "useProgressDescription": "Leans the plan toward what you've neglected most.",
+    "prepareSession": "Prepare session",
     "previewTitle": "Your session",
     "previewDescription": "{duration} split across these phases.",
     "previewError": "Couldn't generate the plan. Try again.",
+    "decreaseDuration": "Reduce time on {name}",
+    "increaseDuration": "Add time to {name}",
+    "shorter": "Shorter",
+    "longer": "More intense",
     "start": "Start session",
     "starting": "Starting…",
     "phase": {
       "closing": "Review and wrap-up"
+    },
+    "rationale": {
+      "technique": "Since you wanted to focus on technique, it got more weight today.",
+      "repertoire": "Since you wanted to make progress on repertoire, it got more weight today.",
+      "prepare": "With something coming up, we added more repertoire and a solid final review.",
+      "concentration": "For focused practice, we stretched out the warm-up and the wrap-up.",
+      "other": "An even split between technique and repertoire.",
+      "energy": {
+        "low": "With less energy, we lightened the most demanding part.",
+        "high": "With high energy, we added a bit more technique."
+      },
+      "progress": "We also leaned the split toward what you've practiced least lately.",
+      "otherFocus": "Keeping in mind: {label}.",
+      "focusNote": "Keep in mind: {note}."
+    },
+    "suggestions": {
+      "weeklyGoal": "Your weekly goal needs {minutes} more min. Want a wrap-up session?",
+      "dominantCategory": "You've had several sessions focused on {category}. Add some {other} today?",
+      "reengagement": "Short 15 min session to ease back in."
     }
   },
   "AddBlockForm": {
