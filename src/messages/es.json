@@ -701,7 +701,6 @@
     "resume": "Reanudar",
     "pause": "Pausar",
     "finishPhaseNow": "Terminar fase ahora",
-    "activateSound": "Activar sonido",
     "backHome": "Volver al inicio",
     "practicingWith": "Practicando con @{name}",
     "transitionError": "No se pudo guardar el cambio de fase. Comprueba tu conexión.",
@@ -813,7 +812,12 @@
     "backHome": "Volver al inicio",
     "finishingSession": "Guardando sesión…",
     "repeatSession": "Repetir sesión",
-    "repeatingSession": "Preparando…"
+    "repeatingSession": "Preparando…",
+    "deleteSession": "Eliminar sesión",
+    "deleteConfirmTitle": "¿Eliminar esta sesión?",
+    "deleteConfirmDescription": "Se borrará del historial y de tus estadísticas. Esta acción no se puede deshacer.",
+    "deleteConfirmCta": "Eliminar",
+    "deletingSession": "Eliminando…"
   },
   "StoryCreator": {
     "trigger": "Crear Story con foto",
