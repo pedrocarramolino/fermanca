@@ -1,10 +1,19 @@
 import type { Category, SystemCategory } from "@/core/domain/category";
 
-export const PULSO_INTENTIONS = ["technique", "repertoire", "prepare"] as const;
+export const PULSO_INTENTIONS = [
+  "technique",
+  "repertoire",
+  "prepare",
+  "concentration",
+  "other",
+] as const;
 export type PulsoIntention = (typeof PULSO_INTENTIONS)[number];
 
 export const PULSO_TIME_OPTIONS = [15, 30, 45, 60] as const;
 export type PulsoTimeOption = (typeof PULSO_TIME_OPTIONS)[number];
+
+export const PULSO_ENERGY_LEVELS = ["low", "normal", "high"] as const;
+export type PulsoEnergy = (typeof PULSO_ENERGY_LEVELS)[number];
 
 export type PulsoPhaseSlug = "warmup" | "technique" | "repertoire" | "closing";
 
@@ -15,16 +24,29 @@ export interface PulsoPhase {
   durationSeconds: number;
 }
 
+type PhaseWeights = Record<PulsoPhaseSlug, number>;
+
 /** Cuánto del tiempo total se lleva cada fase según qué se quiera trabajar
- * — siempre suma 1, así el reparto real solo depende de las fases que
- * sobrevivan al filtro de duración mínima (ver más abajo). */
-const INTENTION_WEIGHTS: Record<
-  PulsoIntention,
-  Record<Exclude<PulsoPhaseSlug, never>, number>
-> = {
+ * — punto de partida antes de los ajustes de energía y progreso reciente
+ * (ver `applyEnergyAdjustment`/`applyProgressBias` más abajo). */
+const INTENTION_WEIGHTS: Record<PulsoIntention, PhaseWeights> = {
   technique: { warmup: 0.15, technique: 0.55, repertoire: 0.2, closing: 0.1 },
   repertoire: { warmup: 0.15, technique: 0.2, repertoire: 0.55, closing: 0.1 },
   prepare: { warmup: 0.1, technique: 0.25, repertoire: 0.45, closing: 0.2 },
+  // Práctica concentrada y deliberada: más tiempo instalándose y en trabajo
+  // técnico fino, y un cierre más largo para fijar lo trabajado.
+  concentration: { warmup: 0.2, technique: 0.5, repertoire: 0.15, closing: 0.15 },
+  // Sin una intención concreta (o una que el usuario ha escrito a mano):
+  // reparto equilibrado entre técnica y repertorio.
+  other: { warmup: 0.15, technique: 0.35, repertoire: 0.35, closing: 0.15 },
+};
+
+/** Con poca energía se resta exigencia técnica a favor de calentamiento y
+ * repertorio (más cómodo); con mucha, al revés. "normal" no toca nada. */
+const ENERGY_ADJUSTMENT: Record<PulsoEnergy, PhaseWeights> = {
+  low: { warmup: 0.05, technique: -0.1, repertoire: 0.05, closing: 0 },
+  normal: { warmup: 0, technique: 0, repertoire: 0, closing: 0 },
+  high: { warmup: -0.05, technique: 0.05, repertoire: 0, closing: 0 },
 };
 
 /** Por debajo de esto una fase es demasiado corta para valer la pena como
@@ -32,20 +54,64 @@ const INTENTION_WEIGHTS: Record<
  * el resto en vez de generar un bloque de, p. ej., 40 segundos. */
 const MIN_PHASE_SECONDS = 180;
 
+/** Cuánto peso como máximo se puede mover de técnica a repertorio (o al
+ * revés) al usar el progreso reciente — un empujón, no un rediseño del
+ * plan por muy desequilibrado que esté el historial. */
+const MAX_PROGRESS_BIAS = 0.1;
+
 function isSystemCategory(category: Category): category is SystemCategory {
   return category.kind === "system";
 }
 
+function applyEnergyAdjustment(weights: PhaseWeights, energy: PulsoEnergy): PhaseWeights {
+  const adjustment = ENERGY_ADJUSTMENT[energy];
+  return {
+    warmup: Math.max(0, weights.warmup + adjustment.warmup),
+    technique: Math.max(0, weights.technique + adjustment.technique),
+    repertoire: Math.max(0, weights.repertoire + adjustment.repertoire),
+    closing: Math.max(0, weights.closing + adjustment.closing),
+  };
+}
+
+/** Si técnica y repertorio están descompensados en las últimas sesiones,
+ * corrige el reparto de hoy hacia la que se ha practicado menos —
+ * proporcional al desequilibrio, con un tope de `MAX_PROGRESS_BIAS`. */
+function applyProgressBias(
+  weights: PhaseWeights,
+  recentMinutes: { technique: number; repertoire: number },
+): PhaseWeights {
+  const total = recentMinutes.technique + recentMinutes.repertoire;
+  if (total === 0) return weights;
+  const techniqueShare = recentMinutes.technique / total;
+  const imbalance = techniqueShare - 0.5; // -0.5 (todo repertorio) .. 0.5 (toda técnica)
+  const shift = Math.max(-MAX_PROGRESS_BIAS, Math.min(MAX_PROGRESS_BIAS, imbalance * 0.2));
+  return {
+    ...weights,
+    technique: Math.max(0, weights.technique - shift),
+    repertoire: Math.max(0, weights.repertoire + shift),
+  };
+}
+
+export interface GeneratePulsoPlanOptions {
+  energy?: PulsoEnergy;
+  /** Minutos practicados recientemente en técnica/repertorio — solo se
+   * aplica si el usuario ha pedido usar su progreso reciente; si se omite,
+   * el reparto no se corrige por historial. */
+  recentCategoryMinutes?: { technique: number; repertoire: number };
+}
+
 /**
  * Genera el plan de una sesión (fases con categoría y duración) a partir de
- * la intención elegida y el tiempo disponible — la lógica detrás del flujo
- * guiado de Pulso. Devuelve `null` si faltan las categorías de sistema
- * necesarias (no debería pasar: se siembran en cada proyecto nuevo).
+ * la intención elegida, el tiempo disponible y, opcionalmente, el nivel de
+ * energía y el progreso reciente — la lógica detrás del flujo guiado de
+ * Pulso. Devuelve `null` si faltan las categorías de sistema necesarias (no
+ * debería pasar: se siembran en cada proyecto nuevo).
  */
 export function generatePulsoPlan(
   intention: PulsoIntention,
   totalMinutes: number,
   categories: Category[],
+  options: GeneratePulsoPlanOptions = {},
 ): PulsoPhase[] | null {
   const bySlug = new Map(categories.filter(isSystemCategory).map((c) => [c.slug, c]));
   const warmup = bySlug.get("warmup");
@@ -54,7 +120,10 @@ export function generatePulsoPlan(
   if (!warmup || !technique || !repertoire) return null;
 
   const totalSeconds = Math.round(totalMinutes * 60);
-  const weights = INTENTION_WEIGHTS[intention];
+
+  let weights = INTENTION_WEIGHTS[intention];
+  weights = applyEnergyAdjustment(weights, options.energy ?? "normal");
+  if (options.recentCategoryMinutes) weights = applyProgressBias(weights, options.recentCategoryMinutes);
 
   let candidates: { slug: PulsoPhaseSlug; category: SystemCategory; weight: number }[] = [
     { slug: "warmup", category: warmup, weight: weights.warmup },

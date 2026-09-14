@@ -198,8 +198,11 @@
   "Pulso": {
     "trigger": "Abrir Pulso",
     "back": "Atrás",
+    "continue": "Continuar",
     "intentionTitle": "¿Qué quieres trabajar hoy?",
     "intentionDescription": "Elige y te preparo el plan de la sesión.",
+    "reengagementTitle": "¿Retomamos con algo corto hoy?",
+    "reengagementDescription": "Nada de presión — hasta 15 minutos ya cuentan.",
     "intention": {
       "technique": {
         "title": "Técnica",
@@ -212,17 +215,63 @@
       "prepare": {
         "title": "Preparar algo",
         "description": "Un concierto o examen cercano"
+      },
+      "concentration": {
+        "title": "Concentración",
+        "description": "Práctica lenta y deliberada"
+      },
+      "other": {
+        "title": "Otra cosa",
+        "description": "Tú me dices qué"
       }
     },
+    "otherLabel": "¿Qué quieres trabajar?",
+    "otherPlaceholder": "Ej. lectura a primera vista",
     "timeTitle": "¿Cuánto tiempo tienes?",
     "timeDescription": "Ajusto la duración de cada fase.",
+    "contextTitle": "Un par de cosas más",
+    "contextDescription": "Así el plan encaja mejor con tu momento de hoy.",
+    "energyLabel": "Nivel de energía",
+    "energy": {
+      "low": "Baja",
+      "normal": "Normal",
+      "high": "Alta"
+    },
+    "focusLabel": "¿Algo que priorizar o evitar hoy? (opcional)",
+    "focusPlaceholder": "Ej. evitar el compás difícil, priorizar el vibrato…",
+    "useProgressLabel": "Usar mi progreso reciente",
+    "useProgressDescription": "Ajusta el plan hacia lo que llevas más descuidado.",
+    "prepareSession": "Preparar sesión",
     "previewTitle": "Tu sesión",
     "previewDescription": "{duration} repartidos en estas fases.",
     "previewError": "No se ha podido generar el plan. Inténtalo de nuevo.",
+    "decreaseDuration": "Restar tiempo a {name}",
+    "increaseDuration": "Añadir tiempo a {name}",
+    "shorter": "Más corta",
+    "longer": "Más intensa",
     "start": "Iniciar sesión",
     "starting": "Comenzando…",
     "phase": {
       "closing": "Repaso y cierre"
+    },
+    "rationale": {
+      "technique": "Como querías centrarte en técnica, le hemos dado más peso hoy.",
+      "repertoire": "Como querías avanzar en repertorio, le hemos dado más peso hoy.",
+      "prepare": "Con una preparación cercana, hemos incluido más repertorio y un buen repaso final.",
+      "concentration": "Para una práctica concentrada, hemos alargado el calentamiento y el cierre.",
+      "other": "Un reparto equilibrado entre técnica y repertorio.",
+      "energy": {
+        "low": "Con menos energía, hemos aligerado la parte más exigente.",
+        "high": "Con energía alta, hemos metido algo más de técnica."
+      },
+      "progress": "Además, hemos ajustado el reparto hacia lo que has practicado menos últimamente.",
+      "otherFocus": "Teniendo en cuenta: {label}.",
+      "focusNote": "Ten en cuenta: {note}."
+    },
+    "suggestions": {
+      "weeklyGoal": "Tu objetivo semanal necesita {minutes} min más. ¿Hacemos una sesión de cierre?",
+      "dominantCategory": "Llevas varias sesiones centradas en {category}. ¿Metemos {other} hoy?",
+      "reengagement": "Sesión corta de 15 min para retomar suave."
     }
   },
   "AddBlockForm": {

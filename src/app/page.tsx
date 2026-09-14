@@ -18,8 +18,13 @@ import { ActiveSessionCard } from "@/features/session-timer/components/active-se
 import { FeedList } from "@/features/feed/components/feed-list";
 import { listFeed } from "@/features/feed/application/actions";
 import { PulsoWidget } from "@/features/pulso/components/pulso-widget";
+import { buildPulsoSignals } from "@/features/pulso/application/signals";
 
 const RECENT_SESSIONS_PREVIEW = 3;
+/** Ventana de sesiones que consultan las señales de Pulso (racha, categoría
+ * dominante reciente, minutos por categoría) — acotada para que sea una
+ * sola consulta barata, no todo el historial. */
+const PULSO_SIGNAL_SESSIONS = 60;
 
 export default async function Home() {
   const { supabase, userId } = await getAuthenticatedUser();
@@ -36,14 +41,16 @@ export default async function Home() {
   const templateRepo = new SupabaseTemplateRepository(supabase);
   const sessionRepo = new SupabaseSessionRepository(supabase);
   const weeklyGoalRepo = new SupabaseWeeklyGoalRepository(supabase);
-  const [categories, templates, recentSessions, profile, weeklyGoal, feedShares] = await Promise.all([
-    categoryRepo.listAvailable(userId),
-    templateRepo.listByOwner(userId),
-    sessionRepo.listByOwner(userId, { limit: RECENT_SESSIONS_PREVIEW }),
-    getCurrentUserProfile().catch(() => null),
-    weeklyGoalRepo.getForWeek(userId, currentWeekStartKey(new Date())),
-    listFeed(),
-  ]);
+  const [categories, templates, recentSessions, profile, weeklyGoal, feedShares, pulsoSessions] =
+    await Promise.all([
+      categoryRepo.listAvailable(userId),
+      templateRepo.listByOwner(userId),
+      sessionRepo.listByOwner(userId, { limit: RECENT_SESSIONS_PREVIEW }),
+      getCurrentUserProfile().catch(() => null),
+      weeklyGoalRepo.getForWeek(userId, currentWeekStartKey(new Date())),
+      listFeed(),
+      sessionRepo.listByOwner(userId, { limit: PULSO_SIGNAL_SESSIONS }),
+    ]);
 
   // Solo hace falta traer las sesiones de esta semana si hay un objetivo que
   // comparar contra ellas.
@@ -53,6 +60,14 @@ export default async function Home() {
         weeklyGoal,
       )
     : null;
+
+  const pulsoSignals = buildPulsoSignals(
+    pulsoSessions,
+    categories,
+    weeklyGoal,
+    weeklyProgress,
+    new Date(),
+  );
 
   // La única sesión reciente que sigue interesando aquí es la que está sin
   // terminar (ActiveSessionCard) — el resto de "últimas sesiones" se movió
@@ -77,7 +92,7 @@ export default async function Home() {
         {tCommon("footerCredit", { year: new Date().getFullYear() })}
       </p>
 
-      <PulsoWidget categories={categories} />
+      <PulsoWidget categories={categories} signals={pulsoSignals} />
     </main>
   );
 }

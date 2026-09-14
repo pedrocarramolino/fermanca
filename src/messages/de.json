@@ -198,8 +198,11 @@
   "Pulso": {
     "trigger": "Pulso öffnen",
     "back": "Zurück",
+    "continue": "Weiter",
     "intentionTitle": "Woran möchtest du heute arbeiten?",
     "intentionDescription": "Wähle aus, und ich erstelle den Sitzungsplan.",
+    "reengagementTitle": "Heute sanft wieder einsteigen?",
+    "reengagementDescription": "Kein Druck — selbst 15 Minuten zählen schon.",
     "intention": {
       "technique": {
         "title": "Technik",
@@ -212,17 +215,63 @@
       "prepare": {
         "title": "Etwas vorbereiten",
         "description": "Ein bevorstehendes Konzert oder Vorspiel"
+      },
+      "concentration": {
+        "title": "Konzentration",
+        "description": "Langsames, bewusstes Üben"
+      },
+      "other": {
+        "title": "Etwas anderes",
+        "description": "Sag du mir, was"
       }
     },
+    "otherLabel": "Woran möchtest du arbeiten?",
+    "otherPlaceholder": "Z. B. Vom-Blatt-Spiel",
     "timeTitle": "Wie viel Zeit hast du?",
     "timeDescription": "Ich passe die Dauer jeder Phase daran an.",
+    "contextTitle": "Noch ein paar Dinge",
+    "contextDescription": "So passt der Plan besser zu deinem heutigen Tag.",
+    "energyLabel": "Energielevel",
+    "energy": {
+      "low": "Niedrig",
+      "normal": "Normal",
+      "high": "Hoch"
+    },
+    "focusLabel": "Etwas, das heute Vorrang hat oder vermieden werden soll? (optional)",
+    "focusPlaceholder": "Z. B. den schwierigen Takt vermeiden, Vibrato priorisieren…",
+    "useProgressLabel": "Meinen letzten Fortschritt nutzen",
+    "useProgressDescription": "Verschiebt den Plan hin zu dem, was du zuletzt vernachlässigt hast.",
+    "prepareSession": "Sitzung vorbereiten",
     "previewTitle": "Deine Sitzung",
     "previewDescription": "{duration}, aufgeteilt auf diese Phasen.",
     "previewError": "Der Plan konnte nicht erstellt werden. Versuch es noch einmal.",
+    "decreaseDuration": "Zeit bei {name} verringern",
+    "increaseDuration": "Zeit bei {name} hinzufügen",
+    "shorter": "Kürzer",
+    "longer": "Intensiver",
     "start": "Sitzung starten",
     "starting": "Wird gestartet…",
     "phase": {
       "closing": "Rückblick und Abschluss"
+    },
+    "rationale": {
+      "technique": "Da du dich auf Technik konzentrieren wolltest, hat sie heute mehr Gewicht bekommen.",
+      "repertoire": "Da du beim Repertoire vorankommen wolltest, hat es heute mehr Gewicht bekommen.",
+      "prepare": "Mit einem bevorstehenden Termin haben wir mehr Repertoire und einen soliden Abschluss eingeplant.",
+      "concentration": "Für konzentriertes Üben haben wir Aufwärmen und Abschluss verlängert.",
+      "other": "Ein ausgewogenes Verhältnis zwischen Technik und Repertoire.",
+      "energy": {
+        "low": "Mit weniger Energie haben wir den anspruchsvollsten Teil entlastet.",
+        "high": "Mit viel Energie haben wir etwas mehr Technik eingeplant."
+      },
+      "progress": "Außerdem haben wir den Plan zu dem verschoben, was du zuletzt am wenigsten geübt hast.",
+      "otherFocus": "Berücksichtigt: {label}.",
+      "focusNote": "Zu beachten: {note}."
+    },
+    "suggestions": {
+      "weeklyGoal": "Für dein Wochenziel fehlen noch {minutes} Min. Eine Abschlusssitzung?",
+      "dominantCategory": "Du hattest zuletzt mehrere Sitzungen mit Fokus auf {category}. Heute etwas {other}?",
+      "reengagement": "Kurze 15-Minuten-Sitzung zum sanften Wiedereinstieg."
     }
   },
   "AddBlockForm": {
