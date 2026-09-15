@@ -251,14 +251,11 @@
     "longer": "Más intensa",
     "start": "Iniciar sesión",
     "starting": "Comenzando…",
-    "phase": {
-      "closing": "Repaso y cierre"
-    },
     "rationale": {
       "technique": "Como querías centrarte en técnica, le hemos dado más peso hoy.",
       "repertoire": "Como querías avanzar en repertorio, le hemos dado más peso hoy.",
-      "prepare": "Con una preparación cercana, hemos incluido más repertorio y un buen repaso final.",
-      "concentration": "Para una práctica concentrada, hemos alargado el calentamiento y el cierre.",
+      "prepare": "Con una preparación cercana, hemos incluido más repertorio.",
+      "concentration": "Para una práctica concentrada, hemos alargado el calentamiento.",
       "other": "Un reparto equilibrado entre técnica y repertorio.",
       "energy": {
         "low": "Con menos energía, hemos aligerado la parte más exigente.",
