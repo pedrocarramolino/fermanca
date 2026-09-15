@@ -60,6 +60,7 @@ export function PulsoOrb({
   // página (el disparador flotante y la cabecera del diálogo conviven a la
   // vez) — a diferencia de un contador manual, no cambia en cada render.
   const gradientId = useId();
+  const wingGradientId = useId();
 
   const glowAnimate = reduceMotion
     ? { filter: glowFilter(radius, spread) }
@@ -85,71 +86,81 @@ export function PulsoOrb({
         transition={beatTransition}
       >
         <defs>
-          <radialGradient id={gradientId} cx="50%" cy="35%" r="65%">
+          <radialGradient id={gradientId} cx="50%" cy="30%" r="70%">
             <stop offset="0%" stopColor={FIREFLY_MINT_BRIGHT} />
-            <stop offset="55%" stopColor={FIREFLY_MINT} />
+            <stop offset="50%" stopColor={FIREFLY_MINT} />
             <stop offset="100%" stopColor={FIREFLY_MINT_DIM} />
+          </radialGradient>
+          <radialGradient id={wingGradientId} cx="35%" cy="30%" r="75%">
+            <stop offset="0%" stopColor={FIREFLY_MINT_BRIGHT} stopOpacity="0.9" />
+            <stop offset="100%" stopColor={FIREFLY_MINT_DIM} stopOpacity="0.55" />
           </radialGradient>
         </defs>
 
         {/* Resplandor en el suelo, como si la luz de verdad cayera ahí. */}
-        <ellipse cx="50" cy="93" rx="20" ry="5" fill={FIREFLY_MINT} opacity="0.35" style={{ filter: "blur(3px)" }} />
+        <ellipse cx="50" cy="94" rx="19" ry="5" fill={FIREFLY_MINT} opacity="0.35" style={{ filter: "blur(3px)" }} />
+
+        {/* Alas, translúcidas, flanqueando el cuerpo. */}
+        <ellipse cx="24" cy="63" rx="15" ry="21" fill={`url(#${wingGradientId})`} transform="rotate(-24 24 63)" />
+        <ellipse cx="76" cy="63" rx="15" ry="21" fill={`url(#${wingGradientId})`} transform="rotate(24 76 63)" />
 
         {/* Cuerpo inferior, iluminado desde dentro — centrado y asomando
             por debajo de la cabeza, no desplazado a un lado. */}
-        <ellipse cx="50" cy="75" rx="25" ry="23" fill={`url(#${gradientId})`} />
+        <ellipse cx="50" cy="76" rx="23" ry="21" fill={`url(#${gradientId})`} />
 
         {/* Cabeza oscura */}
-        <circle cx="50" cy="45" r="29" fill={FIREFLY_DARK} />
+        <circle cx="50" cy="43" r="27" fill={FIREFLY_DARK} />
 
         {/* Antenas, simétricas, con la punta como único órgano de luz que
             de verdad late. */}
         <path
-          d="M41 21 C 33 10, 24 6, 17 8"
+          d="M40 20 C 32 9, 23 5, 16 7"
           stroke={FIREFLY_DARK}
           strokeWidth="3"
           fill="none"
           strokeLinecap="round"
         />
         <path
-          d="M59 21 C 67 10, 76 6, 83 8"
+          d="M60 20 C 68 9, 77 5, 84 7"
           stroke={FIREFLY_DARK}
           strokeWidth="3"
           fill="none"
           strokeLinecap="round"
         />
         <motion.circle
-          cx="16"
-          cy="8"
-          r="5"
+          cx="15"
+          cy="7"
+          r="5.5"
           fill={FIREFLY_MINT_BRIGHT}
           initial={false}
           animate={tipAnimate}
           transition={beatTransition}
-          style={{ transformOrigin: "16px 8px" }}
+          style={{ transformOrigin: "15px 7px" }}
         />
         <motion.circle
-          cx="84"
-          cy="8"
-          r="5"
+          cx="85"
+          cy="7"
+          r="5.5"
           fill={FIREFLY_MINT_BRIGHT}
           initial={false}
           animate={tipAnimate}
           transition={beatTransition}
-          style={{ transformOrigin: "84px 8px" }}
+          style={{ transformOrigin: "85px 7px" }}
         />
 
-        {/* Ojos */}
-        <ellipse cx="39" cy="43" rx="8.5" ry="10" fill="white" />
-        <ellipse cx="61" cy="43" rx="8.5" ry="10" fill="white" />
-        <circle cx="39" cy="45" r="3.4" fill={FIREFLY_DARK} />
-        <circle cx="61" cy="45" r="3.4" fill={FIREFLY_DARK} />
+        {/* Ojos: ovalados, blancos, con pupila y un pequeño brillo. */}
+        <ellipse cx="38" cy="41" rx="7.5" ry="9.5" fill="white" />
+        <ellipse cx="62" cy="41" rx="7.5" ry="9.5" fill="white" />
+        <circle cx="38" cy="43" r="3.2" fill={FIREFLY_DARK} />
+        <circle cx="62" cy="43" r="3.2" fill={FIREFLY_DARK} />
+        <circle cx="36.3" cy="41" r="1.1" fill="white" />
+        <circle cx="60.3" cy="41" r="1.1" fill="white" />
 
         {/* Sonrisa */}
         <path
-          d="M35 57 Q 50 71, 65 57"
+          d="M40 55 Q 50 63, 60 55"
           stroke={FIREFLY_MINT}
-          strokeWidth="5"
+          strokeWidth="4"
           fill="none"
           strokeLinecap="round"
         />
