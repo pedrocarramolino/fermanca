@@ -251,14 +251,11 @@
     "longer": "Intensiver",
     "start": "Sitzung starten",
     "starting": "Wird gestartet…",
-    "phase": {
-      "closing": "Rückblick und Abschluss"
-    },
     "rationale": {
       "technique": "Da du dich auf Technik konzentrieren wolltest, hat sie heute mehr Gewicht bekommen.",
       "repertoire": "Da du beim Repertoire vorankommen wolltest, hat es heute mehr Gewicht bekommen.",
-      "prepare": "Mit einem bevorstehenden Termin haben wir mehr Repertoire und einen soliden Abschluss eingeplant.",
-      "concentration": "Für konzentriertes Üben haben wir Aufwärmen und Abschluss verlängert.",
+      "prepare": "Mit einem bevorstehenden Termin haben wir mehr Repertoire eingeplant.",
+      "concentration": "Für konzentriertes Üben haben wir das Aufwärmen verlängert.",
       "other": "Ein ausgewogenes Verhältnis zwischen Technik und Repertoire.",
       "energy": {
         "low": "Mit weniger Energie haben wir den anspruchsvollsten Teil entlastet.",

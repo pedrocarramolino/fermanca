@@ -251,14 +251,11 @@
     "longer": "More intense",
     "start": "Start session",
     "starting": "Starting…",
-    "phase": {
-      "closing": "Review and wrap-up"
-    },
     "rationale": {
       "technique": "Since you wanted to focus on technique, it got more weight today.",
       "repertoire": "Since you wanted to make progress on repertoire, it got more weight today.",
-      "prepare": "With something coming up, we added more repertoire and a solid final review.",
-      "concentration": "For focused practice, we stretched out the warm-up and the wrap-up.",
+      "prepare": "With something coming up, we added more repertoire.",
+      "concentration": "For focused practice, we stretched out the warm-up.",
       "other": "An even split between technique and repertoire.",
       "energy": {
         "low": "With less energy, we lightened the most demanding part.",

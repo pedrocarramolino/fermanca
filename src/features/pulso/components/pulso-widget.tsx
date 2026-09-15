@@ -209,7 +209,7 @@ export function PulsoWidget({
   }
 
   function phaseName(phase: PulsoPhase): string {
-    return phase.slug === "closing" ? t("phase.closing") : tCategories(phase.slug);
+    return tCategories(phase.slug);
   }
 
   function adjustPhaseSeconds(index: number, deltaSeconds: number) {

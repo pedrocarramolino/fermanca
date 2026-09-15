@@ -15,7 +15,7 @@ export type PulsoTimeOption = (typeof PULSO_TIME_OPTIONS)[number];
 export const PULSO_ENERGY_LEVELS = ["low", "normal", "high"] as const;
 export type PulsoEnergy = (typeof PULSO_ENERGY_LEVELS)[number];
 
-export type PulsoPhaseSlug = "warmup" | "technique" | "repertoire" | "closing";
+export type PulsoPhaseSlug = "warmup" | "technique" | "repertoire" | "flexibility";
 
 export interface PulsoPhase {
   slug: PulsoPhaseSlug;
@@ -28,25 +28,34 @@ type PhaseWeights = Record<PulsoPhaseSlug, number>;
 
 /** Cuánto del tiempo total se lleva cada fase según qué se quiera trabajar
  * — punto de partida antes de los ajustes de energía y progreso reciente
- * (ver `applyEnergyAdjustment`/`applyProgressBias` más abajo). */
+ * (ver `applyEnergyAdjustment`/`applyProgressBias` más abajo). Un peso a 0
+ * hace que esa categoría no aparezca en el plan (se filtra más abajo por
+ * quedar por debajo de `MIN_PHASE_SECONDS`) — así cada intención muestra un
+ * conjunto de categorías distinto, no siempre las mismas tres con más o
+ * menos tiempo. */
 const INTENTION_WEIGHTS: Record<PulsoIntention, PhaseWeights> = {
-  technique: { warmup: 0.15, technique: 0.55, repertoire: 0.2, closing: 0.1 },
-  repertoire: { warmup: 0.15, technique: 0.2, repertoire: 0.55, closing: 0.1 },
-  prepare: { warmup: 0.1, technique: 0.25, repertoire: 0.45, closing: 0.2 },
-  // Práctica concentrada y deliberada: más tiempo instalándose y en trabajo
-  // técnico fino, y un cierre más largo para fijar lo trabajado.
-  concentration: { warmup: 0.2, technique: 0.5, repertoire: 0.15, closing: 0.15 },
+  // Solo técnica: sin obras, con flexibilidad como parte del trabajo físico.
+  technique: { warmup: 0.2, technique: 0.55, flexibility: 0.25, repertoire: 0 },
+  // Avanzar en las piezas: sin ejercicios de técnica ni flexibilidad aparte.
+  repertoire: { warmup: 0.15, technique: 0, flexibility: 0, repertoire: 0.85 },
+  // Preparación cercana (concierto/examen): las cuatro categorías, con más
+  // peso en repertorio.
+  prepare: { warmup: 0.1, technique: 0.25, flexibility: 0.1, repertoire: 0.55 },
+  // Práctica concentrada y deliberada: calentamiento largo, técnica y
+  // flexibilidad — sin obras, que piden un tipo de atención distinto.
+  concentration: { warmup: 0.25, technique: 0.5, flexibility: 0.25, repertoire: 0 },
   // Sin una intención concreta (o una que el usuario ha escrito a mano):
-  // reparto equilibrado entre técnica y repertorio.
-  other: { warmup: 0.15, technique: 0.35, repertoire: 0.35, closing: 0.15 },
+  // las cuatro categorías repartidas de forma equilibrada.
+  other: { warmup: 0.15, technique: 0.3, flexibility: 0.25, repertoire: 0.3 },
 };
 
 /** Con poca energía se resta exigencia técnica a favor de calentamiento y
- * repertorio (más cómodo); con mucha, al revés. "normal" no toca nada. */
+ * repertorio (más cómodo); con mucha, al revés. "normal" no toca nada. La
+ * flexibilidad no se ve afectada por la energía. */
 const ENERGY_ADJUSTMENT: Record<PulsoEnergy, PhaseWeights> = {
-  low: { warmup: 0.05, technique: -0.1, repertoire: 0.05, closing: 0 },
-  normal: { warmup: 0, technique: 0, repertoire: 0, closing: 0 },
-  high: { warmup: -0.05, technique: 0.05, repertoire: 0, closing: 0 },
+  low: { warmup: 0.05, technique: -0.1, flexibility: 0, repertoire: 0.05 },
+  normal: { warmup: 0, technique: 0, flexibility: 0, repertoire: 0 },
+  high: { warmup: -0.05, technique: 0.05, flexibility: 0, repertoire: 0 },
 };
 
 /** Por debajo de esto una fase es demasiado corta para valer la pena como
@@ -68,8 +77,8 @@ function applyEnergyAdjustment(weights: PhaseWeights, energy: PulsoEnergy): Phas
   return {
     warmup: Math.max(0, weights.warmup + adjustment.warmup),
     technique: Math.max(0, weights.technique + adjustment.technique),
+    flexibility: Math.max(0, weights.flexibility + adjustment.flexibility),
     repertoire: Math.max(0, weights.repertoire + adjustment.repertoire),
-    closing: Math.max(0, weights.closing + adjustment.closing),
   };
 }
 
@@ -117,7 +126,8 @@ export function generatePulsoPlan(
   const warmup = bySlug.get("warmup");
   const technique = bySlug.get("technique");
   const repertoire = bySlug.get("repertoire");
-  if (!warmup || !technique || !repertoire) return null;
+  const flexibility = bySlug.get("flexibility");
+  if (!warmup || !technique || !repertoire || !flexibility) return null;
 
   const totalSeconds = Math.round(totalMinutes * 60);
 
@@ -128,10 +138,8 @@ export function generatePulsoPlan(
   let candidates: { slug: PulsoPhaseSlug; category: SystemCategory; weight: number }[] = [
     { slug: "warmup", category: warmup, weight: weights.warmup },
     { slug: "technique", category: technique, weight: weights.technique },
+    { slug: "flexibility", category: flexibility, weight: weights.flexibility },
     { slug: "repertoire", category: repertoire, weight: weights.repertoire },
-    // "Repaso y cierre" reutiliza la categoría de repertorio (un repaso final
-    // de las obras trabajadas) con un nombre de bloque propio.
-    { slug: "closing", category: repertoire, weight: weights.closing },
   ];
 
   // Repetir hasta que ninguna fase restante quede por debajo del mínimo —
