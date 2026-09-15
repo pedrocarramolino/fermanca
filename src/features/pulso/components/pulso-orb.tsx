@@ -1,14 +1,16 @@
 "use client";
 
+import { useId } from "react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 
 /** Colores fijos de la ilustración de Pulso — no toman el acento del
  * usuario a propósito: son la identidad visual de la mascota, igual que su
  * nombre. */
-const FIREFLY_DARK = "oklch(0.2 0.04 155)";
+const FIREFLY_DARK = "oklch(0.18 0.03 155)";
 const FIREFLY_MINT = "oklch(0.82 0.18 155)";
-const FIREFLY_MINT_BRIGHT = "oklch(0.88 0.22 155)";
+const FIREFLY_MINT_BRIGHT = "oklch(0.9 0.24 155)";
+const FIREFLY_MINT_DIM = "oklch(0.4 0.1 155)";
 
 /** ~72 "pulsaciones" por minuto — un metrónomo lento y tranquilo, no un
  * parpadeo nervioso. Attack rápido (18% del ciclo) y decay más largo, para
@@ -19,22 +21,23 @@ const BEAT_TIMES = [0, 0.18, 1];
 /** Radio y difusión del halo (px) en los dos extremos de racha — incluso en
  * el mínimo tiene que leerse como una luz de verdad, nunca como un punto
  * plano sin brillo; en el máximo, un salto claro respecto al mínimo. */
-const GLOW_RADIUS = { min: 10, max: 22 };
-const GLOW_SPREAD = { min: 2, max: 7 };
+const GLOW_RADIUS = { min: 12, max: 26 };
+const GLOW_SPREAD = { min: 3, max: 9 };
 
 function glowFilter(radius: number, spread: number): string {
   return `drop-shadow(0 0 ${radius}px ${FIREFLY_MINT}) drop-shadow(0 0 ${spread}px ${FIREFLY_MINT})`;
 }
 
 /**
- * Mascota de Pulso: una luciérnaga — misma ilustración que en el flujo de
- * referencia (cuerpo oscuro redondeado, "ala"/cuerpo menta asomando detrás,
- * antenas con la punta luminosa, ojos y sonrisa). El brillo alrededor
- * (`drop-shadow`, no una capa aparte difuminada) late al ritmo de un
- * metrónomo en las puntas de las antenas — su verdadero órgano de luz — y
- * crece con `intensity` (0-1, la racha actual normalizada), pero nunca por
- * debajo de un mínimo ya de por sí visible: Pulso no castiga los días sin
- * practicar apagándose.
+ * Mascota de Pulso: una luciérnaga con el cuerpo inferior iluminado desde
+ * dentro (degradado radial, más brillante en el centro) en vez de un simple
+ * relleno plano — el efecto "bombilla" del diseño de referencia — con un
+ * pequeño resplandor en el suelo debajo, como si de verdad desprendiera luz.
+ * El brillo alrededor (`drop-shadow`, no una capa aparte difuminada) late al
+ * ritmo de un metrónomo en las puntas de las antenas — su verdadero órgano
+ * de luz — y crece con `intensity` (0-1, la racha actual normalizada), pero
+ * nunca por debajo de un mínimo ya de por sí visible: Pulso no castiga los
+ * días sin practicar apagándose.
  *
  * `reduceMotion` congela el latido en su punto medio en vez de decidirlo
  * con CSS: Motion anima por RAF, no por `transition`/`animation` de CSS,
@@ -53,6 +56,10 @@ export function PulsoOrb({
   const clamped = Math.max(0, Math.min(1, intensity));
   const radius = GLOW_RADIUS.min + clamped * (GLOW_RADIUS.max - GLOW_RADIUS.min);
   const spread = GLOW_SPREAD.min + clamped * (GLOW_SPREAD.max - GLOW_SPREAD.min);
+  // Estable entre renders y sin colisionar con otras instancias en la misma
+  // página (el disparador flotante y la cabecera del diálogo conviven a la
+  // vez) — a diferencia de un contador manual, no cambia en cada render.
+  const gradientId = useId();
 
   const glowAnimate = reduceMotion
     ? { filter: glowFilter(radius, spread) }
@@ -77,53 +84,70 @@ export function PulsoOrb({
         animate={glowAnimate}
         transition={beatTransition}
       >
-        {/* "Ala"/cuerpo menta, se asoma por detrás del cuerpo oscuro */}
-        <ellipse cx="66" cy="62" rx="31" ry="29" fill={FIREFLY_MINT} />
-        {/* Cuerpo oscuro */}
-        <circle cx="46" cy="49" r="30" fill={FIREFLY_DARK} />
-        {/* Antenas, con la punta como único órgano de luz que de verdad late */}
+        <defs>
+          <radialGradient id={gradientId} cx="50%" cy="35%" r="65%">
+            <stop offset="0%" stopColor={FIREFLY_MINT_BRIGHT} />
+            <stop offset="55%" stopColor={FIREFLY_MINT} />
+            <stop offset="100%" stopColor={FIREFLY_MINT_DIM} />
+          </radialGradient>
+        </defs>
+
+        {/* Resplandor en el suelo, como si la luz de verdad cayera ahí. */}
+        <ellipse cx="50" cy="93" rx="20" ry="5" fill={FIREFLY_MINT} opacity="0.35" style={{ filter: "blur(3px)" }} />
+
+        {/* Cuerpo inferior, iluminado desde dentro — centrado y asomando
+            por debajo de la cabeza, no desplazado a un lado. */}
+        <ellipse cx="50" cy="75" rx="25" ry="23" fill={`url(#${gradientId})`} />
+
+        {/* Cabeza oscura */}
+        <circle cx="50" cy="45" r="29" fill={FIREFLY_DARK} />
+
+        {/* Antenas, simétricas, con la punta como único órgano de luz que
+            de verdad late. */}
         <path
-          d="M39 25 C 32 13, 23 8, 16 10"
+          d="M41 21 C 33 10, 24 6, 17 8"
           stroke={FIREFLY_DARK}
           strokeWidth="3"
           fill="none"
           strokeLinecap="round"
         />
         <path
-          d="M57 23 C 66 10, 77 7, 85 10"
+          d="M59 21 C 67 10, 76 6, 83 8"
           stroke={FIREFLY_DARK}
           strokeWidth="3"
           fill="none"
           strokeLinecap="round"
         />
         <motion.circle
-          cx="15"
-          cy="10"
+          cx="16"
+          cy="8"
           r="5"
           fill={FIREFLY_MINT_BRIGHT}
           initial={false}
           animate={tipAnimate}
           transition={beatTransition}
-          style={{ transformOrigin: "15px 10px" }}
+          style={{ transformOrigin: "16px 8px" }}
         />
         <motion.circle
-          cx="86"
-          cy="10"
+          cx="84"
+          cy="8"
           r="5"
           fill={FIREFLY_MINT_BRIGHT}
           initial={false}
           animate={tipAnimate}
           transition={beatTransition}
-          style={{ transformOrigin: "86px 10px" }}
+          style={{ transformOrigin: "84px 8px" }}
         />
+
         {/* Ojos */}
-        <ellipse cx="35" cy="47" rx="8.5" ry="10" fill="white" />
-        <ellipse cx="58" cy="47" rx="8.5" ry="10" fill="white" />
-        <circle cx="35" cy="49" r="3.4" fill={FIREFLY_DARK} />
-        <circle cx="58" cy="49" r="3.4" fill={FIREFLY_DARK} />
+        <ellipse cx="39" cy="43" rx="8.5" ry="10" fill="white" />
+        <ellipse cx="61" cy="43" rx="8.5" ry="10" fill="white" />
+        <circle cx="39" cy="45" r="3.4" fill={FIREFLY_DARK} />
+        <circle cx="61" cy="45" r="3.4" fill={FIREFLY_DARK} />
+
         {/* Sonrisa */}
         <path
-          d="M31 61 Q 46.5 75, 62 61"
+          d="M35 57 Q 50 71, 65 57"
           stroke={FIREFLY_MINT}
           strokeWidth="5"
           fill="none"
