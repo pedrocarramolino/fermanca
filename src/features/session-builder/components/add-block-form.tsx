@@ -116,7 +116,7 @@ export function AddBlockForm({
   }
 
   return (
-    <div className="border-border flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-end">
+    <div className="border-border flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:flex-wrap sm:items-end">
       <div className="flex flex-1 flex-col gap-2">
         <Label>{t("category")}</Label>
         <div className="flex gap-2">
