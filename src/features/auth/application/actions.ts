@@ -101,19 +101,29 @@ export async function signUp(
     return { error: null, fieldErrors: fieldErrorsFrom(parsed.error.issues) };
   }
 
-  // Comprobación previa para un mensaje de error claro — la restricción
-  // única (case-insensitive) en BD es la garantía real, pero si dejamos
-  // que sea ella la que falle, el alta entera revienta dentro del trigger
-  // y Supabase solo da un mensaje genérico de error de base de datos.
+  // Comprobación previa para un mensaje de error claro — las restricciones
+  // únicas reales (email a nivel de Supabase Auth, profiles_username_lower_key
+  // en BD) son la garantía, pero si dejamos que fallen ellas, el alta entera
+  // revienta con un error genérico. Para el email es más que una cuestión de
+  // mensaje: con la confirmación de email activada, si dejamos que
+  // signUp() lo detecte, Supabase ni siquiera da error — para no filtrar
+  // qué correos existen, responde con éxito y un usuario "falso" (ver el
+  // chequeo de `identities` más abajo, que cubre la carrera residual).
+  // Username y email se comprueban en paralelo para poder avisar de los
+  // dos a la vez si hace falta, no solo del primero que se mire.
   const serviceClient = createServiceClient();
-  const existing = await new SupabaseProfileRepository(serviceClient).getByUsername(
-    parsed.data.username,
-  );
-  if (existing) {
-    return {
-      error: null,
-      fieldErrors: { username: "Ese nombre de usuario ya está en uso." },
-    };
+  const [existingUsername, emailTaken] = await Promise.all([
+    new SupabaseProfileRepository(serviceClient).getByUsername(parsed.data.username),
+    serviceClient.rpc("email_registered", { check_email: parsed.data.email }).then(({ data, error }) => {
+      if (error) throw error;
+      return data;
+    }),
+  ]);
+  const fieldErrors: Record<string, string> = {};
+  if (emailTaken) fieldErrors.email = "Ya existe una cuenta con ese correo.";
+  if (existingUsername) fieldErrors.username = "Ese nombre de usuario ya está en uso.";
+  if (Object.keys(fieldErrors).length > 0) {
+    return { error: null, fieldErrors };
   }
 
   const next = safeRedirectPath(String(formData.get("next") ?? "/"));
@@ -134,6 +144,18 @@ export async function signUp(
   });
   if (error) {
     return { error: translateAuthError(error.message), fieldErrors: initialFieldErrors };
+  }
+
+  // Defensa en profundidad frente a la comprobación previa: con la
+  // confirmación de email activada, si el correo ya tenía una cuenta
+  // confirmada, Supabase no da error (ver comentario de arriba) — un
+  // usuario sin identidades es la señal documentada de que es ese caso, no
+  // un alta nueva de verdad.
+  if (data.user && data.user.identities?.length === 0) {
+    return {
+      error: null,
+      fieldErrors: { email: "Ya existe una cuenta con ese correo." },
+    };
   }
 
   // Con la confirmación de email activada (por defecto en Supabase), signUp
