@@ -884,7 +884,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      email_registered: {
+        Args: { check_email: string }
+        Returns: boolean
+      }
     }
     Enums: {
       category_kind: "system" | "custom"
