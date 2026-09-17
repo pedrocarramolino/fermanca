@@ -4,11 +4,29 @@ import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { useReducedMotion } from "motion/react";
 import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import {
   ArrowLeft,
   Battery,
   BatteryFull,
   BatteryLow,
   Brain,
+  GripVertical,
   Lightbulb,
   Minus,
   Plus,
@@ -23,6 +41,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -31,22 +56,37 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { formatDurationShort } from "@/core/domain/duration";
-import type { Category } from "@/core/domain/category";
+import { categoryDisplayName, type Category } from "@/core/domain/category";
 import { startSession } from "@/features/session-builder/application/actions";
 import { PulsoOrb } from "@/features/pulso/components/pulso-orb";
 import type { PulsoSignals } from "@/features/pulso/application/signals";
 import {
   generatePulsoPlan,
+  inferOtherWeights,
   PULSO_ENERGY_LEVELS,
   PULSO_INTENTIONS,
   PULSO_TIME_OPTIONS,
   type PulsoEnergy,
   type PulsoIntention,
-  type PulsoPhase,
   type PulsoTimeOption,
 } from "@/features/pulso/application/generate-plan";
 
 type Step = "intention" | "time" | "context" | "preview";
+
+/** Fase del plan ya editable en la vista previa: a diferencia de
+ * `PulsoPhase` (que viene de generatePulsoPlan con un slug fijo de las 5
+ * categorías de sistema), aquí guarda nombre/color/categoryId resueltos —
+ * así puede pasar a apuntar a una categoría personalizada del usuario tras
+ * sustituirla, no solo a las de sistema. `id` es estable a través de
+ * reordenaciones y sustituciones (no es el categoryId, que puede repetirse
+ * si dos fases acaban con la misma categoría). */
+interface EditablePhase {
+  id: string;
+  categoryId: string;
+  name: string;
+  color: string;
+  durationSeconds: number;
+}
 
 const INTENTION_ICONS: Record<PulsoIntention, typeof Target> = {
   technique: Target,
@@ -88,6 +128,101 @@ interface Suggestion {
 }
 
 /**
+ * Una fase de la vista previa: arrastrable (tirador a la izquierda, mismo
+ * patrón que SortableBlockItem en el constructor manual) y con la categoría
+ * sustituible por cualquier otra disponible (de sistema o personalizada del
+ * usuario) a través de un Select que ocupa el sitio del nombre.
+ */
+function PulsoPhaseRow({
+  phase,
+  categories,
+  onChangeCategory,
+  onDecrease,
+  onIncrease,
+}: {
+  phase: EditablePhase;
+  categories: Category[];
+  onChangeCategory: (categoryId: string) => void;
+  onDecrease: () => void;
+  onIncrease: () => void;
+}) {
+  const t = useTranslations("Pulso");
+  const tCategories = useTranslations("Categories");
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: phase.id,
+  });
+
+  return (
+    <li
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      className="border-border flex items-center gap-1 rounded-lg border p-2 pr-2.5"
+      data-dragging={isDragging || undefined}
+    >
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-xs"
+        aria-label={t("reorderPhase", { name: phase.name })}
+        className="text-muted-foreground hover:text-foreground shrink-0 cursor-grab touch-none active:cursor-grabbing"
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical className="size-3.5" />
+      </Button>
+
+      <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: phase.color }} aria-hidden />
+
+      <Select value={phase.categoryId} onValueChange={(value) => value && onChangeCategory(value)}>
+        <SelectTrigger
+          size="sm"
+          aria-label={t("changeCategory", { name: phase.name })}
+          className="min-w-0 flex-1 justify-start border-none bg-transparent px-1 font-medium"
+        >
+          <SelectValue>{() => phase.name}</SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          {categories.map((category) => (
+            <SelectItem key={category.id} value={category.id}>
+              <span
+                className="size-2.5 shrink-0 rounded-full"
+                style={{ backgroundColor: category.color }}
+                aria-hidden
+              />
+              {categoryDisplayName(category, tCategories)}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <div className="flex shrink-0 items-center gap-1">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-xs"
+          aria-label={t("decreaseDuration", { name: phase.name })}
+          onClick={onDecrease}
+        >
+          <Minus className="size-3" />
+        </Button>
+        <span className="text-muted-foreground w-14 text-center text-xs">
+          {formatDurationShort(phase.durationSeconds)}
+        </span>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-xs"
+          aria-label={t("increaseDuration", { name: phase.name })}
+          onClick={onIncrease}
+        >
+          <Plus className="size-3" />
+        </Button>
+      </div>
+    </li>
+  );
+}
+
+/**
  * Mascota flotante en Inicio: al tocarla, un flujo corto y guiado (qué
  * quieres trabajar, cuánto tiempo, energía/contexto) genera un plan de
  * sesión completo -reparto de fases y duración ya calculado, ver
@@ -116,8 +251,12 @@ export function PulsoWidget({
   const [energy, setEnergy] = useState<PulsoEnergy>("normal");
   const [focusNote, setFocusNote] = useState("");
   const [useProgress, setUseProgress] = useState(false);
-  const [phases, setPhases] = useState<PulsoPhase[] | null>(null);
+  const [phases, setPhases] = useState<EditablePhase[] | null>(null);
   const [isStarting, startStarting] = useTransition();
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
 
   const hasRecentProgressData =
     signals.recentCategoryMinutes.technique + signals.recentCategoryMinutes.repertoire > 0;
@@ -147,11 +286,21 @@ export function PulsoWidget({
     nextEnergy: PulsoEnergy,
     nextUseProgress: boolean,
   ) {
+    const plan = generatePulsoPlan(nextIntention, nextMinutes, categories, {
+      energy: nextEnergy,
+      recentCategoryMinutes: nextUseProgress ? signals.recentCategoryMinutes : undefined,
+      otherLabel: nextIntention === "other" ? otherLabel : undefined,
+    });
     setPhases(
-      generatePulsoPlan(nextIntention, nextMinutes, categories, {
-        energy: nextEnergy,
-        recentCategoryMinutes: nextUseProgress ? signals.recentCategoryMinutes : undefined,
-      }),
+      plan
+        ? plan.map((phase) => ({
+            id: crypto.randomUUID(),
+            categoryId: phase.categoryId,
+            name: tCategories(phase.slug),
+            color: phase.color,
+            durationSeconds: phase.durationSeconds,
+          }))
+        : null,
     );
     setStep("preview");
   }
@@ -200,15 +349,11 @@ export function PulsoWidget({
     return null;
   }
 
-  function phaseName(phase: PulsoPhase): string {
-    return tCategories(phase.slug);
-  }
-
-  function adjustPhaseSeconds(index: number, deltaSeconds: number) {
+  function adjustPhaseSeconds(id: string, deltaSeconds: number) {
     setPhases((prev) =>
       prev
-        ? prev.map((phase, i) =>
-            i === index
+        ? prev.map((phase) =>
+            phase.id === id
               ? {
                   ...phase,
                   durationSeconds: Math.max(
@@ -220,6 +365,29 @@ export function PulsoWidget({
           )
         : prev,
     );
+  }
+
+  function handleReplaceCategory(id: string, categoryId: string) {
+    const category = categories.find((c) => c.id === categoryId);
+    if (!category) return;
+    setPhases((prev) =>
+      prev
+        ? prev.map((phase) =>
+            phase.id === id
+              ? { ...phase, categoryId: category.id, name: categoryDisplayName(category, tCategories), color: category.color }
+              : phase,
+          )
+        : prev,
+    );
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id || !phases) return;
+    const oldIndex = phases.findIndex((phase) => phase.id === active.id);
+    const newIndex = phases.findIndex((phase) => phase.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+    setPhases(arrayMove(phases, oldIndex, newIndex));
   }
 
   function adjustTotal(factor: number) {
@@ -236,7 +404,7 @@ export function PulsoWidget({
     if (!phases) return;
     const blocks = phases.map((phase, position) => ({
       categoryId: phase.categoryId,
-      name: phaseName(phase),
+      name: phase.name,
       durationSeconds: phase.durationSeconds,
       color: phase.color,
       position,
@@ -248,6 +416,12 @@ export function PulsoWidget({
 
   const totalSeconds = phases?.reduce((sum, phase) => sum + phase.durationSeconds, 0) ?? 0;
   const activeSuggestion = step === "intention" ? suggestion() : null;
+  // Si lo que ha escrito el usuario en "otra cosa" ya ha redirigido el plan
+  // (ver inferOtherWeights), el texto genérico "reparto equilibrado entre
+  // técnica y repertorio" dejaría de ser cierto — se sustituye por la
+  // explicación de rationale.otherFocus, que sí describe lo que ha pasado.
+  const otherLabelMatched =
+    intention === "other" && !!otherLabel && inferOtherWeights(otherLabel) !== null;
 
   return (
     <>
@@ -442,15 +616,17 @@ export function PulsoWidget({
 
               {phases && intention && (
                 <>
-                  <p className="text-muted-foreground text-sm">
-                    {t(`rationale.${intention}`)}
-                    {energy !== "normal" && ` ${t(`rationale.energy.${energy}`)}`}
-                  </p>
+                  {!otherLabelMatched && (
+                    <p className="text-muted-foreground text-sm">
+                      {t(`rationale.${intention}`)}
+                      {energy !== "normal" && ` ${t(`rationale.energy.${energy}`)}`}
+                    </p>
+                  )}
                   {useProgress && hasRecentProgressData && (
                     <p className="text-muted-foreground text-xs">{t("rationale.progress")}</p>
                   )}
                   {intention === "other" && otherLabel && (
-                    <p className="text-muted-foreground text-xs">
+                    <p className={cn("text-muted-foreground", otherLabelMatched ? "text-sm" : "text-xs")}>
                       {t("rationale.otherFocus", { label: otherLabel })}
                     </p>
                   )}
@@ -460,44 +636,25 @@ export function PulsoWidget({
                     </p>
                   )}
 
-                  <ul className="flex flex-col gap-2">
-                    {phases.map((phase, index) => (
-                      <li
-                        key={phase.slug}
-                        className="border-border flex items-center gap-2 rounded-lg border p-2.5"
-                      >
-                        <span
-                          className="size-2.5 shrink-0 rounded-full"
-                          style={{ backgroundColor: phase.color }}
-                          aria-hidden
-                        />
-                        <span className="flex-1 text-sm font-medium">{phaseName(phase)}</span>
-                        <div className="flex items-center gap-1">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon-xs"
-                            aria-label={t("decreaseDuration", { name: phaseName(phase) })}
-                            onClick={() => adjustPhaseSeconds(index, -PHASE_STEP_SECONDS)}
-                          >
-                            <Minus className="size-3" />
-                          </Button>
-                          <span className="text-muted-foreground w-14 text-center text-xs">
-                            {formatDurationShort(phase.durationSeconds)}
-                          </span>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon-xs"
-                            aria-label={t("increaseDuration", { name: phaseName(phase) })}
-                            onClick={() => adjustPhaseSeconds(index, PHASE_STEP_SECONDS)}
-                          >
-                            <Plus className="size-3" />
-                          </Button>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
+                  <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                    <SortableContext
+                      items={phases.map((phase) => phase.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <ul className="flex flex-col gap-2">
+                        {phases.map((phase) => (
+                          <PulsoPhaseRow
+                            key={phase.id}
+                            phase={phase}
+                            categories={categories}
+                            onChangeCategory={(categoryId) => handleReplaceCategory(phase.id, categoryId)}
+                            onDecrease={() => adjustPhaseSeconds(phase.id, -PHASE_STEP_SECONDS)}
+                            onIncrease={() => adjustPhaseSeconds(phase.id, PHASE_STEP_SECONDS)}
+                          />
+                        ))}
+                      </ul>
+                    </SortableContext>
+                  </DndContext>
 
                   <div className="flex gap-2">
                     <Button

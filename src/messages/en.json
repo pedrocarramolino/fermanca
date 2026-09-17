@@ -248,6 +248,8 @@
     "previewError": "Couldn't generate the plan. Try again.",
     "decreaseDuration": "Reduce time on {name}",
     "increaseDuration": "Add time to {name}",
+    "reorderPhase": "Reorder {name}",
+    "changeCategory": "Change category for {name}",
     "shorter": "Shorter",
     "longer": "More intense",
     "start": "Start session",

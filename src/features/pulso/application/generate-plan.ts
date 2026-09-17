@@ -39,15 +39,42 @@ const INTENTION_WEIGHTS: Record<PulsoIntention, PhaseWeights> = {
   // Calentamiento, vocalizaciones y flexibilidad — sin técnica ni obras;
   // flexibilidad es la que más peso se lleva de las tres.
   repertoire: { warmup: 0.25, technique: 0, flexibility: 0.45, repertoire: 0, vocalization: 0.3 },
-  // Preparación cercana (concierto/examen): técnica y obras, con más peso
-  // en obras.
-  prepare: { warmup: 0.1, technique: 0.25, flexibility: 0.1, repertoire: 0.55, vocalization: 0 },
-  // Práctica concentrada y deliberada: calentamiento largo, técnica y
-  // flexibilidad — sin obras, que piden un tipo de atención distinto.
-  concentration: { warmup: 0.25, technique: 0.5, flexibility: 0.25, repertoire: 0, vocalization: 0 },
+  // Preparación cercana (concierto/examen): las cinco categorías, con más
+  // peso en obras — el orden de presentación es el propio de este caso
+  // (calentamiento, vocalizaciones, obras, flexibilidad, técnica), ver
+  // INTENTION_PHASE_ORDER más abajo.
+  prepare: { warmup: 0.1, technique: 0.2, flexibility: 0.1, repertoire: 0.45, vocalization: 0.15 },
+  // Práctica concentrada y deliberada: calentamiento largo, vocalizaciones,
+  // técnica y flexibilidad — sin obras, que piden un tipo de atención
+  // distinto. El orden de presentación pone vocalizaciones justo después
+  // del calentamiento, ver INTENTION_PHASE_ORDER más abajo.
+  concentration: { warmup: 0.2, technique: 0.45, flexibility: 0.2, repertoire: 0, vocalization: 0.15 },
   // Sin una intención concreta (o una que el usuario ha escrito a mano):
   // calentamiento, técnica y obras repartidos de forma equilibrada.
   other: { warmup: 0.15, technique: 0.3, flexibility: 0.25, repertoire: 0.3, vocalization: 0 },
+};
+
+/** Orden en el que se presentan las fases de cada intención — no es solo el
+ * peso, es el orden que tiene sentido seguir en la sesión (p. ej. calentar
+ * antes de meterse con las obras). Una fase con peso 0 igualmente se filtra
+ * más abajo por `MIN_PHASE_SECONDS`, así que no hace falta omitirla aquí.
+ * "Preparar algo" y "concentración" piden un orden propio; el resto usa el
+ * genérico. */
+const DEFAULT_PHASE_ORDER: PulsoPhaseSlug[] = [
+  "warmup",
+  "technique",
+  "flexibility",
+  "repertoire",
+  "vocalization",
+];
+const INTENTION_PHASE_ORDER: Record<PulsoIntention, PulsoPhaseSlug[]> = {
+  technique: DEFAULT_PHASE_ORDER,
+  repertoire: DEFAULT_PHASE_ORDER,
+  // Calentamiento, vocalizaciones, obras, flexibilidad, técnica.
+  prepare: ["warmup", "vocalization", "repertoire", "flexibility", "technique"],
+  // Calentamiento, vocalizaciones, técnica, flexibilidad.
+  concentration: ["warmup", "vocalization", "technique", "flexibility", "repertoire"],
+  other: DEFAULT_PHASE_ORDER,
 };
 
 /** Con poca energía se resta exigencia técnica a favor de calentamiento y
@@ -68,6 +95,56 @@ const MIN_PHASE_SECONDS = 180;
  * revés) al usar el progreso reciente — un empujón, no un rediseño del
  * plan por muy desequilibrado que esté el historial. */
 const MAX_PROGRESS_BIAS = 0.1;
+
+/** Palabras clave (sin tildes) que apuntan a cada categoría cuando el
+ * usuario escribe qué quiere trabajar en "otra cosa" — ver
+ * `inferOtherWeights`. Una misma palabra puede apuntar a más de una
+ * categoría (p. ej. "cancion" a obras y a vocalizaciones); no pasa nada,
+ * simplemente reparten el peso entre las dos. */
+const OTHER_LABEL_KEYWORDS: Record<Exclude<PulsoPhaseSlug, "warmup">, string[]> = {
+  technique: [
+    "tecnica",
+    "escala",
+    "digitacion",
+    "sonido",
+    "arco",
+    "afinacion",
+    "postura",
+    "posicion",
+    "articulacion",
+    "staccato",
+    "legato",
+  ],
+  flexibility: ["flexib", "estiramiento", "estirar", "movilidad", "elasticidad"],
+  repertoire: ["obra", "repertorio", "pieza", "cancion", "concierto", "partitura", "estudio", "sonata", "examen"],
+  vocalization: ["vocaliza", "voz", "cantar", "canto", "cancion", "coro"],
+};
+
+function stripAccents(text: string): string {
+  return text.normalize("NFD").replace(/[̀-ͯ]/g, "");
+}
+
+/** A partir de lo que el usuario escribe al elegir "otra cosa", detecta qué
+ * categorías menciona (por palabras clave) y les da todo el peso entre
+ * ellas — calentamiento se mantiene siempre con un mínimo, para no dejar la
+ * sesión sin arrancar en frío. Si no reconoce ninguna palabra clave,
+ * devuelve `null` y se usa el reparto genérico y equilibrado de siempre. */
+export function inferOtherWeights(label: string): PhaseWeights | null {
+  const normalized = stripAccents(label.toLowerCase());
+  const matched = (Object.keys(OTHER_LABEL_KEYWORDS) as (keyof typeof OTHER_LABEL_KEYWORDS)[]).filter((slug) =>
+    OTHER_LABEL_KEYWORDS[slug].some((keyword) => normalized.includes(keyword)),
+  );
+  if (matched.length === 0) return null;
+
+  const perMatch = 0.85 / matched.length;
+  return {
+    warmup: 0.15,
+    technique: matched.includes("technique") ? perMatch : 0,
+    flexibility: matched.includes("flexibility") ? perMatch : 0,
+    repertoire: matched.includes("repertoire") ? perMatch : 0,
+    vocalization: matched.includes("vocalization") ? perMatch : 0,
+  };
+}
 
 function isSystemCategory(category: Category): category is SystemCategory {
   return category.kind === "system";
@@ -109,6 +186,11 @@ export interface GeneratePulsoPlanOptions {
    * aplica si el usuario ha pedido usar su progreso reciente; si se omite,
    * el reparto no se corrige por historial. */
   recentCategoryMinutes?: { technique: number; repertoire: number };
+  /** Lo que ha escrito el usuario al elegir "otra cosa" — si menciona
+   * palabras clave de alguna categoría (ver `inferOtherWeights`), el plan se
+   * centra en esas en vez del reparto genérico. Se ignora para el resto de
+   * intenciones. */
+  otherLabel?: string;
 }
 
 /**
@@ -125,26 +207,29 @@ export function generatePulsoPlan(
   options: GeneratePulsoPlanOptions = {},
 ): PulsoPhase[] | null {
   const bySlug = new Map(categories.filter(isSystemCategory).map((c) => [c.slug, c]));
-  const warmup = bySlug.get("warmup");
-  const technique = bySlug.get("technique");
-  const repertoire = bySlug.get("repertoire");
-  const flexibility = bySlug.get("flexibility");
-  const vocalization = bySlug.get("vocalization");
-  if (!warmup || !technique || !repertoire || !flexibility || !vocalization) return null;
+  const categoryBySlug: Partial<Record<PulsoPhaseSlug, SystemCategory>> = {
+    warmup: bySlug.get("warmup"),
+    technique: bySlug.get("technique"),
+    repertoire: bySlug.get("repertoire"),
+    flexibility: bySlug.get("flexibility"),
+    vocalization: bySlug.get("vocalization"),
+  };
+  if (DEFAULT_PHASE_ORDER.some((slug) => !categoryBySlug[slug])) return null;
 
   const totalSeconds = Math.round(totalMinutes * 60);
 
-  let weights = INTENTION_WEIGHTS[intention];
+  const otherWeights =
+    intention === "other" && options.otherLabel ? inferOtherWeights(options.otherLabel) : null;
+  let weights = otherWeights ?? INTENTION_WEIGHTS[intention];
   weights = applyEnergyAdjustment(weights, options.energy ?? "normal");
   if (options.recentCategoryMinutes) weights = applyProgressBias(weights, options.recentCategoryMinutes);
 
-  let candidates: { slug: PulsoPhaseSlug; category: SystemCategory; weight: number }[] = [
-    { slug: "warmup", category: warmup, weight: weights.warmup },
-    { slug: "technique", category: technique, weight: weights.technique },
-    { slug: "flexibility", category: flexibility, weight: weights.flexibility },
-    { slug: "repertoire", category: repertoire, weight: weights.repertoire },
-    { slug: "vocalization", category: vocalization, weight: weights.vocalization },
-  ];
+  let candidates: { slug: PulsoPhaseSlug; category: SystemCategory; weight: number }[] =
+    INTENTION_PHASE_ORDER[intention].map((slug) => ({
+      slug,
+      category: categoryBySlug[slug]!,
+      weight: weights[slug],
+    }));
 
   // Repetir hasta que ninguna fase restante quede por debajo del mínimo —
   // quitar una cambia el reparto de las demás, así que puede hacer falta

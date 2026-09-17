@@ -248,6 +248,8 @@
     "previewError": "No se ha podido generar el plan. Inténtalo de nuevo.",
     "decreaseDuration": "Restar tiempo a {name}",
     "increaseDuration": "Añadir tiempo a {name}",
+    "reorderPhase": "Reordenar {name}",
+    "changeCategory": "Cambiar categoría de {name}",
     "shorter": "Más corta",
     "longer": "Más intensa",
     "start": "Iniciar sesión",
