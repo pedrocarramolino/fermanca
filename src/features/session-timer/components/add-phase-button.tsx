@@ -29,7 +29,7 @@ import type { Category, CustomCategory } from "@/core/domain/category";
 const NEW_CATEGORY_VALUE = "__new__";
 const QUICK_MINUTE_PRESETS = [5, 10, 15, 20, 30];
 
-/** Las 4 categorías de sistema se muestran en el idioma de quien las ve (vía
+/** Las 5 categorías de sistema se muestran en el idioma de quien las ve (vía
  * su slug estable); las personalizadas, tal cual las escribió su dueño —
  * mismo criterio que AddBlockForm. */
 function categoryDisplayName(category: Category, t: (key: string) => string): string {

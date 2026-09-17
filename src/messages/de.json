@@ -193,7 +193,8 @@
     "warmup": "Aufwärmen",
     "flexibility": "Flexibilität",
     "technique": "Technik",
-    "repertoire": "Repertoire"
+    "repertoire": "Repertoire",
+    "vocalization": "Vokalisen"
   },
   "Pulso": {
     "trigger": "Pulso öffnen",
@@ -209,8 +210,8 @@
         "description": "Tonleitern, Fingersatz, Klang…"
       },
       "repertoire": {
-        "title": "Repertoire",
-        "description": "Fortschritte bei deinen Stücken"
+        "title": "Flexibilität",
+        "description": "Aufwärmen, Vokalisen und Flexibilität"
       },
       "prepare": {
         "title": "Etwas vorbereiten",
@@ -253,7 +254,7 @@
     "starting": "Wird gestartet…",
     "rationale": {
       "technique": "Da du dich auf Technik konzentrieren wolltest, hat sie heute mehr Gewicht bekommen.",
-      "repertoire": "Da du beim Repertoire vorankommen wolltest, hat es heute mehr Gewicht bekommen.",
+      "repertoire": "Da du dich auf Flexibilität konzentrieren wolltest, hat sie heute mehr Gewicht bekommen.",
       "prepare": "Mit einem bevorstehenden Termin haben wir mehr Repertoire eingeplant.",
       "concentration": "Für konzentriertes Üben haben wir das Aufwärmen verlängert.",
       "other": "Ein ausgewogenes Verhältnis zwischen Technik und Repertoire.",

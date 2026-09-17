@@ -1,7 +1,13 @@
 import type { CategoryId, UserId } from "@/core/domain/ids";
 
-/** Slugs estables de las 4 categorías fijas (coinciden con la seed en supabase/migrations). */
-export const SYSTEM_CATEGORY_SLUGS = ["warmup", "flexibility", "technique", "repertoire"] as const;
+/** Slugs estables de las 5 categorías fijas (coinciden con la seed en supabase/migrations). */
+export const SYSTEM_CATEGORY_SLUGS = [
+  "warmup",
+  "flexibility",
+  "technique",
+  "repertoire",
+  "vocalization",
+] as const;
 
 export type SystemCategorySlug = (typeof SYSTEM_CATEGORY_SLUGS)[number];
 
