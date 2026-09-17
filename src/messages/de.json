@@ -556,6 +556,8 @@
     },
     "board": {
       "title": "Ankündigungen",
+      "trigger": "Ankündigungen ansehen",
+      "loading": "Wird geladen…",
       "placeholder": "Schreibe eine Ankündigung für die Community…",
       "post": "Veröffentlichen",
       "posting": "Wird veröffentlicht…",
@@ -677,6 +679,8 @@
       "empty": "Noch keine Aktivität in dieser Gruppe.",
       "sessionFinished": "{username} hat gerade eine Übungseinheit beendet",
       "weeklyGoalCompleted": "{username} hat gerade das Wochenziel erreicht",
+      "blocksCount": "{count, plural, one {# Block} other {# Blöcke}}",
+      "viewMore": "{count} mehr anzeigen",
       "loadMore": "Mehr laden",
       "loading": "Wird geladen…"
     }

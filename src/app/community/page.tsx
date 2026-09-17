@@ -10,11 +10,10 @@ import {
   listPendingRequests,
   listSuggestedFriends,
 } from "@/features/community/application/actions";
-import { listAnnouncements } from "@/features/community/application/announcement-actions";
 import { listIncomingPendingSessionInvites } from "@/features/session-invites/application/actions";
 import { countMyGroups } from "@/features/groups/application/actions";
 import { CommunityManager } from "@/features/community/components/community-manager";
-import { AnnouncementBoard } from "@/features/community/components/announcement-board";
+import { AnnouncementsQuickView } from "@/features/community/components/announcements-quick-view";
 import { SuggestedFriendsList } from "@/features/community/components/suggested-friends-list";
 import { PendingSessionInvitesList } from "@/features/session-invites/components/pending-session-invites-list";
 
@@ -27,23 +26,15 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function CommunityPage() {
   const t = await getTranslations("Community.whatsapp");
-  const [
-    profile,
-    pendingRequests,
-    friendsWithProgress,
-    announcements,
-    pendingSessionInvites,
-    suggestedFriends,
-    groupCount,
-  ] = await Promise.all([
-    getMyProfile(),
-    listPendingRequests(),
-    listFriendsWithProgress(),
-    listAnnouncements(),
-    listIncomingPendingSessionInvites(),
-    listSuggestedFriends(),
-    countMyGroups(),
-  ]);
+  const [profile, pendingRequests, friendsWithProgress, pendingSessionInvites, suggestedFriends, groupCount] =
+    await Promise.all([
+      getMyProfile(),
+      listPendingRequests(),
+      listFriendsWithProgress(),
+      listIncomingPendingSessionInvites(),
+      listSuggestedFriends(),
+      countMyGroups(),
+    ]);
 
   // CommunityManager guarda estas listas en su propio estado local (para
   // las actualizaciones optimistas al aceptar/quitar) — solo las relee al
@@ -58,7 +49,7 @@ export default async function CommunityPage() {
 
   return (
     <main className="mx-auto flex min-h-svh max-w-2xl flex-col gap-6 p-8 pb-32 md:max-w-3xl lg:max-w-4xl">
-      <AppHeader />
+      <AppHeader beforeActions={<AnnouncementsQuickView />} />
       <CommunityManager
         key={dataKey}
         inviteCode={profile.inviteCode}
@@ -70,17 +61,6 @@ export default async function CommunityPage() {
       <SuggestedFriendsList suggestions={suggestedFriends} />
 
       <PendingSessionInvitesList initialInvites={pendingSessionInvites} />
-
-      <AnnouncementBoard
-        initialAnnouncements={announcements.map((a) => ({
-          id: a.id,
-          authorUsername: a.authorUsername,
-          body: a.body,
-          createdAt: a.createdAt.toISOString(),
-        }))}
-        isAdmin={profile.isAdmin}
-        viewAllHref="/community/announcements"
-      />
 
       <Card>
         <CardHeader>

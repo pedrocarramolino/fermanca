@@ -14,7 +14,7 @@ import { currentWeekStartKey, weeklyGoalProgress, type WeeklyGoalProgress } from
 import { mondayOf } from "@/core/domain/streaks";
 import { GROUP_ACTIVITY_PAGE_SIZE } from "@/features/groups/application/constants";
 import type { DraftBlockInput } from "@/features/session-builder/application/draft-block";
-import type { GroupKind } from "@/core/domain/group";
+import type { GroupActivityEvent, GroupKind } from "@/core/domain/group";
 import type { GroupId, GroupWeeklyGoalId, SessionId, TemplateId, UserId } from "@/core/domain/ids";
 import type { InviteDraftBlock } from "@/core/domain/session-invite";
 
@@ -180,6 +180,13 @@ export interface GroupActivityEventInfo {
   actorUsername: string;
   kind: "session_finished" | "weekly_goal_completed";
   createdAt: string;
+  /** Duración total y bloques practicados de la sesión — solo para
+   * "session_finished" con la sesión todavía existente (null si se borró
+   * después, o si el evento es de un objetivo semanal). */
+  sessionSummary: {
+    totalDurationSeconds: number;
+    blocks: { id: string; name: string; color: string; actualDurationSeconds: number }[];
+  } | null;
 }
 
 export interface GroupDetail {
@@ -205,6 +212,54 @@ async function resolveActorUsernames(
   return new Map(entries);
 }
 
+/** Duración y bloques practicados de las sesiones detrás de eventos
+ * "session_finished" — con la clave de servicio, igual que el resumen
+ * público de /compartir/[id] (getPublicSummary nunca expone notas ni de
+ * quién es la sesión, así que es seguro leer la de cualquier miembro del
+ * grupo, no solo la propia). */
+async function resolveSessionSummaries(
+  rows: GroupActivityEvent[],
+): Promise<Map<SessionId, GroupActivityEventInfo["sessionSummary"]>> {
+  const ids = [
+    ...new Set(
+      rows
+        .filter((row) => row.kind === "session_finished" && row.sessionId !== null)
+        .map((row) => row.sessionId as SessionId),
+    ),
+  ];
+  if (ids.length === 0) return new Map();
+
+  const sessionRepo = new SupabaseSessionRepository(createServiceClient());
+  const entries = await Promise.all(
+    ids.map(async (id) => {
+      const summary = await sessionRepo.getPublicSummary(id);
+      if (!summary) return [id, null] as const;
+      return [
+        id,
+        {
+          totalDurationSeconds: summary.blocks.reduce((sum, b) => sum + b.actualDurationSeconds, 0),
+          blocks: summary.blocks,
+        },
+      ] as const;
+    }),
+  );
+  return new Map(entries);
+}
+
+function toActivityEventInfo(
+  event: GroupActivityEvent,
+  actorUsername: string,
+  sessionSummaries: Map<SessionId, GroupActivityEventInfo["sessionSummary"]>,
+): GroupActivityEventInfo {
+  return {
+    id: event.id,
+    actorUsername,
+    kind: event.kind,
+    createdAt: event.createdAt.toISOString(),
+    sessionSummary: event.sessionId ? (sessionSummaries.get(event.sessionId) ?? null) : null,
+  };
+}
+
 export async function getGroupDetail(groupId: string): Promise<GroupDetail> {
   const { userId, client } = await requireUserId();
   const { repo, group } = await requireMembership(groupId as GroupId, userId, client);
@@ -215,10 +270,10 @@ export async function getGroupDetail(groupId: string): Promise<GroupDetail> {
     repo.listActivity(group.id, { limit: GROUP_ACTIVITY_PAGE_SIZE, offset: 0 }),
   ]);
 
-  const usernames = await resolveActorUsernames(
-    [...memberIds, ...activityRows.map((a) => a.actorId)],
-    profileRepo,
-  );
+  const [usernames, sessionSummaries] = await Promise.all([
+    resolveActorUsernames([...memberIds, ...activityRows.map((a) => a.actorId)], profileRepo),
+    resolveSessionSummaries(activityRows),
+  ]);
 
   let weeklyGoal: GroupWeeklyGoalInfo | null = null;
   if (group.kind === "admin") {
@@ -247,12 +302,9 @@ export async function getGroupDetail(groupId: string): Promise<GroupDetail> {
     inviteCode: group.inviteCode,
     members: memberIds.map((id) => ({ ownerId: id, username: usernames.get(id) ?? "Usuario" })),
     weeklyGoal,
-    activity: activityRows.map((event) => ({
-      id: event.id,
-      actorUsername: usernames.get(event.actorId) ?? "Usuario",
-      kind: event.kind,
-      createdAt: event.createdAt.toISOString(),
-    })),
+    activity: activityRows.map((event) =>
+      toActivityEventInfo(event, usernames.get(event.actorId) ?? "Usuario", sessionSummaries),
+    ),
     hasMoreActivity: activityRows.length === GROUP_ACTIVITY_PAGE_SIZE,
   };
 }
@@ -268,16 +320,16 @@ export async function loadMoreGroupActivity(
     limit: GROUP_ACTIVITY_PAGE_SIZE,
     offset,
   });
-  const usernames = await resolveActorUsernames(
-    rows.map((r) => r.actorId),
-    new SupabaseProfileRepository(client),
+  const [usernames, sessionSummaries] = await Promise.all([
+    resolveActorUsernames(
+      rows.map((r) => r.actorId),
+      new SupabaseProfileRepository(client),
+    ),
+    resolveSessionSummaries(rows),
+  ]);
+  return rows.map((event) =>
+    toActivityEventInfo(event, usernames.get(event.actorId) ?? "Usuario", sessionSummaries),
   );
-  return rows.map((event) => ({
-    id: event.id,
-    actorUsername: usernames.get(event.actorId) ?? "Usuario",
-    kind: event.kind,
-    createdAt: event.createdAt.toISOString(),
-  }));
 }
 
 /** Solo el dueño de un grupo 'admin' puede fijar el objetivo — reforzado

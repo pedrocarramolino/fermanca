@@ -556,6 +556,8 @@
     },
     "board": {
       "title": "Tablón de anuncios",
+      "trigger": "Ver anuncios",
+      "loading": "Cargando…",
       "placeholder": "Escribe un anuncio para la comunidad…",
       "post": "Publicar",
       "posting": "Publicando…",
@@ -677,6 +679,8 @@
       "empty": "Todavía no hay actividad en este grupo.",
       "sessionFinished": "{username} acaba de terminar una sesión de práctica",
       "weeklyGoalCompleted": "{username} acaba de completar el objetivo semanal",
+      "blocksCount": "{count, plural, one {# bloque} other {# bloques}}",
+      "viewMore": "Ver {count} más",
       "loadMore": "Cargar más",
       "loading": "Cargando…"
     }
