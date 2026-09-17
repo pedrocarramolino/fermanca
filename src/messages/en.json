@@ -556,6 +556,8 @@
     },
     "board": {
       "title": "Announcements",
+      "trigger": "View announcements",
+      "loading": "Loading…",
       "placeholder": "Write an announcement for the community…",
       "post": "Post",
       "posting": "Posting…",

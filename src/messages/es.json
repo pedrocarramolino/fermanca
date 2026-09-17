@@ -556,6 +556,8 @@
     },
     "board": {
       "title": "Tablón de anuncios",
+      "trigger": "Ver anuncios",
+      "loading": "Cargando…",
       "placeholder": "Escribe un anuncio para la comunidad…",
       "post": "Publicar",
       "posting": "Publicando…",

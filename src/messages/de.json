@@ -556,6 +556,8 @@
     },
     "board": {
       "title": "Ankündigungen",
+      "trigger": "Ankündigungen ansehen",
+      "loading": "Wird geladen…",
       "placeholder": "Schreibe eine Ankündigung für die Community…",
       "post": "Veröffentlichen",
       "posting": "Wird veröffentlicht…",
