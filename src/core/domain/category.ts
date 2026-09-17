@@ -33,3 +33,10 @@ export interface CustomCategory {
   isGhost: boolean;
   createdAt: Date;
 }
+
+/** Nombre a mostrar de una categoría: las de sistema se traducen por su
+ * slug estable (el mismo texto para todos, en su idioma vía `t`); las
+ * personalizadas se muestran tal cual las escribió su dueño. */
+export function categoryDisplayName(category: Category, t: (key: string) => string): string {
+  return category.kind === "system" ? t(category.slug) : category.name;
+}

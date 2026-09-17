@@ -248,6 +248,8 @@
     "previewError": "Der Plan konnte nicht erstellt werden. Versuch es noch einmal.",
     "decreaseDuration": "Zeit bei {name} verringern",
     "increaseDuration": "Zeit bei {name} hinzufügen",
+    "reorderPhase": "{name} neu anordnen",
+    "changeCategory": "Kategorie von {name} ändern",
     "shorter": "Kürzer",
     "longer": "Intensiver",
     "start": "Sitzung starten",
