@@ -39,15 +39,38 @@ const INTENTION_WEIGHTS: Record<PulsoIntention, PhaseWeights> = {
   // Calentamiento, vocalizaciones y flexibilidad — sin técnica ni obras;
   // flexibilidad es la que más peso se lleva de las tres.
   repertoire: { warmup: 0.25, technique: 0, flexibility: 0.45, repertoire: 0, vocalization: 0.3 },
-  // Preparación cercana (concierto/examen): técnica y obras, con más peso
-  // en obras.
-  prepare: { warmup: 0.1, technique: 0.25, flexibility: 0.1, repertoire: 0.55, vocalization: 0 },
+  // Preparación cercana (concierto/examen): las cinco categorías, con más
+  // peso en obras — el orden de presentación es el propio de este caso
+  // (calentamiento, vocalizaciones, obras, flexibilidad, técnica), ver
+  // INTENTION_PHASE_ORDER más abajo.
+  prepare: { warmup: 0.1, technique: 0.2, flexibility: 0.1, repertoire: 0.45, vocalization: 0.15 },
   // Práctica concentrada y deliberada: calentamiento largo, técnica y
   // flexibilidad — sin obras, que piden un tipo de atención distinto.
   concentration: { warmup: 0.25, technique: 0.5, flexibility: 0.25, repertoire: 0, vocalization: 0 },
   // Sin una intención concreta (o una que el usuario ha escrito a mano):
   // calentamiento, técnica y obras repartidos de forma equilibrada.
   other: { warmup: 0.15, technique: 0.3, flexibility: 0.25, repertoire: 0.3, vocalization: 0 },
+};
+
+/** Orden en el que se presentan las fases de cada intención — no es solo el
+ * peso, es el orden que tiene sentido seguir en la sesión (p. ej. calentar
+ * antes de meterse con las obras). Una fase con peso 0 igualmente se filtra
+ * más abajo por `MIN_PHASE_SECONDS`, así que no hace falta omitirla aquí.
+ * Todas las intenciones usan el mismo orden salvo "preparar algo", que pidió
+ * uno propio: calentamiento, vocalizaciones, obras, flexibilidad, técnica. */
+const DEFAULT_PHASE_ORDER: PulsoPhaseSlug[] = [
+  "warmup",
+  "technique",
+  "flexibility",
+  "repertoire",
+  "vocalization",
+];
+const INTENTION_PHASE_ORDER: Record<PulsoIntention, PulsoPhaseSlug[]> = {
+  technique: DEFAULT_PHASE_ORDER,
+  repertoire: DEFAULT_PHASE_ORDER,
+  prepare: ["warmup", "vocalization", "repertoire", "flexibility", "technique"],
+  concentration: DEFAULT_PHASE_ORDER,
+  other: DEFAULT_PHASE_ORDER,
 };
 
 /** Con poca energía se resta exigencia técnica a favor de calentamiento y
@@ -125,12 +148,14 @@ export function generatePulsoPlan(
   options: GeneratePulsoPlanOptions = {},
 ): PulsoPhase[] | null {
   const bySlug = new Map(categories.filter(isSystemCategory).map((c) => [c.slug, c]));
-  const warmup = bySlug.get("warmup");
-  const technique = bySlug.get("technique");
-  const repertoire = bySlug.get("repertoire");
-  const flexibility = bySlug.get("flexibility");
-  const vocalization = bySlug.get("vocalization");
-  if (!warmup || !technique || !repertoire || !flexibility || !vocalization) return null;
+  const categoryBySlug: Partial<Record<PulsoPhaseSlug, SystemCategory>> = {
+    warmup: bySlug.get("warmup"),
+    technique: bySlug.get("technique"),
+    repertoire: bySlug.get("repertoire"),
+    flexibility: bySlug.get("flexibility"),
+    vocalization: bySlug.get("vocalization"),
+  };
+  if (DEFAULT_PHASE_ORDER.some((slug) => !categoryBySlug[slug])) return null;
 
   const totalSeconds = Math.round(totalMinutes * 60);
 
@@ -138,13 +163,12 @@ export function generatePulsoPlan(
   weights = applyEnergyAdjustment(weights, options.energy ?? "normal");
   if (options.recentCategoryMinutes) weights = applyProgressBias(weights, options.recentCategoryMinutes);
 
-  let candidates: { slug: PulsoPhaseSlug; category: SystemCategory; weight: number }[] = [
-    { slug: "warmup", category: warmup, weight: weights.warmup },
-    { slug: "technique", category: technique, weight: weights.technique },
-    { slug: "flexibility", category: flexibility, weight: weights.flexibility },
-    { slug: "repertoire", category: repertoire, weight: weights.repertoire },
-    { slug: "vocalization", category: vocalization, weight: weights.vocalization },
-  ];
+  let candidates: { slug: PulsoPhaseSlug; category: SystemCategory; weight: number }[] =
+    INTENTION_PHASE_ORDER[intention].map((slug) => ({
+      slug,
+      category: categoryBySlug[slug]!,
+      weight: weights[slug],
+    }));
 
   // Repetir hasta que ninguna fase restante quede por debajo del mínimo —
   // quitar una cambia el reparto de las demás, así que puede hacer falta
