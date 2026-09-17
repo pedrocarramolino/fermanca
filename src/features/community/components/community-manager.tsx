@@ -8,18 +8,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { InviteCodeCard } from "@/features/community/components/invite-code-card";
 import { AddFriendForm } from "@/features/community/components/add-friend-form";
 import { PendingRequestsList } from "@/features/community/components/pending-requests-list";
-import type { FriendWithProgress } from "@/features/community/components/friends-list";
 import type { PendingRequest } from "@/features/community/application/actions";
 
 export function CommunityManager({
   inviteCode,
   initialPendingRequests,
-  initialFriends,
+  friendCount,
   groupCount,
 }: {
   inviteCode: string;
   initialPendingRequests: PendingRequest[];
-  initialFriends: FriendWithProgress[];
+  friendCount: number;
   groupCount: number;
 }) {
   const t = useTranslations("Community");
@@ -54,7 +53,7 @@ export function CommunityManager({
       >
         <span className="flex items-center gap-2">
           <span className="text-base font-semibold">{t("friends.title")}</span>
-          <span className="text-muted-foreground text-sm">{initialFriends.length}</span>
+          <span className="text-muted-foreground text-sm">{friendCount}</span>
         </span>
         <ChevronRight className="text-muted-foreground size-5 shrink-0" aria-hidden />
       </Link>

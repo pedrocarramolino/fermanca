@@ -110,18 +110,15 @@ export async function listIncomingPendingSessionInvites(): Promise<IncomingSessi
   // Los dos ya son amigos aceptados (se exige al crear la invitación), así
   // que la RLS de profiles ("own_or_friend") deja leer su perfil con el
   // propio cliente, sin necesitar clave de servicio.
-  const profileRepo = new SupabaseProfileRepository(client);
-  const result: IncomingSessionInvite[] = [];
-  for (const invite of invites) {
-    const profile = await profileRepo.getByOwnerId(invite.inviterId);
-    result.push({
-      id: invite.id,
-      inviterUsername: profile?.username ?? "Usuario",
-      blockCount: invite.blocks.length,
-      totalDurationSeconds: invite.blocks.reduce((total, b) => total + b.durationSeconds, 0),
-    });
-  }
-  return result;
+  const profiles = await new SupabaseProfileRepository(client).listByOwnerIds(
+    invites.map((invite) => invite.inviterId),
+  );
+  return invites.map((invite) => ({
+    id: invite.id,
+    inviterUsername: profiles.get(invite.inviterId)?.username ?? "Usuario",
+    blockCount: invite.blocks.length,
+    totalDurationSeconds: invite.blocks.reduce((total, b) => total + b.durationSeconds, 0),
+  }));
 }
 
 export async function getSessionInvite(inviteId: string) {

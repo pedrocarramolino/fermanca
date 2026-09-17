@@ -3,6 +3,9 @@ import type { UserId } from "@/core/domain/ids";
 
 export interface ProfileRepository {
   getByOwnerId(ownerId: UserId): Promise<Profile | null>;
+  /** Los perfiles de varios usuarios en una sola consulta, indexados por
+   * ownerId (los que no existan simplemente no aparecen en el mapa). */
+  listByOwnerIds(ownerIds: UserId[]): Promise<Map<UserId, Profile>>;
   getByUsername(username: string): Promise<Profile | null>;
   getByInviteCode(inviteCode: string): Promise<Profile | null>;
   updateUsername(ownerId: UserId, username: string): Promise<Profile>;

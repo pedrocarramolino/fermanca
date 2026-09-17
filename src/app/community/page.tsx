@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { AppHeader } from "@/components/app-header";
@@ -5,8 +6,8 @@ import { WhatsAppIcon } from "@/components/icons/whatsapp-icon";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
+  countMyFriends,
   getMyProfile,
-  listFriendsWithProgress,
   listPendingRequests,
   listSuggestedFriends,
 } from "@/features/community/application/actions";
@@ -23,28 +24,36 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("title") };
 }
 
+/** Los dos apartados de abajo no hacen falta para pintar la pantalla: se
+ * mandan en streaming cuando estén listos (y los dos se pintan solos como
+ * nada si vienen vacíos, así que no necesitan hueco reservado mientras
+ * tanto). Las sugerencias, sobre todo, recorren las amistades de todos tus
+ * amigos — no tiene sentido que retrasen el código de invitación. */
+async function SuggestedFriendsSection() {
+  return <SuggestedFriendsList suggestions={await listSuggestedFriends()} />;
+}
+
+async function PendingSessionInvitesSection() {
+  return <PendingSessionInvitesList initialInvites={await listIncomingPendingSessionInvites()} />;
+}
+
 export default async function CommunityPage() {
   const t = await getTranslations("Community.whatsapp");
-  const [profile, pendingRequests, friendsWithProgress, pendingSessionInvites, suggestedFriends, groupCount] =
-    await Promise.all([
-      getMyProfile(),
-      listPendingRequests(),
-      listFriendsWithProgress(),
-      listIncomingPendingSessionInvites(),
-      listSuggestedFriends(),
-      countMyGroups(),
-    ]);
+  const [profile, pendingRequests, friendCount, groupCount] = await Promise.all([
+    getMyProfile(),
+    listPendingRequests(),
+    countMyFriends(),
+    countMyGroups(),
+  ]);
 
-  // CommunityManager guarda estas listas en su propio estado local (para
+  // CommunityManager guarda las solicitudes en su propio estado local (para
   // las actualizaciones optimistas al aceptar/quitar) — solo las relee al
   // MONTARSE, no en cada re-render con props nuevas. Esta key cambia en
-  // cuanto cambia el conjunto de solicitudes o amigos, así que un
-  // router.refresh() tras aceptar/borrar fuerza un remontado limpio con los
-  // datos ya frescos del servidor en vez de quedarse con el estado viejo.
-  const dataKey = [
-    ...pendingRequests.map((r) => r.friendshipId),
-    ...friendsWithProgress.map((f) => f.friendshipId),
-  ].join(",");
+  // cuanto cambia el conjunto de solicitudes (o el número de amigos, que es
+  // lo que cambia al aceptar una), así que un router.refresh() tras
+  // aceptar/borrar fuerza un remontado limpio con los datos ya frescos del
+  // servidor en vez de quedarse con el estado viejo.
+  const dataKey = [friendCount, ...pendingRequests.map((r) => r.friendshipId)].join(",");
 
   return (
     <main className="mx-auto flex min-h-svh max-w-2xl flex-col gap-6 p-8 pb-32 md:max-w-3xl lg:max-w-4xl">
@@ -53,13 +62,17 @@ export default async function CommunityPage() {
         key={dataKey}
         inviteCode={profile.inviteCode}
         initialPendingRequests={pendingRequests}
-        initialFriends={friendsWithProgress}
+        friendCount={friendCount}
         groupCount={groupCount}
       />
 
-      <SuggestedFriendsList suggestions={suggestedFriends} />
+      <Suspense>
+        <SuggestedFriendsSection />
+      </Suspense>
 
-      <PendingSessionInvitesList initialInvites={pendingSessionInvites} />
+      <Suspense>
+        <PendingSessionInvitesSection />
+      </Suspense>
 
       <Card>
         <CardHeader>
