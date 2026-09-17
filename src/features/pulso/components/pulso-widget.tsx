@@ -37,6 +37,7 @@ import { PulsoOrb } from "@/features/pulso/components/pulso-orb";
 import type { PulsoSignals } from "@/features/pulso/application/signals";
 import {
   generatePulsoPlan,
+  inferOtherWeights,
   PULSO_ENERGY_LEVELS,
   PULSO_INTENTIONS,
   PULSO_TIME_OPTIONS,
@@ -151,6 +152,7 @@ export function PulsoWidget({
       generatePulsoPlan(nextIntention, nextMinutes, categories, {
         energy: nextEnergy,
         recentCategoryMinutes: nextUseProgress ? signals.recentCategoryMinutes : undefined,
+        otherLabel: nextIntention === "other" ? otherLabel : undefined,
       }),
     );
     setStep("preview");
@@ -248,6 +250,12 @@ export function PulsoWidget({
 
   const totalSeconds = phases?.reduce((sum, phase) => sum + phase.durationSeconds, 0) ?? 0;
   const activeSuggestion = step === "intention" ? suggestion() : null;
+  // Si lo que ha escrito el usuario en "otra cosa" ya ha redirigido el plan
+  // (ver inferOtherWeights), el texto genérico "reparto equilibrado entre
+  // técnica y repertorio" dejaría de ser cierto — se sustituye por la
+  // explicación de rationale.otherFocus, que sí describe lo que ha pasado.
+  const otherLabelMatched =
+    intention === "other" && !!otherLabel && inferOtherWeights(otherLabel) !== null;
 
   return (
     <>
@@ -442,15 +450,17 @@ export function PulsoWidget({
 
               {phases && intention && (
                 <>
-                  <p className="text-muted-foreground text-sm">
-                    {t(`rationale.${intention}`)}
-                    {energy !== "normal" && ` ${t(`rationale.energy.${energy}`)}`}
-                  </p>
+                  {!otherLabelMatched && (
+                    <p className="text-muted-foreground text-sm">
+                      {t(`rationale.${intention}`)}
+                      {energy !== "normal" && ` ${t(`rationale.energy.${energy}`)}`}
+                    </p>
+                  )}
                   {useProgress && hasRecentProgressData && (
                     <p className="text-muted-foreground text-xs">{t("rationale.progress")}</p>
                   )}
                   {intention === "other" && otherLabel && (
-                    <p className="text-muted-foreground text-xs">
+                    <p className={cn("text-muted-foreground", otherLabelMatched ? "text-sm" : "text-xs")}>
                       {t("rationale.otherFocus", { label: otherLabel })}
                     </p>
                   )}

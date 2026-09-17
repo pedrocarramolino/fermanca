@@ -96,6 +96,56 @@ const MIN_PHASE_SECONDS = 180;
  * plan por muy desequilibrado que esté el historial. */
 const MAX_PROGRESS_BIAS = 0.1;
 
+/** Palabras clave (sin tildes) que apuntan a cada categoría cuando el
+ * usuario escribe qué quiere trabajar en "otra cosa" — ver
+ * `inferOtherWeights`. Una misma palabra puede apuntar a más de una
+ * categoría (p. ej. "cancion" a obras y a vocalizaciones); no pasa nada,
+ * simplemente reparten el peso entre las dos. */
+const OTHER_LABEL_KEYWORDS: Record<Exclude<PulsoPhaseSlug, "warmup">, string[]> = {
+  technique: [
+    "tecnica",
+    "escala",
+    "digitacion",
+    "sonido",
+    "arco",
+    "afinacion",
+    "postura",
+    "posicion",
+    "articulacion",
+    "staccato",
+    "legato",
+  ],
+  flexibility: ["flexib", "estiramiento", "estirar", "movilidad", "elasticidad"],
+  repertoire: ["obra", "repertorio", "pieza", "cancion", "concierto", "partitura", "estudio", "sonata", "examen"],
+  vocalization: ["vocaliza", "voz", "cantar", "canto", "cancion", "coro"],
+};
+
+function stripAccents(text: string): string {
+  return text.normalize("NFD").replace(/[̀-ͯ]/g, "");
+}
+
+/** A partir de lo que el usuario escribe al elegir "otra cosa", detecta qué
+ * categorías menciona (por palabras clave) y les da todo el peso entre
+ * ellas — calentamiento se mantiene siempre con un mínimo, para no dejar la
+ * sesión sin arrancar en frío. Si no reconoce ninguna palabra clave,
+ * devuelve `null` y se usa el reparto genérico y equilibrado de siempre. */
+export function inferOtherWeights(label: string): PhaseWeights | null {
+  const normalized = stripAccents(label.toLowerCase());
+  const matched = (Object.keys(OTHER_LABEL_KEYWORDS) as (keyof typeof OTHER_LABEL_KEYWORDS)[]).filter((slug) =>
+    OTHER_LABEL_KEYWORDS[slug].some((keyword) => normalized.includes(keyword)),
+  );
+  if (matched.length === 0) return null;
+
+  const perMatch = 0.85 / matched.length;
+  return {
+    warmup: 0.15,
+    technique: matched.includes("technique") ? perMatch : 0,
+    flexibility: matched.includes("flexibility") ? perMatch : 0,
+    repertoire: matched.includes("repertoire") ? perMatch : 0,
+    vocalization: matched.includes("vocalization") ? perMatch : 0,
+  };
+}
+
 function isSystemCategory(category: Category): category is SystemCategory {
   return category.kind === "system";
 }
@@ -136,6 +186,11 @@ export interface GeneratePulsoPlanOptions {
    * aplica si el usuario ha pedido usar su progreso reciente; si se omite,
    * el reparto no se corrige por historial. */
   recentCategoryMinutes?: { technique: number; repertoire: number };
+  /** Lo que ha escrito el usuario al elegir "otra cosa" — si menciona
+   * palabras clave de alguna categoría (ver `inferOtherWeights`), el plan se
+   * centra en esas en vez del reparto genérico. Se ignora para el resto de
+   * intenciones. */
+  otherLabel?: string;
 }
 
 /**
@@ -163,7 +218,9 @@ export function generatePulsoPlan(
 
   const totalSeconds = Math.round(totalMinutes * 60);
 
-  let weights = INTENTION_WEIGHTS[intention];
+  const otherWeights =
+    intention === "other" && options.otherLabel ? inferOtherWeights(options.otherLabel) : null;
+  let weights = otherWeights ?? INTENTION_WEIGHTS[intention];
   weights = applyEnergyAdjustment(weights, options.energy ?? "normal");
   if (options.recentCategoryMinutes) weights = applyProgressBias(weights, options.recentCategoryMinutes);
 
