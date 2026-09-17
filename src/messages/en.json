@@ -266,7 +266,6 @@
       "focusNote": "Keep in mind: {note}."
     },
     "suggestions": {
-      "weeklyGoal": "Your weekly goal needs {minutes} more min. Want a wrap-up session?",
       "dominantCategory": "You've had several sessions focused on {category}. Add some {other} today?",
       "reengagement": "Short 15 min session to ease back in."
     }

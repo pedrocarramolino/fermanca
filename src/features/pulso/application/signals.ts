@@ -11,9 +11,6 @@ const DOMINANT_STREAK_SESSIONS = 3;
 /** Ventana de sesiones recientes sobre la que se mide el reparto
  * técnica/repertorio para la opción "usar mi progreso reciente". */
 const RECENT_PROGRESS_SESSIONS = 8;
-/** Por debajo de esto, el objetivo semanal se da por alcanzado a efectos
- * prácticos — no vale la pena sugerir una "sesión de cierre" de 3 minutos. */
-const MIN_SHORTFALL_MINUTES = 10;
 
 export interface PulsoSignals {
   currentStreak: number;
@@ -26,9 +23,6 @@ export interface PulsoSignals {
   /** Minutos practicados recientemente en técnica y repertorio, para poder
    * corregir el reparto de hoy hacia la que se ha descuidado. */
   recentCategoryMinutes: { technique: number; repertoire: number };
-  /** Minutos que faltan para el objetivo semanal — null si no hay objetivo,
-   * ya está cumplido, o falta menos de `MIN_SHORTFALL_MINUTES`. */
-  weeklyGoalShortfallMinutes: number | null;
 }
 
 function systemSlugById(categories: Category[]): Map<CategoryId, BalancedSlug> {
@@ -60,8 +54,6 @@ function dominantCategoryOf(
 export function buildPulsoSignals(
   sessions: Session[],
   categories: Category[],
-  weeklyGoal: { targetSeconds: number } | null,
-  weeklyProgress: { practicedSeconds: number; reached: boolean } | null,
   now: Date,
 ): PulsoSignals {
   const slugById = systemSlugById(categories);
@@ -93,17 +85,10 @@ export function buildPulsoSignals(
     }
   }
 
-  const shortfallMinutes =
-    weeklyGoal && weeklyProgress && !weeklyProgress.reached
-      ? Math.ceil((weeklyGoal.targetSeconds - weeklyProgress.practicedSeconds) / 60)
-      : null;
-
   return {
     currentStreak,
     daysSinceLastPractice,
     dominantRecentCategory,
     recentCategoryMinutes,
-    weeklyGoalShortfallMinutes:
-      shortfallMinutes !== null && shortfallMinutes >= MIN_SHORTFALL_MINUTES ? shortfallMinutes : null,
   };
 }
