@@ -13,7 +13,6 @@ import {
 import { listIncomingPendingSessionInvites } from "@/features/session-invites/application/actions";
 import { countMyGroups } from "@/features/groups/application/actions";
 import { CommunityManager } from "@/features/community/components/community-manager";
-import { AnnouncementsQuickView } from "@/features/community/components/announcements-quick-view";
 import { SuggestedFriendsList } from "@/features/community/components/suggested-friends-list";
 import { PendingSessionInvitesList } from "@/features/session-invites/components/pending-session-invites-list";
 
@@ -49,7 +48,7 @@ export default async function CommunityPage() {
 
   return (
     <main className="mx-auto flex min-h-svh max-w-2xl flex-col gap-6 p-8 pb-32 md:max-w-3xl lg:max-w-4xl">
-      <AppHeader beforeActions={<AnnouncementsQuickView />} />
+      <AppHeader />
       <CommunityManager
         key={dataKey}
         inviteCode={profile.inviteCode}

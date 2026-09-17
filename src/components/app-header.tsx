@@ -1,18 +1,11 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
 import { CircleUserRound, Settings } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/config/site";
+import { AnnouncementsQuickView } from "@/features/community/components/announcements-quick-view";
 
-export async function AppHeader({
-  beforeActions,
-}: {
-  /** Icono(s) extra antes de perfil/configuración — p. ej. los anuncios en
-   * la cabecera de Comunidad. Nada por defecto, así el resto de páginas no
-   * se ven afectadas. */
-  beforeActions?: ReactNode;
-} = {}) {
+export async function AppHeader() {
   const t = await getTranslations("Common");
 
   return (
@@ -22,7 +15,7 @@ export async function AppHeader({
         {siteConfig.name}
       </span>
       <div className="flex items-center gap-2">
-        {beforeActions}
+        <AnnouncementsQuickView />
         <Button
           variant="ghost"
           size="icon"
