@@ -44,9 +44,11 @@ const INTENTION_WEIGHTS: Record<PulsoIntention, PhaseWeights> = {
   // (calentamiento, vocalizaciones, obras, flexibilidad, técnica), ver
   // INTENTION_PHASE_ORDER más abajo.
   prepare: { warmup: 0.1, technique: 0.2, flexibility: 0.1, repertoire: 0.45, vocalization: 0.15 },
-  // Práctica concentrada y deliberada: calentamiento largo, técnica y
-  // flexibilidad — sin obras, que piden un tipo de atención distinto.
-  concentration: { warmup: 0.25, technique: 0.5, flexibility: 0.25, repertoire: 0, vocalization: 0 },
+  // Práctica concentrada y deliberada: calentamiento largo, vocalizaciones,
+  // técnica y flexibilidad — sin obras, que piden un tipo de atención
+  // distinto. El orden de presentación pone vocalizaciones justo después
+  // del calentamiento, ver INTENTION_PHASE_ORDER más abajo.
+  concentration: { warmup: 0.2, technique: 0.45, flexibility: 0.2, repertoire: 0, vocalization: 0.15 },
   // Sin una intención concreta (o una que el usuario ha escrito a mano):
   // calentamiento, técnica y obras repartidos de forma equilibrada.
   other: { warmup: 0.15, technique: 0.3, flexibility: 0.25, repertoire: 0.3, vocalization: 0 },
@@ -56,8 +58,8 @@ const INTENTION_WEIGHTS: Record<PulsoIntention, PhaseWeights> = {
  * peso, es el orden que tiene sentido seguir en la sesión (p. ej. calentar
  * antes de meterse con las obras). Una fase con peso 0 igualmente se filtra
  * más abajo por `MIN_PHASE_SECONDS`, así que no hace falta omitirla aquí.
- * Todas las intenciones usan el mismo orden salvo "preparar algo", que pidió
- * uno propio: calentamiento, vocalizaciones, obras, flexibilidad, técnica. */
+ * "Preparar algo" y "concentración" piden un orden propio; el resto usa el
+ * genérico. */
 const DEFAULT_PHASE_ORDER: PulsoPhaseSlug[] = [
   "warmup",
   "technique",
@@ -68,8 +70,10 @@ const DEFAULT_PHASE_ORDER: PulsoPhaseSlug[] = [
 const INTENTION_PHASE_ORDER: Record<PulsoIntention, PulsoPhaseSlug[]> = {
   technique: DEFAULT_PHASE_ORDER,
   repertoire: DEFAULT_PHASE_ORDER,
+  // Calentamiento, vocalizaciones, obras, flexibilidad, técnica.
   prepare: ["warmup", "vocalization", "repertoire", "flexibility", "technique"],
-  concentration: DEFAULT_PHASE_ORDER,
+  // Calentamiento, vocalizaciones, técnica, flexibilidad.
+  concentration: ["warmup", "vocalization", "technique", "flexibility", "repertoire"],
   other: DEFAULT_PHASE_ORDER,
 };
 
