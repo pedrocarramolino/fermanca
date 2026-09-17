@@ -677,6 +677,8 @@
       "empty": "No activity in this group yet.",
       "sessionFinished": "{username} just finished a practice session",
       "weeklyGoalCompleted": "{username} just completed the weekly goal",
+      "blocksCount": "{count, plural, one {# block} other {# blocks}}",
+      "viewMore": "View {count} more",
       "loadMore": "Load more",
       "loading": "Loading…"
     }

@@ -677,6 +677,8 @@
       "empty": "Todavía no hay actividad en este grupo.",
       "sessionFinished": "{username} acaba de terminar una sesión de práctica",
       "weeklyGoalCompleted": "{username} acaba de completar el objetivo semanal",
+      "blocksCount": "{count, plural, one {# bloque} other {# bloques}}",
+      "viewMore": "Ver {count} más",
       "loadMore": "Cargar más",
       "loading": "Cargando…"
     }
