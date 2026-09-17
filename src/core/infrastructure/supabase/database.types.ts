@@ -888,6 +888,18 @@ export type Database = {
         Args: { check_email: string }
         Returns: boolean
       }
+      friends_progress: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          friendship_id: string
+          friend_owner_id: string
+          username: string
+          avatar_url: string | null
+          weekly_seconds: number
+          monthly_seconds: number
+          current_streak: number
+        }[]
+      }
     }
     Enums: {
       category_kind: "system" | "custom"

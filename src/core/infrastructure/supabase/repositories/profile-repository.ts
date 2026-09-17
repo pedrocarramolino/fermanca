@@ -37,6 +37,19 @@ export class SupabaseProfileRepository implements ProfileRepository {
     return data ? toDomain(data) : null;
   }
 
+  /** Varios perfiles de una sola consulta — para las listas que antes
+   * pedían uno por uno (solicitudes pendientes, sugerencias, amigos): con
+   * 20 amigos eso eran 20 idas y vueltas a Supabase en cada carga. */
+  async listByOwnerIds(ownerIds: UserId[]): Promise<Map<UserId, Profile>> {
+    if (ownerIds.length === 0) return new Map();
+    const { data, error } = await this.client
+      .from("profiles")
+      .select("*")
+      .in("owner_id", ownerIds);
+    if (error) throw error;
+    return new Map(data.map((row) => [row.owner_id as UserId, toDomain(row)]));
+  }
+
   async getByUsername(username: string): Promise<Profile | null> {
     const { data, error } = await this.client
       .from("profiles")

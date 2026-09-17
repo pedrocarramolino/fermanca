@@ -30,6 +30,47 @@ export class SupabaseFriendshipRepository implements FriendshipRepository {
     return data.map(toDomain);
   }
 
+  async countAcceptedByOwner(ownerId: UserId): Promise<number> {
+    assertUuid(ownerId);
+    const { count, error } = await this.client
+      .from("friendships")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "accepted")
+      .or(`requester_id.eq.${ownerId},addressee_id.eq.${ownerId}`);
+    if (error) throw error;
+    return count ?? 0;
+  }
+
+  /**
+   * Las amistades aceptadas de VARIOS usuarios a la vez — para las
+   * sugerencias ("amigos de tus amigos"), que antes recorrían tus amigos de
+   * uno en uno (una consulta por amigo en cada carga de Comunidad).
+   *
+   * Son dos consultas en paralelo, una por columna, en vez de un `or`: así
+   * cada una entra por su propio índice (friendships_requester_id_idx /
+   * friendships_addressee_id_idx). Una misma fila puede salir en las dos
+   * (si los dos extremos están en la lista), de ahí el mapa por id.
+   */
+  async listAcceptedTouching(ownerIds: UserId[]): Promise<Friendship[]> {
+    if (ownerIds.length === 0) return [];
+
+    const [asRequester, asAddressee] = await Promise.all(
+      (["requester_id", "addressee_id"] as const).map(async (column) => {
+        const { data, error } = await this.client
+          .from("friendships")
+          .select("*")
+          .eq("status", "accepted")
+          .in(column, ownerIds);
+        if (error) throw error;
+        return data;
+      }),
+    );
+
+    const byId = new Map<string, Friendship>();
+    for (const row of [...asRequester!, ...asAddressee!]) byId.set(row.id, toDomain(row));
+    return [...byId.values()];
+  }
+
   async findBetween(userA: UserId, userB: UserId): Promise<Friendship | null> {
     // low_id/high_id son columnas generadas (least/greatest) — filtrar por
     // ellas en vez de por requester/addressee encuentra la fila sin

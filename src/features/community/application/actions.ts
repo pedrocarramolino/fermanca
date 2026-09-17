@@ -10,8 +10,6 @@ import { SupabasePushSubscriptionRepository } from "@/core/infrastructure/supaba
 import { sendPush } from "@/core/infrastructure/push/send-push";
 import { UnauthorizedError } from "@/core/domain/errors";
 import { hasPracticedTime } from "@/core/domain/session";
-import { currentStreakDays, practiceSecondsByDay } from "@/core/domain/streaks";
-import { monthlySeries, weeklySeries } from "@/core/domain/session-statistics";
 import type { Friend } from "@/core/domain/friendship";
 import type { FriendshipId, UserId } from "@/core/domain/ids";
 
@@ -41,13 +39,22 @@ export async function listPendingRequests(): Promise<PendingRequest[]> {
   const incoming = friendships.filter((f) => f.status === "pending" && f.addresseeId === userId);
   if (incoming.length === 0) return [];
 
-  const profileRepo = new SupabaseProfileRepository(client);
-  const results: PendingRequest[] = [];
-  for (const f of incoming) {
-    const profile = await profileRepo.getByOwnerId(f.requesterId);
-    results.push({ friendshipId: f.id, fromUsername: profile?.username ?? "Usuario" });
-  }
-  return results;
+  const profiles = await new SupabaseProfileRepository(client).listByOwnerIds(
+    incoming.map((f) => f.requesterId),
+  );
+  return incoming.map((f) => ({
+    friendshipId: f.id,
+    fromUsername: profiles.get(f.requesterId)?.username ?? "Usuario",
+  }));
+}
+
+/** Solo el número de amigos — lo único que enseña la pantalla de Comunidad
+ * (la lista con el progreso de cada uno vive en /community/friends). Pedir
+ * aquí `listFriendsWithProgress` era traerse el progreso completo de cada
+ * amigo para acabar pintando un contador. */
+export async function countMyFriends(): Promise<number> {
+  const { userId, client } = await requireUserId();
+  return new SupabaseFriendshipRepository(client).countAcceptedByOwner(userId);
 }
 
 export async function listFriends(): Promise<Friend[]> {
@@ -55,11 +62,13 @@ export async function listFriends(): Promise<Friend[]> {
   const friendships = await new SupabaseFriendshipRepository(client).listByOwner(userId);
   const accepted = friendships.filter((f) => f.status === "accepted");
 
-  const profileRepo = new SupabaseProfileRepository(client);
+  const otherIds = accepted.map((f) => (f.requesterId === userId ? f.addresseeId : f.requesterId));
+  const profiles = await new SupabaseProfileRepository(client).listByOwnerIds(otherIds);
+
   const friends: Friend[] = [];
-  for (const f of accepted) {
-    const otherId = f.requesterId === userId ? f.addresseeId : f.requesterId;
-    const profile = await profileRepo.getByOwnerId(otherId);
+  for (const [index, f] of accepted.entries()) {
+    const otherId = otherIds[index]!;
+    const profile = profiles.get(otherId);
     if (profile) {
       friends.push({
         friendshipId: f.id,
@@ -247,46 +256,33 @@ export interface FriendProgress {
 }
 
 /**
- * Solo agregados, nunca las sesiones en sí. Comprueba primero que hay
- * amistad aceptada, y solo entonces calcula los números con la clave de
- * servicio — RLS no deja ver las sesiones de otro usuario ni siendo
- * amigos, a propósito: el detalle de una sesión (bloques, notas) sigue
- * siendo privado incluso para quien puede ver estos totales.
+ * `listFriends` + el progreso de cada uno, de UNA sola ida y vuelta: la
+ * función `friends_progress` de Postgres (ver la migración del mismo
+ * nombre) hace el agregado en la base de datos.
+ *
+ * Antes esto era, por cada amigo, una consulta que se traía hasta 1000
+ * sesiones COMPLETAS —con todos sus bloques— solo para sacar tres números;
+ * con 20 amigos eran 20 descargas enormes en cada carga de /community/friends.
+ *
+ * La función va con el cliente normal del usuario (no con la clave de
+ * servicio): no acepta parámetros y deriva los amigos de `auth.uid()`, así
+ * que solo puede devolver el progreso de tus amistades aceptadas. Sigue sin
+ * exponer ninguna sesión concreta, igual que antes: solo los agregados.
  */
-export async function getFriendProgress(friendOwnerId: string): Promise<FriendProgress> {
-  const { userId, client } = await requireUserId();
-
-  const friendship = await new SupabaseFriendshipRepository(client).findBetween(
-    userId,
-    friendOwnerId as UserId,
-  );
-  if (!friendship || friendship.status !== "accepted") throw new UnauthorizedError();
-
-  const sessions = await new SupabaseSessionRepository(createServiceClient()).listByOwner(
-    friendOwnerId as UserId,
-    { limit: 1000 },
-  );
-
-  const now = new Date();
-  const byDay = practiceSecondsByDay(sessions);
-  return {
-    weeklySeconds: weeklySeries(sessions, 1, now)[0]!.seconds,
-    monthlySeconds: monthlySeries(sessions, 1, now)[0]!.seconds,
-    currentStreak: currentStreakDays(byDay, now),
-  };
-}
-
-/** `listFriends` + `getFriendProgress` combinados — usado tanto por la
- * página de Comunidad (resumen) como por la de Amigos (lista completa), así
- * que vive aquí una sola vez en lugar de en cada page.tsx. */
 export async function listFriendsWithProgress(): Promise<(Friend & FriendProgress)[]> {
-  const friends = await listFriends();
-  return Promise.all(
-    friends.map(async (friend) => ({
-      ...friend,
-      ...(await getFriendProgress(friend.ownerId)),
-    })),
-  );
+  const { client } = await requireUserId();
+  const { data, error } = await client.rpc("friends_progress");
+  if (error) throw error;
+
+  return data.map((row) => ({
+    friendshipId: row.friendship_id as FriendshipId,
+    ownerId: row.friend_owner_id as UserId,
+    username: row.username,
+    avatarUrl: row.avatar_url,
+    weeklySeconds: row.weekly_seconds,
+    monthlySeconds: row.monthly_seconds,
+    currentStreak: row.current_streak,
+  }));
 }
 
 export interface FriendOfFriend {
@@ -381,14 +377,24 @@ export async function listSuggestedFriends(): Promise<SuggestedFriend[]> {
   );
 
   const serviceClient = createServiceClient();
-  const friendshipRepo = new SupabaseFriendshipRepository(serviceClient);
+
+  // Todas las amistades aceptadas de todos tus amigos de golpe (antes era
+  // una consulta por amigo) — el recuento de amigos en común se hace aquí.
+  const friendIdSet = new Set(myAcceptedFriendIds);
+  const theirFriendships = await new SupabaseFriendshipRepository(
+    serviceClient,
+  ).listAcceptedTouching(myAcceptedFriendIds);
 
   const mutualCounts = new Map<UserId, number>();
-  for (const friendId of myAcceptedFriendIds) {
-    const theirFriendships = await friendshipRepo.listByOwner(friendId);
-    for (const f of theirFriendships) {
-      if (f.status !== "accepted") continue;
-      const otherId = f.requesterId === friendId ? f.addresseeId : f.requesterId;
+  for (const f of theirFriendships) {
+    // Una amistad entre dos amigos tuyos aparece una sola vez en la
+    // consulta pero cuenta por los dos lados, así que se miran los dos
+    // extremos en lugar de asumir cuál es "el amigo".
+    for (const [friendId, otherId] of [
+      [f.requesterId, f.addresseeId],
+      [f.addresseeId, f.requesterId],
+    ] as const) {
+      if (!friendIdSet.has(friendId)) continue;
       if (otherId === userId || excludedIds.has(otherId)) continue;
       mutualCounts.set(otherId, (mutualCounts.get(otherId) ?? 0) + 1);
     }
@@ -399,10 +405,13 @@ export async function listSuggestedFriends(): Promise<SuggestedFriend[]> {
     .slice(0, MAX_SUGGESTED_FRIENDS);
   if (topCandidateIds.length === 0) return [];
 
-  const profileRepo = new SupabaseProfileRepository(serviceClient);
+  const profiles = await new SupabaseProfileRepository(serviceClient).listByOwnerIds(
+    topCandidateIds.map(([ownerId]) => ownerId),
+  );
+
   const results: SuggestedFriend[] = [];
   for (const [ownerId, mutualCount] of topCandidateIds) {
-    const profile = await profileRepo.getByOwnerId(ownerId);
+    const profile = profiles.get(ownerId);
     if (!profile) continue;
     results.push({ ownerId, username: profile.username, avatarUrl: profile.avatarUrl, mutualCount });
   }
