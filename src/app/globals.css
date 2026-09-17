@@ -13,6 +13,7 @@
   --color-category-flexibility: var(--category-flexibility);
   --color-category-technique: var(--category-technique);
   --color-category-repertoire: var(--category-repertoire);
+  --color-category-vocalization: var(--category-vocalization);
   --color-category-custom-1: var(--category-custom-1);
   --color-category-custom-2: var(--category-custom-2);
   --color-category-custom-3: var(--category-custom-3);
@@ -106,6 +107,7 @@
   --category-flexibility: oklch(0.6 0.16 230); /* Flexibilidad — azul */
   --category-technique: oklch(0.55 0.2 300); /* Técnica — violeta */
   --category-repertoire: oklch(0.6 0.2 350); /* Obras — magenta */
+  --category-vocalization: oklch(0.62 0.15 135); /* Vocalizaciones — verde */
   --category-custom-1: oklch(0.65 0.14 165); /* categoría personalizada — verde azulado */
   --category-custom-2: oklch(0.5 0.18 260); /* categoría personalizada — azul índigo */
   --category-custom-3: oklch(0.62 0.15 135); /* categoría personalizada — verde */
@@ -151,6 +153,7 @@
   --category-flexibility: oklch(0.6 0.16 230);
   --category-technique: oklch(0.55 0.2 300);
   --category-repertoire: oklch(0.6 0.2 350);
+  --category-vocalization: oklch(0.62 0.15 135);
   --category-custom-1: oklch(0.65 0.14 165);
   --category-custom-2: oklch(0.5 0.18 260);
   --category-custom-3: oklch(0.62 0.15 135);

@@ -11,11 +11,11 @@ import {
   Brain,
   Lightbulb,
   Minus,
-  Music,
   Plus,
   Shuffle,
   Sparkles,
   Target,
+  Wind,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -50,7 +50,7 @@ type Step = "intention" | "time" | "context" | "preview";
 
 const INTENTION_ICONS: Record<PulsoIntention, typeof Target> = {
   technique: Target,
-  repertoire: Music,
+  repertoire: Wind,
   prepare: Sparkles,
   concentration: Brain,
   other: Shuffle,

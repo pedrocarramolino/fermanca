@@ -29,7 +29,7 @@ import type { Category, CustomCategory } from "@/core/domain/category";
 const NEW_CATEGORY_VALUE = "__new__";
 const QUICK_MINUTE_PRESETS = [10, 15, 20, 30, 60];
 
-/** Las 4 categorías de sistema son compartidas por todos los usuarios y se
+/** Las 5 categorías de sistema son compartidas por todos los usuarios y se
  * muestran en el idioma de quien las ve (vía su slug estable); las
  * categorías personalizadas se muestran tal cual las escribió su dueño. */
 function categoryDisplayName(category: Category, t: (key: string) => string): string {

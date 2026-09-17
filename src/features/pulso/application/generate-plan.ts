@@ -15,7 +15,7 @@ export type PulsoTimeOption = (typeof PULSO_TIME_OPTIONS)[number];
 export const PULSO_ENERGY_LEVELS = ["low", "normal", "high"] as const;
 export type PulsoEnergy = (typeof PULSO_ENERGY_LEVELS)[number];
 
-export type PulsoPhaseSlug = "warmup" | "technique" | "repertoire" | "flexibility";
+export type PulsoPhaseSlug = "warmup" | "technique" | "repertoire" | "flexibility" | "vocalization";
 
 export interface PulsoPhase {
   slug: PulsoPhaseSlug;
@@ -35,27 +35,28 @@ type PhaseWeights = Record<PulsoPhaseSlug, number>;
  * menos tiempo. */
 const INTENTION_WEIGHTS: Record<PulsoIntention, PhaseWeights> = {
   // Solo técnica: sin obras, con flexibilidad como parte del trabajo físico.
-  technique: { warmup: 0.2, technique: 0.55, flexibility: 0.25, repertoire: 0 },
-  // Avanzar en las piezas: sin ejercicios de técnica ni flexibilidad aparte.
-  repertoire: { warmup: 0.15, technique: 0, flexibility: 0, repertoire: 0.85 },
-  // Preparación cercana (concierto/examen): las cuatro categorías, con más
-  // peso en repertorio.
-  prepare: { warmup: 0.1, technique: 0.25, flexibility: 0.1, repertoire: 0.55 },
+  technique: { warmup: 0.2, technique: 0.55, flexibility: 0.25, repertoire: 0, vocalization: 0 },
+  // Calentamiento, vocalizaciones y flexibilidad — sin técnica ni obras;
+  // flexibilidad es la que más peso se lleva de las tres.
+  repertoire: { warmup: 0.25, technique: 0, flexibility: 0.45, repertoire: 0, vocalization: 0.3 },
+  // Preparación cercana (concierto/examen): técnica y obras, con más peso
+  // en obras.
+  prepare: { warmup: 0.1, technique: 0.25, flexibility: 0.1, repertoire: 0.55, vocalization: 0 },
   // Práctica concentrada y deliberada: calentamiento largo, técnica y
   // flexibilidad — sin obras, que piden un tipo de atención distinto.
-  concentration: { warmup: 0.25, technique: 0.5, flexibility: 0.25, repertoire: 0 },
+  concentration: { warmup: 0.25, technique: 0.5, flexibility: 0.25, repertoire: 0, vocalization: 0 },
   // Sin una intención concreta (o una que el usuario ha escrito a mano):
-  // las cuatro categorías repartidas de forma equilibrada.
-  other: { warmup: 0.15, technique: 0.3, flexibility: 0.25, repertoire: 0.3 },
+  // calentamiento, técnica y obras repartidos de forma equilibrada.
+  other: { warmup: 0.15, technique: 0.3, flexibility: 0.25, repertoire: 0.3, vocalization: 0 },
 };
 
 /** Con poca energía se resta exigencia técnica a favor de calentamiento y
  * repertorio (más cómodo); con mucha, al revés. "normal" no toca nada. La
- * flexibilidad no se ve afectada por la energía. */
+ * flexibilidad y las vocalizaciones no se ven afectadas por la energía. */
 const ENERGY_ADJUSTMENT: Record<PulsoEnergy, PhaseWeights> = {
-  low: { warmup: 0.05, technique: -0.1, flexibility: 0, repertoire: 0.05 },
-  normal: { warmup: 0, technique: 0, flexibility: 0, repertoire: 0 },
-  high: { warmup: -0.05, technique: 0.05, flexibility: 0, repertoire: 0 },
+  low: { warmup: 0.05, technique: -0.1, flexibility: 0, repertoire: 0.05, vocalization: 0 },
+  normal: { warmup: 0, technique: 0, flexibility: 0, repertoire: 0, vocalization: 0 },
+  high: { warmup: -0.05, technique: 0.05, flexibility: 0, repertoire: 0, vocalization: 0 },
 };
 
 /** Por debajo de esto una fase es demasiado corta para valer la pena como
@@ -79,6 +80,7 @@ function applyEnergyAdjustment(weights: PhaseWeights, energy: PulsoEnergy): Phas
     technique: Math.max(0, weights.technique + adjustment.technique),
     flexibility: Math.max(0, weights.flexibility + adjustment.flexibility),
     repertoire: Math.max(0, weights.repertoire + adjustment.repertoire),
+    vocalization: Math.max(0, weights.vocalization + adjustment.vocalization),
   };
 }
 
@@ -127,7 +129,8 @@ export function generatePulsoPlan(
   const technique = bySlug.get("technique");
   const repertoire = bySlug.get("repertoire");
   const flexibility = bySlug.get("flexibility");
-  if (!warmup || !technique || !repertoire || !flexibility) return null;
+  const vocalization = bySlug.get("vocalization");
+  if (!warmup || !technique || !repertoire || !flexibility || !vocalization) return null;
 
   const totalSeconds = Math.round(totalMinutes * 60);
 
@@ -140,6 +143,7 @@ export function generatePulsoPlan(
     { slug: "technique", category: technique, weight: weights.technique },
     { slug: "flexibility", category: flexibility, weight: weights.flexibility },
     { slug: "repertoire", category: repertoire, weight: weights.repertoire },
+    { slug: "vocalization", category: vocalization, weight: weights.vocalization },
   ];
 
   // Repetir hasta que ninguna fase restante quede por debajo del mínimo —

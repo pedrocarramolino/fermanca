@@ -193,7 +193,8 @@
     "warmup": "Warm-up",
     "flexibility": "Flexibility",
     "technique": "Technique",
-    "repertoire": "Repertoire"
+    "repertoire": "Repertoire",
+    "vocalization": "Vocalizations"
   },
   "Pulso": {
     "trigger": "Open Pulso",
@@ -209,8 +210,8 @@
         "description": "Scales, fingering, tone…"
       },
       "repertoire": {
-        "title": "Repertoire",
-        "description": "Make progress on your pieces"
+        "title": "Flexibility",
+        "description": "Warm-up, vocalizations and flexibility"
       },
       "prepare": {
         "title": "Prepare something",
@@ -253,7 +254,7 @@
     "starting": "Starting…",
     "rationale": {
       "technique": "Since you wanted to focus on technique, it got more weight today.",
-      "repertoire": "Since you wanted to make progress on repertoire, it got more weight today.",
+      "repertoire": "Since you wanted to focus on flexibility, it got more weight today.",
       "prepare": "With something coming up, we added more repertoire.",
       "concentration": "For focused practice, we stretched out the warm-up.",
       "other": "An even split between technique and repertoire.",

@@ -193,7 +193,8 @@
     "warmup": "Calentamiento",
     "flexibility": "Flexibilidad",
     "technique": "Técnica",
-    "repertoire": "Obras"
+    "repertoire": "Obras",
+    "vocalization": "Vocalizaciones"
   },
   "Pulso": {
     "trigger": "Abrir Pulso",
@@ -209,8 +210,8 @@
         "description": "Escalas, digitación, sonido…"
       },
       "repertoire": {
-        "title": "Repertorio",
-        "description": "Avanzar en tus obras"
+        "title": "Flexibilidad",
+        "description": "Calentamiento, vocalizaciones y flexibilidad"
       },
       "prepare": {
         "title": "Preparar algo",
@@ -253,7 +254,7 @@
     "starting": "Comenzando…",
     "rationale": {
       "technique": "Como querías centrarte en técnica, le hemos dado más peso hoy.",
-      "repertoire": "Como querías avanzar en repertorio, le hemos dado más peso hoy.",
+      "repertoire": "Como querías centrarte en flexibilidad, le hemos dado más peso hoy.",
       "prepare": "Con una preparación cercana, hemos incluido más repertorio.",
       "concentration": "Para una práctica concentrada, hemos alargado el calentamiento.",
       "other": "Un reparto equilibrado entre técnica y repertorio.",
