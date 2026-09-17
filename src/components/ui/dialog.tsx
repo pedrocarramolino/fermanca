@@ -50,13 +50,30 @@ function DialogContent({
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(
-          "bg-popover text-popover-foreground ring-foreground/10 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl p-4 text-sm ring-1 duration-100 outline-none sm:max-w-sm",
+          // Tope de altura + scroll DENTRO del diálogo. Sin esto, un diálogo
+          // con mucho contenido (p. ej. tres anuncios largos) crece más que
+          // la pantalla: se sale por arriba, la X de cerrar queda fuera de
+          // vista y el fondo está bloqueado por el scroll lock del modal, así
+          // que no hay forma de cerrarlo.
+          //
+          // El que hace scroll es el envoltorio de dentro, no el <Popup>: así
+          // la X se queda fija en la esquina (está posicionada contra el
+          // Popup, que no se mueve) en vez de irse hacia arriba al bajar. El
+          // padding vive en ese envoltorio para que los pies de diálogo, que
+          // sangran a los lados con -mx-4, sigan llegando justo al borde sin
+          // desbordar.
+          "bg-popover text-popover-foreground ring-foreground/10 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100dvh-2rem)] w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl text-sm ring-1 duration-100 outline-none sm:max-w-sm",
           "glass:bg-[color-mix(in_oklch,var(--popover)_var(--glass-alpha-light,70%),transparent)] glass:dark:bg-[color-mix(in_oklch,var(--popover)_var(--glass-alpha-dark,50%),transparent)] glass:[backdrop-filter:blur(var(--glass-blur,40px))_saturate(1.7)_url(#liquid-glass-distortion)] glass:[-webkit-backdrop-filter:blur(var(--glass-blur,40px))_saturate(1.7)] glass:ring-border/60 glass:shadow-[0_8px_32px_rgba(0,0,0,0.16),inset_0_1px_0_rgba(255,255,255,0.35)] glass:dark:shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.08)]",
           className,
         )}
         {...props}
       >
-        {children}
+        <div
+          data-slot="dialog-body"
+          className="grid gap-4 overflow-x-hidden overflow-y-auto p-4"
+        >
+          {children}
+        </div>
         {showCloseButton && (
           <DialogPrimitive.Close
             data-slot="dialog-close"
