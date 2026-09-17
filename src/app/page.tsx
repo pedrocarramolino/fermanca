@@ -61,13 +61,7 @@ export default async function Home() {
       )
     : null;
 
-  const pulsoSignals = buildPulsoSignals(
-    pulsoSessions,
-    categories,
-    weeklyGoal,
-    weeklyProgress,
-    new Date(),
-  );
+  const pulsoSignals = buildPulsoSignals(pulsoSessions, categories, new Date());
 
   // La única sesión reciente que sigue interesando aquí es la que está sin
   // terminar (ActiveSessionCard) — el resto de "últimas sesiones" se movió

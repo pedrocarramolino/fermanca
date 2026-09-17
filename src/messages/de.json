@@ -266,7 +266,6 @@
       "focusNote": "Zu beachten: {note}."
     },
     "suggestions": {
-      "weeklyGoal": "Für dein Wochenziel fehlen noch {minutes} Min. Eine Abschlusssitzung?",
       "dominantCategory": "Du hattest zuletzt mehrere Sitzungen mit Fokus auf {category}. Heute etwas {other}?",
       "reengagement": "Kurze 15-Minuten-Sitzung zum sanften Wiedereinstieg."
     }

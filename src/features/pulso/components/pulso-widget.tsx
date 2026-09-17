@@ -181,14 +181,6 @@ export function PulsoWidget({
   }
 
   function suggestion(): Suggestion | null {
-    if (signals.weeklyGoalShortfallMinutes !== null) {
-      const target =
-        PULSO_TIME_OPTIONS.find((option) => option >= signals.weeklyGoalShortfallMinutes!) ?? 60;
-      return {
-        text: t("suggestions.weeklyGoal", { minutes: signals.weeklyGoalShortfallMinutes }),
-        apply: () => applySuggestion("repertoire", target),
-      };
-    }
     if (signals.dominantRecentCategory) {
       const neglected = signals.dominantRecentCategory === "technique" ? "repertoire" : "technique";
       return {
