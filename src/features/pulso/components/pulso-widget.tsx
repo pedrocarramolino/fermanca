@@ -105,9 +105,9 @@ const ENERGY_ICONS: Record<PulsoEnergy, typeof Battery> = {
 /** Racha (días) a partir de la cual el brillo de la luciérnaga llega a su
  * máximo — a partir de ahí ya no crece más. */
 /** Horas practicadas en la semana con las que la luz de Pulso llega a su
- * máximo. La semana empieza apagada y cada hora la sube un octavo, así que
+ * máximo. La semana empieza apagada y cada hora la sube un décimo, así que
  * una sesión suelta ya se nota y el tope es alcanzable sin ser regalado. */
-const HOURS_FOR_FULL_GLOW = 8;
+const HOURS_FOR_FULL_GLOW = 10;
 /** Sin práctica reciente durante al menos esto, el saludo cambia a uno que
  * invita a retomar en vez de preguntar "qué trabajamos" sin más contexto. */
 const REENGAGEMENT_DAYS = 3;
