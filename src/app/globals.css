@@ -59,6 +59,18 @@
 }
 
 :root {
+  /* Hueco que hay que dejar arriba y abajo en cualquier cosa fija que se
+     centre en la ventana (diálogos): el body lleva su propio padding para
+     el notch, pero un popup en portal es `position: fixed` y se coloca
+     contra la VENTANA, así que ese padding no le llega y se mete por
+     debajo de la barra de estado de iOS (statusBarStyle translúcido +
+     viewportFit "cover", ver layout.tsx).
+     Se usa el MAYOR de los dos lados a propósito: al centrar, el espacio
+     sobrante se reparte a partes iguales, así que hay que descontar dos
+     veces el lado más grande para que el pequeño no se quede corto. En
+     dispositivos sin notch los dos valen 0 y no cambia nada. */
+  --safe-gap: max(env(safe-area-inset-top, 0px), env(safe-area-inset-bottom, 0px));
+
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
