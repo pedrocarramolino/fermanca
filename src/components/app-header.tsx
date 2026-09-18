@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/config/site";
 import { AnnouncementsQuickView } from "@/features/community/components/announcements-quick-view";
+import { AppLogo } from "@/components/app-logo";
 
 export async function AppHeader() {
   const t = await getTranslations("Common");
@@ -11,7 +12,7 @@ export async function AppHeader() {
   return (
     <header className="glass:bg-[color-mix(in_oklch,var(--background)_calc(var(--glass-alpha-light,70%)_-_20%),transparent)] glass:[backdrop-filter:blur(var(--glass-blur,40px))_saturate(1.7)_url(#liquid-glass-distortion)] glass:[-webkit-backdrop-filter:blur(var(--glass-blur,40px))_saturate(1.7)] glass:-mx-3 glass:rounded-2xl glass:px-3 glass:py-2 flex items-center justify-between">
       <span className="flex items-center gap-2 font-semibold tracking-tight">
-        <img src="/icons/icon-96x96.png" alt="" className="size-7 rounded-lg" />
+        <AppLogo />
         {siteConfig.name}
       </span>
       <div className="flex items-center gap-2">
