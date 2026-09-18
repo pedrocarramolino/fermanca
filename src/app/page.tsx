@@ -15,8 +15,6 @@ import { currentWeekStartKey, weeklyGoalProgress } from "@/core/domain/weekly-go
 import { mondayOf } from "@/core/domain/streaks";
 import { WeeklyGoalCard } from "@/features/weekly-goals/components/weekly-goal-card";
 import { ActiveSessionCard } from "@/features/session-timer/components/active-session-card";
-import { FeedList } from "@/features/feed/components/feed-list";
-import { listFeed } from "@/features/feed/application/actions";
 import { PulsoWidget } from "@/features/pulso/components/pulso-widget";
 import { buildPulsoSignals } from "@/features/pulso/application/signals";
 
@@ -41,14 +39,13 @@ export default async function Home() {
   const templateRepo = new SupabaseTemplateRepository(supabase);
   const sessionRepo = new SupabaseSessionRepository(supabase);
   const weeklyGoalRepo = new SupabaseWeeklyGoalRepository(supabase);
-  const [categories, templates, recentSessions, profile, weeklyGoal, feedShares, pulsoSessions] =
+  const [categories, templates, recentSessions, profile, weeklyGoal, pulsoSessions] =
     await Promise.all([
       categoryRepo.listAvailable(userId),
       templateRepo.listByOwner(userId),
       sessionRepo.listByOwner(userId, { limit: RECENT_SESSIONS_PREVIEW }),
       getCurrentUserProfile().catch(() => null),
       weeklyGoalRepo.getForWeek(userId, currentWeekStartKey(new Date())),
-      listFeed(),
       sessionRepo.listByOwner(userId, { limit: PULSO_SIGNAL_SESSIONS }),
     ]);
 
@@ -65,7 +62,8 @@ export default async function Home() {
 
   // La única sesión reciente que sigue interesando aquí es la que está sin
   // terminar (ActiveSessionCard) — el resto de "últimas sesiones" se movió
-  // al final de Estadísticas, y este hueco de Inicio pasó a ser el Feed.
+  // al final de Estadísticas, y el Feed a su propia pestaña (/feed), que
+  // era lo que hacía a Inicio interminable.
   const activeSession = recentSessions.find((session) => session.status === "in_progress");
 
   return (
@@ -79,8 +77,6 @@ export default async function Home() {
       {activeSession && <ActiveSessionCard session={activeSession} />}
 
       <SessionBuilder initialCategories={categories} initialTemplates={templates} />
-
-      <FeedList initialEntries={feedShares} currentUserId={userId} />
 
       <p className="text-muted-foreground text-center text-xs">
         {tCommon("footerCredit", { year: new Date().getFullYear() })}

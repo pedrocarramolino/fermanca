@@ -6,7 +6,8 @@
     "hidePassword": "Ocultar contraseña",
     "toggleTheme": "Cambiar tema",
     "signOut": "Cerrar sesión",
-    "footerCredit": "© {year} Pedro Carramolino · Idea original: Alejandro Mas"
+    "footerCredit": "© {year} Pedro Carramolino · Idea original: Alejandro Mas",
+    "remindersAriaLabel": "Avisos"
   },
   "Landing": {
     "signIn": "Iniciar sesión",
@@ -115,7 +116,7 @@
     "statistics": "Estadísticas",
     "community": "Comunidad",
     "streaks": "Rachas",
-    "reminders": "Avisos"
+    "feed": "Feed"
   },
   "Home": {
     "greetingMorning": "Buenos días, {username}",
@@ -448,7 +449,8 @@
       "thu": "J",
       "fri": "V",
       "sat": "S"
-    }
+    },
+    "back": "Volver"
   },
   "CalendarEvents": {
     "yourEvents": "Tus eventos",

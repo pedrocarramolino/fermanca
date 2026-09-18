@@ -16,6 +16,7 @@ export default function robots(): MetadataRoute.Robots {
         "/statistics",
         "/streaks",
         "/reminders",
+        "/feed",
         "/community",
         "/session/",
         "/api/",
