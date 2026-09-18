@@ -77,6 +77,12 @@ function Splash() {
  * mostrado antes, puede volver a verlo un instante; abrir la PWA de cero
  * siempre empieza con sessionStorage vacío, así que ese caso no cambia.
  *
+ * La marca de "ya vista" se escribe al TERMINAR la animación, no al empezar:
+ * si algo recarga la página a mitad —como hace el service worker nuevo al
+ * tomar el control tras un despliegue, ver register-service-worker.tsx— la
+ * animación no se da por vista y se reproduce entera en la carga siguiente,
+ * en vez de perderse.
+ *
  * El splash se oculta dentro de `startTransition` a propósito: es lo único
  * que activa <ViewTransition>. Con un setState normal desaparecería de golpe,
  * sin recorrido del icono.
@@ -85,19 +91,31 @@ export function LaunchProvider({ children }: { children: ReactNode }) {
   const [visible, setVisible] = useState(true);
 
   useLayoutEffect(() => {
-    if (sessionStorage.getItem(SESSION_KEY)) {
-      // Ya se vio en esta pestaña: se quita sin transición, no hay nada que
-      // contar al usuario.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setVisible(false);
-      return;
+    // En ventana privada o con el almacenamiento bloqueado, sessionStorage
+    // lanza al leerlo; sin este try el layout raíz entero se caería.
+    let alreadySeen = false;
+    try {
+      alreadySeen = sessionStorage.getItem(SESSION_KEY) !== null;
+    } catch {
+      // Sin almacenamiento, se comporta como si nunca se hubiera visto.
     }
-    sessionStorage.setItem(SESSION_KEY, "1");
+    // Ya se vio en esta pestaña: se quita sin transición, no hay nada que
+    // contar al usuario.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (alreadySeen) setVisible(false);
   }, []);
 
   useEffect(() => {
     if (!visible) return;
-    const timer = setTimeout(() => startTransition(() => setVisible(false)), VISIBLE_MS);
+    const timer = setTimeout(() => {
+      try {
+        sessionStorage.setItem(SESSION_KEY, "1");
+      } catch {
+        // Si no se puede guardar, como mucho se vuelve a ver: preferible a
+        // que reventara aquí y dejara el splash colgado para siempre.
+      }
+      startTransition(() => setVisible(false));
+    }, VISIBLE_MS);
     return () => clearTimeout(timer);
   }, [visible]);
 
