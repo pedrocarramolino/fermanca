@@ -322,3 +322,22 @@
     animation-delay: 0s !important;
   }
 }
+
+/* Cambio de tamaño de un diálogo mientras le llegan los datos (ver el
+   <ViewTransition update="dialog-resize"> de DialogContent). La caja se
+   desliza a su nuevo tamaño; el contenido se funde sin estirarse: sin
+   `object-fit: none` los dos fotogramas se escalarían para rellenar la caja
+   y el texto se vería deformado durante el recorrido. Anclado arriba, que es
+   donde está la cabecera del diálogo y el punto de referencia del usuario. */
+::view-transition-group(.dialog-resize) {
+  animation-duration: 320ms;
+  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+}
+::view-transition-old(.dialog-resize),
+::view-transition-new(.dialog-resize) {
+  height: 100%;
+  overflow: clip;
+  object-fit: none;
+  object-position: top center;
+  animation-duration: 320ms;
+}

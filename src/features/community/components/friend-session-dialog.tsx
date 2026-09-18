@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { UserPlus } from "lucide-react";
 import {
@@ -74,15 +74,21 @@ function FriendSessionContent({ friend }: { friend: FriendWithProgress }) {
   const [friendsOfFriend, setFriendsOfFriend] = useState<FriendOfFriend[] | null>(null);
   const [sendingTo, setSendingTo] = useState<string | null>(null);
 
+  // Los datos llegan en dos tandas (sesiones y amigos del amigo) y cada una
+  // hace crecer el diálogo. Dentro de startTransition ese crecimiento lo
+  // anima el <ViewTransition> del propio diálogo (ver DialogContent), en vez
+  // de dar un salto hacia arriba con cada tanda.
   useEffect(() => {
     getFriendRecentSessions(friend.ownerId)
       .then((result) => {
-        setSessions(result);
-        setStatus(result.length > 0 ? "loaded" : "empty");
+        startTransition(() => {
+          setSessions(result);
+          setStatus(result.length > 0 ? "loaded" : "empty");
+        });
       })
       .catch(() => setStatus("error"));
     getFriendsOfFriend(friend.ownerId)
-      .then(setFriendsOfFriend)
+      .then((result) => startTransition(() => setFriendsOfFriend(result)))
       .catch(() => setFriendsOfFriend([]));
   }, [friend.ownerId]);
 
