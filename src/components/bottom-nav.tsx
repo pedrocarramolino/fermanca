@@ -11,7 +11,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { motion, useReducedMotion } from "motion/react";
-import { Bell, Flame, Home, LineChart, Users } from "lucide-react";
+import { Flame, Home, LineChart, Newspaper, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -19,7 +19,7 @@ const NAV_ITEMS = [
   { href: "/statistics", key: "statistics", icon: LineChart },
   { href: "/community", key: "community", icon: Users },
   { href: "/streaks", key: "streaks", icon: Flame },
-  { href: "/reminders", key: "reminders", icon: Bell },
+  { href: "/feed", key: "feed", icon: Newspaper },
 ] as const;
 
 /** Scroll hacia abajo por encima de esto para que la barra se encoja; por

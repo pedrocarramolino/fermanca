@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CircleUserRound, Settings } from "lucide-react";
+import { Bell, CircleUserRound, Settings } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/config/site";
@@ -16,6 +16,15 @@ export async function AppHeader() {
       </span>
       <div className="flex items-center gap-2">
         <AnnouncementsQuickView />
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={t("remindersAriaLabel")}
+          render={<Link href="/reminders" />}
+          nativeButton={false}
+        >
+          <Bell className="size-4" />
+        </Button>
         <Button
           variant="ghost"
           size="icon"
