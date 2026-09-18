@@ -278,3 +278,47 @@
     transform: scale(2.2);
   }
 }
+
+/* Entrada a la app: el icono del splash se convierte en el logo de la
+   cabecera (elemento compartido, ver launch-animation.tsx). El desenfoque a
+   mitad de vuelo tapa los artefactos de interpolación entre las dos
+   imágenes, que son de tamaños distintos. */
+::view-transition-group(.morph) {
+  animation-duration: 520ms;
+  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+}
+::view-transition-image-pair(.morph) {
+  animation-name: pf-morph-blur;
+}
+@keyframes pf-morph-blur {
+  30% {
+    filter: blur(3px);
+  }
+}
+
+/* El fondo del splash se disuelve mientras el icono viaja. */
+::view-transition-old(.splash-dissolve) {
+  animation: 420ms ease-out both pf-splash-fade-out;
+}
+@keyframes pf-splash-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+/* Mientras corre una transición, la capa de ::view-transition se come los
+   toques. Sin esto, tocar justo al entrar no hace nada. */
+::view-transition {
+  pointer-events: none;
+}
+
+/* La red de seguridad global de prefers-reduced-motion usa `*`, que no
+   alcanza a estos pseudo-elementos — hay que desactivarlos aparte. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}

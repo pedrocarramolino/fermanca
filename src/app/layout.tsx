@@ -8,7 +8,7 @@ import { siteConfig } from "@/config/site";
 import { RegisterServiceWorker } from "@/components/register-service-worker";
 import { InstallPromptBanner } from "@/components/install-prompt-banner";
 import { NotificationPromptDialog } from "@/components/notification-prompt-dialog";
-import { LaunchAnimation } from "@/components/launch-animation";
+import { LaunchProvider } from "@/components/launch-animation";
 import { LiquidGlassFilter } from "@/components/liquid-glass-filter";
 import { BottomNav } from "@/components/bottom-nav";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -174,12 +174,16 @@ export default async function RootLayout({
         <LiquidGlassFilter />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ThemeProvider defaultTheme={settings?.theme ?? "system"}>
-            {children}
-            {userId && <BottomNav />}
-            {userId && <NotificationPromptDialog />}
-            <RegisterServiceWorker />
-            <InstallPromptBanner />
-            <LaunchAnimation />
+            {/* Envuelve la app entera, no solo el splash: la cabecera tiene
+                que enterarse de cuándo se va para tomar el relevo del icono
+                (ver APP_LOGO_VT_NAME en launch-animation.tsx). */}
+            <LaunchProvider>
+              {children}
+              {userId && <BottomNav />}
+              {userId && <NotificationPromptDialog />}
+              <RegisterServiceWorker />
+              <InstallPromptBanner />
+            </LaunchProvider>
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>
