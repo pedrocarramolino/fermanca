@@ -8,16 +8,29 @@ export function RegisterServiceWorker() {
       return;
     }
 
+    // Con skipWaiting+clientsClaim (ver sw.ts) el SW nuevo toma el control
+    // al instante; sin este reload, una pestaña ya abierta seguiría
+    // ejecutando el JS viejo mientras el SW nuevo ya controla sus peticiones.
+    //
+    // Pero 'controllerchange' salta en DOS casos muy distintos, y solo uno
+    // necesita recargar:
+    //  - la página ya tenía controlador y lo sustituye uno nuevo (tras un
+    //    despliegue): sí, está corriendo JS viejo.
+    //  - la página no tenía controlador y el SW recién instalado la reclama
+    //    (primera visita): el JS que se está ejecutando YA es el actual, así
+    //    que recargar no arregla nada — solo corta de golpe lo que estuviera
+    //    en marcha, empezando por la animación de entrada.
+    // Se lee ANTES de registrar: después, el SW ya podría haber reclamado la
+    // página y el valor diría otra cosa.
+    const wasAlreadyControlled = navigator.serviceWorker.controller !== null;
+
     navigator.serviceWorker.register("/sw.js").catch((error: unknown) => {
       console.error("Service worker registration failed", error);
     });
 
-    // Con skipWaiting+clientsClaim (ver sw.ts) el SW nuevo toma el control
-    // al instante; sin este reload, una pestaña ya abierta seguiría
-    // ejecutando el JS viejo mientras el SW nuevo ya controla sus peticiones.
     let reloaded = false;
     function handleControllerChange() {
-      if (reloaded) return;
+      if (!wasAlreadyControlled || reloaded) return;
       reloaded = true;
       window.location.reload();
     }

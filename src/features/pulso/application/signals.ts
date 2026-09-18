@@ -1,6 +1,7 @@
 import type { Category } from "@/core/domain/category";
 import type { Session } from "@/core/domain/session";
 import { currentStreakDays, practiceSecondsByDay } from "@/core/domain/streaks";
+import { weeklySeries } from "@/core/domain/session-statistics";
 import type { CategoryId } from "@/core/domain/ids";
 
 type BalancedSlug = "technique" | "repertoire";
@@ -14,6 +15,10 @@ const RECENT_PROGRESS_SESSIONS = 8;
 
 export interface PulsoSignals {
   currentStreak: number;
+  /** Segundos practicados en la semana natural en curso (lunes a domingo,
+   * misma convención que Estadísticas) — es lo que enciende la luz de la
+   * mascota, que empieza la semana apagada. */
+  weeklySeconds: number;
   /** null si nunca se ha completado ninguna sesión. */
   daysSinceLastPractice: number | null;
   /** Categoría (técnica u obras) que ha dominado las últimas sesiones, si
@@ -61,6 +66,7 @@ export function buildPulsoSignals(
   const byRecency = [...finished].sort((a, b) => b.startedAt.getTime() - a.startedAt.getTime());
 
   const currentStreak = currentStreakDays(practiceSecondsByDay(sessions), now);
+  const weeklySeconds = weeklySeries(sessions, 1, now)[0]!.seconds;
 
   const mostRecentEnd = byRecency[0]?.endedAt ?? byRecency[0]?.startedAt ?? null;
   const daysSinceLastPractice = mostRecentEnd
@@ -87,6 +93,7 @@ export function buildPulsoSignals(
 
   return {
     currentStreak,
+    weeklySeconds,
     daysSinceLastPractice,
     dominantRecentCategory,
     recentCategoryMinutes,
