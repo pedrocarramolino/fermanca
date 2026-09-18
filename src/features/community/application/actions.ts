@@ -316,22 +316,35 @@ export async function getFriendsOfFriend(friendOwnerId: string): Promise<FriendO
   );
   const accepted = theirFriendships.filter((f) => f.status === "accepted");
 
-  const profileRepo = new SupabaseProfileRepository(serviceClient);
-  const viewerFriendshipRepo = new SupabaseFriendshipRepository(client);
+  const otherIds = accepted
+    .map((f) => (f.requesterId === friendOwnerId ? f.addresseeId : f.requesterId))
+    .filter((otherId) => otherId !== userId);
+  if (otherIds.length === 0) return [];
+
+  // Antes esto pedía, por cada persona de la lista, su perfil Y la relación
+  // que tienes tú con ella: dos consultas por cabeza, así que abrir la ficha
+  // de un amigo con 20 amigos lanzaba 40 idas y vueltas. Ahora son dos
+  // consultas en total — los perfiles de golpe, y tus propias amistades una
+  // sola vez (las necesitas TODAS igualmente para saber a quién ya conoces).
+  const [profiles, myFriendships] = await Promise.all([
+    new SupabaseProfileRepository(serviceClient).listByOwnerIds(otherIds),
+    new SupabaseFriendshipRepository(client).listByOwner(userId),
+  ]);
+
+  const myRelationships = new Map(
+    myFriendships.map((f) => [f.requesterId === userId ? f.addresseeId : f.requesterId, f.status]),
+  );
 
   const results: FriendOfFriend[] = [];
-  for (const f of accepted) {
-    const otherId = f.requesterId === friendOwnerId ? f.addresseeId : f.requesterId;
-    if (otherId === userId) continue;
-
-    const profile = await profileRepo.getByOwnerId(otherId);
+  for (const otherId of otherIds) {
+    const profile = profiles.get(otherId);
     if (!profile) continue;
 
-    const existing = await viewerFriendshipRepo.findBetween(userId, otherId);
+    const status = myRelationships.get(otherId);
     results.push({
       ownerId: otherId,
       username: profile.username,
-      relationship: existing ? (existing.status === "accepted" ? "accepted" : "pending") : "none",
+      relationship: status ? (status === "accepted" ? "accepted" : "pending") : "none",
     });
   }
   return results;

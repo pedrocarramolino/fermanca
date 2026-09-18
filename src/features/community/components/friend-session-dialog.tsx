@@ -227,7 +227,7 @@ export function FriendSessionDialog({
           la pantalla (varias sesiones, cada una expandible, más una lista
           larga de terceros) — sin límite de altura el diálogo se salía del
           viewport en vez de dejar hacer scroll. */}
-      <DialogContent className="max-h-[85vh] overflow-y-auto">
+      <DialogContent>
         {friend ? (
           <FriendSessionContent key={friend.ownerId} friend={friend} />
         ) : (
