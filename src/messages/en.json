@@ -231,6 +231,8 @@
     "otherPlaceholder": "E.g. sight-reading",
     "timeTitle": "How much time do you have?",
     "timeDescription": "I'll size each phase to fit.",
+    "manualOption": "Manual",
+    "manualLabel": "Minutes",
     "contextTitle": "A couple more things",
     "contextDescription": "So the plan fits how you're feeling today.",
     "energyLabel": "Energy level",

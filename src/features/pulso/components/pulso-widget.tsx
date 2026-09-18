@@ -31,6 +31,7 @@ import {
   Minus,
   Plus,
   Shuffle,
+  SlidersHorizontal,
   Sparkles,
   Target,
   Wind,
@@ -39,6 +40,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import {
   Select,
@@ -65,6 +67,10 @@ import {
   inferOtherWeights,
   PULSO_ENERGY_LEVELS,
   PULSO_INTENTIONS,
+  PULSO_MANUAL_DEFAULT_MINUTES,
+  PULSO_MANUAL_MAX_MINUTES,
+  PULSO_MANUAL_MIN_MINUTES,
+  PULSO_MANUAL_STEP_MINUTES,
   PULSO_TIME_OPTIONS,
   type PulsoEnergy,
   type PulsoIntention,
@@ -259,6 +265,11 @@ export function PulsoWidget({
   const [intention, setIntention] = useState<PulsoIntention | null>(null);
   const [otherLabel, setOtherLabel] = useState("");
   const [minutes, setMinutes] = useState<number | null>(null);
+  // El deslizador de la opción manual: `manualOpen` solo controla si se ve,
+  // y su valor vive aparte de `minutes` para que abrirlo no dé por elegida
+  // una duración hasta que se confirme.
+  const [manualOpen, setManualOpen] = useState(false);
+  const [manualMinutes, setManualMinutes] = useState(PULSO_MANUAL_DEFAULT_MINUTES);
   const [energy, setEnergy] = useState<PulsoEnergy>("normal");
   const [focusNote, setFocusNote] = useState("");
   const [useProgress, setUseProgress] = useState(false);
@@ -285,6 +296,8 @@ export function PulsoWidget({
     setIntention(null);
     setOtherLabel("");
     setMinutes(null);
+    setManualOpen(false);
+    setManualMinutes(PULSO_MANUAL_DEFAULT_MINUTES);
     setEnergy("normal");
     setFocusNote("");
     setUseProgress(false);
@@ -329,6 +342,20 @@ export function PulsoWidget({
 
   function handlePickTime(value: PulsoTimeOption) {
     setMinutes(value);
+    // Si el deslizador estaba desplegado, se recoge: al volver atrás desde
+    // el paso siguiente no debe seguir abierto contradiciendo al preset
+    // recién elegido.
+    setManualOpen(false);
+    setStep("context");
+  }
+
+  function handleConfirmManualTime() {
+    const clamped = Math.min(
+      Math.max(Math.round(manualMinutes), PULSO_MANUAL_MIN_MINUTES),
+      PULSO_MANUAL_MAX_MINUTES,
+    );
+    setManualMinutes(clamped);
+    setMinutes(clamped);
     setStep("context");
   }
 
@@ -558,7 +585,7 @@ export function PulsoWidget({
                 <DialogDescription>{t("timeDescription")}</DialogDescription>
               </DialogHeader>
               <div className="grid grid-cols-2 gap-2">
-                {PULSO_TIME_OPTIONS.map((value, index) => (
+                {PULSO_TIME_OPTIONS.map((value) => (
                   <Button
                     key={value}
                     type="button"
@@ -566,12 +593,61 @@ export function PulsoWidget({
                     className="h-auto flex-col gap-1 py-4"
                     onClick={() => handlePickTime(value)}
                   >
-                    <span className="font-medium">
-                      {index === PULSO_TIME_OPTIONS.length - 1 ? `${value}+` : value} min
-                    </span>
+                    <span className="font-medium">{value} min</span>
                   </Button>
                 ))}
+                {/* La cuarta opción no elige duración: despliega el
+                    deslizador de abajo para cualquier otra. */}
+                <Button
+                  type="button"
+                  variant={manualOpen ? "default" : "outline"}
+                  className="h-auto flex-col gap-1 py-4"
+                  onClick={() => setManualOpen(true)}
+                  aria-expanded={manualOpen}
+                >
+                  <SlidersHorizontal className="size-4" />
+                  <span className="font-medium">{t("manualOption")}</span>
+                </Button>
               </div>
+
+              {manualOpen && (
+                <div className="flex flex-col gap-3">
+                  <Label htmlFor="pulso-manual-minutes">{t("manualLabel")}</Label>
+                  <div className="flex items-center gap-3">
+                    <Slider
+                      className="flex-1"
+                      aria-label={t("manualLabel")}
+                      value={[
+                        Math.min(
+                          Math.max(manualMinutes, PULSO_MANUAL_MIN_MINUTES),
+                          PULSO_MANUAL_MAX_MINUTES,
+                        ),
+                      ]}
+                      min={PULSO_MANUAL_MIN_MINUTES}
+                      max={PULSO_MANUAL_MAX_MINUTES}
+                      step={PULSO_MANUAL_STEP_MINUTES}
+                      onValueChange={(value) =>
+                        setManualMinutes(Array.isArray(value) ? value[0]! : value)
+                      }
+                    />
+                    <div className="flex shrink-0 items-center gap-1.5">
+                      <Input
+                        id="pulso-manual-minutes"
+                        type="number"
+                        min={PULSO_MANUAL_MIN_MINUTES}
+                        max={PULSO_MANUAL_MAX_MINUTES}
+                        className="w-16 text-center"
+                        value={manualMinutes}
+                        onChange={(event) => setManualMinutes(Number(event.target.value))}
+                      />
+                      <span className="text-muted-foreground text-sm">min</span>
+                    </div>
+                  </div>
+                  <Button type="button" onClick={handleConfirmManualTime}>
+                    {t("continue")}
+                  </Button>
+                </div>
+              )}
             </>
           )}
 
