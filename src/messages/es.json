@@ -231,6 +231,8 @@
     "otherPlaceholder": "Ej. lectura a primera vista",
     "timeTitle": "¿Cuánto tiempo tienes?",
     "timeDescription": "Ajusto la duración de cada fase.",
+    "manualOption": "Manual",
+    "manualLabel": "Minutos",
     "contextTitle": "Un par de cosas más",
     "contextDescription": "Así el plan encaja mejor con tu momento de hoy.",
     "energyLabel": "Nivel de energía",

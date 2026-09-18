@@ -9,8 +9,16 @@ export const PULSO_INTENTIONS = [
 ] as const;
 export type PulsoIntention = (typeof PULSO_INTENTIONS)[number];
 
-export const PULSO_TIME_OPTIONS = [15, 30, 45, 60] as const;
+export const PULSO_TIME_OPTIONS = [30, 45, 60] as const;
 export type PulsoTimeOption = (typeof PULSO_TIME_OPTIONS)[number];
+
+/** La cuarta opción de la pantalla de minutos no es un preset: abre un
+ * deslizador para elegir cualquier duración. Arranca en 60 —el preset más
+ * largo— porque quien lo abre suele ser para pedir más, no menos. */
+export const PULSO_MANUAL_DEFAULT_MINUTES = 60;
+export const PULSO_MANUAL_MIN_MINUTES = 5;
+export const PULSO_MANUAL_MAX_MINUTES = 180;
+export const PULSO_MANUAL_STEP_MINUTES = 5;
 
 export const PULSO_ENERGY_LEVELS = ["low", "normal", "high"] as const;
 export type PulsoEnergy = (typeof PULSO_ENERGY_LEVELS)[number];

@@ -231,6 +231,8 @@
     "otherPlaceholder": "Z. B. Vom-Blatt-Spiel",
     "timeTitle": "Wie viel Zeit hast du?",
     "timeDescription": "Ich passe die Dauer jeder Phase daran an.",
+    "manualOption": "Manuell",
+    "manualLabel": "Minuten",
     "contextTitle": "Noch ein paar Dinge",
     "contextDescription": "So passt der Plan besser zu deinem heutigen Tag.",
     "energyLabel": "Energielevel",
