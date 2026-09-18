@@ -104,7 +104,10 @@ const ENERGY_ICONS: Record<PulsoEnergy, typeof Battery> = {
 
 /** Racha (días) a partir de la cual el brillo de la luciérnaga llega a su
  * máximo — a partir de ahí ya no crece más. */
-const STREAK_FOR_FULL_GLOW = 14;
+/** Horas practicadas en la semana con las que la luz de Pulso llega a su
+ * máximo. La semana empieza apagada y cada hora la sube un octavo, así que
+ * una sesión suelta ya se nota y el tope es alcanzable sin ser regalado. */
+const HOURS_FOR_FULL_GLOW = 8;
 /** Sin práctica reciente durante al menos esto, el saludo cambia a uno que
  * invita a retomar en vez de preguntar "qué trabajamos" sin más contexto. */
 const REENGAGEMENT_DAYS = 3;
@@ -262,7 +265,7 @@ export function PulsoWidget({
     signals.recentCategoryMinutes.technique + signals.recentCategoryMinutes.repertoire > 0;
   const reengaging =
     signals.daysSinceLastPractice !== null && signals.daysSinceLastPractice >= REENGAGEMENT_DAYS;
-  const glowIntensity = Math.min(signals.currentStreak / STREAK_FOR_FULL_GLOW, 1);
+  const glowIntensity = Math.min(signals.weeklySeconds / (HOURS_FOR_FULL_GLOW * 3600), 1);
 
   function reset() {
     setStep("intention");
