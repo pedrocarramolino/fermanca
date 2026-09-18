@@ -6,7 +6,9 @@ import { SessionBuilder } from "@/features/session-builder/components/session-bu
 import {
   getAuthenticatedUser,
   getCurrentUserProfile,
+  getCurrentUserSettings,
 } from "@/core/infrastructure/supabase/current-user";
+import { accentHue } from "@/features/settings/lib/accent-presets";
 import { SupabaseCategoryRepository } from "@/core/infrastructure/supabase/repositories/category-repository";
 import { SupabaseTemplateRepository } from "@/core/infrastructure/supabase/repositories/template-repository";
 import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/repositories/session-repository";
@@ -39,12 +41,15 @@ export default async function Home() {
   const templateRepo = new SupabaseTemplateRepository(supabase);
   const sessionRepo = new SupabaseSessionRepository(supabase);
   const weeklyGoalRepo = new SupabaseWeeklyGoalRepository(supabase);
-  const [categories, templates, recentSessions, profile, weeklyGoal, pulsoSessions] =
+  const [categories, templates, recentSessions, profile, settings, weeklyGoal, pulsoSessions] =
     await Promise.all([
       categoryRepo.listAvailable(userId),
       templateRepo.listByOwner(userId),
       sessionRepo.listByOwner(userId, { limit: RECENT_SESSIONS_PREVIEW }),
       getCurrentUserProfile().catch(() => null),
+      // Ya lo pide el layout raíz y getCurrentUserSettings está cacheado por
+      // petición, así que esto no añade ninguna consulta.
+      getCurrentUserSettings().catch(() => null),
       weeklyGoalRepo.getForWeek(userId, currentWeekStartKey(new Date())),
       sessionRepo.listByOwner(userId, { limit: PULSO_SIGNAL_SESSIONS }),
     ]);
@@ -82,7 +87,11 @@ export default async function Home() {
         {tCommon("footerCredit", { year: new Date().getFullYear() })}
       </p>
 
-      <PulsoWidget categories={categories} signals={pulsoSignals} />
+      <PulsoWidget
+        categories={categories}
+        signals={pulsoSignals}
+        accentHue={accentHue(settings?.accentColor ?? null)}
+      />
     </main>
   );
 }

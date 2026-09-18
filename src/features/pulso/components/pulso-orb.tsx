@@ -8,13 +8,15 @@ import { cn } from "@/lib/utils";
  * usuario a propósito: son la identidad visual de la mascota, igual que su
  * nombre. */
 const FIREFLY_DARK = "oklch(0.18 0.03 155)";
-const FIREFLY_MINT = "oklch(0.82 0.18 155)";
 
-/** El verde de la luciérnaga en un solo tono: lo único que cambia con la
+/** Matiz propio de Pulso — el verde de la mascota mientras no haya
+ * desbloqueado el color del usuario (ver `hue` más abajo). */
+export const PULSO_MINT_HUE = 155;
+
+/** La luz de la luciérnaga en un solo tono: lo único que cambia con la
  * intensidad es cuánta luz tiene (claridad y saturación). */
-const MINT_HUE = 155;
-function mint(lightness: number, chroma: number): string {
-  return `oklch(${lightness.toFixed(3)} ${chroma.toFixed(3)} ${MINT_HUE})`;
+function lit(hue: number, lightness: number, chroma: number): string {
+  return `oklch(${lightness.toFixed(3)} ${chroma.toFixed(3)} ${hue.toFixed(1)})`;
 }
 function lerp(from: number, to: number, t: number): number {
   return from + (to - from) * t;
@@ -32,9 +34,9 @@ const OFF_ON = {
   tip: { off: [0.34, 0.04], on: [0.9, 0.24] },
   smile: { off: [0.42, 0.05], on: [0.82, 0.18] },
 } as const;
-function litColor(key: keyof typeof OFF_ON, t: number): string {
+function litColor(key: keyof typeof OFF_ON, hue: number, t: number): string {
   const { off, on } = OFF_ON[key];
-  return mint(lerp(off[0], on[0], t), lerp(off[1], on[1], t));
+  return lit(hue, lerp(off[0], on[0], t), lerp(off[1], on[1], t));
 }
 
 /** ~72 "pulsaciones" por minuto — un metrónomo lento y tranquilo, no un
@@ -49,8 +51,8 @@ const BEAT_TIMES = [0, 0.18, 1];
 const GLOW_RADIUS = { min: 0, max: 26 };
 const GLOW_SPREAD = { min: 0, max: 9 };
 
-function glowFilter(radius: number, spread: number): string {
-  return `drop-shadow(0 0 ${radius}px ${FIREFLY_MINT}) drop-shadow(0 0 ${spread}px ${FIREFLY_MINT})`;
+function glowFilter(color: string, radius: number, spread: number): string {
+  return `drop-shadow(0 0 ${radius}px ${color}) drop-shadow(0 0 ${spread}px ${color})`;
 }
 
 /**
@@ -78,10 +80,14 @@ function glowFilter(radius: number, spread: number): string {
  */
 export function PulsoOrb({
   intensity = 0,
+  hue = PULSO_MINT_HUE,
   reduceMotion,
   className,
 }: {
   intensity?: number;
+  /** Matiz OKLCH de la luz. Por defecto el verde propio de la mascota; quien
+   * la usa puede pasar otro (ver el desbloqueo en pulso-widget.tsx). */
+  hue?: number;
   reduceMotion: boolean;
   className?: string;
 }) {
@@ -94,23 +100,25 @@ export function PulsoOrb({
   const gradientId = useId();
   const wingGradientId = useId();
 
-  const bodyCenter = litColor("bodyCenter", clamped);
-  const bodyMid = litColor("bodyMid", clamped);
-  const bodyEdge = litColor("bodyEdge", clamped);
-  const wingInner = litColor("wingInner", clamped);
-  const wingOuter = litColor("wingOuter", clamped);
-  const tipColor = litColor("tip", clamped);
-  const smileColor = litColor("smile", clamped);
+  const bodyCenter = litColor("bodyCenter", hue, clamped);
+  const bodyMid = litColor("bodyMid", hue, clamped);
+  const bodyEdge = litColor("bodyEdge", hue, clamped);
+  const wingInner = litColor("wingInner", hue, clamped);
+  const wingOuter = litColor("wingOuter", hue, clamped);
+  const tipColor = litColor("tip", hue, clamped);
+  const smileColor = litColor("smile", hue, clamped);
+  /** El halo y el charco del suelo, en el mismo tono que el cuerpo. */
+  const glowColor = lit(hue, 0.82, 0.18);
   // El charco de luz del suelo solo existe si hay luz que lo proyecte.
   const groundGlowOpacity = 0.35 * clamped;
 
   const glowAnimate = reduceMotion
-    ? { filter: glowFilter(radius, spread) }
+    ? { filter: glowFilter(glowColor, radius, spread) }
     : {
         filter: [
-          glowFilter(radius * 0.7, spread * 0.7),
-          glowFilter(radius * 1.2, spread * 1.2),
-          glowFilter(radius, spread),
+          glowFilter(glowColor, radius * 0.7, spread * 0.7),
+          glowFilter(glowColor, radius * 1.2, spread * 1.2),
+          glowFilter(glowColor, radius, spread),
         ],
       };
   const tipAnimate = reduceMotion ? { scale: 1 } : { scale: [1, 1.35, 1.1] };
@@ -145,7 +153,7 @@ export function PulsoOrb({
           cy="94"
           rx="19"
           ry="5"
-          fill={FIREFLY_MINT}
+          fill={glowColor}
           opacity={groundGlowOpacity}
           style={{ filter: "blur(3px)" }}
         />

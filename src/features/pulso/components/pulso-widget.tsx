@@ -58,7 +58,7 @@ import {
 import { formatDurationShort } from "@/core/domain/duration";
 import { categoryDisplayName, type Category } from "@/core/domain/category";
 import { startSession } from "@/features/session-builder/application/actions";
-import { PulsoOrb } from "@/features/pulso/components/pulso-orb";
+import { PULSO_MINT_HUE, PulsoOrb } from "@/features/pulso/components/pulso-orb";
 import type { PulsoSignals } from "@/features/pulso/application/signals";
 import {
   generatePulsoPlan,
@@ -174,7 +174,11 @@ function PulsoPhaseRow({
         <GripVertical className="size-3.5" />
       </Button>
 
-      <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: phase.color }} aria-hidden />
+      <span
+        className="size-2.5 shrink-0 rounded-full"
+        style={{ backgroundColor: phase.color }}
+        aria-hidden
+      />
 
       <Select value={phase.categoryId} onValueChange={(value) => value && onChangeCategory(value)}>
         <SelectTrigger
@@ -239,9 +243,13 @@ function PulsoPhaseRow({
 export function PulsoWidget({
   categories,
   signals,
+  accentHue,
 }: {
   categories: Category[];
   signals: PulsoSignals;
+  /** Matiz OKLCH del acento elegido en Ajustes. La mascota lo luce como
+   * recompensa al llegar al tope de horas de la semana. */
+  accentHue: number;
 }) {
   const t = useTranslations("Pulso");
   const tCategories = useTranslations("Categories");
@@ -266,6 +274,11 @@ export function PulsoWidget({
   const reengaging =
     signals.daysSinceLastPractice !== null && signals.daysSinceLastPractice >= REENGAGEMENT_DAYS;
   const glowIntensity = Math.min(signals.weeklySeconds / (HOURS_FOR_FULL_GLOW * 3600), 1);
+  // Al alcanzar el tope de horas, la luciérnaga deja su verde de siempre y se
+  // enciende con el color que el usuario tenga elegido en Ajustes: el cambio
+  // de tono es la recompensa por haber llenado la semana. Hasta entonces
+  // mantiene su identidad propia.
+  const orbHue = glowIntensity >= 1 ? accentHue : PULSO_MINT_HUE;
 
   function reset() {
     setStep("intention");
@@ -377,7 +390,12 @@ export function PulsoWidget({
       prev
         ? prev.map((phase) =>
             phase.id === id
-              ? { ...phase, categoryId: category.id, name: categoryDisplayName(category, tCategories), color: category.color }
+              ? {
+                  ...phase,
+                  categoryId: category.id,
+                  name: categoryDisplayName(category, tCategories),
+                  color: category.color,
+                }
               : phase,
           )
         : prev,
@@ -435,7 +453,7 @@ export function PulsoWidget({
         className="focus-visible:ring-ring/50 fixed right-4 z-30 rounded-full focus-visible:ring-3 focus-visible:outline-none"
         style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 6.5rem)" }}
       >
-        <PulsoOrb intensity={glowIntensity} reduceMotion={!!reduceMotion} />
+        <PulsoOrb intensity={glowIntensity} hue={orbHue} reduceMotion={!!reduceMotion} />
       </button>
 
       <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -454,8 +472,15 @@ export function PulsoWidget({
           {step === "intention" && (
             <>
               <DialogHeader className="items-center pt-4 text-center">
-                <PulsoOrb intensity={glowIntensity} reduceMotion={!!reduceMotion} className="mb-1 size-12" />
-                <DialogTitle>{reengaging ? t("reengagementTitle") : t("intentionTitle")}</DialogTitle>
+                <PulsoOrb
+                  intensity={glowIntensity}
+                  hue={orbHue}
+                  reduceMotion={!!reduceMotion}
+                  className="mb-1 size-12"
+                />
+                <DialogTitle>
+                  {reengaging ? t("reengagementTitle") : t("intentionTitle")}
+                </DialogTitle>
                 <DialogDescription>
                   {reengaging ? t("reengagementDescription") : t("intentionDescription")}
                 </DialogDescription>
@@ -485,7 +510,10 @@ export function PulsoWidget({
                       onClick={() => handlePickIntention(value)}
                     >
                       <Icon
-                        className={cn("size-5 shrink-0", selected ? "text-primary-foreground" : "text-primary")}
+                        className={cn(
+                          "size-5 shrink-0",
+                          selected ? "text-primary-foreground" : "text-primary",
+                        )}
                       />
                       <span className="flex flex-col items-start gap-0.5">
                         <span className="font-medium">{t(`intention.${value}.title`)}</span>
@@ -592,9 +620,15 @@ export function PulsoWidget({
                 >
                   <span className="flex flex-col gap-0.5">
                     <span className="text-sm font-medium">{t("useProgressLabel")}</span>
-                    <span className="text-muted-foreground text-xs">{t("useProgressDescription")}</span>
+                    <span className="text-muted-foreground text-xs">
+                      {t("useProgressDescription")}
+                    </span>
                   </span>
-                  <Switch id="pulso-use-progress" checked={useProgress} onCheckedChange={setUseProgress} />
+                  <Switch
+                    id="pulso-use-progress"
+                    checked={useProgress}
+                    onCheckedChange={setUseProgress}
+                  />
                 </label>
               )}
 
@@ -629,7 +663,12 @@ export function PulsoWidget({
                     <p className="text-muted-foreground text-xs">{t("rationale.progress")}</p>
                   )}
                   {intention === "other" && otherLabel && (
-                    <p className={cn("text-muted-foreground", otherLabelMatched ? "text-sm" : "text-xs")}>
+                    <p
+                      className={cn(
+                        "text-muted-foreground",
+                        otherLabelMatched ? "text-sm" : "text-xs",
+                      )}
+                    >
                       {t("rationale.otherFocus", { label: otherLabel })}
                     </p>
                   )}
@@ -639,7 +678,11 @@ export function PulsoWidget({
                     </p>
                   )}
 
-                  <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                  >
                     <SortableContext
                       items={phases.map((phase) => phase.id)}
                       strategy={verticalListSortingStrategy}
@@ -650,7 +693,9 @@ export function PulsoWidget({
                             key={phase.id}
                             phase={phase}
                             categories={categories}
-                            onChangeCategory={(categoryId) => handleReplaceCategory(phase.id, categoryId)}
+                            onChangeCategory={(categoryId) =>
+                              handleReplaceCategory(phase.id, categoryId)
+                            }
                             onDecrease={() => adjustPhaseSeconds(phase.id, -PHASE_STEP_SECONDS)}
                             onIncrease={() => adjustPhaseSeconds(phase.id, PHASE_STEP_SECONDS)}
                           />

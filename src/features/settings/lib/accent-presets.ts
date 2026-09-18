@@ -69,3 +69,44 @@ export function accentOverrideCssFromHex(hex: string): string {
   const dark = `--primary:${hex};--primary-foreground:${foreground};--ring:${hex};--accent:color-mix(in oklch, ${hex}, black 85%);--accent-foreground:color-mix(in oklch, ${hex}, white 75%);--sidebar-primary:${hex};--sidebar-ring:${hex};--sidebar-accent:color-mix(in oklch, ${hex}, black 85%);--sidebar-accent-foreground:color-mix(in oklch, ${hex}, white 75%)`;
   return `:root{${light}}.dark{${dark}}`;
 }
+
+/** Matiz del acento por defecto de la app (el teal de globals.css) — el que
+ * vale cuando el usuario no ha elegido ninguno. */
+export const DEFAULT_ACCENT_HUE = 185;
+
+/**
+ * Matiz OKLCH de un color libre en hexadecimal. Los presets ya guardan su H,
+ * pero un color elegido a mano no, y hace falta para poder teñir con él algo
+ * construido en OKLCH (la luz de Pulso). Conversión estándar sRGB -> lineal
+ * -> Oklab; de todo Oklab solo interesa el ángulo de matiz.
+ */
+function hexToOklchHue(hex: string): number | null {
+  const match = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!match) return null;
+  const int = Number.parseInt(match[1]!, 16);
+  const toLinear = (channel: number) => {
+    const c = channel / 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  const r = toLinear((int >> 16) & 255);
+  const g = toLinear((int >> 8) & 255);
+  const b = toLinear(int & 255);
+
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+
+  const a = 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s;
+  const bAxis = 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s;
+
+  return ((Math.atan2(bAxis, a) * 180) / Math.PI + 360) % 360;
+}
+
+/** Matiz OKLCH del acento que tenga elegido el usuario, venga de la paleta o
+ * de un color libre. Sin acento elegido (o con un valor que no se entiende),
+ * el de por defecto. */
+export function accentHue(accentColor: string | null): number {
+  if (isAccentPreset(accentColor)) return ACCENT_PRESETS[accentColor].hue;
+  const fromHex = accentColor ? hexToOklchHue(accentColor) : null;
+  return fromHex ?? DEFAULT_ACCENT_HUE;
+}
