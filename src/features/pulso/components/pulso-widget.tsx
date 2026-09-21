@@ -386,7 +386,7 @@ export function PulsoWidget({
     if (reengaging) {
       return {
         text: t("suggestions.reengagement"),
-        apply: () => applySuggestion("repertoire", 15),
+        apply: () => applySuggestion("repertoire", 30),
       };
     }
     return null;

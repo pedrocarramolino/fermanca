@@ -204,7 +204,7 @@
     "intentionTitle": "¿Qué quieres trabajar hoy?",
     "intentionDescription": "Elige y te preparo el plan de la sesión.",
     "reengagementTitle": "¿Retomamos con algo corto hoy?",
-    "reengagementDescription": "Nada de presión — hasta 15 minutos ya cuentan.",
+    "reengagementDescription": "Nada de presión — hasta 30 minutos ya cuentan.",
     "intention": {
       "technique": {
         "title": "Técnica",
@@ -273,7 +273,7 @@
     },
     "suggestions": {
       "dominantCategory": "Llevas varias sesiones centradas en {category}. ¿Metemos {other} hoy?",
-      "reengagement": "Sesión corta de 15 min para retomar suave."
+      "reengagement": "Sesión corta de 30 min para retomar suave."
     }
   },
   "AddBlockForm": {

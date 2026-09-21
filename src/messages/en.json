@@ -204,7 +204,7 @@
     "intentionTitle": "What do you want to work on today?",
     "intentionDescription": "Pick one and I'll put together the session plan.",
     "reengagementTitle": "Shall we ease back in today?",
-    "reengagementDescription": "No pressure — even 15 minutes count.",
+    "reengagementDescription": "No pressure — even 30 minutes count.",
     "intention": {
       "technique": {
         "title": "Technique",
@@ -273,7 +273,7 @@
     },
     "suggestions": {
       "dominantCategory": "You've had several sessions focused on {category}. Add some {other} today?",
-      "reengagement": "Short 15 min session to ease back in."
+      "reengagement": "Short 30 min session to ease back in."
     }
   },
   "AddBlockForm": {

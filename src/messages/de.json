@@ -204,7 +204,7 @@
     "intentionTitle": "Woran möchtest du heute arbeiten?",
     "intentionDescription": "Wähle aus, und ich erstelle den Sitzungsplan.",
     "reengagementTitle": "Heute sanft wieder einsteigen?",
-    "reengagementDescription": "Kein Druck — selbst 15 Minuten zählen schon.",
+    "reengagementDescription": "Kein Druck — selbst 30 Minuten zählen schon.",
     "intention": {
       "technique": {
         "title": "Technik",
@@ -273,7 +273,7 @@
     },
     "suggestions": {
       "dominantCategory": "Du hattest zuletzt mehrere Sitzungen mit Fokus auf {category}. Heute etwas {other}?",
-      "reengagement": "Kurze 15-Minuten-Sitzung zum sanften Wiedereinstieg."
+      "reengagement": "Kurze 30-Minuten-Sitzung zum sanften Wiedereinstieg."
     }
   },
   "AddBlockForm": {
