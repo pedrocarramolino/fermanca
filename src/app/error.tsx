@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { reportClientError } from "@/lib/error-reporting/report-client-error";
 
 export default function ErrorBoundary({
   error,
@@ -12,6 +13,7 @@ export default function ErrorBoundary({
 }) {
   useEffect(() => {
     console.error(error);
+    reportClientError(error, "boundary");
   }, [error]);
 
   return (

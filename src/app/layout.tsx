@@ -11,6 +11,7 @@ import { NotificationPromptDialog } from "@/components/notification-prompt-dialo
 import { LaunchProvider } from "@/components/launch-animation";
 import { LiquidGlassFilter } from "@/components/liquid-glass-filter";
 import { BottomNav } from "@/components/bottom-nav";
+import { ClientErrorListener } from "@/components/client-error-listener";
 import { ThemeProvider } from "@/components/theme-provider";
 import {
   getAuthenticatedUser,
@@ -171,6 +172,9 @@ export default async function RootLayout({
         )}
       </head>
       <body>
+        {/* Fuera de los providers a propósito: si uno de ellos revienta,
+            el aviso tiene que seguir saliendo. */}
+        <ClientErrorListener />
         <LiquidGlassFilter />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ThemeProvider defaultTheme={settings?.theme ?? "system"}>

@@ -45,6 +45,51 @@ export type Database = {
         }
         Relationships: []
       }
+      app_errors: {
+        Row: {
+          context: Json | null
+          fingerprint: string
+          first_seen_at: string
+          last_emailed_at: string | null
+          last_seen_at: string
+          message: string
+          occurrences: number
+          path: string | null
+          route: string | null
+          source: string
+          stack: string | null
+          user_id: string | null
+        }
+        Insert: {
+          context?: Json | null
+          fingerprint: string
+          first_seen_at?: string
+          last_emailed_at?: string | null
+          last_seen_at?: string
+          message: string
+          occurrences?: number
+          path?: string | null
+          route?: string | null
+          source: string
+          stack?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          context?: Json | null
+          fingerprint?: string
+          first_seen_at?: string
+          last_emailed_at?: string | null
+          last_seen_at?: string
+          message?: string
+          occurrences?: number
+          path?: string | null
+          route?: string | null
+          source?: string
+          stack?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       calendar_events: {
         Row: {
           created_at: string
@@ -888,6 +933,49 @@ export type Database = {
         Args: { check_email: string }
         Returns: boolean
       }
+      feed_session_shares: {
+        Args: { p_limit: number }
+        Returns: {
+          blocks: Json
+          created_at: string
+          id: string
+          owner_avatar_url: string | null
+          owner_id: string
+          owner_username: string
+          session_id: string
+          started_at: string
+          title: string | null
+          total_duration_seconds: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "session_shares"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      feed_weekly_goal_shares: {
+        Args: { p_limit: number }
+        Returns: {
+          created_at: string
+          id: string
+          owner_avatar_url: string | null
+          owner_id: string
+          owner_username: string
+          practiced_days: number
+          practiced_seconds: number
+          streak_days: number
+          target_days: number
+          target_seconds: number
+          week_start: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "weekly_goal_shares"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       friends_progress: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -898,6 +986,23 @@ export type Database = {
           weekly_seconds: number
           monthly_seconds: number
           current_streak: number
+        }[]
+      }
+      record_app_error: {
+        Args: {
+          p_context: Json | null
+          p_fingerprint: string
+          p_message: string
+          p_path: string | null
+          p_route: string | null
+          p_source: string
+          p_stack: string | null
+          p_user_id: string | null
+        }
+        Returns: {
+          first_seen_at: string
+          occurrences: number
+          should_email: boolean
         }[]
       }
     }

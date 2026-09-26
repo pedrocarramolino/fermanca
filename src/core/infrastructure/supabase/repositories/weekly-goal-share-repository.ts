@@ -58,12 +58,13 @@ export class SupabaseWeeklyGoalShareRepository implements WeeklyGoalShareReposit
     return toDomain(data);
   }
 
+  // Solo lo de quien mira y sus amigos aceptados, leído por autor con el
+  // índice (owner_id, created_at): antes esto pedía la tabla entera y dejaba
+  // que la RLS filtrase, lo que recorría las publicaciones de TODA la app en
+  // cada carga del Feed. La RLS sigue aplicándose igual (la función es
+  // SECURITY INVOKER) — ver la migración feed_by_authors.
   async listFeed(_viewerId: UserId, limit: number): Promise<WeeklyGoalShare[]> {
-    const { data, error } = await this.client
-      .from("weekly_goal_shares")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(limit);
+    const { data, error } = await this.client.rpc("feed_weekly_goal_shares", { p_limit: limit });
     if (error) throw error;
     return data.map(toDomain);
   }

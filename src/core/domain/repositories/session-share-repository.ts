@@ -13,8 +13,9 @@ export interface SessionShareRepository {
     blocks: { id: SessionBlockId; name: string; color: string; actualDurationSeconds: number }[];
   }): Promise<SessionShare>;
   /** Feed de quien mira: su propio contenido compartido más el de sus
-   * amigos aceptados — la RLS ya limita esto, este método solo pide "lo que
-   * pueda ver" ordenado por fecha de publicación. */
+   * amigos aceptados, lo más reciente primero. Tiene que costar lo mismo
+   * con 100 usuarios que con 100.000: se lee por autor, nunca la tabla
+   * entera filtrada después. */
   listFeed(viewerId: UserId, limit: number): Promise<SessionShare[]>;
   /** Para saber a quién avisar cuando alguien reacciona — null si la
    * publicación ya no existe (se quitó del feed entre medias). */
