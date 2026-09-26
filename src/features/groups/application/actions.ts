@@ -7,8 +7,8 @@ import { SupabaseGroupRepository } from "@/core/infrastructure/supabase/reposito
 import { SupabaseProfileRepository } from "@/core/infrastructure/supabase/repositories/profile-repository";
 import { SupabaseSessionRepository } from "@/core/infrastructure/supabase/repositories/session-repository";
 import { SupabaseSessionInviteRepository } from "@/core/infrastructure/supabase/repositories/session-invite-repository";
-import { SupabasePushSubscriptionRepository } from "@/core/infrastructure/supabase/repositories/push-subscription-repository";
 import { sendPush } from "@/core/infrastructure/push/send-push";
+import { sendPushToMany } from "@/core/infrastructure/push/send-push-to-many";
 import { UnauthorizedError } from "@/core/domain/errors";
 import { currentWeekStartKey, weeklyGoalProgress, type WeeklyGoalProgress } from "@/core/domain/weekly-goal";
 import { mondayOf } from "@/core/domain/streaks";
@@ -356,21 +356,13 @@ async function notifyGroupMembers(
   memberIds: UserId[],
   payload: Parameters<typeof sendPush>[1],
 ) {
-  const serviceClient = createServiceClient();
-  const pushRepo = new SupabasePushSubscriptionRepository(serviceClient);
-  const recipients = memberIds.filter((id) => id !== excludeUserId);
-
-  for (const recipientId of recipients) {
-    const { data: subscriptions, error } = await serviceClient
-      .from("push_subscriptions")
-      .select("*")
-      .eq("owner_id", recipientId);
-    if (error) throw error;
-    for (const sub of subscriptions) {
-      const result = await sendPush({ endpoint: sub.endpoint, p256dh: sub.p256dh, auth: sub.auth }, payload);
-      if (result.expired) await pushRepo.deleteByEndpoint(sub.endpoint);
-    }
-  }
+  // Antes era una consulta por miembro y un envío detrás de otro: en un
+  // grupo grande, el que marcaba el objetivo se quedaba esperando minutos.
+  await sendPushToMany(
+    createServiceClient(),
+    { ownerIds: memberIds.filter((id) => id !== excludeUserId) },
+    payload,
+  );
 }
 
 /**

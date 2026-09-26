@@ -55,16 +55,13 @@ export class SupabaseSessionShareRepository implements SessionShareRepository {
     return toDomain(data);
   }
 
-  // Sin filtro explícito por amigo (mismo patrón que
-  // ProfileRepository.getByUsername): la RLS de session_shares ya deja ver
-  // solo la fila propia o la de un amigo aceptado — esto pide "lo que
-  // pueda ver", no "lo de mis amigos" calculado aparte.
+  // Solo lo de quien mira y sus amigos aceptados, leído por autor con el
+  // índice (owner_id, created_at): antes esto pedía la tabla entera y dejaba
+  // que la RLS filtrase, lo que recorría las publicaciones de TODA la app en
+  // cada carga del Feed. La RLS sigue aplicándose igual (la función es
+  // SECURITY INVOKER) — ver la migración feed_by_authors.
   async listFeed(_viewerId: UserId, limit: number): Promise<SessionShare[]> {
-    const { data, error } = await this.client
-      .from("session_shares")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(limit);
+    const { data, error } = await this.client.rpc("feed_session_shares", { p_limit: limit });
     if (error) throw error;
     return data.map(toDomain);
   }

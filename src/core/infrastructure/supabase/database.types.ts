@@ -933,6 +933,49 @@ export type Database = {
         Args: { check_email: string }
         Returns: boolean
       }
+      feed_session_shares: {
+        Args: { p_limit: number }
+        Returns: {
+          blocks: Json
+          created_at: string
+          id: string
+          owner_avatar_url: string | null
+          owner_id: string
+          owner_username: string
+          session_id: string
+          started_at: string
+          title: string | null
+          total_duration_seconds: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "session_shares"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      feed_weekly_goal_shares: {
+        Args: { p_limit: number }
+        Returns: {
+          created_at: string
+          id: string
+          owner_avatar_url: string | null
+          owner_id: string
+          owner_username: string
+          practiced_days: number
+          practiced_seconds: number
+          streak_days: number
+          target_days: number
+          target_seconds: number
+          week_start: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "weekly_goal_shares"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       friends_progress: {
         Args: Record<PropertyKey, never>
         Returns: {

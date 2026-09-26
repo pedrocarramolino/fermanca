@@ -1,12 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { createClient } from "@/core/infrastructure/supabase/server";
 import { createServiceClient } from "@/core/infrastructure/supabase/service-client";
 import { SupabaseAnnouncementRepository } from "@/core/infrastructure/supabase/repositories/announcement-repository";
 import { SupabaseProfileRepository } from "@/core/infrastructure/supabase/repositories/profile-repository";
-import { SupabasePushSubscriptionRepository } from "@/core/infrastructure/supabase/repositories/push-subscription-repository";
-import { sendPush } from "@/core/infrastructure/push/send-push";
+import { sendPushToMany } from "@/core/infrastructure/push/send-push-to-many";
 import { UnauthorizedError } from "@/core/domain/errors";
 import { canEditAnnouncement } from "@/core/domain/announcement";
 import type { AnnouncementId, UserId } from "@/core/domain/ids";
@@ -27,28 +27,17 @@ async function requireUserId() {
 /** Avisa a todos los dispositivos suscritos salvo los de quien publica —
  * con la clave de servicio, porque hace falta leer suscripciones de
  * cualquier usuario, no solo la propia (igual que notifyFriendRequest en
- * community/application/actions.ts). */
+ * community/application/actions.ts). Es el único aviso que va a toda la
+ * app, así que es el que más crece: ver sendPushToMany. */
 async function notifyAnnouncementSubscribers(authorId: UserId, body: string) {
-  const serviceClient = createServiceClient();
-  const { data: subscriptions, error } = await serviceClient
-    .from("push_subscriptions")
-    .select("*")
-    .neq("owner_id", authorId);
-  if (error) throw error;
-
   const truncatedBody =
-    body.length > NOTIFICATION_BODY_LIMIT
-      ? `${body.slice(0, NOTIFICATION_BODY_LIMIT)}…`
-      : body;
+    body.length > NOTIFICATION_BODY_LIMIT ? `${body.slice(0, NOTIFICATION_BODY_LIMIT)}…` : body;
 
-  const pushRepo = new SupabasePushSubscriptionRepository(serviceClient);
-  for (const sub of subscriptions) {
-    const result = await sendPush(
-      { endpoint: sub.endpoint, p256dh: sub.p256dh, auth: sub.auth },
-      { kind: "announcement", title: "Nuevo anuncio en Fermança", body: truncatedBody },
-    );
-    if (result.expired) await pushRepo.deleteByEndpoint(sub.endpoint);
-  }
+  await sendPushToMany(
+    createServiceClient(),
+    { everyoneExcept: authorId },
+    { kind: "announcement", title: "Nuevo anuncio en Fermança", body: truncatedBody },
+  );
 }
 
 export async function listAnnouncements() {
@@ -77,10 +66,14 @@ export async function createAnnouncement(body: string) {
     trimmed,
   );
 
-  await notifyAnnouncementSubscribers(userId, trimmed).catch((error: unknown) => {
-    // El aviso es un extra, no debe tumbar la publicación si falla.
-    console.error("No se pudo avisar a los usuarios del anuncio", error);
-  });
+  // Después de responder: el anuncio ya está publicado y quien lo publica
+  // no tiene por qué quedarse esperando a que salgan miles de avisos.
+  after(() =>
+    notifyAnnouncementSubscribers(userId, trimmed).catch((error: unknown) => {
+      // El aviso es un extra, no debe tumbar la publicación si falla.
+      console.error("No se pudo avisar a los usuarios del anuncio", error);
+    }),
+  );
 
   revalidatePath("/community");
   return announcement;

@@ -13,8 +13,8 @@ export interface WeeklyGoalShareRepository {
     practicedSeconds: number;
     streakDays: number;
   }): Promise<WeeklyGoalShare>;
-  /** Mismo criterio que SessionShareRepository.listFeed: la RLS ya limita a
-   * lo propio o lo de un amigo aceptado. */
+  /** Mismo criterio que SessionShareRepository.listFeed: lo propio y lo de
+   * los amigos aceptados, leído por autor. */
   listFeed(viewerId: UserId, limit: number): Promise<WeeklyGoalShare[]>;
   /** Para saber a quién avisar cuando alguien reacciona — mismo motivo que
    * SessionShareRepository.getById. */
