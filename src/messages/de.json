@@ -905,7 +905,7 @@
   },
   "Privacy": {
     "title": "Datenschutzerklärung",
-    "lastUpdated": "Zuletzt aktualisiert: 5. August 2026",
+    "lastUpdated": "Zuletzt aktualisiert: 27. September 2026",
     "controller": {
       "heading": "Verantwortlicher",
       "body": "Pedro Carramolino González ist als Privatperson für die Verarbeitung der von Fermança erfassten Daten verantwortlich. Bei Fragen zu deinen Daten kannst du dich unter <email>pedrocarramolino34@gmail.com</email> melden."
@@ -943,7 +943,7 @@
     },
     "retention": {
       "heading": "Wie lange wir deine Daten aufbewahren",
-      "body": "Solange dein Konto aktiv bleibt. Wenn du dein Konto und alle deine Daten löschen möchtest, schreib uns an <email>pedrocarramolino34@gmail.com</email> — wir erledigen das innerhalb einer angemessenen Frist. Derzeit gibt es dafür noch keine Selbstbedienungsoption in der App."
+      "body": "Solange dein Konto aktiv bleibt. Du kannst dein Konto und alle deine Daten jederzeit löschen, direkt in der App oder indem du uns schreibst: Wie das geht, steht unter <link>Konto löschen</link>."
     },
     "rights": {
       "heading": "Deine Rechte",
@@ -958,5 +958,37 @@
       "body": "Wenn wir diese Richtlinie wesentlich ändern, weisen wir auf dieser Seite zusammen mit dem Datum der letzten Aktualisierung darauf hin."
     },
     "seeAlso": "Siehe auch die <link>Nutzungsbedingungen</link>."
+  },
+  "AccountDeletion": {
+    "title": "Konto löschen",
+    "intro": "Fermança ist eine App von Pedro Carramolino González. Auf dieser Seite erfährst du, wie du dein Konto löschst und was dabei mit deinen Daten passiert.",
+    "inApp": {
+      "heading": "In der App",
+      "intro": "Das ist der schnellste Weg: Dein Konto wird sofort gelöscht.",
+      "step1": "Melde dich bei Fermança an, in der App oder unter fermanca.vercel.app.",
+      "step2": "Öffne die Einstellungen über das Zahnrad-Symbol oben rechts.",
+      "step3": "Scrolle nach unten zu „Gefahrenzone“ und tippe auf „Konto löschen“.",
+      "step4": "Gib zur Bestätigung deinen Benutzernamen ein.",
+      "cta": "Zu den Einstellungen"
+    },
+    "byEmail": {
+      "heading": "Wenn du nicht in die App kommst",
+      "body": "Schreib an <email>pedrocarramolino34@gmail.com</email> von der E-Mail-Adresse, mit der du dich registriert hast, und bitte uns, dein Konto zu löschen. Wir löschen es spätestens innerhalb eines Monats und bestätigen es dir per E-Mail."
+    },
+    "deleted": {
+      "heading": "Was gelöscht wird",
+      "intro": "Alles, was mit deinem Konto zu tun hat, wird dauerhaft gelöscht und kann nicht wiederhergestellt werden:",
+      "item1": "Dein Konto: E-Mail-Adresse, Benutzername, Passwort und Profilbild.",
+      "item2": "Deine Übungsdaten: Sitzungen mit ihren Phasen und Notizen, Vorlagen, eigene Kategorien, Wochenziele, Erinnerungen und Kalendertermine samt ihren geplanten Benachrichtigungen.",
+      "item3": "Deine Aktivität in der Community: Freundschaften und Anfragen, was du im Feed geteilt hast, deine Reaktionen, Einladungen zu Sitzungen und deine Gruppenmitgliedschaften.",
+      "item4": "Gruppen, die du erstellt hast – sie verschwinden auch für die anderen Mitglieder.",
+      "item5": "Die Geräte, die du für Benachrichtigungen registriert hast."
+    },
+    "kept": {
+      "heading": "Was aufbewahrt wird",
+      "item1": "Nichts, was dich identifiziert. Technische Fehlerberichte, die dich betrafen, werden aufbewahrt, damit wir die App verbessern können – aber ohne Daten, die sie mit dir verbinden. In Sitzungen, die du zusammen mit jemand anderem gemacht hast, zeigt dessen Verlauf deinen Namen nicht mehr an.",
+      "item2": "Technische Protokolle unserer Hosting-Anbieter (zum Beispiel Zugriffsprotokolle mit IP-Adressen) werden gemäß deren eigenen Fristen automatisch gelöscht, in der Regel innerhalb weniger Tage."
+    },
+    "seeAlso": "Siehe auch die <link>Datenschutzerklärung</link>."
   }
 }

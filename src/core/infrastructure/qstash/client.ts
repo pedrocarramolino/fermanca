@@ -90,6 +90,24 @@ export async function cancelQstashMessage(messageId: string): Promise<void> {
   }
 }
 
+/**
+ * Identificador fijo de la programación de cada recordatorio y de cada aviso
+ * de calendario, derivado de su id. Antes lo elegía QStash al azar y solo
+ * quedaba apuntado en la fila de la base de datos: si esa fila desaparecía
+ * sin pasar por deleteReminder/deleteCalendarEvent (al borrar la cuenta se
+ * van en cascada), la programación seguía disparando para siempre sin que
+ * nadie supiera su id. Con un id fijo, la ruta que recibe el aviso puede
+ * borrarla ella misma al ver que ya no hay nada que avisar. Crear con un id
+ * que ya existe la sobrescribe, así que tampoco se pueden duplicar.
+ */
+export function reminderScheduleId(reminderId: string): string {
+  return `reminder-${reminderId}`;
+}
+
+export function calendarEventScheduleId(eventId: string): string {
+  return `calendar-event-${eventId}`;
+}
+
 /** QStash evalúa el cron en UTC salvo que se le indique otra zona con el
  * prefijo CRON_TZ dentro de la propia expresión (no es un parámetro aparte). */
 function reminderCron(timeOfDay: string, daysOfWeek: DayOfWeek[], timezone: string): string {
@@ -107,6 +125,7 @@ export async function createReminderSchedule(
 ): Promise<string | null> {
   if (daysOfWeek.length === 0) return null;
   const { scheduleId } = await getClient().schedules.create({
+    scheduleId: reminderScheduleId(reminderId),
     destination: `${appUrl()}/api/qstash/reminder-alert`,
     body: JSON.stringify({ reminderId }),
     headers: { "Content-Type": "application/json" },
@@ -136,12 +155,27 @@ export async function scheduleCalendarEventNotification(
   notifyAt: Date,
 ): Promise<string> {
   const { scheduleId } = await getClient().schedules.create({
+    scheduleId: calendarEventScheduleId(eventId),
     destination: `${appUrl()}/api/qstash/calendar-event-alert`,
     body: JSON.stringify({ eventId }),
     headers: { "Content-Type": "application/json" },
     cron: oneShotCron(notifyAt),
   });
   return scheduleId;
+}
+
+/**
+ * Para las rutas que reciben un aviso programado y descubren que ya no hay
+ * nada que avisar (la fila se borró): borra la programación que las ha
+ * llamado para que no vuelva a disparar. Se borra por el id fijo (ver
+ * reminderScheduleId) y, además, por el que traiga la cabecera
+ * Upstash-Schedule-Id si QStash la manda — eso cubre también las
+ * programaciones antiguas, creadas antes de que el id fuera fijo.
+ */
+export async function deleteOrphanSchedule(request: Request, scheduleId: string): Promise<void> {
+  const fromHeader = request.headers.get("upstash-schedule-id");
+  await deleteQstashSchedule(scheduleId);
+  if (fromHeader && fromHeader !== scheduleId) await deleteQstashSchedule(fromHeader);
 }
 
 export async function deleteQstashSchedule(scheduleId: string): Promise<void> {

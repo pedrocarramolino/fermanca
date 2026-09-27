@@ -86,7 +86,18 @@ export default async function PrivacyPage() {
 
         <section className="flex flex-col gap-2">
           <h2 className="text-base font-semibold">{t("retention.heading")}</h2>
-          <p>{t.rich("retention.body", { email: emailLink })}</p>
+          <p>
+            {t.rich("retention.body", {
+              link: (chunks) => (
+                <Link
+                  href="/delete-account"
+                  className="text-foreground underline underline-offset-4"
+                >
+                  {chunks}
+                </Link>
+              ),
+            })}
+          </p>
         </section>
 
         <section className="flex flex-col gap-2">

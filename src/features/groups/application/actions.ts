@@ -201,15 +201,24 @@ export interface GroupDetail {
   hasMoreActivity: boolean;
 }
 
+/** Ids por consulta: van en la URL, así que se trocean. */
+const USERNAME_LOOKUP_CHUNK = 100;
+
+/** Antes era una consulta por persona: abrir un grupo de 200 miembros
+ * lanzaba 200 peticiones a Supabase. Ahora son ceil(n / 100). Quien no tenga
+ * perfil visible (o ya no exista) sale como "Usuario", igual que antes. */
 async function resolveActorUsernames(
   actorIds: UserId[],
   profileRepo: SupabaseProfileRepository,
 ): Promise<Map<UserId, string>> {
   const unique = [...new Set(actorIds)];
-  const entries = await Promise.all(
-    unique.map(async (id) => [id, (await profileRepo.getByOwnerId(id))?.username ?? "Usuario"] as const),
-  );
-  return new Map(entries);
+  const chunks: UserId[][] = [];
+  for (let i = 0; i < unique.length; i += USERNAME_LOOKUP_CHUNK) {
+    chunks.push(unique.slice(i, i + USERNAME_LOOKUP_CHUNK));
+  }
+  const found = await Promise.all(chunks.map((chunk) => profileRepo.listByOwnerIds(chunk)));
+  const profiles = new Map(found.flatMap((map) => [...map]));
+  return new Map(unique.map((id) => [id, profiles.get(id)?.username ?? "Usuario"] as const));
 }
 
 /** Duración y bloques practicados de las sesiones detrás de eventos

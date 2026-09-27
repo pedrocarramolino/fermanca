@@ -7,7 +7,7 @@ import { getSupabaseEnv } from "@/core/infrastructure/supabase/env";
 // propia recuperación de contraseña), así que es una ruta protegida más,
 // no pública.
 //
-// /terms, /privacy, /compartir y /community/join son la excepción a "si hay
+// /terms, /privacy, /compartir, /community/join y /delete-account son la excepción a "si hay
 // sesión, fuera de aquí": son consultables da igual si has iniciado sesión o
 // no (un usuario registrado también quiere poder leer los términos, abrir
 // un enlace de compartir, o aceptar una invitación de amistad sin que lo
@@ -21,8 +21,17 @@ const PUBLIC_ROUTES = [
   "/privacy",
   "/compartir",
   "/community/join",
+  "/delete-account",
 ];
-const PUBLIC_ROUTES_ALWAYS_ACCESSIBLE = ["/terms", "/privacy", "/compartir", "/community/join"];
+const PUBLIC_ROUTES_ALWAYS_ACCESSIBLE = [
+  "/terms",
+  "/privacy",
+  "/compartir",
+  "/community/join",
+  // Google Play exige que se pueda consultar sin instalar la app ni iniciar
+  // sesión; y con sesión tampoco tiene sentido echar a nadie de ella.
+  "/delete-account",
+];
 
 // "/" es pública (sin sesión, page.tsx ya renderiza la landing en vez del
 // panel) Y siempre accesible (con sesión, sigue siendo la home de siempre) —
@@ -91,7 +100,15 @@ export const config = {
      * fuera de la comprobación de sesión, no solo del listado de
      * PUBLIC_ROUTES de arriba (ese solo decide qué ve un navegador real,
      * esto decide qué ve el proxy siquiera).
+     *
+     * Dos archivos estáticos más que tienen que servirse sin sesión:
+     *  · /.well-known/ — assetlinks.json, que Google descarga sin cookies para
+     *    verificar que el APK de Play Store (TWA) es de este dominio; si se
+     *    redirige a /login, la app se abre con la barra del navegador.
+     *  · /offline.html — la pantalla sin conexión, que el service worker
+     *    guarda al instalarse, casi siempre en la primera visita (sin sesión):
+     *    redirigida, lo que guardaba era la página de login.
      */
-    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|icon|apple-icon|sw.js|auth/callback|api/|robots.txt|sitemap.xml|opengraph-image|twitter-image|google[^/]*\\.html).*)",
+    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|icon|apple-icon|sw.js|offline\\.html|\\.well-known/|auth/callback|api/|robots.txt|sitemap.xml|opengraph-image|twitter-image|google[^/]*\\.html).*)",
   ],
 };

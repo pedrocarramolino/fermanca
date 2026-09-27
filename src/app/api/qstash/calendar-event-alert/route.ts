@@ -3,7 +3,11 @@ import { createServiceClient } from "@/core/infrastructure/supabase/service-clie
 import { SupabasePushSubscriptionRepository } from "@/core/infrastructure/supabase/repositories/push-subscription-repository";
 import { sendPush } from "@/core/infrastructure/push/send-push";
 import { verifyQstashSignature } from "@/core/infrastructure/qstash/verify";
-import { deleteQstashSchedule } from "@/core/infrastructure/qstash/client";
+import {
+  calendarEventScheduleId,
+  deleteOrphanSchedule,
+  deleteQstashSchedule,
+} from "@/core/infrastructure/qstash/client";
 
 /** QStash llama aquí en el instante exacto que se eligió al crear el evento
  * (ver scheduleCalendarEventNotification) — mismo patrón que reminder-alert,
@@ -27,8 +31,11 @@ export async function POST(request: Request) {
   if (eventError) throw eventError;
 
   // Puede haberse borrado entre que se programó el aviso y que QStash lo
-  // entrega — no es un error.
+  // entrega — no es un error. Pero la programación se queda huérfana (al
+  // borrar la cuenta, por ejemplo) y, como el cron no fija el año, volvería
+  // a saltar cada año en la misma fecha: se borra aquí mismo.
   if (!event) {
+    await deleteOrphanSchedule(request, calendarEventScheduleId(eventId));
     return NextResponse.json({ sent: 0, skipped: true });
   }
 
