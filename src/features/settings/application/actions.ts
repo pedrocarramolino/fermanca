@@ -168,6 +168,46 @@ export async function removeAvatar() {
   return profile;
 }
 
+/** Ids por consulta `.in()` — van en la URL, así que se trocean. */
+const IDS_PER_QUERY = 100;
+
+/**
+ * Lo que queda de ti en sitios que no son tuyos y, por tanto, no cae en
+ * cascada al borrar la cuenta (necesita la clave secreta, porque toca filas
+ * de otros usuarios):
+ *  · tu nombre en el historial de quienes hicieron una sesión contigo — el
+ *    enlace entre las dos sesiones es mutuo (ver setLinkedSession), así que
+ *    tus sesiones dicen cuáles son las suyas;
+ *  · tu id en los informes de errores (app_errors), que se conservan para
+ *    arreglar la app pero sin nada que los relacione contigo.
+ * Lo que promete /delete-account depende de esto.
+ */
+async function forgetUserInOthersData(userId: string) {
+  const service = createServiceClient();
+  const { data: linked, error } = await service
+    .from("sessions")
+    .select("linked_session_id")
+    .eq("owner_id", userId)
+    .not("linked_session_id", "is", null);
+  if (error) throw error;
+  const partnerSessionIds = linked
+    .map((row) => row.linked_session_id)
+    .filter((id): id is string => id !== null);
+  for (let i = 0; i < partnerSessionIds.length; i += IDS_PER_QUERY) {
+    const { error: updateError } = await service
+      .from("sessions")
+      .update({ linked_session_peer_username: null })
+      .in("id", partnerSessionIds.slice(i, i + IDS_PER_QUERY));
+    if (updateError) throw updateError;
+  }
+
+  const { error: errorsError } = await service
+    .from("app_errors")
+    .update({ user_id: null })
+    .eq("user_id", userId);
+  if (errorsError) throw errorsError;
+}
+
 /**
  * Borra la cuenta y, con ella, todo lo demás: sesiones, plantillas,
  * categorías propias, amistades, recordatorios y suscripciones push cuelgan
@@ -184,6 +224,12 @@ export async function removeAvatar() {
  *    calendario, que si no seguirían disparando cada semana (o cada año)
  *    para nadie. Si alguna falla, la ruta que la recibe la borra al ver que
  *    ya no existe (ver deleteOrphanSchedule), así que no bloquea el borrado.
+ * Además se borra tu rastro en datos de otros (ver forgetUserInOthersData).
+ * Todo esto va antes del borrado: si algo falla, la cuenta sigue intacta y
+ * se puede reintentar, en vez de quedar a medias.
+ *
+ * Lo que se borra y lo que no está explicado en /delete-account: si cambia
+ * algo aquí, revisa también esa página.
  */
 export async function deleteMyAccount() {
   const supabase = await createClient();
@@ -208,6 +254,7 @@ export async function deleteMyAccount() {
 
   await Promise.all([
     removeAvatarFiles(supabase, userId),
+    forgetUserInOthersData(userId),
     ...[...scheduleIds].map(deleteQstashSchedule),
   ]);
 

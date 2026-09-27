@@ -905,7 +905,7 @@
   },
   "Privacy": {
     "title": "Privacy Policy",
-    "lastUpdated": "Last updated: August 5, 2026",
+    "lastUpdated": "Last updated: September 27, 2026",
     "controller": {
       "heading": "Data controller",
       "body": "Pedro Carramolino González, as an individual, is the controller responsible for the data Fermança collects. You can reach out with any questions about your data at <email>pedrocarramolino34@gmail.com</email>."
@@ -943,7 +943,7 @@
     },
     "retention": {
       "heading": "How long we keep your data",
-      "body": "For as long as you keep your account active. If you want to delete your account and all your data, write to us at <email>pedrocarramolino34@gmail.com</email> and we'll do so within a reasonable timeframe — there's currently no self-service option inside the app."
+      "body": "For as long as you keep your account active. You can delete your account and all your data at any time, from the app itself or by writing to us: see how in <link>Delete your account</link>."
     },
     "rights": {
       "heading": "Your rights",
@@ -958,5 +958,37 @@
       "body": "If we make relevant changes to this policy, we'll note it on this same page along with the date of the last update."
     },
     "seeAlso": "See also the <link>Terms of Service</link>."
+  },
+  "AccountDeletion": {
+    "title": "Delete your account",
+    "intro": "Fermança is an app by Pedro Carramolino González. This page explains how to delete your account and what happens to your data when you do.",
+    "inApp": {
+      "heading": "From the app",
+      "intro": "This is the fastest way: your account is deleted immediately.",
+      "step1": "Sign in to Fermança, in the app or at fermanca.vercel.app.",
+      "step2": "Open Settings with the gear icon at the top right.",
+      "step3": "Scroll down to “Danger zone” and tap “Delete account”.",
+      "step4": "Type your username to confirm.",
+      "cta": "Go to Settings"
+    },
+    "byEmail": {
+      "heading": "If you can't access the app",
+      "body": "Write to <email>pedrocarramolino34@gmail.com</email> from the email address you signed up with, asking us to delete your account. We'll delete it within one month at most and confirm it by email."
+    },
+    "deleted": {
+      "heading": "What gets deleted",
+      "intro": "Everything related to your account is permanently deleted and cannot be recovered:",
+      "item1": "Your account: email address, username, password and profile photo.",
+      "item2": "Your practice: sessions with their phases and notes, templates, custom categories, weekly goals, reminders and calendar events, along with their scheduled notifications.",
+      "item3": "Your Community activity: friendships and requests, what you shared in the Feed and your reactions, session invitations and your group memberships.",
+      "item4": "Groups you created, which also disappear for their other members.",
+      "item5": "The devices you registered to receive notifications."
+    },
+    "kept": {
+      "heading": "What is kept",
+      "item1": "Nothing that identifies you. Technical error reports that affected you are kept so we can fix the app, but with no data linking them to you. In sessions you did together with someone else, their history no longer shows your name.",
+      "item2": "Technical logs from our hosting providers (for example, access logs with IP addresses) are deleted automatically according to their own retention periods, usually within a few days."
+    },
+    "seeAlso": "See also the <link>Privacy policy</link>."
   }
 }

@@ -905,7 +905,7 @@
   },
   "Privacy": {
     "title": "Política de privacidad",
-    "lastUpdated": "Última actualización: 5 de agosto de 2026",
+    "lastUpdated": "Última actualización: 27 de septiembre de 2026",
     "controller": {
       "heading": "Responsable del tratamiento",
       "body": "Pedro Carramolino González, como persona física, es responsable del tratamiento de los datos que recoge Fermança. Puedes contactar para cualquier duda sobre tus datos en <email>pedrocarramolino34@gmail.com</email>."
@@ -943,7 +943,7 @@
     },
     "retention": {
       "heading": "Cuánto tiempo conservamos tus datos",
-      "body": "Mientras mantengas tu cuenta activa. Si quieres eliminar tu cuenta y todos tus datos, escríbenos a <email>pedrocarramolino34@gmail.com</email> y lo haremos en un plazo razonable — de momento no hay una opción de autoservicio dentro de la app."
+      "body": "Mientras mantengas tu cuenta activa. Puedes eliminar tu cuenta y todos tus datos cuando quieras, desde la propia app o escribiéndonos: consulta cómo en <link>Eliminar tu cuenta</link>."
     },
     "rights": {
       "heading": "Tus derechos",
@@ -958,5 +958,37 @@
       "body": "Si cambiamos esta política de forma relevante, lo indicaremos en esta misma página junto con la fecha de la última actualización."
     },
     "seeAlso": "Consulta también los <link>Términos de servicio</link>."
+  },
+  "AccountDeletion": {
+    "title": "Eliminar tu cuenta",
+    "intro": "Fermança es una aplicación de Pedro Carramolino González. En esta página se explica cómo eliminar tu cuenta y qué ocurre con tus datos cuando lo haces.",
+    "inApp": {
+      "heading": "Desde la app",
+      "intro": "Es la forma más rápida: la cuenta se elimina al momento.",
+      "step1": "Inicia sesión en Fermança, en la app o en fermanca.vercel.app.",
+      "step2": "Abre Ajustes con el icono de la rueda, arriba a la derecha.",
+      "step3": "Baja hasta «Zona de peligro» y pulsa «Eliminar cuenta».",
+      "step4": "Escribe tu nombre de usuario para confirmar.",
+      "cta": "Ir a Ajustes"
+    },
+    "byEmail": {
+      "heading": "Si no puedes entrar en la app",
+      "body": "Escribe a <email>pedrocarramolino34@gmail.com</email> desde el correo con el que te registraste, pidiendo que eliminemos tu cuenta. La eliminaremos en un plazo máximo de un mes y te lo confirmaremos por correo."
+    },
+    "deleted": {
+      "heading": "Qué se elimina",
+      "intro": "Todo lo que tenga que ver con tu cuenta se borra de forma permanente y no se puede recuperar:",
+      "item1": "Tu cuenta: correo electrónico, nombre de usuario, contraseña y foto de perfil.",
+      "item2": "Tu práctica: las sesiones con sus fases y notas, plantillas, categorías propias, objetivos semanales, recordatorios y eventos del calendario, junto con sus avisos programados.",
+      "item3": "Tu actividad en Comunidad: amistades y solicitudes, lo que hayas compartido en el Feed y tus reacciones, invitaciones a sesiones y tu participación en grupos.",
+      "item4": "Los grupos que hayas creado tú, que también desaparecen para el resto de sus miembros.",
+      "item5": "Los dispositivos que registraste para recibir notificaciones."
+    },
+    "kept": {
+      "heading": "Qué se conserva",
+      "item1": "Nada que te identifique. Los informes técnicos de errores que te afectaron se conservan para poder arreglar la app, pero sin ningún dato que los relacione contigo. En las sesiones que hiciste en compañía de otra persona, su historial deja de mostrar tu nombre.",
+      "item2": "Los registros técnicos de nuestros proveedores de alojamiento (por ejemplo, registros de acceso con direcciones IP) se borran solos, según sus propios plazos, normalmente en pocos días."
+    },
+    "seeAlso": "Consulta también la <link>Política de privacidad</link>."
   }
 }
