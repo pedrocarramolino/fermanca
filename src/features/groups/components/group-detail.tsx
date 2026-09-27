@@ -25,6 +25,7 @@ import {
   type GroupDetail as GroupDetailData,
   type GroupMemberInfo,
 } from "@/features/groups/application/actions";
+import { UserSafetyControls } from "@/features/moderation/components/user-safety";
 
 export function GroupDetail({ group, myOwnerId }: { group: GroupDetailData; myOwnerId: string }) {
   const t = useTranslations("Groups.detail");
@@ -129,17 +130,29 @@ export function GroupDetail({ group, myOwnerId }: { group: GroupDetailData; myOw
                     <Badge variant="outline">{t(`ownerLabel.${group.kind}`)}</Badge>
                   )}
                 </div>
-                {isOwner && member.ownerId !== group.ownerId && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-xs"
-                    aria-label={t("removeMember", { name: member.username })}
-                    onClick={() => setRemovingMember(member)}
-                  >
-                    <UserMinus className="size-3.5" />
-                  </Button>
-                )}
+                <div className="flex shrink-0 items-center gap-1">
+                  {isOwner && member.ownerId !== group.ownerId && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xs"
+                      aria-label={t("removeMember", { name: member.username })}
+                      onClick={() => setRemovingMember(member)}
+                    >
+                      <UserMinus className="size-3.5" />
+                    </Button>
+                  )}
+                  {member.ownerId !== myOwnerId && (
+                    <UserSafetyControls
+                      target={member}
+                      context="group"
+                      contentId={group.id}
+                      // Su actividad deja de salir en el muro del grupo.
+                      onBlocked={() => router.refresh()}
+                      className="size-6"
+                    />
+                  )}
+                </div>
               </li>
             ))}
           </ul>
@@ -156,6 +169,7 @@ export function GroupDetail({ group, myOwnerId }: { group: GroupDetailData; myOw
           groupId={group.id}
           initialEvents={group.activity}
           initialHasMore={group.hasMoreActivity}
+          initialNextOffset={group.nextActivityOffset}
         />
       </div>
 

@@ -778,6 +778,63 @@ export type Database = {
         }
         Relationships: []
       }
+      user_blocks: {
+        Row: {
+          blocked_id: string
+          blocker_id: string
+          created_at: string
+        }
+        Insert: {
+          blocked_id: string
+          blocker_id: string
+          created_at?: string
+        }
+        Update: {
+          blocked_id?: string
+          blocker_id?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
+      user_reports: {
+        Row: {
+          content_id: string | null
+          context: string
+          created_at: string
+          details: string | null
+          id: string
+          reason: string
+          reported_id: string
+          reporter_id: string | null
+          resolved_at: string | null
+          status: string
+        }
+        Insert: {
+          content_id?: string | null
+          context: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason: string
+          reported_id: string
+          reporter_id?: string | null
+          resolved_at?: string | null
+          status?: string
+        }
+        Update: {
+          content_id?: string | null
+          context?: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason?: string
+          reported_id?: string
+          reporter_id?: string | null
+          resolved_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       user_settings: {
         Row: {
           accent_color: string | null

@@ -1,6 +1,12 @@
 import "server-only";
 import { createServiceClient } from "@/core/infrastructure/supabase/service-client";
 import { siteConfig } from "@/config/site";
+import {
+  escapeHtml,
+  formatMadrid,
+  isAdminEmailEnabled,
+  sendAdminEmail,
+} from "@/core/infrastructure/email/send-admin-email";
 
 /**
  * Avisos por correo cuando algo falla en la app.
@@ -47,10 +53,8 @@ const MAX_STACK = 8_000;
 const MAX_PATH = 500;
 const MAX_USER_AGENT = 300;
 
-const DEFAULT_FROM = "Fermança <onboarding@resend.dev>";
-
 export function isErrorReportingEnabled(): boolean {
-  return Boolean(process.env.RESEND_API_KEY && process.env.ERROR_ALERT_EMAIL);
+  return isAdminEmailEnabled();
 }
 
 export async function reportError(report: ErrorReport): Promise<void> {
@@ -145,22 +149,6 @@ const KIND_LABELS: Record<string, string> = {
   unhandled: "en el navegador — sin pantalla de error",
 };
 
-function formatMadrid(date: Date): string {
-  return new Intl.DateTimeFormat("es-ES", {
-    timeZone: "Europe/Madrid",
-    dateStyle: "short",
-    timeStyle: "short",
-  }).format(date);
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
 async function sendAlertEmail(
   report: ErrorReport,
   meta: { occurrences: number; firstSeenAt: Date; username: string | null },
@@ -220,22 +208,9 @@ async function sendAlertEmail(
 
   const shortMessage =
     report.message.length > 60 ? `${report.message.slice(0, 60)}…` : report.message;
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: process.env.ERROR_ALERT_FROM || DEFAULT_FROM,
-      to: process.env.ERROR_ALERT_EMAIL!.split(",").map((address) => address.trim()),
-      subject: `⚠️ ${siteConfig.name}: ${shortMessage} (${where})`,
-      text,
-      html,
-    }),
-    signal: AbortSignal.timeout(8_000),
+  await sendAdminEmail({
+    subject: `⚠️ ${siteConfig.name}: ${shortMessage} (${where})`,
+    text,
+    html,
   });
-  if (!response.ok) {
-    throw new Error(`Resend respondió ${response.status}: ${await response.text()}`);
-  }
 }

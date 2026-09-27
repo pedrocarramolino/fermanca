@@ -35,6 +35,8 @@ export default async function TermsPage() {
             <li>{t("usage.item1")}</li>
             <li>{t("usage.item2")}</li>
             <li>{t("usage.item3")}</li>
+            <li>{t("usage.item4")}</li>
+            <li>{t("usage.item5")}</li>
           </ul>
         </section>
 

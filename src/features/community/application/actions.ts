@@ -10,6 +10,7 @@ import { SupabasePushSubscriptionRepository } from "@/core/infrastructure/supaba
 import { sendPush } from "@/core/infrastructure/push/send-push";
 import { UnauthorizedError } from "@/core/domain/errors";
 import { hasPracticedTime } from "@/core/domain/session";
+import { getBlockedIdsFor, isBlockedBetween } from "@/features/moderation/application/blocked-ids";
 import type { Friend } from "@/core/domain/friendship";
 import type { FriendshipId, UserId } from "@/core/domain/ids";
 
@@ -30,6 +31,7 @@ export async function getMyProfile() {
 
 export interface PendingRequest {
   friendshipId: string;
+  fromOwnerId: string;
   fromUsername: string;
 }
 
@@ -44,6 +46,7 @@ export async function listPendingRequests(): Promise<PendingRequest[]> {
   );
   return incoming.map((f) => ({
     friendshipId: f.id,
+    fromOwnerId: f.requesterId,
     fromUsername: profiles.get(f.requesterId)?.username ?? "Usuario",
   }));
 }
@@ -129,6 +132,12 @@ async function createFriendRequest(
   client: Awaited<ReturnType<typeof createClient>>,
   targetOwnerId: UserId,
 ) {
+  // RLS ya lo impide (ver la migración user_blocks_and_reports), pero así el
+  // error es legible. No dice quién bloqueó a quién.
+  if (await isBlockedBetween(userId, targetOwnerId)) {
+    throw new Error("No puedes enviar una solicitud a esta persona.");
+  }
+
   const friendshipRepo = new SupabaseFriendshipRepository(client);
   const existing = await friendshipRepo.findBetween(userId, targetOwnerId);
   if (existing) {
@@ -316,9 +325,10 @@ export async function getFriendsOfFriend(friendOwnerId: string): Promise<FriendO
   );
   const accepted = theirFriendships.filter((f) => f.status === "accepted");
 
+  const blockedIds = await getBlockedIdsFor(userId);
   const otherIds = accepted
     .map((f) => (f.requesterId === friendOwnerId ? f.addresseeId : f.requesterId))
-    .filter((otherId) => otherId !== userId);
+    .filter((otherId) => otherId !== userId && !blockedIds.has(otherId));
   if (otherIds.length === 0) return [];
 
   // Antes esto pedía, por cada persona de la lista, su perfil Y la relación
@@ -385,9 +395,11 @@ export async function listSuggestedFriends(): Promise<SuggestedFriend[]> {
   // Cualquiera con quien ya tengas una fila en friendships (aceptada o
   // pendiente, en cualquier sentido) no debe sugerirse — ya sois amigos, o
   // ya hay una solicitud en curso entre vosotros.
-  const excludedIds = new Set(
-    myFriendships.map((f) => (f.requesterId === userId ? f.addresseeId : f.requesterId)),
-  );
+  // Y tampoco nadie con quien haya un bloqueo, en ningún sentido.
+  const excludedIds = new Set([
+    ...myFriendships.map((f) => (f.requesterId === userId ? f.addresseeId : f.requesterId)),
+    ...(await getBlockedIdsFor(userId)),
+  ]);
 
   const serviceClient = createServiceClient();
 

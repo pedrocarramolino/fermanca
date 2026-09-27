@@ -1,6 +1,7 @@
 "use client";
 
 import { startTransition, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { UserPlus } from "lucide-react";
 import {
@@ -23,6 +24,12 @@ import {
 } from "@/features/community/application/actions";
 import type { Locale } from "@/core/domain/user-settings";
 import { FriendAvatar, type FriendWithProgress } from "@/features/community/components/friends-list";
+import {
+  BlockUserPanel,
+  ReportUserPanel,
+  UserSafetyMenu,
+  type SafetyAction,
+} from "@/features/moderation/components/user-safety";
 
 function sessionTotalSeconds(session: FriendSession): number {
   return session.blocks.reduce((total, block) => total + block.actualDurationSeconds, 0);
@@ -63,7 +70,13 @@ function SessionBlockList({ session }: { session: FriendSession }) {
 /** Se remonta con `key={friend.ownerId}` (ver más abajo), así el estado
  * inicial "loading" ya es correcto para el nuevo amigo sin necesitar un
  * efecto que lo reinicie a mano al cambiar de `friend`. */
-function FriendSessionContent({ friend }: { friend: FriendWithProgress }) {
+function FriendSessionContent({
+  friend,
+  onClose,
+}: {
+  friend: FriendWithProgress;
+  onClose: () => void;
+}) {
   const t = useTranslations("Community.session");
   const tHistory = useTranslations("SessionHistory");
   const tFriends = useTranslations("Community.friendsOfFriend");
@@ -73,6 +86,10 @@ function FriendSessionContent({ friend }: { friend: FriendWithProgress }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [friendsOfFriend, setFriendsOfFriend] = useState<FriendOfFriend[] | null>(null);
   const [sendingTo, setSendingTo] = useState<string | null>(null);
+  // Denunciar / bloquear sustituyen el contenido de este mismo diálogo en
+  // vez de abrir otro encima (ver UserSafetyMenu).
+  const [safetyView, setSafetyView] = useState<SafetyAction | null>(null);
+  const router = useRouter();
 
   // Los datos llegan en dos tandas (sesiones y amigos del amigo) y cada una
   // hace crecer el diálogo. Dentro de startTransition ese crecimiento lo
@@ -111,6 +128,35 @@ function FriendSessionContent({ friend }: { friend: FriendWithProgress }) {
     abandoned: tHistory("statusAbandoned"),
   };
 
+  const target = { ownerId: friend.ownerId, username: friend.username };
+
+  if (safetyView === "report") {
+    return (
+      <ReportUserPanel
+        target={target}
+        context="profile"
+        // Si además le ha bloqueado, la lista de amigos de detrás ya no
+        // debe incluirle aunque cierre con la X.
+        onSent={({ blocked }) => blocked && router.refresh()}
+        onFinished={onClose}
+        onCancel={() => setSafetyView(null)}
+      />
+    );
+  }
+
+  if (safetyView === "block") {
+    return (
+      <BlockUserPanel
+        target={target}
+        onBlocked={() => {
+          onClose();
+          router.refresh();
+        }}
+        onCancel={() => setSafetyView(null)}
+      />
+    );
+  }
+
   return (
     <>
       <DialogHeader className="flex-row items-center gap-3">
@@ -119,12 +165,14 @@ function FriendSessionContent({ friend }: { friend: FriendWithProgress }) {
           avatarUrl={friend.avatarUrl}
           className="size-12"
         />
-        <div className="flex min-w-0 flex-col gap-1">
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
           <DialogTitle className="truncate">{friend.username}</DialogTitle>
           <DialogDescription>
             {t("monthTotal", { duration: formatDurationShort(friend.monthlySeconds) })}
           </DialogDescription>
         </div>
+        {/* mr-7: deja sitio a la X de cerrar, que va en la esquina. */}
+        <UserSafetyMenu username={friend.username} onSelect={setSafetyView} className="mr-7" />
       </DialogHeader>
 
       {status === "loading" && <p className="text-muted-foreground text-sm">{t("loading")}</p>}
@@ -235,7 +283,11 @@ export function FriendSessionDialog({
           viewport en vez de dejar hacer scroll. */}
       <DialogContent>
         {friend ? (
-          <FriendSessionContent key={friend.ownerId} friend={friend} />
+          <FriendSessionContent
+            key={friend.ownerId}
+            friend={friend}
+            onClose={() => onOpenChange(false)}
+          />
         ) : (
           <DialogHeader>
             <DialogTitle>{t("recentSessions")}</DialogTitle>

@@ -13,6 +13,7 @@ import { UnauthorizedError } from "@/core/domain/errors";
 import { currentWeekStartKey, weeklyGoalProgress, type WeeklyGoalProgress } from "@/core/domain/weekly-goal";
 import { mondayOf } from "@/core/domain/streaks";
 import { GROUP_ACTIVITY_PAGE_SIZE } from "@/features/groups/application/constants";
+import { getBlockedIdsFor } from "@/features/moderation/application/blocked-ids";
 import type { DraftBlockInput } from "@/features/session-builder/application/draft-block";
 import type { GroupActivityEvent, GroupKind } from "@/core/domain/group";
 import type { GroupId, GroupWeeklyGoalId, SessionId, TemplateId, UserId } from "@/core/domain/ids";
@@ -199,6 +200,9 @@ export interface GroupDetail {
   weeklyGoal: GroupWeeklyGoalInfo | null;
   activity: GroupActivityEventInfo[];
   hasMoreActivity: boolean;
+  /** Desde qué fila pedir la siguiente página — no es `activity.length`
+   * porque de cada página se quitan los eventos de gente bloqueada. */
+  nextActivityOffset: number;
 }
 
 /** Ids por consulta: van en la URL, así que se trocean. */
@@ -274,10 +278,14 @@ export async function getGroupDetail(groupId: string): Promise<GroupDetail> {
   const { repo, group } = await requireMembership(groupId as GroupId, userId, client);
 
   const profileRepo = new SupabaseProfileRepository(client);
-  const [memberIds, activityRows] = await Promise.all([
+  const [memberIds, pageRows, blockedIds] = await Promise.all([
     repo.listMembers(group.id),
     repo.listActivity(group.id, { limit: GROUP_ACTIVITY_PAGE_SIZE, offset: 0 }),
+    getBlockedIdsFor(userId),
   ]);
+  // Seguís siendo miembros del mismo grupo, pero no ves lo que hace alguien
+  // con quien hay un bloqueo (ni él lo tuyo).
+  const activityRows = pageRows.filter((row) => !blockedIds.has(row.actorId));
 
   const [usernames, sessionSummaries] = await Promise.all([
     resolveActorUsernames([...memberIds, ...activityRows.map((a) => a.actorId)], profileRepo),
@@ -314,21 +322,25 @@ export async function getGroupDetail(groupId: string): Promise<GroupDetail> {
     activity: activityRows.map((event) =>
       toActivityEventInfo(event, usernames.get(event.actorId) ?? "Usuario", sessionSummaries),
     ),
-    hasMoreActivity: activityRows.length === GROUP_ACTIVITY_PAGE_SIZE,
+    // La página se mide antes de filtrar: el offset del "cargar más" cuenta
+    // filas de la tabla, no las que se enseñan.
+    hasMoreActivity: pageRows.length === GROUP_ACTIVITY_PAGE_SIZE,
+    nextActivityOffset: pageRows.length,
   };
 }
 
 export async function loadMoreGroupActivity(
   groupId: string,
   offset: number,
-): Promise<GroupActivityEventInfo[]> {
+): Promise<{ events: GroupActivityEventInfo[]; hasMore: boolean; nextOffset: number }> {
   const { userId, client } = await requireUserId();
   const { repo } = await requireMembership(groupId as GroupId, userId, client);
 
-  const rows = await repo.listActivity(groupId as GroupId, {
-    limit: GROUP_ACTIVITY_PAGE_SIZE,
-    offset,
-  });
+  const [pageRows, blockedIds] = await Promise.all([
+    repo.listActivity(groupId as GroupId, { limit: GROUP_ACTIVITY_PAGE_SIZE, offset }),
+    getBlockedIdsFor(userId),
+  ]);
+  const rows = pageRows.filter((row) => !blockedIds.has(row.actorId));
   const [usernames, sessionSummaries] = await Promise.all([
     resolveActorUsernames(
       rows.map((r) => r.actorId),
@@ -336,9 +348,13 @@ export async function loadMoreGroupActivity(
     ),
     resolveSessionSummaries(rows),
   ]);
-  return rows.map((event) =>
-    toActivityEventInfo(event, usernames.get(event.actorId) ?? "Usuario", sessionSummaries),
-  );
+  return {
+    events: rows.map((event) =>
+      toActivityEventInfo(event, usernames.get(event.actorId) ?? "Usuario", sessionSummaries),
+    ),
+    hasMore: pageRows.length === GROUP_ACTIVITY_PAGE_SIZE,
+    nextOffset: offset + pageRows.length,
+  };
 }
 
 /** Solo el dueño de un grupo 'admin' puede fijar el objetivo — reforzado
@@ -367,9 +383,11 @@ async function notifyGroupMembers(
 ) {
   // Antes era una consulta por miembro y un envío detrás de otro: en un
   // grupo grande, el que marcaba el objetivo se quedaba esperando minutos.
+  // Quien tenga un bloqueo con el que lo provoca no se entera.
+  const blockedIds = await getBlockedIdsFor(excludeUserId);
   await sendPushToMany(
     createServiceClient(),
-    { ownerIds: memberIds.filter((id) => id !== excludeUserId) },
+    { ownerIds: memberIds.filter((id) => id !== excludeUserId && !blockedIds.has(id)) },
     payload,
   );
 }
@@ -489,7 +507,10 @@ export async function inviteGroupToSession(
   const { repo, group } = await requireMembership(groupId as GroupId, userId, client);
   if (group.kind !== "creator") throw new UnauthorizedError();
 
-  const memberIds = (await repo.listMembers(group.id)).filter((id) => id !== userId);
+  const blockedIds = await getBlockedIdsFor(userId);
+  const memberIds = (await repo.listMembers(group.id)).filter(
+    (id) => id !== userId && !blockedIds.has(id),
+  );
   if (memberIds.length === 0) throw new Error("No hay nadie más en este grupo todavía.");
 
   const myProfile = await new SupabaseProfileRepository(client).getByOwnerId(userId);
