@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronRight, Flag } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { getCurrentUserSettings } from "@/core/infrastructure/supabase/current-user";
 import { getMyProfile } from "@/features/community/application/actions";
 import { SettingsForm } from "@/features/settings/components/settings-form";
 import { DeleteAccountCard } from "@/features/settings/components/delete-account-card";
+import { BlockedUsersCard } from "@/features/moderation/components/blocked-users-card";
+import { countOpenReports, listBlockedUsers } from "@/features/moderation/application/actions";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Settings");
@@ -14,10 +16,16 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function SettingsPage() {
-  const [settings, profile] = await Promise.all([getCurrentUserSettings(), getMyProfile()]);
-  const [t, tCommon] = await Promise.all([
+  const [settings, profile, blockedUsers] = await Promise.all([
+    getCurrentUserSettings(),
+    getMyProfile(),
+    listBlockedUsers(),
+  ]);
+  const [t, tCommon, tReports, openReports] = await Promise.all([
     getTranslations("Settings"),
     getTranslations("Common"),
+    getTranslations("Reports"),
+    profile.isAdmin ? countOpenReports() : Promise.resolve(null),
   ]);
 
   return (
@@ -36,6 +44,22 @@ export default async function SettingsPage() {
       </div>
 
       <SettingsForm initialSettings={settings} />
+
+      <BlockedUsersCard initialBlocked={blockedUsers} />
+
+      {openReports !== null && (
+        <Link
+          href="/community/reports"
+          className="border-border hover:bg-muted flex items-center gap-3 rounded-xl border p-4 text-sm transition-colors"
+        >
+          <Flag className="size-4 shrink-0" aria-hidden />
+          <span className="flex-1 font-medium">{tReports("settingsLink")}</span>
+          <span className="text-muted-foreground">
+            {tReports("openCount", { count: openReports })}
+          </span>
+          <ChevronRight className="text-muted-foreground size-4" aria-hidden />
+        </Link>
+      )}
 
       <DeleteAccountCard username={profile.username} />
 

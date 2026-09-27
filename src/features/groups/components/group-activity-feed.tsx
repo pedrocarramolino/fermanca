@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { CheckCircle2, MessageSquareOff, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { loadMoreGroupActivity, type GroupActivityEventInfo } from "@/features/groups/application/actions";
-import { GROUP_ACTIVITY_PAGE_SIZE } from "@/features/groups/application/constants";
 import { formatSessionDate } from "@/lib/format-date";
 import { formatDurationShort } from "@/core/domain/duration";
 
@@ -49,21 +48,25 @@ export function GroupActivityFeed({
   groupId,
   initialEvents,
   initialHasMore,
+  initialNextOffset,
 }: {
   groupId: string;
   initialEvents: GroupActivityEventInfo[];
   initialHasMore: boolean;
+  initialNextOffset: number;
 }) {
   const t = useTranslations("Groups.activity");
   const [events, setEvents] = useState(initialEvents);
   const [hasMore, setHasMore] = useState(initialHasMore);
+  const [nextOffset, setNextOffset] = useState(initialNextOffset);
   const [isPending, startTransition] = useTransition();
 
   function handleLoadMore() {
     startTransition(async () => {
-      const more = await loadMoreGroupActivity(groupId, events.length);
-      setEvents((prev) => [...prev, ...more]);
-      setHasMore(more.length === GROUP_ACTIVITY_PAGE_SIZE);
+      const more = await loadMoreGroupActivity(groupId, nextOffset);
+      setEvents((prev) => [...prev, ...more.events]);
+      setHasMore(more.hasMore);
+      setNextOffset(more.nextOffset);
     });
   }
 

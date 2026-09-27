@@ -7,6 +7,7 @@ import { Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { acceptFriendRequest, removeFriendship } from "@/features/community/application/actions";
 import type { PendingRequest } from "@/features/community/application/actions";
+import { UserSafetyControls } from "@/features/moderation/components/user-safety";
 
 export function PendingRequestsList({
   requests,
@@ -33,7 +34,7 @@ export function PendingRequestsList({
             className="border-border hover:bg-muted flex items-center justify-between gap-3 rounded-lg border p-3 transition-colors"
           >
             <span className="min-w-0 flex-1 truncate font-medium">{request.fromUsername}</span>
-            <div className="flex shrink-0 gap-2">
+            <div className="flex shrink-0 items-center gap-2">
               <Button
                 type="button"
                 size="icon-sm"
@@ -67,6 +68,12 @@ export function PendingRequestsList({
               >
                 <X className="size-4" />
               </Button>
+              {/* Bloquear ya borra la solicitud (ver cutTiesBetween). */}
+              <UserSafetyControls
+                target={{ ownerId: request.fromOwnerId, username: request.fromUsername }}
+                context="friend_request"
+                onBlocked={() => onRemoved(request.friendshipId)}
+              />
             </div>
           </li>
         ))}

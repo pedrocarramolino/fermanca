@@ -870,7 +870,7 @@
   },
   "Terms": {
     "title": "Nutzungsbedingungen",
-    "lastUpdated": "Zuletzt aktualisiert: 5. August 2026",
+    "lastUpdated": "Zuletzt aktualisiert: 27. September 2026",
     "about": {
       "heading": "Über Fermança",
       "body": "Fermança ist ein persönliches Projekt von Pedro Carramolino González, das dir hilft, deine musikalischen Übungssitzungen zu organisieren. Es ist kein Dienst eines eingetragenen Unternehmens."
@@ -879,7 +879,9 @@
       "heading": "Nutzung des Dienstes",
       "item1": "Du brauchst ein Konto, um Fermança zu nutzen. Du bist dafür verantwortlich, dein Passwort vertraulich zu behandeln und für alle Aktivitäten, die über dein Konto erfolgen.",
       "item2": "Du musst bei der Registrierung wahre Angaben machen (eine gültige E-Mail-Adresse) und die App nicht für illegale Zwecke oder dazu nutzen, andere über die Community-Funktion zu belästigen oder zu schädigen.",
-      "item3": "Wir behalten uns das Recht vor, Konten zu sperren oder zu löschen, die gegen diese Bedingungen verstoßen."
+      "item3": "Wir behalten uns das Recht vor, Konten zu sperren oder zu löschen, die gegen diese Bedingungen verstoßen.",
+      "item4": "Du darfst keine anstößigen, sexuellen, gewalttätigen, diskriminierenden oder belästigenden Inhalte veröffentlichen oder senden und dich nicht als jemand anderes ausgeben. Für solche Inhalte und ihre Urheber gilt null Toleranz.",
+      "item5": "Du kannst jeden Nutzer und jeden Beitrag melden und jede Person über ihr „⋯“-Menü blockieren. Wir prüfen Meldungen und entfernen Inhalte oder Konten, die gegen diese Regeln verstoßen."
     },
     "availability": {
       "heading": "Verfügbarkeit des Dienstes",
@@ -918,6 +920,7 @@
       "item4": "Erinnerungen: die Uhrzeit und Tage, die du einstellst, sowie deine Zeitzone.",
       "item5": "Push-Benachrichtigungen: Wenn du sie aktivierst, gibt dein Browser uns eine Abonnement-Kennung und Verschlüsselungsschlüssel, die nötig sind, um dir Hinweise zu senden — wir nutzen sie für nichts anderes.",
       "item6": "Grundlegende technische Daten, die jeder Webdienst erzeugt (IP-Adresse, Browsertyp), über unseren Hosting-Anbieter, zu Sicherheits- und Betriebszwecken.",
+      "item7": "Blockierungen und Meldungen: wen du blockiert hast (nur für dich sichtbar) und die Meldungen, die du sendest oder die über dich gemacht werden. Der Administrator prüft sie, um die Community sicher zu halten. Gemeldete Personen erfahren nicht, wer sie gemeldet hat.",
       "outro": "Wir erfassen keine Zahlungsdaten (Fermança hat keine Käufe oder Abonnements) und verwenden keine Werbe- oder Tracking-Cookies."
     },
     "dataUse": {
@@ -990,5 +993,81 @@
       "item2": "Technische Protokolle unserer Hosting-Anbieter (zum Beispiel Zugriffsprotokolle mit IP-Adressen) werden gemäß deren eigenen Fristen automatisch gelöscht, in der Regel innerhalb weniger Tage."
     },
     "seeAlso": "Siehe auch die <link>Datenschutzerklärung</link>."
+  },
+  "Moderation": {
+    "menuLabel": "Weitere Optionen für {name}",
+    "report": "Melden",
+    "block": "Blockieren",
+    "reportTitle": "{name} melden",
+    "reportPostTitle": "Diesen Beitrag melden",
+    "reportDescription": "{name} erfährt nicht, wer die Meldung gemacht hat. Wir prüfen sie so schnell wie möglich.",
+    "reasonLabel": "Worum geht es?",
+    "reasons": {
+      "harassment": "Belästigung oder Beleidigungen",
+      "inappropriate": "Unangemessene oder anstößige Inhalte",
+      "spam": "Spam oder Werbung",
+      "impersonation": "Gibt sich als jemand anderes aus",
+      "other": "Anderer Grund"
+    },
+    "detailsLabel": "Erzähl uns mehr (optional)",
+    "detailsPlaceholder": "Was ist passiert, wann…",
+    "alsoBlock": "{name} auch blockieren",
+    "submit": "Meldung senden",
+    "submitting": "Wird gesendet…",
+    "cancel": "Abbrechen",
+    "close": "Schließen",
+    "sentTitle": "Danke für den Hinweis",
+    "sentBody": "Wir haben deine Meldung erhalten und prüfen sie. Wenn gegen die Regeln verstoßen wurde, entfernen wir den Inhalt oder das Konto.",
+    "sentBlocked": "Außerdem hast du {name} blockiert.",
+    "errors": {
+      "rate_limited": "Du hast heute viele Meldungen gesendet. Versuche es morgen noch einmal.",
+      "invalid": "Die Meldung konnte nicht gesendet werden. Vielleicht gibt es dieses Konto nicht mehr.",
+      "generic": "Die Meldung konnte nicht gesendet werden. Versuche es noch einmal."
+    },
+    "blockTitle": "{name} blockieren?",
+    "blockDescription": "Wir sagen der Person nicht, dass du sie blockiert hast.",
+    "blockEffects": {
+      "friendship": "Ihr seid keine Freunde mehr und seht die Beiträge des anderen nicht.",
+      "contact": "Keiner von euch kann dem anderen Freundschaftsanfragen oder Übungseinladungen senden.",
+      "groups": "Du siehst ihre Aktivität in gemeinsamen Gruppen nicht.",
+      "undo": "Du kannst die Blockierung jederzeit in den Einstellungen aufheben."
+    },
+    "blockConfirm": "Blockieren",
+    "blocking": "Wird blockiert…",
+    "blockError": "Blockieren fehlgeschlagen. Versuche es noch einmal.",
+    "blockedList": {
+      "title": "Blockierte Nutzer",
+      "description": "Personen, die du blockierst, können dich in Fermança weder sehen noch kontaktieren.",
+      "empty": "Du hast niemanden blockiert.",
+      "unblock": "Freigeben",
+      "unblocking": "Wird freigegeben…",
+      "unblockHint": "Wenn du jemanden freigibst, seid ihr nicht automatisch wieder Freunde: Ihr müsstet eine neue Anfrage senden.",
+      "error": "Freigeben fehlgeschlagen. Versuche es noch einmal."
+    }
+  },
+  "Reports": {
+    "title": "Meldungen",
+    "back": "Zurück zu den Einstellungen",
+    "settingsLink": "Meldungen",
+    "openCount": "{count, plural, =0 {Keine offen} one {# offen} other {# offen}}",
+    "empty": "Es gibt keine offenen Meldungen.",
+    "against": "Gegen @{name}",
+    "by": "Gesendet von @{name}",
+    "byDeleted": "Gesendet von einem Konto, das nicht mehr existiert",
+    "openAgainst": "{count} offen gegen diese Person",
+    "contexts": {
+      "profile": "Profil",
+      "friend_request": "Freundschaftsanfrage",
+      "session_share": "Feed-Session",
+      "weekly_goal_share": "Feed-Ziel",
+      "group": "Gruppe"
+    },
+    "content": "Beitrag: „{title}“ vom {date}",
+    "untitled": "ohne Titel",
+    "contentGone": "Der Beitrag existiert nicht mehr.",
+    "resolve": "Als geprüft markieren",
+    "removeContent": "Beitrag entfernen",
+    "suspendHint": "Um ein Konto zu sperren, lösche es in Supabase → Authentication → Users.",
+    "error": "Das hat nicht geklappt. Versuche es noch einmal."
   }
 }

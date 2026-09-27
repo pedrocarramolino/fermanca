@@ -870,7 +870,7 @@
   },
   "Terms": {
     "title": "Términos de servicio",
-    "lastUpdated": "Última actualización: 5 de agosto de 2026",
+    "lastUpdated": "Última actualización: 27 de septiembre de 2026",
     "about": {
       "heading": "Sobre Fermança",
       "body": "Fermança es un proyecto personal desarrollado por Pedro Carramolino González para ayudarte a organizar tus sesiones de práctica musical. No es un servicio prestado por una empresa registrada."
@@ -879,7 +879,9 @@
       "heading": "Uso del servicio",
       "item1": "Necesitas una cuenta para usar Fermança. Eres responsable de mantener la confidencialidad de tu contraseña y de la actividad que ocurra en tu cuenta.",
       "item2": "Debes proporcionar datos reales al registrarte (correo válido) y no usar la aplicación para fines ilegales, ni para acosar o dañar a otras personas a través de la función de Comunidad.",
-      "item3": "Nos reservamos el derecho de suspender o eliminar cuentas que incumplan estos términos."
+      "item3": "Nos reservamos el derecho de suspender o eliminar cuentas que incumplan estos términos.",
+      "item4": "No se permite publicar ni enviar contenido ofensivo, sexual, violento, discriminatorio o que acose a otras personas, ni hacerse pasar por otra persona. No hay tolerancia con este tipo de contenido ni con quien lo publica.",
+      "item5": "Puedes denunciar a cualquier usuario o publicación y bloquear a quien quieras desde su menú «⋯». Revisamos las denuncias y retiramos el contenido o la cuenta que incumpla estas normas."
     },
     "availability": {
       "heading": "Disponibilidad del servicio",
@@ -918,6 +920,7 @@
       "item4": "Recordatorios: la hora y los días que configures, y tu zona horaria.",
       "item5": "Notificaciones push: si las activas, tu navegador nos da un identificador de suscripción y claves de cifrado necesarias para enviarte avisos — no los usamos para nada más.",
       "item6": "Datos técnicos básicos que genera cualquier servicio web (dirección IP, tipo de navegador) a través de nuestro proveedor de hosting, con fines de seguridad y funcionamiento del servicio.",
+      "item7": "Bloqueos y denuncias: a quién has bloqueado (solo lo ves tú) y las denuncias que envías o que se hacen sobre ti, que revisa el administrador para mantener segura la Comunidad. Quien es denunciado no sabe quién le ha denunciado.",
       "outro": "No recogemos datos de pago (Fermança no tiene compras ni suscripciones) ni usamos cookies de publicidad o seguimiento."
     },
     "dataUse": {
@@ -990,5 +993,81 @@
       "item2": "Los registros técnicos de nuestros proveedores de alojamiento (por ejemplo, registros de acceso con direcciones IP) se borran solos, según sus propios plazos, normalmente en pocos días."
     },
     "seeAlso": "Consulta también la <link>Política de privacidad</link>."
+  },
+  "Moderation": {
+    "menuLabel": "Más opciones para {name}",
+    "report": "Denunciar",
+    "block": "Bloquear",
+    "reportTitle": "Denunciar a {name}",
+    "reportPostTitle": "Denunciar esta publicación",
+    "reportDescription": "{name} no sabrá quién le ha denunciado. Revisaremos la denuncia lo antes posible.",
+    "reasonLabel": "¿Qué ocurre?",
+    "reasons": {
+      "harassment": "Acoso o insultos",
+      "inappropriate": "Contenido inapropiado u ofensivo",
+      "spam": "Spam o publicidad",
+      "impersonation": "Se hace pasar por otra persona",
+      "other": "Otro motivo"
+    },
+    "detailsLabel": "Cuéntanos más (opcional)",
+    "detailsPlaceholder": "Qué ha pasado, cuándo…",
+    "alsoBlock": "Bloquear también a {name}",
+    "submit": "Enviar denuncia",
+    "submitting": "Enviando…",
+    "cancel": "Cancelar",
+    "close": "Cerrar",
+    "sentTitle": "Gracias por avisar",
+    "sentBody": "Hemos recibido tu denuncia y la revisaremos. Si incumple las normas, retiraremos el contenido o la cuenta.",
+    "sentBlocked": "Además, has bloqueado a {name}.",
+    "errors": {
+      "rate_limited": "Has enviado muchas denuncias hoy. Vuelve a intentarlo mañana.",
+      "invalid": "No se ha podido enviar la denuncia. Puede que esta cuenta ya no exista.",
+      "generic": "No se ha podido enviar la denuncia. Inténtalo de nuevo."
+    },
+    "blockTitle": "¿Bloquear a {name}?",
+    "blockDescription": "No le avisaremos de que le has bloqueado.",
+    "blockEffects": {
+      "friendship": "Dejaréis de ser amigos y no veréis las publicaciones del otro.",
+      "contact": "Ninguno podrá enviar al otro solicitudes de amistad ni invitaciones a practicar.",
+      "groups": "No verás su actividad en los grupos que compartáis.",
+      "undo": "Puedes desbloquearle cuando quieras desde Ajustes."
+    },
+    "blockConfirm": "Bloquear",
+    "blocking": "Bloqueando…",
+    "blockError": "No se ha podido bloquear. Inténtalo de nuevo.",
+    "blockedList": {
+      "title": "Usuarios bloqueados",
+      "description": "Las personas que bloqueas no pueden verte ni contactarte en Fermança.",
+      "empty": "No has bloqueado a nadie.",
+      "unblock": "Desbloquear",
+      "unblocking": "Desbloqueando…",
+      "unblockHint": "Al desbloquear a alguien no volvéis a ser amigos: tendríais que enviaros una solicitud nueva.",
+      "error": "No se ha podido desbloquear. Inténtalo de nuevo."
+    }
+  },
+  "Reports": {
+    "title": "Denuncias",
+    "back": "Volver a Ajustes",
+    "settingsLink": "Denuncias",
+    "openCount": "{count, plural, =0 {Ninguna abierta} one {# abierta} other {# abiertas}}",
+    "empty": "No hay denuncias abiertas.",
+    "against": "Contra @{name}",
+    "by": "Enviada por @{name}",
+    "byDeleted": "Enviada por una cuenta que ya no existe",
+    "openAgainst": "{count} abiertas contra esta persona",
+    "contexts": {
+      "profile": "Perfil",
+      "friend_request": "Solicitud de amistad",
+      "session_share": "Sesión del Feed",
+      "weekly_goal_share": "Objetivo del Feed",
+      "group": "Grupo"
+    },
+    "content": "Publicación: «{title}» del {date}",
+    "untitled": "sin título",
+    "contentGone": "La publicación ya no existe.",
+    "resolve": "Marcar como revisada",
+    "removeContent": "Quitar la publicación",
+    "suspendHint": "Para suspender una cuenta, bórrala en Supabase → Authentication → Users.",
+    "error": "No se ha podido completar. Inténtalo de nuevo."
   }
 }

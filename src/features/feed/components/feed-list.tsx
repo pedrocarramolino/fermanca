@@ -20,6 +20,12 @@ export function FeedList({
     setEntries((prev) => prev.filter((entry) => entry.share.id !== id));
   }
 
+  /** Tras bloquear a alguien desaparece todo lo suyo, no solo la
+   * publicación desde la que se le bloqueó. */
+  function handleAuthorBlocked(ownerId: string) {
+    setEntries((prev) => prev.filter((entry) => entry.share.ownerId !== ownerId));
+  }
+
   return (
     <div className="flex flex-col gap-3">
       <h2 className="text-foreground text-base font-semibold">{t("title")}</h2>
@@ -36,6 +42,7 @@ export function FeedList({
                 share={entry.share}
                 isOwn={entry.share.ownerId === currentUserId}
                 onRemoved={handleRemoved}
+                onAuthorBlocked={handleAuthorBlocked}
               />
             ) : (
               <WeeklyGoalFeedItem
@@ -43,6 +50,7 @@ export function FeedList({
                 share={entry.share}
                 isOwn={entry.share.ownerId === currentUserId}
                 onRemoved={handleRemoved}
+                onAuthorBlocked={handleAuthorBlocked}
               />
             ),
           )}

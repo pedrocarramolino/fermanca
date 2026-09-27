@@ -19,6 +19,7 @@ import { formatSessionDate } from "@/lib/format-date";
 import { unshareFromFeed } from "@/features/feed/application/actions";
 import { useReactions } from "@/features/feed/hooks/use-reactions";
 import { FeedAvatar } from "@/features/feed/components/feed-avatar";
+import { UserSafetyControls } from "@/features/moderation/components/user-safety";
 import { ReactionBar, ReactionDetails } from "@/features/feed/components/reaction-bar";
 import type { SessionShare } from "@/core/domain/session-share";
 import type { Locale } from "@/core/domain/user-settings";
@@ -29,10 +30,12 @@ export function FeedItem({
   share,
   isOwn,
   onRemoved,
+  onAuthorBlocked,
 }: {
   share: SessionShare;
   isOwn: boolean;
   onRemoved: (id: string) => void;
+  onAuthorBlocked: (ownerId: string) => void;
 }) {
   const t = useTranslations("Feed");
   const locale = useLocale();
@@ -76,6 +79,14 @@ export function FeedItem({
             >
               <Trash2 className="size-4" />
             </Button>
+          )}
+          {!isOwn && (
+            <UserSafetyControls
+              target={{ ownerId: share.ownerId, username: share.ownerUsername }}
+              context="session_share"
+              contentId={share.id}
+              onBlocked={() => onAuthorBlocked(share.ownerId)}
+            />
           )}
         </div>
 

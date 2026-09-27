@@ -18,6 +18,7 @@ import { formatSessionDate } from "@/lib/format-date";
 import { unshareWeeklyGoalFromFeed } from "@/features/feed/application/actions";
 import { useReactions } from "@/features/feed/hooks/use-reactions";
 import { FeedAvatar } from "@/features/feed/components/feed-avatar";
+import { UserSafetyControls } from "@/features/moderation/components/user-safety";
 import { ReactionBar, ReactionDetails } from "@/features/feed/components/reaction-bar";
 import type { WeeklyGoalShare } from "@/core/domain/weekly-goal-share";
 import type { Locale } from "@/core/domain/user-settings";
@@ -29,10 +30,12 @@ export function WeeklyGoalFeedItem({
   share,
   isOwn,
   onRemoved,
+  onAuthorBlocked,
 }: {
   share: WeeklyGoalShare;
   isOwn: boolean;
   onRemoved: (id: string) => void;
+  onAuthorBlocked: (ownerId: string) => void;
 }) {
   const t = useTranslations("Feed");
   const tStreaks = useTranslations("Streaks");
@@ -76,6 +79,14 @@ export function WeeklyGoalFeedItem({
             >
               <Trash2 className="size-4" />
             </Button>
+          )}
+          {!isOwn && (
+            <UserSafetyControls
+              target={{ ownerId: share.ownerId, username: share.ownerUsername }}
+              context="weekly_goal_share"
+              contentId={share.id}
+              onBlocked={() => onAuthorBlocked(share.ownerId)}
+            />
           )}
         </div>
 
