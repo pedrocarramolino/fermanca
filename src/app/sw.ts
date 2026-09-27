@@ -16,7 +16,10 @@ const serwist = new Serwist({
     // forma fiable de garantizar que esos chunks estén cacheados. Un HTML
     // estático sin JS de framework no tiene ese problema: funciona offline
     // pase lo que pase. "revision" sube a mano si se edita el contenido.
-    { url: "/offline.html", revision: "v1" },
+    // v2: la v1 se guardó en muchos móviles cuando el proxy aún redirigía
+    // /offline.html a /login (se precacheaba la página de login). Subir la
+    // revisión obliga a esos service workers a descargarla de nuevo.
+    { url: "/offline.html", revision: "v2" },
   ],
   skipWaiting: true,
   clientsClaim: true,

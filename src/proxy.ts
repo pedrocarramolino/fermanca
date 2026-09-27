@@ -91,7 +91,15 @@ export const config = {
      * fuera de la comprobación de sesión, no solo del listado de
      * PUBLIC_ROUTES de arriba (ese solo decide qué ve un navegador real,
      * esto decide qué ve el proxy siquiera).
+     *
+     * Dos archivos estáticos más que tienen que servirse sin sesión:
+     *  · /.well-known/ — assetlinks.json, que Google descarga sin cookies para
+     *    verificar que el APK de Play Store (TWA) es de este dominio; si se
+     *    redirige a /login, la app se abre con la barra del navegador.
+     *  · /offline.html — la pantalla sin conexión, que el service worker
+     *    guarda al instalarse, casi siempre en la primera visita (sin sesión):
+     *    redirigida, lo que guardaba era la página de login.
      */
-    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|icon|apple-icon|sw.js|auth/callback|api/|robots.txt|sitemap.xml|opengraph-image|twitter-image|google[^/]*\\.html).*)",
+    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|icon|apple-icon|sw.js|offline\\.html|\\.well-known/|auth/callback|api/|robots.txt|sitemap.xml|opengraph-image|twitter-image|google[^/]*\\.html).*)",
   ],
 };

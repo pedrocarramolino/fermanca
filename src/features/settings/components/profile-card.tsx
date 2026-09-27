@@ -12,6 +12,7 @@ import {
   updateMyUsername,
   uploadAvatar,
 } from "@/features/settings/application/actions";
+import { shrinkAvatar } from "@/features/settings/lib/shrink-avatar";
 
 export function ProfileCard({
   username: initialUsername,
@@ -42,10 +43,10 @@ export function ProfileCard({
     if (!file) return;
 
     setAvatarError(null);
-    const formData = new FormData();
-    formData.set("file", file);
     startUpdatingAvatar(async () => {
       try {
+        const formData = new FormData();
+        formData.set("file", await shrinkAvatar(file));
         const profile = await uploadAvatar(formData);
         setAvatarUrl(profile.avatarUrl);
       } catch (err) {

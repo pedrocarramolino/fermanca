@@ -3,6 +3,7 @@ import { createServiceClient } from "@/core/infrastructure/supabase/service-clie
 import { SupabasePushSubscriptionRepository } from "@/core/infrastructure/supabase/repositories/push-subscription-repository";
 import { sendPush } from "@/core/infrastructure/push/send-push";
 import { verifyQstashSignature } from "@/core/infrastructure/qstash/verify";
+import { deleteOrphanSchedule, reminderScheduleId } from "@/core/infrastructure/qstash/client";
 
 /**
  * QStash llama aquí en el instante exacto configurado en el Schedule del
@@ -27,8 +28,12 @@ export async function POST(request: Request) {
   if (reminderError) throw reminderError;
 
   // Puede haberse desactivado o borrado entre que se programó el disparo y
-  // que QStash lo entrega — no es un error.
+  // que QStash lo entrega — no es un error. Pero entonces esta programación
+  // ya no debería existir (desactivar y borrar la quitan), así que es una
+  // huérfana —típicamente, de una cuenta borrada— y se elimina aquí mismo
+  // para que no siga disparando cada semana para siempre.
   if (!reminder || !reminder.enabled) {
+    await deleteOrphanSchedule(request, reminderScheduleId(reminderId));
     return NextResponse.json({ sent: 0, skipped: true });
   }
 
