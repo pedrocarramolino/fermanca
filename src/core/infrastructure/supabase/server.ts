@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import type { Database } from "@/core/infrastructure/supabase/database.types";
 import { getSupabaseEnv } from "@/core/infrastructure/supabase/env";
+import { fetchWithClockSkewRetry } from "@/core/infrastructure/supabase/fetch-with-clock-skew-retry";
 
 /**
  * Cliente de Supabase para Server Components, Server Actions y Route
@@ -15,6 +16,7 @@ export async function createClient() {
   const { url, anonKey } = getSupabaseEnv();
 
   return createServerClient<Database>(url, anonKey, {
+    global: { fetch: fetchWithClockSkewRetry },
     cookies: {
       getAll: () => cookieStore.getAll(),
       setAll: (cookiesToSet) => {
