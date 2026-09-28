@@ -11,8 +11,9 @@ const MAX_STACK_CHARS = 8_000;
  * Ruido que no es un fallo de la app y que, si se avisara, enterraría los
  * avisos de verdad:
  *  · el móvil sin cobertura o que cancela una petición al cambiar de app;
- *  · tras cada despliegue, pestañas abiertas que piden trozos de JS que ya
- *    no existen (el service worker recarga solo y se arregla);
+ *  · tras cada despliegue, pestañas abiertas que piden trozos de JS o
+ *    acciones del servidor que ya no existen (se recargan solas, ver
+ *    src/lib/app-version.ts);
  *  · extensiones del navegador y el aviso inofensivo de ResizeObserver;
  *  · "Script error.", que es un error de otro dominio sin ningún dato útil.
  */
@@ -22,6 +23,8 @@ const NOISE_PATTERNS = [
   /Loading chunk [\w-]+ failed/i,
   /ChunkLoadError/,
   /Failed to fetch dynamically imported module/i,
+  /UnrecognizedActionError/,
+  /Server Action ".*" was not found on the server/,
   /Importing a module script failed/i,
   /Failed to fetch/i,
   /NetworkError when attempting to fetch/i,

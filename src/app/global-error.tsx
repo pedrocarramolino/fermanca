@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { reportClientError } from "@/lib/error-reporting/report-client-error";
+import { reloadIfStaleVersion } from "@/lib/app-version";
 
 /**
  * Último recurso: sustituye al layout raíz entero cuando el que falla es el
@@ -11,6 +12,7 @@ import { reportClientError } from "@/lib/error-reporting/report-client-error";
  */
 export default function GlobalError({ error }: { error: Error & { digest?: string } }) {
   useEffect(() => {
+    if (reloadIfStaleVersion(error)) return;
     console.error(error);
     reportClientError(error, "global");
   }, [error]);

@@ -25,6 +25,7 @@ import {
 import { CategoryDialog } from "@/features/session-builder/components/category-dialog";
 import { listSessionCategories } from "@/features/session-timer/application/actions";
 import type { Category, CustomCategory } from "@/core/domain/category";
+import { reloadIfStaleVersion } from "@/lib/app-version";
 
 const NEW_CATEGORY_VALUE = "__new__";
 const QUICK_MINUTE_PRESETS = [5, 10, 15, 20, 30];
@@ -104,7 +105,8 @@ export function AddPhaseButton({
       });
       setOpen(false);
       setMinutes(10);
-    } catch {
+    } catch (err) {
+      if (reloadIfStaleVersion(err)) return;
       setError(t("addError"));
     } finally {
       setIsSaving(false);
