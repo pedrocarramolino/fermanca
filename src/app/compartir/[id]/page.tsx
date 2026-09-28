@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getLocale, getTimeZone, getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createServiceClient } from "@/core/infrastructure/supabase/service-client";
@@ -23,7 +23,11 @@ export default async function SharedSessionPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [t, locale] = await Promise.all([getTranslations("SharedSession"), getLocale()]);
+  const [t, locale, timeZone] = await Promise.all([
+    getTranslations("SharedSession"),
+    getLocale(),
+    getTimeZone(),
+  ]);
 
   // Sin autenticación a propósito: este enlace está pensado para
   // compartirse fuera de la app. getPublicSummary nunca expone notas ni de
@@ -48,7 +52,7 @@ export default async function SharedSessionPage({
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-semibold">{t("title")}</h1>
         <p className="text-muted-foreground text-sm">
-          {formatSessionDate(summary.startedAt, locale as Locale)}
+          {formatSessionDate(summary.startedAt, locale as Locale, timeZone)}
         </p>
       </div>
 

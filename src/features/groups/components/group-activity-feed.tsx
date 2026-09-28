@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTimeZone, useTranslations } from "next-intl";
 import { CheckCircle2, MessageSquareOff, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { loadMoreGroupActivity, type GroupActivityEventInfo } from "@/features/groups/application/actions";
 import { formatSessionDate } from "@/lib/format-date";
 import { formatDurationShort } from "@/core/domain/duration";
+import type { Locale } from "@/core/domain/user-settings";
 
 const MAX_VISIBLE_BLOCKS = 4;
 
@@ -56,6 +57,8 @@ export function GroupActivityFeed({
   initialNextOffset: number;
 }) {
   const t = useTranslations("Groups.activity");
+  const locale = useLocale() as Locale;
+  const timeZone = useTimeZone();
   const [events, setEvents] = useState(initialEvents);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [nextOffset, setNextOffset] = useState(initialNextOffset);
@@ -97,7 +100,7 @@ export function GroupActivityFeed({
                     : t("sessionFinished", { username: event.actorUsername })}
                 </span>
                 <span className="text-muted-foreground shrink-0 text-xs">
-                  {formatSessionDate(new Date(event.createdAt))}
+                  {formatSessionDate(new Date(event.createdAt), locale, timeZone)}
                 </span>
               </div>
               {event.sessionSummary && <SessionSummary summary={event.sessionSummary} />}

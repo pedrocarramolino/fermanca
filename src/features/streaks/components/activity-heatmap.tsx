@@ -15,12 +15,15 @@ const LEVEL_CLASS: Record<HeatmapCell["level"], string> = {
 export async function ActivityHeatmap({ weeks }: { weeks: HeatmapCell[][] }) {
   const [t, locale] = await Promise.all([getTranslations("Streaks"), getLocale()]);
   const intlTag = INTL_TAG[locale as Locale];
+  // Las casillas son días en UTC (ver streaks.ts): se rotulan en UTC para
+  // que cada una sea ese día, esté donde esté el servidor.
   const dayFormat = new Intl.DateTimeFormat(intlTag, {
     day: "numeric",
     month: "short",
     year: "numeric",
+    timeZone: "UTC",
   });
-  const monthFormat = new Intl.DateTimeFormat(intlTag, { month: "short" });
+  const monthFormat = new Intl.DateTimeFormat(intlTag, { month: "short", timeZone: "UTC" });
 
   return (
     <div className="flex flex-col gap-1 overflow-x-auto">

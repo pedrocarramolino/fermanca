@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale, useTimeZone, useTranslations } from "next-intl";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -39,6 +39,7 @@ export function FeedItem({
 }) {
   const t = useTranslations("Feed");
   const locale = useLocale();
+  const timeZone = useTimeZone();
   const [expanded, setExpanded] = useState(false);
   const [confirmingRemove, setConfirmingRemove] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -65,7 +66,7 @@ export function FeedItem({
             <div className="flex flex-col">
               <span className="text-sm font-medium">@{share.ownerUsername}</span>
               <span className="text-muted-foreground text-xs">
-                {formatSessionDate(share.startedAt, locale as Locale)}
+                {formatSessionDate(share.startedAt, locale as Locale, timeZone)}
               </span>
             </div>
           </div>

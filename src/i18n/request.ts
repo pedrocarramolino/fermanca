@@ -5,6 +5,7 @@ import {
   getCurrentUserSettings,
 } from "@/core/infrastructure/supabase/current-user";
 import type { Locale } from "@/core/domain/user-settings";
+import { resolveTimeZone, TIME_ZONE_COOKIE } from "@/lib/time-zone";
 
 const LOCALES: Locale[] = ["es", "en", "de"];
 export const GUEST_LOCALE_COOKIE = "locale";
@@ -36,5 +37,7 @@ export default getRequestConfig(async () => {
   return {
     locale,
     messages: (await import(`../messages/${locale}.json`)).default,
+    // La misma en el servidor y en el navegador — ver src/lib/time-zone.ts.
+    timeZone: resolveTimeZone((await cookies()).get(TIME_ZONE_COOKIE)?.value),
   };
 });

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale, useTimeZone, useTranslations } from "next-intl";
 import { Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -22,6 +22,7 @@ import type { Locale } from "@/core/domain/user-settings";
 export function AnnouncementsQuickView() {
   const t = useTranslations("Community.board");
   const locale = useLocale() as Locale;
+  const timeZone = useTimeZone();
   const [open, setOpen] = useState(false);
   const [announcements, setAnnouncements] = useState<AnnouncementItem[] | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -78,7 +79,7 @@ export function AnnouncementsQuickView() {
                   className="border-border flex flex-col gap-1 rounded-lg border p-3"
                 >
                   <span className="text-muted-foreground text-xs">
-                    {formatSessionDate(new Date(announcement.createdAt), locale)}
+                    {formatSessionDate(new Date(announcement.createdAt), locale, timeZone)}
                   </span>
                   <p className="text-sm break-words whitespace-pre-wrap">{announcement.body}</p>
                 </li>

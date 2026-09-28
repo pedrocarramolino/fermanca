@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale, useTimeZone, useTranslations } from "next-intl";
 import { Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,7 @@ import { hasPracticedTime, type Session } from "@/core/domain/session";
 export function SessionHistoryItem({ session }: { session: Session }) {
   const t = useTranslations("SessionHistory");
   const locale = useLocale();
+  const timeZone = useTimeZone();
   const [confirmingRemove, setConfirmingRemove] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -63,13 +64,13 @@ export function SessionHistoryItem({ session }: { session: Session }) {
           Bootstrap. */}
       <Link
         href={`/session/${session.id}`}
-        aria-label={t("viewSession", { date: formatSessionDate(session.startedAt, locale as Locale) })}
+        aria-label={t("viewSession", { date: formatSessionDate(session.startedAt, locale as Locale, timeZone) })}
         className="absolute inset-0"
       />
 
       <div className="flex items-center justify-between gap-2">
         <span className="text-sm font-medium">
-          {formatSessionDate(session.startedAt, locale as Locale)}
+          {formatSessionDate(session.startedAt, locale as Locale, timeZone)}
         </span>
         <div className="flex items-center gap-1">
           <Badge variant={session.status === "completed" ? "secondary" : "outline"}>

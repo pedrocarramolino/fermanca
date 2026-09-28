@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Geist, Geist_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
-import { getLocale, getMessages } from "next-intl/server";
+import { getLocale, getMessages, getTimeZone } from "next-intl/server";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 import { RegisterServiceWorker } from "@/components/register-service-worker";
@@ -24,6 +24,7 @@ import {
   isAccentPreset,
 } from "@/features/settings/lib/accent-presets";
 import type { UserSettings } from "@/core/domain/user-settings";
+import { TIME_ZONE_COOKIE_SCRIPT } from "@/lib/time-zone";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" });
@@ -109,8 +110,11 @@ export default async function RootLayout({
     }
   }
 
-  const locale = await getLocale();
-  const messages = await getMessages();
+  const [locale, messages, timeZone] = await Promise.all([
+    getLocale(),
+    getMessages(),
+    getTimeZone(),
+  ]);
 
   // Traduce el 0-100 guardado a las variables CSS que consumen los
   // `glass:`-utilities (ver globals.css): a más intensidad, más blur y más
@@ -162,6 +166,12 @@ export default async function RootLayout({
             __html: `(function(){try{var t=localStorage.getItem("theme")||${JSON.stringify(settings?.theme ?? "system")};var d=t==="dark"||(t==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);var r=document.documentElement;r.classList.toggle("dark",d);r.style.colorScheme=d?"dark":"light"}catch(e){}})();`,
           }}
         />
+        {/* Guarda la zona horaria del móvil para que el servidor pinte las
+            horas en la misma que el navegador (ver src/lib/time-zone.ts). */}
+        <script
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{ __html: TIME_ZONE_COOKIE_SCRIPT }}
+        />
         {settings && settings.accentColor && (
           <style
             dangerouslySetInnerHTML={{
@@ -178,7 +188,7 @@ export default async function RootLayout({
         <ClientErrorListener />
         <StaleVersionGuard />
         <LiquidGlassFilter />
-        <NextIntlClientProvider locale={locale} messages={messages}>
+        <NextIntlClientProvider locale={locale} messages={messages} timeZone={timeZone}>
           <ThemeProvider defaultTheme={settings?.theme ?? "system"}>
             {/* Envuelve la app entera, no solo el splash: la cabecera tiene
                 que enterarse de cuándo se va para tomar el relevo del icono

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale, useTimeZone, useTranslations } from "next-intl";
 import { Flame, Target, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -40,6 +40,7 @@ export function WeeklyGoalFeedItem({
   const t = useTranslations("Feed");
   const tStreaks = useTranslations("Streaks");
   const locale = useLocale();
+  const timeZone = useTimeZone();
   const [confirmingRemove, setConfirmingRemove] = useState(false);
   const [isPending, startTransition] = useTransition();
   const { reactions, toggle: handleToggleReaction } = useReactions(
@@ -65,7 +66,7 @@ export function WeeklyGoalFeedItem({
             <div className="flex flex-col">
               <span className="text-sm font-medium">@{share.ownerUsername}</span>
               <span className="text-muted-foreground text-xs">
-                {formatSessionDate(share.createdAt, locale as Locale)}
+                {formatSessionDate(share.createdAt, locale as Locale, timeZone)}
               </span>
             </div>
           </div>

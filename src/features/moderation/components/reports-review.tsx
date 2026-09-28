@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale, useTimeZone, useTranslations } from "next-intl";
 import { Check, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ export function ReportsReview({ initialReports }: { initialReports: OpenReport[]
   const t = useTranslations("Reports");
   const tModeration = useTranslations("Moderation");
   const locale = useLocale() as Locale;
+  const timeZone = useTimeZone();
   const [reports, setReports] = useState(initialReports);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState(false);
@@ -70,7 +71,7 @@ export function ReportsReview({ initialReports }: { initialReports: OpenReport[]
                   {t("against", { name: report.reportedUsername })}
                 </span>
                 <span className="text-muted-foreground text-xs">
-                  {formatSessionDate(new Date(report.createdAt), locale)}
+                  {formatSessionDate(new Date(report.createdAt), locale, timeZone)}
                 </span>
               </div>
               <div className="flex flex-wrap gap-1.5">
@@ -92,7 +93,11 @@ export function ReportsReview({ initialReports }: { initialReports: OpenReport[]
                   {report.content
                     ? t("content", {
                         title: report.content.title ?? t("untitled"),
-                        date: formatSessionDate(new Date(report.content.createdAt), locale),
+                        date: formatSessionDate(
+                          new Date(report.content.createdAt),
+                          locale,
+                          timeZone,
+                        ),
                       })
                     : t("contentGone")}
                 </p>

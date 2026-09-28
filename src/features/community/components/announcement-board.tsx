@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale, useTimeZone, useTranslations } from "next-intl";
 import { Megaphone, Pencil, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -103,6 +103,7 @@ export function AnnouncementBoard({
 }) {
   const t = useTranslations("Community.board");
   const locale = useLocale() as Locale;
+  const timeZone = useTimeZone();
   const [announcements, setAnnouncements] = useState(initialAnnouncements);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -176,7 +177,7 @@ export function AnnouncementBoard({
                 >
                   <div className="flex items-start justify-between gap-2">
                     <span className="text-muted-foreground text-xs">
-                      {formatSessionDate(new Date(announcement.createdAt), locale)}
+                      {formatSessionDate(new Date(announcement.createdAt), locale, timeZone)}
                     </span>
                     <div className="flex shrink-0 items-center gap-1">
                       {canEdit && !isEditing && (
