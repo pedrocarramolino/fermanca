@@ -8,24 +8,12 @@ const MAX_REPORTS_PER_PAGE = 5;
 const MAX_STACK_CHARS = 8_000;
 
 /**
- * Ruido que no es un fallo de la app y que, si se avisara, enterraría los
- * avisos de verdad:
- *  · el móvil sin cobertura o que cancela una petición al cambiar de app;
- *  · tras cada despliegue, pestañas abiertas que piden trozos de JS o
- *    acciones del servidor que ya no existen (se recargan solas, ver
- *    src/lib/app-version.ts);
- *  · extensiones del navegador y el aviso inofensivo de ResizeObserver;
- *  · "Script error.", que es un error de otro dominio sin ningún dato útil.
+ * Cortes de conexión: el móvil sin cobertura, al pasar de wifi a datos o al
+ * volver de segundo plano con la conexión ya muerta ("Load failed" en
+ * Safari, "Failed to fetch" en Chrome), o una petición cancelada al cambiar
+ * de app. No son fallos de la app; error.tsx los explica con otro mensaje.
  */
-const NOISE_PATTERNS = [
-  /ResizeObserver loop/i,
-  /^Script error\.?$/i,
-  /Loading chunk [\w-]+ failed/i,
-  /ChunkLoadError/,
-  /Failed to fetch dynamically imported module/i,
-  /UnrecognizedActionError/,
-  /Server Action ".*" was not found on the server/,
-  /Importing a module script failed/i,
+const NETWORK_PATTERNS = [
   /Failed to fetch/i,
   /NetworkError when attempting to fetch/i,
   /^Load failed$/i,
@@ -35,6 +23,39 @@ const NOISE_PATTERNS = [
   /The operation was aborted/i,
   /signal is aborted/i,
 ];
+
+/**
+ * Más ruido que, si se avisara, enterraría los avisos de verdad:
+ *  · tras cada despliegue, pestañas abiertas que piden trozos de JS o
+ *    acciones del servidor que ya no existen (se recargan solas, ver
+ *    src/lib/app-version.ts);
+ *  · extensiones del navegador y el aviso inofensivo de ResizeObserver;
+ *  · "Script error.", que es un error de otro dominio sin ningún dato útil.
+ */
+const NOISE_PATTERNS = [
+  ...NETWORK_PATTERNS,
+  /ResizeObserver loop/i,
+  /^Script error\.?$/i,
+  /Loading chunk [\w-]+ failed/i,
+  /ChunkLoadError/,
+  /Failed to fetch dynamically imported module/i,
+  /UnrecognizedActionError/,
+  /Server Action ".*" was not found on the server/,
+  /Importing a module script failed/i,
+];
+
+/** Se prueba contra el mensaje solo y contra "Tipo: mensaje": los patrones
+ * con ^…$ (como "Load failed") solo casan con el mensaje a secas — antes se
+ * probaba únicamente "TypeError: Load failed" y se colaban. */
+function matchesAny(patterns: RegExp[], error: Error): boolean {
+  const texts = [error.message, `${error.name}: ${error.message}`, error.name];
+  return patterns.some((pattern) => texts.some((text) => pattern.test(text)));
+}
+
+export function isNetworkError(value: unknown): boolean {
+  return matchesAny(NETWORK_PATTERNS, toError(value));
+}
+
 const EXTENSION_STACK = /(chrome|moz|safari(-web)?)-extension:\/\//;
 
 let reportsSent = 0;
@@ -62,7 +83,7 @@ export function reportClientError(value: unknown, kind: ClientErrorKind): void {
   // Con `digest` es un error del servidor que Next ha reenviado al
   // navegador: instrumentation.ts ya lo avisó desde allí, con más detalle.
   if (error.digest) return;
-  if (NOISE_PATTERNS.some((pattern) => pattern.test(`${error.name}: ${error.message}`))) return;
+  if (matchesAny(NOISE_PATTERNS, error)) return;
   if (error.stack && EXTENSION_STACK.test(error.stack)) return;
 
   const key = `${error.name}|${error.message}`;
