@@ -16,6 +16,7 @@ import {
 } from "@/features/session-timer/application/actions";
 import type { SoundChoice } from "@/core/domain/user-settings";
 import type { SessionBlockStatus } from "@/core/domain/session";
+import { reloadIfStaleVersion } from "@/lib/app-version";
 
 export interface RuntimeBlockInput extends RuntimeBlock {
   name: string;
@@ -223,6 +224,7 @@ export function useSessionRuntime({
       nextBlockPlannedDurationSeconds: nextBlock?.plannedDurationSeconds,
       nextStartedAt: clickedAt.toISOString(),
     }).catch((error: unknown) => {
+      if (reloadIfStaleVersion(error)) return;
       console.error("No se pudo guardar la transición de bloque", error);
       setErrorMessage(t("transitionError"));
     });
@@ -240,6 +242,7 @@ export function useSessionRuntime({
       void transition
         .then(() => finishSession(sessionId, null))
         .catch((error: unknown) => {
+          if (reloadIfStaleVersion(error)) return;
           console.error("No se pudo finalizar la sesión", error);
           setErrorMessage(t("transitionError"));
         })
@@ -265,6 +268,7 @@ export function useSessionRuntime({
     // Para que vuelva a sonar/vibrar cuando se agote también el tiempo extra.
     announcedIndexRef.current = null;
     void extendActiveBlock(sessionId, blockId, seconds).catch((error: unknown) => {
+      if (reloadIfStaleVersion(error)) return;
       console.error("No se pudo ampliar el tiempo de la fase", error);
       setErrorMessage(t("extendError"));
     });
@@ -290,6 +294,7 @@ export function useSessionRuntime({
     setPausedAt(new Date());
     void pauseActiveBlock(sessionId, activeBlock.id, runtimeState.remainingInActiveBlock).catch(
       (error: unknown) => {
+        if (reloadIfStaleVersion(error)) return;
         console.error("No se pudo pausar la fase", error);
         setErrorMessage(t("pauseError"));
       },
@@ -318,6 +323,7 @@ export function useSessionRuntime({
     setPausedAt(null);
     void resumeActiveBlock(sessionId, activeBlock.id, newStartedAt.toISOString(), remainingSeconds).catch(
       (error: unknown) => {
+        if (reloadIfStaleVersion(error)) return;
         console.error("No se pudo reanudar la fase", error);
         setErrorMessage(t("resumeError"));
       },
@@ -371,6 +377,7 @@ export function useSessionRuntime({
       return [...prev.slice(0, activeBlockIndex + 1), ...reorderedTail];
     });
     void reorderSessionBlocks(sessionId, orderedBlockIds).catch((error: unknown) => {
+      if (reloadIfStaleVersion(error)) return;
       console.error("No se pudo reordenar las fases", error);
       setErrorMessage(t("reorderError"));
     });
@@ -381,6 +388,7 @@ export function useSessionRuntime({
   function removeBlock(blockId: string) {
     setDynamicBlocks((prev) => prev.filter((block) => block.id !== blockId));
     void removeSessionBlock(sessionId, blockId).catch((error: unknown) => {
+      if (reloadIfStaleVersion(error)) return;
       console.error("No se pudo eliminar la fase", error);
       setErrorMessage(t("removeError"));
     });

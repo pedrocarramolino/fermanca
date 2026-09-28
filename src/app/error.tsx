@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { reportClientError } from "@/lib/error-reporting/report-client-error";
+import { reloadIfStaleVersion } from "@/lib/app-version";
 
 export default function ErrorBoundary({
   error,
@@ -12,6 +13,9 @@ export default function ErrorBoundary({
   reset: () => void;
 }) {
   useEffect(() => {
+    // Una pestaña de antes del último despliegue: no es un fallo, basta con
+    // recargar para coger la versión nueva.
+    if (reloadIfStaleVersion(error)) return;
     console.error(error);
     reportClientError(error, "boundary");
   }, [error]);
