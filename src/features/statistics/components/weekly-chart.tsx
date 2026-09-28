@@ -11,7 +11,13 @@ import type { TimeBucket } from "@/core/domain/session-statistics";
 export function WeeklyChart({ buckets }: { buckets: TimeBucket[] }) {
   const t = useTranslations("Statistics");
   const locale = useLocale() as Locale;
-  const weekdayMonth = new Intl.DateTimeFormat(INTL_TAG[locale], { day: "numeric", month: "short" });
+  // Cada barra es un día/semana/mes calculado en UTC (ver session-statistics.ts):
+  // se rotula en UTC para que sea ese mismo día en el servidor y en el móvil.
+  const weekdayMonth = new Intl.DateTimeFormat(INTL_TAG[locale], {
+    day: "numeric",
+    month: "short",
+    timeZone: "UTC",
+  });
   const data = buckets.map((bucket) => ({
     label: weekdayMonth.format(bucket.bucketStart),
     hours: secondsToHoursDecimal(bucket.seconds),

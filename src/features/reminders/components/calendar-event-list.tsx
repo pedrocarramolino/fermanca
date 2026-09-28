@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { daysUntil } from "@/core/domain/calendar-event";
-import { formatEventDate } from "@/lib/format-date";
+import { formatCalendarDate } from "@/lib/format-date";
 import { deleteCalendarEvent } from "@/features/reminders/application/calendar-event-actions";
 import type { Locale } from "@/core/domain/user-settings";
 import type { CalendarEvent } from "@/core/domain/calendar-event";
@@ -100,7 +100,7 @@ export function CalendarEventList({
                   )}
                 </span>
                 <span className="text-muted-foreground text-xs">
-                  {formatEventDate(new Date(`${event.date}T00:00:00`), locale)}
+                  {formatCalendarDate(event.date, locale)}
                 </span>
               </button>
 

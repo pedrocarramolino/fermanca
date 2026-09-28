@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getLocale, getTimeZone, getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { getAuthenticatedUser } from "@/core/infrastructure/supabase/current-user";
 import { getMyProfile } from "@/features/community/application/actions";
@@ -17,9 +17,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ProfilePage() {
   const { supabase } = await getAuthenticatedUser();
-  const [t, locale, profile, userResult] = await Promise.all([
+  const [t, locale, timeZone, profile, userResult] = await Promise.all([
     getTranslations("Profile"),
     getLocale(),
+    getTimeZone(),
     getMyProfile(),
     supabase.auth.getUser(),
   ]);
@@ -43,7 +44,7 @@ export default async function ProfilePage() {
         username={profile.username}
         avatarUrl={profile.avatarUrl}
         email={userResult.data.user?.email ?? ""}
-        memberSince={formatEventDate(profile.createdAt, locale as Locale)}
+        memberSince={formatEventDate(profile.createdAt, locale as Locale, timeZone)}
       />
 
       <SignOutButton />

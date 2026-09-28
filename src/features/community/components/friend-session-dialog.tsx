@@ -2,7 +2,7 @@
 
 import { startTransition, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale, useTimeZone, useTranslations } from "next-intl";
 import { UserPlus } from "lucide-react";
 import {
   Dialog,
@@ -81,6 +81,7 @@ function FriendSessionContent({
   const tHistory = useTranslations("SessionHistory");
   const tFriends = useTranslations("Community.friendsOfFriend");
   const locale = useLocale() as Locale;
+  const timeZone = useTimeZone();
   const [sessions, setSessions] = useState<FriendSession[] | null>(null);
   const [status, setStatus] = useState<"loading" | "loaded" | "empty" | "error">("loading");
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -195,7 +196,7 @@ function FriendSessionContent({
                   >
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-sm font-medium">
-                        {formatSessionDate(new Date(session.startedAt), locale)}
+                        {formatSessionDate(new Date(session.startedAt), locale, timeZone)}
                       </span>
                       <Badge variant={session.status === "completed" ? "secondary" : "outline"}>
                         {STATUS_LABEL[session.status]}

@@ -19,7 +19,9 @@ import type { TimeBucket } from "@/core/domain/session-statistics";
 export function MonthlyTrendChart({ buckets }: { buckets: TimeBucket[] }) {
   const t = useTranslations("Statistics");
   const locale = useLocale() as Locale;
-  const monthLabel = new Intl.DateTimeFormat(INTL_TAG[locale], { month: "short" });
+  // Cada barra es un día/semana/mes calculado en UTC (ver session-statistics.ts):
+  // se rotula en UTC para que sea ese mismo día en el servidor y en el móvil.
+  const monthLabel = new Intl.DateTimeFormat(INTL_TAG[locale], { month: "short", timeZone: "UTC" });
   const data = buckets.map((bucket) => ({
     label: monthLabel.format(bucket.bucketStart),
     hours: secondsToHoursDecimal(bucket.seconds),
