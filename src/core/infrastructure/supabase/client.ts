@@ -2,11 +2,14 @@ import { createBrowserClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/core/infrastructure/supabase/database.types";
 import { getSupabaseEnv } from "@/core/infrastructure/supabase/env";
+import { fetchWithClockSkewRetry } from "@/core/infrastructure/supabase/fetch-with-clock-skew-retry";
 
 /** Cliente de Supabase para Client Components. */
 export function createClient() {
   const { url, anonKey } = getSupabaseEnv();
-  return createBrowserClient<Database>(url, anonKey);
+  return createBrowserClient<Database>(url, anonKey, {
+    global: { fetch: fetchWithClockSkewRetry },
+  });
 }
 
 /**
