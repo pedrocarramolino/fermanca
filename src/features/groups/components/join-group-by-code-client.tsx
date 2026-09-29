@@ -17,20 +17,24 @@ export function JoinGroupByCodeClient({
   authenticated: boolean;
 }) {
   const t = useTranslations("Groups.joinLink");
-  const [status, setStatus] = useState<"idle" | "joining" | "joined" | "error">(
-    authenticated ? "joining" : "idle",
-  );
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [status, setStatus] = useState<
+    "joining" | "joined" | "alreadyMember" | "invalidCode" | "error"
+  >("joining");
+  const [groupId, setGroupId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authenticated) return;
     joinGroupByCode(code)
-      .then(() => setStatus("joined"))
-      .catch((error: unknown) => {
-        setErrorMessage(error instanceof Error ? error.message : t("genericError"));
-        setStatus("error");
-      });
-  }, [authenticated, code, t]);
+      .then((result) => {
+        if (!result.ok) {
+          setStatus(result.error);
+          return;
+        }
+        setGroupId(result.group.id);
+        setStatus(result.alreadyMember ? "alreadyMember" : "joined");
+      })
+      .catch(() => setStatus("error"));
+  }, [authenticated, code]);
 
   if (!authenticated) {
     const next = encodeURIComponent(`/community/groups/join/${code}`);
@@ -56,7 +60,7 @@ export function JoinGroupByCodeClient({
     );
   }
 
-  if (status === "joining" || status === "idle") {
+  if (status === "joining") {
     return (
       <div className="flex flex-col items-center gap-3">
         <Loader2 className="text-muted-foreground size-6 animate-spin" aria-hidden />
@@ -65,11 +69,13 @@ export function JoinGroupByCodeClient({
     );
   }
 
-  if (status === "error") {
+  if (status === "error" || status === "invalidCode") {
     return (
       <div className="flex flex-col items-center gap-3">
         <UserX className="text-muted-foreground size-8" aria-hidden />
-        <p className="text-sm">{errorMessage}</p>
+        <p className="text-sm">
+          {status === "invalidCode" ? t("invalidDescription") : t("genericError")}
+        </p>
         <Button render={<Link href="/community/groups" />} nativeButton={false}>
           {t("goToGroups")}
         </Button>
@@ -80,9 +86,16 @@ export function JoinGroupByCodeClient({
   return (
     <div className="flex flex-col items-center gap-3">
       <UsersRound className="text-primary size-10" aria-hidden />
-      <p className="text-lg font-medium">{t("joinedTitle", { name: groupName })}</p>
-      <Button render={<Link href="/community/groups" />} nativeButton={false}>
-        {t("goToGroups")}
+      <p className="text-lg font-medium">
+        {status === "alreadyMember"
+          ? t("alreadyMemberTitle", { name: groupName })
+          : t("joinedTitle", { name: groupName })}
+      </p>
+      <Button
+        render={<Link href={groupId ? `/community/groups/${groupId}` : "/community/groups"} />}
+        nativeButton={false}
+      >
+        {t("goToGroup")}
       </Button>
     </div>
   );

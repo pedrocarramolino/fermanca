@@ -631,7 +631,8 @@
       "codePlaceholder": "E.g. AB23CD",
       "error": "Couldn't join the group.",
       "joining": "Joining…",
-      "submit": "Join"
+      "submit": "Join",
+      "invalidCode": "That group code doesn't exist."
     },
     "joinLink": {
       "metaTitle": "Group invitation",
@@ -644,7 +645,9 @@
       "alreadyHaveAccount": "I already have an account",
       "joining": "Joining \"{name}\"…",
       "goToGroups": "Go to Groups",
-      "joinedTitle": "You've joined \"{name}\"!"
+      "joinedTitle": "You've joined \"{name}\"!",
+      "alreadyMemberTitle": "You're already a member of \"{name}\"",
+      "goToGroup": "Go to group"
     },
     "detail": {
       "back": "Back",

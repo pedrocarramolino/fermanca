@@ -631,7 +631,8 @@
       "codePlaceholder": "Ej. AB23CD",
       "error": "No se pudo unir al grupo.",
       "joining": "Uniendo…",
-      "submit": "Unirme"
+      "submit": "Unirme",
+      "invalidCode": "Ese código de grupo no existe."
     },
     "joinLink": {
       "metaTitle": "Invitación a un grupo",
@@ -644,7 +645,9 @@
       "alreadyHaveAccount": "Ya tengo cuenta",
       "joining": "Uniéndote a \"{name}\"…",
       "goToGroups": "Ir a Grupos",
-      "joinedTitle": "¡Te has unido a \"{name}\"!"
+      "joinedTitle": "¡Te has unido a \"{name}\"!",
+      "alreadyMemberTitle": "Ya eres miembro de \"{name}\"",
+      "goToGroup": "Ir al grupo"
     },
     "detail": {
       "back": "Volver",

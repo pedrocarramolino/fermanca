@@ -39,12 +39,18 @@ export function JoinGroupDialog({
     setError(null);
     startTransition(async () => {
       try {
-        await joinGroupByCode(code);
+        const result = await joinGroupByCode(code);
+        if (!result.ok) {
+          setError(t("invalidCode"));
+          return;
+        }
+        // Si ya eras miembro no hay nada que hacer: igual que al unirte,
+        // se cierra y el grupo ya está en tu lista.
         reset();
         onOpenChange(false);
         onJoined();
-      } catch (err) {
-        setError(err instanceof Error ? err.message : t("error"));
+      } catch {
+        setError(t("error"));
       }
     });
   }

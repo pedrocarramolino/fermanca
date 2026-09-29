@@ -631,7 +631,8 @@
       "codePlaceholder": "Z. B. AB23CD",
       "error": "Der Gruppe konnte nicht beigetreten werden.",
       "joining": "Wird beigetreten…",
-      "submit": "Beitreten"
+      "submit": "Beitreten",
+      "invalidCode": "Diesen Gruppencode gibt es nicht."
     },
     "joinLink": {
       "metaTitle": "Gruppeneinladung",
@@ -644,7 +645,9 @@
       "alreadyHaveAccount": "Ich habe schon ein Konto",
       "joining": "Du trittst \"{name}\" bei…",
       "goToGroups": "Zu Gruppen",
-      "joinedTitle": "Du bist \"{name}\" beigetreten!"
+      "joinedTitle": "Du bist \"{name}\" beigetreten!",
+      "alreadyMemberTitle": "Du bist schon Mitglied von \"{name}\"",
+      "goToGroup": "Zur Gruppe"
     },
     "detail": {
       "back": "Zurück",
