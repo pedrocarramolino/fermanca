@@ -44,6 +44,10 @@ export const metadata: Metadata = {
     "rachas de práctica",
     "objetivos de práctica",
   ],
+  // Canónica de la portada. Las demás páginas públicas (sitemap.ts) ponen
+  // la suya; si no, heredarían esta y Google las daría por duplicadas.
+  // Como metadataBase es fermanca.com, también le dice a Google que
+  // fermanca.vercel.app es la misma web y no hay que indexarla aparte.
   alternates: {
     canonical: "/",
   },
