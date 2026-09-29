@@ -108,28 +108,41 @@ export async function getGroupByInviteCode(code: string): Promise<{ name: string
   return group ? { name: group.name } : null;
 }
 
+/** Un código que no existe no es un fallo de la app — se devuelve en vez
+ * de lanzarse (un `throw` en una Server Action llega al navegador como un
+ * error genérico en inglés y dispara el correo de "Ha fallado algo"). */
+export type JoinGroupResult =
+  | { ok: true; group: { id: string; name: string }; alreadyMember: boolean }
+  | { ok: false; error: "invalidCode" };
+
 /**
  * Buscar por código necesita ver un grupo del que aún no eres miembro — RLS
  * lo bloquea a propósito (para que no se puedan recorrer/enumerar grupos
  * ajenos), así que esta búsqueda va con la clave de servicio, mismo patrón
  * que getInviterByCode en community/application/actions.ts.
+ *
+ * Volver a abrir el enlace de un grupo en el que ya estás es normal (lo
+ * tienes guardado en el chat): se devuelve como éxito con
+ * `alreadyMember`, para llevarte al grupo sin más.
  */
-export async function joinGroupByCode(inviteCode: string) {
+export async function joinGroupByCode(inviteCode: string): Promise<JoinGroupResult> {
   const { userId } = await requireUserId();
   const code = inviteCode.trim().toUpperCase();
-  if (!code) throw new Error("Introduce un código de grupo.");
+  if (!code) return { ok: false, error: "invalidCode" };
 
   const serviceClient = createServiceClient();
   const repo = new SupabaseGroupRepository(serviceClient);
   const group = await repo.getByInviteCode(code);
-  if (!group) throw new Error("Código de grupo no válido.");
+  if (!group) return { ok: false, error: "invalidCode" };
 
-  const alreadyMember = await repo.isMember(group.id, userId);
-  if (alreadyMember) throw new Error("Ya eres miembro de este grupo.");
+  const summary = { id: group.id, name: group.name };
+  if (await repo.isMember(group.id, userId)) {
+    return { ok: true, group: summary, alreadyMember: true };
+  }
 
   await repo.addMember(group.id, userId);
   revalidatePath("/community/groups");
-  return group;
+  return { ok: true, group: summary, alreadyMember: false };
 }
 
 export async function leaveGroup(groupId: string) {

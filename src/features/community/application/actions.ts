@@ -123,6 +123,29 @@ export async function getInviterByCode(code: string): Promise<{ username: string
 }
 
 /**
+ * Lo que puede salir mal al pedir amistad y que NO es un fallo de la app
+ * (abrir otra vez el enlace de invitación de alguien que ya es tu amigo,
+ * teclear mal el código…). Se devuelve en vez de lanzarse: un `throw` en una
+ * Server Action llega al navegador como un error genérico en inglés (Next
+ * oculta el mensaje en producción) y además dispara el correo de "Ha
+ * fallado algo". Cada código tiene su texto en Community.friendRequest.
+ */
+export type FriendRequestError =
+  | "invalidCode"
+  | "ownCode"
+  | "self"
+  | "alreadyFriends"
+  | "alreadyRequested"
+  | "blocked";
+
+/** "sent": solicitud nueva, falta que la otra persona la acepte.
+ * "accepted": esa persona ya te la había pedido a ti, así que se acepta en
+ * el acto — ya sois amigos. */
+export type FriendRequestResult =
+  | { ok: true; status: "sent" | "accepted" }
+  | { ok: false; error: FriendRequestError };
+
+/**
  * Núcleo compartido por sendFriendRequestByCode (por código) y
  * sendFriendRequestToUser (ya conocido, p. ej. desde "amigos de un amigo"):
  * comprobar que no hay ya relación, crearla y avisar al destinatario.
@@ -131,19 +154,21 @@ async function createFriendRequest(
   userId: UserId,
   client: Awaited<ReturnType<typeof createClient>>,
   targetOwnerId: UserId,
-) {
+): Promise<FriendRequestResult> {
   // RLS ya lo impide (ver la migración user_blocks_and_reports), pero así el
   // error es legible. No dice quién bloqueó a quién.
-  if (await isBlockedBetween(userId, targetOwnerId)) {
-    throw new Error("No puedes enviar una solicitud a esta persona.");
-  }
+  if (await isBlockedBetween(userId, targetOwnerId)) return { ok: false, error: "blocked" };
 
   const friendshipRepo = new SupabaseFriendshipRepository(client);
   const existing = await friendshipRepo.findBetween(userId, targetOwnerId);
+  if (existing?.status === "accepted") return { ok: false, error: "alreadyFriends" };
   if (existing) {
-    throw new Error(
-      existing.status === "accepted" ? "Ya sois amigos." : "Ya hay una solicitud entre vosotros.",
-    );
+    if (existing.requesterId === userId) return { ok: false, error: "alreadyRequested" };
+    // Me la había pedido esa persona y ahora le pido yo (su enlace de
+    // invitación, o "Añadir" en sugeridos): los dos queremos, se acepta.
+    await friendshipRepo.accept(existing.id, userId);
+    revalidatePath("/community");
+    return { ok: true, status: "accepted" };
   }
 
   await friendshipRepo.create(userId, targetOwnerId);
@@ -157,12 +182,13 @@ async function createFriendRequest(
   }
 
   revalidatePath("/community");
+  return { ok: true, status: "sent" };
 }
 
-export async function sendFriendRequestByCode(inviteCode: string) {
+export async function sendFriendRequestByCode(inviteCode: string): Promise<FriendRequestResult> {
   const { userId, client } = await requireUserId();
   const code = inviteCode.trim().toUpperCase();
-  if (!code) throw new Error("Introduce un código de invitación.");
+  if (!code) return { ok: false, error: "invalidCode" };
 
   // Buscar por código necesita ver perfiles ajenos antes de que exista
   // amistad — RLS lo bloquea a propósito con la clave pública (para que no
@@ -171,18 +197,20 @@ export async function sendFriendRequestByCode(inviteCode: string) {
   const targetProfile = await new SupabaseProfileRepository(createServiceClient()).getByInviteCode(
     code,
   );
-  if (!targetProfile) throw new Error("Código de invitación no válido.");
-  if (targetProfile.ownerId === userId) throw new Error("Ese código de invitación es el tuyo.");
+  if (!targetProfile) return { ok: false, error: "invalidCode" };
+  if (targetProfile.ownerId === userId) return { ok: false, error: "ownCode" };
 
-  await createFriendRequest(userId, client, targetProfile.ownerId);
+  return createFriendRequest(userId, client, targetProfile.ownerId);
 }
 
 /** Para pedir amistad a alguien cuyo ownerId ya conocemos (p. ej. desde la
  * lista de "amigos de un amigo") — sin pasar por el código de invitación. */
-export async function sendFriendRequestToUser(targetOwnerId: string) {
+export async function sendFriendRequestToUser(
+  targetOwnerId: string,
+): Promise<FriendRequestResult> {
   const { userId, client } = await requireUserId();
-  if (targetOwnerId === userId) throw new Error("Ese eres tú.");
-  await createFriendRequest(userId, client, targetOwnerId as UserId);
+  if (targetOwnerId === userId) return { ok: false, error: "self" };
+  return createFriendRequest(userId, client, targetOwnerId as UserId);
 }
 
 export async function acceptFriendRequest(friendshipId: string) {

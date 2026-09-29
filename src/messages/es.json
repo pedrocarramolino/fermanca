@@ -496,6 +496,15 @@
       "success": "¡Solicitud enviada!",
       "genericError": "No se pudo enviar la solicitud."
     },
+    "friendRequest": {
+      "invalidCode": "Ese código de invitación no existe.",
+      "ownCode": "Ese código de invitación es el tuyo.",
+      "self": "No puedes añadirte a ti mismo.",
+      "alreadyFriends": "Ya sois amigos.",
+      "alreadyRequested": "Ya le enviaste una solicitud; falta que la acepte.",
+      "blocked": "No puedes enviar una solicitud a esta persona.",
+      "accepted": "¡Ya sois amigos! Te había enviado una solicitud y se ha aceptado."
+    },
     "pending": {
       "title": "Solicitudes pendientes",
       "accept": "Aceptar",
@@ -553,7 +562,12 @@
       "sending": "Enviando solicitud a @{username}…",
       "goToCommunity": "Ir a Comunidad",
       "sentTitle": "Solicitud enviada a @{username}",
-      "sentDescription": "Seréis amigos en cuanto la acepte desde Comunidad."
+      "sentDescription": "Seréis amigos en cuanto la acepte desde Comunidad.",
+      "acceptedTitle": "Ahora eres amigo de @{username}",
+      "acceptedDescription": "Te había enviado una solicitud, así que ya está aceptada.",
+      "alreadyFriendsTitle": "Ya eres amigo de @{username}",
+      "alreadyFriendsDescription": "Puedes ver su progreso en Comunidad.",
+      "alreadyRequestedTitle": "Ya enviaste una solicitud a @{username}"
     },
     "whatsapp": {
       "title": "Únete a nuestra comunidad de WhatsApp",
@@ -617,7 +631,8 @@
       "codePlaceholder": "Ej. AB23CD",
       "error": "No se pudo unir al grupo.",
       "joining": "Uniendo…",
-      "submit": "Unirme"
+      "submit": "Unirme",
+      "invalidCode": "Ese código de grupo no existe."
     },
     "joinLink": {
       "metaTitle": "Invitación a un grupo",
@@ -630,7 +645,9 @@
       "alreadyHaveAccount": "Ya tengo cuenta",
       "joining": "Uniéndote a \"{name}\"…",
       "goToGroups": "Ir a Grupos",
-      "joinedTitle": "¡Te has unido a \"{name}\"!"
+      "joinedTitle": "¡Te has unido a \"{name}\"!",
+      "alreadyMemberTitle": "Ya eres miembro de \"{name}\"",
+      "goToGroup": "Ir al grupo"
     },
     "detail": {
       "back": "Volver",

@@ -113,9 +113,16 @@ function FriendSessionContent({
   function handleAddFriend(ownerId: string) {
     setSendingTo(ownerId);
     sendFriendRequestToUser(ownerId)
-      .then(() => {
-        setFriendsOfFriend((prev) =>
-          prev?.map((f) => (f.ownerId === ownerId ? { ...f, relationship: "pending" } : f)) ?? null,
+      .then((result) => {
+        // Qué relación queda tras intentarlo; null = no ha cambiado nada y
+        // el botón se queda en "Añadir".
+        let relationship: "accepted" | "pending" | null = null;
+        if (result.ok) relationship = result.status === "accepted" ? "accepted" : "pending";
+        else if (result.error === "alreadyFriends") relationship = "accepted";
+        else if (result.error === "alreadyRequested") relationship = "pending";
+        if (!relationship) return;
+        setFriendsOfFriend(
+          (prev) => prev?.map((f) => (f.ownerId === ownerId ? { ...f, relationship } : f)) ?? null,
         );
       })
       .catch(() => {
