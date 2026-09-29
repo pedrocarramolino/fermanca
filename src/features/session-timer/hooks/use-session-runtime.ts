@@ -51,12 +51,24 @@ export function useSessionRuntime({
   sessionId,
   blocks,
   playbackSettings,
+  renderedAt,
 }: {
   sessionId: string;
   blocks: RuntimeBlockInput[];
   playbackSettings: PlaybackSettings;
+  /**
+   * Hora (ms) a la que el servidor pintó la página. El primer pintado usa
+   * esta y no la del reloj: el servidor y el móvil calculan el tiempo
+   * restante con la misma hora, sale el mismo texto y React no da el error
+   * de hidratación #418 (antes bastaba con que cambiara el segundo entre el
+   * HTML y la carga, o con que el reloj del móvil fuera desfasado). Nada
+   * más montar se pasa a la hora del navegador. Sin ella (montajes que no
+   * vienen del HTML del servidor), la hora actual.
+   */
+  renderedAt?: number;
 }) {
   const t = useTranslations("SessionRunner");
+  const [firstRenderAt] = useState(() => (renderedAt != null ? new Date(renderedAt) : new Date()));
   const [initial] = useState(() => {
     const index = findActiveIndex(blocks);
     const block = blocks[index];
@@ -73,7 +85,7 @@ export function useSessionRuntime({
       return { index, startedAt, alreadyAwaiting: false, pausedAt: nowAtMount };
     }
 
-    const startedAt = block?.startedAt ? new Date(block.startedAt) : nowAtMount;
+    const startedAt = block?.startedAt ? new Date(block.startedAt) : firstRenderAt;
     const state = resolveRuntimeState(blocks, index, startedAt, nowAtMount);
     return {
       index,
@@ -83,7 +95,7 @@ export function useSessionRuntime({
     };
   });
 
-  const [now, setNow] = useState(() => new Date());
+  const [now, setNow] = useState(firstRenderAt);
   const [activeBlockIndex, setActiveBlockIndex] = useState(initial.index);
   const [activeBlockStartedAt, setActiveBlockStartedAt] = useState(initial.startedAt);
   const [lastCompletedBlock, setLastCompletedBlock] = useState<RuntimeBlockInput | null>(null);
@@ -144,6 +156,10 @@ export function useSessionRuntime({
   const isTransitioningRef = useRef(false);
 
   useEffect(() => {
+    // Ya hidratado: de aquí en adelante, la hora del navegador (sin esperar
+    // al primer tic, para no enseñar ni un momento la hora del servidor).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setNow(new Date());
     const interval = setInterval(() => setNow(new Date()), TICK_MS);
     const onVisible = () => setNow(new Date());
     document.addEventListener("visibilitychange", onVisible);

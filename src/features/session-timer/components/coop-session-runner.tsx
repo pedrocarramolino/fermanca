@@ -33,12 +33,14 @@ export function CoopSessionRunner({
   playbackSettings,
   peerUsername,
   userId,
+  renderedAt,
 }: {
   sessionId: string;
   initialBlocks: RuntimeBlockInput[];
   playbackSettings: PlaybackSettings;
   peerUsername: string;
   userId: string;
+  renderedAt: number;
 }) {
   const router = useRouter();
   const [blocks, setBlocks] = useState(initialBlocks);
@@ -143,6 +145,9 @@ export function CoopSessionRunner({
         blocks={blocks}
         playbackSettings={playbackSettings}
         peerUsername={peerUsername}
+        // Solo el primer montaje viene del HTML del servidor; los siguientes
+        // (key={revision}) ya son solo del navegador y deben usar su hora.
+        renderedAt={revision === 0 ? renderedAt : undefined}
       />
       <CoopNoticeToast notices={notices} onDismiss={dismissNotice} />
     </>

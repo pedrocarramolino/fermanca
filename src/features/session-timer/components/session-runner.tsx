@@ -24,6 +24,7 @@ export function SessionRunner({
   blocks,
   playbackSettings,
   peerUsername,
+  renderedAt,
 }: {
   sessionId: string;
   blocks: RuntimeBlockInput[];
@@ -31,12 +32,14 @@ export function SessionRunner({
   /** Sesión cooperativa — nombre de con quién se practica, solo para el
    * pequeño subtítulo bajo el cronómetro. */
   peerUsername?: string | null;
+  /** Ver useSessionRuntime. */
+  renderedAt?: number;
 }) {
   const t = useTranslations("SessionRunner");
   const [freshBlocks, setFreshBlocks] = useState<RuntimeBlockInput[] | null>(null);
   const [metronomeOpen, setMetronomeOpen] = useState(false);
 
-  const runtime = useSessionRuntime({ sessionId, blocks, playbackSettings });
+  const runtime = useSessionRuntime({ sessionId, blocks, playbackSettings, renderedAt });
   const noteableBlock = runtime.lastCompletedBlock;
   const finished = runtime.status === "finished";
 
