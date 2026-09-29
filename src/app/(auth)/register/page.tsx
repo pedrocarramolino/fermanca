@@ -4,7 +4,9 @@ import { RegisterForm } from "@/features/auth/components/register-form";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Auth.register");
-  return { title: t("title") };
+  // Su propia URL canónica: sin esto hereda la "/" del layout raíz y
+  // Google la trataría como un duplicado de la portada.
+  return { title: t("title"), alternates: { canonical: "/register" } };
 }
 
 export default async function RegisterPage({

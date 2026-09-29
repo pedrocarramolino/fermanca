@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Terms");
-  return { title: t("title") };
+  // Su propia URL canónica: sin esto hereda la "/" del layout raíz y
+  // Google la trataría como un duplicado de la portada.
+  return { title: t("title"), alternates: { canonical: "/terms" } };
 }
 
 export default async function TermsPage() {

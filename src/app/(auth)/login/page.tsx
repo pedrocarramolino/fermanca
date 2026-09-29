@@ -4,7 +4,9 @@ import { LoginForm } from "@/features/auth/components/login-form";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Auth.login");
-  return { title: t("title") };
+  // Su propia URL canónica: sin esto hereda la "/" del layout raíz y
+  // Google la trataría como un duplicado de la portada.
+  return { title: t("title"), alternates: { canonical: "/login" } };
 }
 
 export default async function LoginPage({
