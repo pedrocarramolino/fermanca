@@ -15,6 +15,63 @@
     "heroSubtitle": "Organisiere deine Übungseinheiten in zeitlich begrenzten Blöcken, die automatisch aufeinanderfolgen, halte deine Serie am Laufen und sieh, wie du dich Woche für Woche entwickelst.",
     "ctaPrimary": "Kostenlos starten",
     "ctaSecondary": "Ich habe schon ein Konto",
+    "howTitle": "So funktioniert's",
+    "how": {
+      "plan": {
+        "title": "Plane deine Session",
+        "description": "Teile dein Üben in Blöcke auf (Einspielen, Technik, Repertoire …), jeder mit seiner Zeit. Speichere sie als Vorlage, um sie an einem anderen Tag zu wiederholen."
+      },
+      "play": {
+        "title": "Drück auf Start",
+        "description": "Der Timer wechselt von selbst zum nächsten Block und sagt dir bei jedem Wechsel Bescheid. Du musst nur noch spielen."
+      },
+      "track": {
+        "title": "Sieh deinen Fortschritt",
+        "description": "Serien, ein Wochenziel und Statistiken nach Kategorie zeigen, wofür du deine Zeit nutzt und wie deine Regelmäßigkeit wächst."
+      }
+    },
+    "audienceTitle": "Für wen ist es",
+    "audience": {
+      "students": {
+        "title": "Musikstudierende",
+        "description": "Wenn du an einer Musikhochschule oder Musikschule lernst, verteilst du deine Zeit auf Tonleitern, Etüden und Stücke, ohne etwas auf den letzten Tag zu schieben."
+      },
+      "selfTaught": {
+        "title": "Autodidakten",
+        "description": "Wenn du dir selbst etwas beibringst, helfen dir eine klare Routine und eine Serie, die du nicht abreißen lassen willst, jeden Tag ein bisschen zu üben."
+      },
+      "teachers": {
+        "title": "Lehrkräfte und Gruppen",
+        "description": "Erstelle eine Gruppe mit deinen Schülerinnen und Schülern oder deiner Band, setzt euch ein gemeinsames Wochenziel und verfolgt das Üben aller."
+      }
+    },
+    "faqTitle": "Häufige Fragen",
+    "faq": {
+      "free": {
+        "q": "Ist Fermança kostenlos?",
+        "a": "Ja. Fermança ist kostenlos: Du brauchst nur ein Konto, um dein Üben zu organisieren."
+      },
+      "instrument": {
+        "q": "Funktioniert es mit meinem Instrument?",
+        "a": "Ja. Es funktioniert mit Gitarre, Klavier, Geige, Gesang, Schlagzeug oder jedem anderen Instrument, denn die Blöcke und Kategorien legst du selbst fest."
+      },
+      "install": {
+        "q": "Muss ich etwas installieren?",
+        "a": "Nein. Fermança läuft im Browser deines Handys oder Computers. Wenn du willst, kannst du es zum Startbildschirm hinzufügen, dann öffnet es sich wie jede andere App (auf dem iPhone: Safari → Teilen → Zum Home-Bildschirm)."
+      },
+      "friends": {
+        "q": "Kann ich mit anderen üben?",
+        "a": "Ja. Du kannst Freunde über deinen Einladungslink hinzufügen, gleichzeitig dieselbe Session mit synchronisiertem Timer machen oder eine Gruppe mit einem gemeinsamen Wochenziel erstellen."
+      },
+      "reminders": {
+        "q": "Erinnert es mich ans Üben?",
+        "a": "Ja. Du kannst Erinnerungen für die Tage und die Uhrzeit deiner Wahl einstellen, die als Benachrichtigung auf dein Handy oder deinen Computer kommen."
+      },
+      "data": {
+        "q": "Was macht ihr mit meinen Daten?",
+        "a": "Wir speichern nur, was die App zum Funktionieren braucht: Es gibt keine Werbung und wir verkaufen deine Daten nicht. Du kannst dein Konto samt Inhalt jederzeit in den Einstellungen löschen."
+      }
+    },
     "finalCtaTitle": "Deine nächste Übungseinheit, besser organisiert",
     "features": {
       "sessions": {

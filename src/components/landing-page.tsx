@@ -1,6 +1,15 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { BarChart3, Flame, Timer, Users } from "lucide-react";
+import {
+  BarChart3,
+  ChevronDown,
+  Flame,
+  GraduationCap,
+  Headphones,
+  Timer,
+  Users,
+  UsersRound,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { siteConfig } from "@/config/site";
@@ -11,6 +20,18 @@ const FEATURES = [
   { icon: Users, key: "cooperative" },
   { icon: BarChart3, key: "stats" },
 ] as const;
+
+const HOW_STEPS = ["plan", "play", "track"] as const;
+
+const AUDIENCES = [
+  { icon: GraduationCap, key: "students" },
+  { icon: Headphones, key: "selfTaught" },
+  { icon: UsersRound, key: "teachers" },
+] as const;
+
+/** Las mismas preguntas se pintan en la página y van en el JSON-LD
+ * (FAQPage): Google solo usa ese marcado si el texto está visible. */
+const FAQ_KEYS = ["free", "instrument", "install", "friends", "reminders", "data"] as const;
 
 /** Lo que ve quien entra en "/" sin haber iniciado sesión — antes no existía
  * ninguna versión pública de la home: se le mostraba el mismo panel de la
@@ -25,24 +46,42 @@ export async function LandingPage() {
     getTranslations("Privacy"),
   ]);
 
+  const faq = FAQ_KEYS.map((key) => ({
+    key,
+    question: t(`faq.${key}.q`),
+    answer: t(`faq.${key}.a`),
+  }));
+
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "WebApplication",
-    name: siteConfig.name,
-    description: siteConfig.description,
-    url: siteConfig.url,
-    applicationCategory: "MusicApplication",
-    operatingSystem: "Any (PWA)",
-    offers: { "@type": "Offer", price: "0", priceCurrency: "EUR" },
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        name: siteConfig.name,
+        description: siteConfig.description,
+        url: siteConfig.url,
+        applicationCategory: "MusicApplication",
+        operatingSystem: "Any (PWA)",
+        offers: { "@type": "Offer", price: "0", priceCurrency: "EUR" },
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: faq.map(({ question, answer }) => ({
+          "@type": "Question",
+          name: question,
+          acceptedAnswer: { "@type": "Answer", text: answer },
+        })),
+      },
+    ],
   };
 
   return (
     <main className="mx-auto flex min-h-svh max-w-4xl flex-col gap-16 p-8 pb-16 lg:max-w-5xl">
       <script
         type="application/ld+json"
-        // El JSON-LD es siempre el mismo objeto estático — no depende de
-        // nada que difiera entre servidor y cliente, así que no puede
-        // provocar el desajuste de hidratación que tuvo LaunchAnimation.
+        // El JSON-LD solo depende del idioma (igual en servidor y cliente),
+        // así que no puede provocar el desajuste de hidratación que tuvo
+        // LaunchAnimation.
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
@@ -89,6 +128,59 @@ export async function LandingPage() {
             </CardContent>
           </Card>
         ))}
+      </section>
+
+      <section className="flex flex-col gap-6">
+        <h2 className="text-center text-2xl font-semibold">{t("howTitle")}</h2>
+        <ol className="grid gap-4 sm:grid-cols-3">
+          {HOW_STEPS.map((key, index) => (
+            <li key={key} className="flex flex-col gap-2">
+              <span
+                className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-full text-sm font-semibold"
+                aria-hidden
+              >
+                {index + 1}
+              </span>
+              <h3 className="font-semibold">{t(`how.${key}.title`)}</h3>
+              <p className="text-muted-foreground text-sm">{t(`how.${key}.description`)}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section className="flex flex-col gap-6">
+        <h2 className="text-center text-2xl font-semibold">{t("audienceTitle")}</h2>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {AUDIENCES.map(({ icon: Icon, key }) => (
+            <Card key={key}>
+              <CardContent className="flex flex-col gap-3">
+                <Icon className="text-primary size-6" aria-hidden />
+                <h3 className="font-semibold">{t(`audience.${key}.title`)}</h3>
+                <p className="text-muted-foreground text-sm">
+                  {t(`audience.${key}.description`)}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto flex w-full max-w-2xl flex-col gap-6">
+        <h2 className="text-center text-2xl font-semibold">{t("faqTitle")}</h2>
+        <div className="border-border divide-border divide-y rounded-xl border">
+          {faq.map(({ key, question, answer }) => (
+            <details key={key} className="group px-4">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 font-medium [&::-webkit-details-marker]:hidden">
+                <h3>{question}</h3>
+                <ChevronDown
+                  className="text-muted-foreground size-4 shrink-0 transition-transform group-open:rotate-180"
+                  aria-hidden
+                />
+              </summary>
+              <p className="text-muted-foreground pb-4 text-sm">{answer}</p>
+            </details>
+          ))}
+        </div>
       </section>
 
       <section className="border-border flex flex-col items-center gap-4 rounded-xl border py-12 text-center">

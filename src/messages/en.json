@@ -15,6 +15,63 @@
     "heroSubtitle": "Organize your practice sessions into timed blocks that chain automatically, keep your streak going, and see how you progress week by week.",
     "ctaPrimary": "Start for free",
     "ctaSecondary": "I already have an account",
+    "howTitle": "How it works",
+    "how": {
+      "plan": {
+        "title": "Plan your session",
+        "description": "Split your practice into blocks (warm-up, technique, repertoire…) with a time for each one. Save it as a template to repeat it another day."
+      },
+      "play": {
+        "title": "Press start",
+        "description": "The timer moves from one block to the next on its own and lets you know at every change. All you have to do is play."
+      },
+      "track": {
+        "title": "See your progress",
+        "description": "Streaks, a weekly goal and stats by category show where your time goes and how your consistency improves."
+      }
+    },
+    "audienceTitle": "Who it's for",
+    "audience": {
+      "students": {
+        "title": "Music students",
+        "description": "If you study at a conservatory or music school, split your time between scales, études and pieces without leaving anything for the last day."
+      },
+      "selfTaught": {
+        "title": "Self-taught musicians",
+        "description": "If you're learning on your own, a clear routine and a streak you don't want to break help you practice a little every day."
+      },
+      "teachers": {
+        "title": "Teachers and groups",
+        "description": "Create a group with your students or your band, set a shared weekly goal and follow everyone's practice."
+      }
+    },
+    "faqTitle": "Frequently asked questions",
+    "faq": {
+      "free": {
+        "q": "Is Fermança free?",
+        "a": "Yes. Fermança is free: you only need to create an account to start organizing your practice."
+      },
+      "instrument": {
+        "q": "Does it work for my instrument?",
+        "a": "Yes. It works for guitar, piano, violin, voice, drums or any other instrument, because you define the blocks and categories yourself."
+      },
+      "install": {
+        "q": "Do I need to install anything?",
+        "a": "No. Fermança runs in your phone or computer browser. If you like, you can add it to your home screen and it opens like any other app (on iPhone: Safari → Share → Add to Home Screen)."
+      },
+      "friends": {
+        "q": "Can I practice with other people?",
+        "a": "Yes. You can add friends with your invite link, do the same session at the same time with a synced timer, or create a group with a shared weekly goal."
+      },
+      "reminders": {
+        "q": "Does it remind me when to practice?",
+        "a": "Yes. You can schedule reminders for the days and time you choose, and they arrive as a notification on your phone or computer."
+      },
+      "data": {
+        "q": "What do you do with my data?",
+        "a": "We only store what the app needs to work: there are no ads and we don't sell your data. You can delete your account and all its content at any time from Settings."
+      }
+    },
     "finalCtaTitle": "Your next practice session, better organized",
     "features": {
       "sessions": {
