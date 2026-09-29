@@ -47,6 +47,13 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
     );
   }
 
+  // La hora a la que el servidor pinta el cronómetro: el primer pintado del
+  // navegador usa esta misma para que el tiempo restante salga idéntico y
+  // React no dé el error de hidratación #418 (ver useSessionRuntime). Es
+  // un Server Component: se pinta una vez por petición, no se "re-renderiza".
+  // eslint-disable-next-line react-hooks/purity
+  const renderedAt = Date.now();
+
   const playbackSettings = {
     sound: settings.sound,
     volume: settings.volume,
@@ -62,11 +69,17 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
         playbackSettings={playbackSettings}
         peerUsername={session.linkedSessionPeerUsername ?? ""}
         userId={userId}
+        renderedAt={renderedAt}
       />
     );
   }
 
   return (
-    <SessionRunner sessionId={session.id} blocks={runtimeBlocks} playbackSettings={playbackSettings} />
+    <SessionRunner
+      sessionId={session.id}
+      blocks={runtimeBlocks}
+      playbackSettings={playbackSettings}
+      renderedAt={renderedAt}
+    />
   );
 }
