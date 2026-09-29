@@ -11,7 +11,7 @@ import { safeRedirectPath } from "@/features/auth/application/safe-redirect";
  * `next` llega como query param del request, no de un valor que la propia
  * app haya generado — pasa por safeRedirectPath por el mismo motivo que en
  * login/register: sin esto, "next=@evil.com" concatenado a `origin` produce
- * "https://fermanca.vercel.app@evil.com", que el navegador interpreta como
+ * "https://fermanca.com@evil.com", que el navegador interpreta como
  * userinfo@host y redirige de verdad a evil.com.
  */
 export async function GET(request: Request) {
