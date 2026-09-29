@@ -496,6 +496,15 @@
       "success": "Request sent!",
       "genericError": "Couldn't send the request."
     },
+    "friendRequest": {
+      "invalidCode": "That invite code doesn't exist.",
+      "ownCode": "That's your own invite code.",
+      "self": "You can't add yourself.",
+      "alreadyFriends": "You're already friends.",
+      "alreadyRequested": "You already sent them a request; they just need to accept it.",
+      "blocked": "You can't send a request to this person.",
+      "accepted": "You're friends now! They had already sent you a request, so it's been accepted."
+    },
     "pending": {
       "title": "Pending requests",
       "accept": "Accept",
@@ -553,7 +562,12 @@
       "sending": "Sending request to @{username}…",
       "goToCommunity": "Go to Community",
       "sentTitle": "Request sent to @{username}",
-      "sentDescription": "You'll be friends as soon as they accept it from Community."
+      "sentDescription": "You'll be friends as soon as they accept it from Community.",
+      "acceptedTitle": "You and @{username} are now friends",
+      "acceptedDescription": "They had already sent you a request, so it's been accepted.",
+      "alreadyFriendsTitle": "You're already friends with @{username}",
+      "alreadyFriendsDescription": "You can see their progress in Community.",
+      "alreadyRequestedTitle": "You already sent a request to @{username}"
     },
     "whatsapp": {
       "title": "Join our WhatsApp community",

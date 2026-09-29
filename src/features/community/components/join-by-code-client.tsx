@@ -5,7 +5,15 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Loader2, UserCheck, UserX } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { sendFriendRequestByCode } from "@/features/community/application/actions";
+import {
+  sendFriendRequestByCode,
+  type FriendRequestError,
+} from "@/features/community/application/actions";
+
+/** Qué se ve tras abrir el enlace con sesión. Volver a abrir el enlace de
+ * alguien que ya es tu amigo (o al que ya se lo pediste) no es un error:
+ * se enseña como un resultado más. */
+type JoinStatus = "sending" | "sent" | "accepted" | "alreadyFriends" | "alreadyRequested" | "error";
 
 export function JoinByCodeClient({
   code,
@@ -17,20 +25,24 @@ export function JoinByCodeClient({
   authenticated: boolean;
 }) {
   const t = useTranslations("Community.join");
-  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
-    authenticated ? "sending" : "idle",
-  );
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const tRequest = useTranslations("Community.friendRequest");
+  const [status, setStatus] = useState<JoinStatus>("sending");
+  const [error, setError] = useState<FriendRequestError | null>(null);
 
   useEffect(() => {
     if (!authenticated) return;
     sendFriendRequestByCode(code)
-      .then(() => setStatus("sent"))
-      .catch((error: unknown) => {
-        setErrorMessage(error instanceof Error ? error.message : t("genericError"));
-        setStatus("error");
-      });
-  }, [authenticated, code, t]);
+      .then((result) => {
+        if (result.ok) setStatus(result.status);
+        else if (result.error === "alreadyFriends" || result.error === "alreadyRequested") {
+          setStatus(result.error);
+        } else {
+          setError(result.error);
+          setStatus("error");
+        }
+      })
+      .catch(() => setStatus("error"));
+  }, [authenticated, code]);
 
   if (!authenticated) {
     const next = encodeURIComponent(`/community/join/${code}`);
@@ -56,7 +68,7 @@ export function JoinByCodeClient({
     );
   }
 
-  if (status === "sending" || status === "idle") {
+  if (status === "sending") {
     return (
       <div className="flex flex-col items-center gap-3">
         <Loader2 className="text-muted-foreground size-6 animate-spin" aria-hidden />
@@ -71,7 +83,7 @@ export function JoinByCodeClient({
     return (
       <div className="flex flex-col items-center gap-3">
         <UserX className="text-muted-foreground size-8" aria-hidden />
-        <p className="text-sm">{errorMessage}</p>
+        <p className="text-sm">{error ? tRequest(error) : t("genericError")}</p>
         <Button render={<Link href="/community" />} nativeButton={false}>
           {t("goToCommunity")}
         </Button>
@@ -79,11 +91,27 @@ export function JoinByCodeClient({
     );
   }
 
+  const { title, description } = {
+    sent: { title: t("sentTitle", { username: inviterUsername }), description: t("sentDescription") },
+    accepted: {
+      title: t("acceptedTitle", { username: inviterUsername }),
+      description: t("acceptedDescription"),
+    },
+    alreadyFriends: {
+      title: t("alreadyFriendsTitle", { username: inviterUsername }),
+      description: t("alreadyFriendsDescription"),
+    },
+    alreadyRequested: {
+      title: t("alreadyRequestedTitle", { username: inviterUsername }),
+      description: t("sentDescription"),
+    },
+  }[status];
+
   return (
     <div className="flex flex-col items-center gap-3">
       <UserCheck className="text-primary size-10" aria-hidden />
-      <p className="text-lg font-medium">{t("sentTitle", { username: inviterUsername })}</p>
-      <p className="text-muted-foreground text-sm">{t("sentDescription")}</p>
+      <p className="text-lg font-medium">{title}</p>
+      <p className="text-muted-foreground text-sm">{description}</p>
       <Button render={<Link href="/community" />} nativeButton={false}>
         {t("goToCommunity")}
       </Button>

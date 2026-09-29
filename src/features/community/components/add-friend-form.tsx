@@ -9,22 +9,27 @@ import { sendFriendRequestByCode } from "@/features/community/application/action
 
 export function AddFriendForm() {
   const t = useTranslations("Community.addFriend");
+  const tRequest = useTranslations("Community.friendRequest");
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   function handleSubmit() {
     if (!code.trim()) return;
     setError(null);
-    setSuccess(false);
+    setSuccess(null);
     startTransition(async () => {
       try {
-        await sendFriendRequestByCode(code);
+        const result = await sendFriendRequestByCode(code);
+        if (!result.ok) {
+          setError(tRequest(result.error));
+          return;
+        }
         setCode("");
-        setSuccess(true);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : t("genericError"));
+        setSuccess(result.status === "accepted" ? tRequest("accepted") : t("success"));
+      } catch {
+        setError(t("genericError"));
       }
     });
   }
@@ -45,7 +50,7 @@ export function AddFriendForm() {
         </Button>
       </div>
       {error && <p className="text-destructive text-sm">{error}</p>}
-      {success && <p className="text-primary text-sm">{t("success")}</p>}
+      {success && <p className="text-primary text-sm">{success}</p>}
     </div>
   );
 }

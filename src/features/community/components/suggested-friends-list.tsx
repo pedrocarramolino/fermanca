@@ -38,6 +38,8 @@ export function SuggestedFriendsList({ suggestions }: { suggestions: SuggestedFr
     setSendingId(ownerId);
     startTransition(async () => {
       try {
+        // Si falla por algo esperado (ya había solicitud, bloqueo…) la
+        // sugerencia sobra igualmente: no hay nada más que hacer con ella.
         await sendFriendRequestToUser(ownerId);
         setList((prev) => prev.filter((s) => s.ownerId !== ownerId));
       } finally {

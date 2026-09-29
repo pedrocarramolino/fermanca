@@ -496,6 +496,15 @@
       "success": "Anfrage gesendet!",
       "genericError": "Die Anfrage konnte nicht gesendet werden."
     },
+    "friendRequest": {
+      "invalidCode": "Diesen Einladungscode gibt es nicht.",
+      "ownCode": "Das ist dein eigener Einladungscode.",
+      "self": "Du kannst dich nicht selbst hinzufügen.",
+      "alreadyFriends": "Ihr seid schon befreundet.",
+      "alreadyRequested": "Du hast schon eine Anfrage geschickt; sie muss nur noch angenommen werden.",
+      "blocked": "Du kannst dieser Person keine Anfrage senden.",
+      "accepted": "Ihr seid jetzt befreundet! Es lag schon eine Anfrage an dich vor, die jetzt angenommen ist."
+    },
     "pending": {
       "title": "Ausstehende Anfragen",
       "accept": "Annehmen",
@@ -553,7 +562,12 @@
       "sending": "Anfrage an @{username} wird gesendet…",
       "goToCommunity": "Zur Community",
       "sentTitle": "Anfrage an @{username} gesendet",
-      "sentDescription": "Ihr werdet Freunde, sobald er sie in der Community annimmt."
+      "sentDescription": "Ihr werdet Freunde, sobald er sie in der Community annimmt.",
+      "acceptedTitle": "Du und @{username} seid jetzt befreundet",
+      "acceptedDescription": "Es lag schon eine Anfrage an dich vor, die jetzt angenommen ist.",
+      "alreadyFriendsTitle": "Du bist schon mit @{username} befreundet",
+      "alreadyFriendsDescription": "Den Fortschritt siehst du in der Community.",
+      "alreadyRequestedTitle": "Du hast @{username} schon eine Anfrage geschickt"
     },
     "whatsapp": {
       "title": "Tritt unserer WhatsApp-Community bei",
