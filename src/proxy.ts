@@ -7,7 +7,7 @@ import { getSupabaseEnv } from "@/core/infrastructure/supabase/env";
 // propia recuperación de contraseña), así que es una ruta protegida más,
 // no pública.
 //
-// /terms, /privacy, /compartir, /community/join y /delete-account son la excepción a "si hay
+// /terms, /privacy, /compartir, /community/join, /delete-account y /guias son la excepción a "si hay
 // sesión, fuera de aquí": son consultables da igual si has iniciado sesión o
 // no (un usuario registrado también quiere poder leer los términos, abrir
 // un enlace de compartir, o aceptar una invitación de amistad sin que lo
@@ -22,6 +22,7 @@ const PUBLIC_ROUTES = [
   "/compartir",
   "/community/join",
   "/delete-account",
+  "/guias",
 ];
 const PUBLIC_ROUTES_ALWAYS_ACCESSIBLE = [
   "/terms",
@@ -31,6 +32,9 @@ const PUBLIC_ROUTES_ALWAYS_ACCESSIBLE = [
   // Google Play exige que se pueda consultar sin instalar la app ni iniciar
   // sesión; y con sesión tampoco tiene sentido echar a nadie de ella.
   "/delete-account",
+  // Contenido para Google y para quien llega desde un buscador; con sesión
+  // también se puede leer.
+  "/guias",
 ];
 
 // "/" es pública (sin sesión, page.tsx ya renderiza la landing en vez del
