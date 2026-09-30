@@ -72,6 +72,9 @@
         "a": "Solo guardamos lo necesario para que la app funcione: no hay anuncios ni vendemos tus datos. Puedes borrar tu cuenta y todo su contenido cuando quieras desde Ajustes."
       }
     },
+    "guidesTitle": "Guías para practicar mejor",
+    "guidesAll": "Ver todas las guías",
+    "guidesLink": "Guías",
     "finalCtaTitle": "Tu próxima sesión de práctica, mejor organizada",
     "features": {
       "sessions": {

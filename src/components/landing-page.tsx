@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import {
+  ArrowRight,
   BarChart3,
   ChevronDown,
   Flame,
@@ -13,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { siteConfig } from "@/config/site";
+import { GUIDES } from "@/features/guides/guides";
 
 const FEATURES = [
   { icon: Timer, key: "sessions" },
@@ -183,6 +185,30 @@ export async function LandingPage() {
         </div>
       </section>
 
+      <section className="mx-auto flex w-full max-w-2xl flex-col gap-6">
+        <h2 className="text-center text-2xl font-semibold">{t("guidesTitle")}</h2>
+        {/* Las guías solo están en español (ver features/guides/guides.ts). */}
+        <ul lang="es" className="flex flex-col gap-2">
+          {GUIDES.map((guide) => (
+            <li key={guide.slug}>
+              <Link
+                href={`/guias/${guide.slug}`}
+                className="border-border hover:border-primary flex items-center justify-between gap-4 rounded-xl border p-4 font-medium transition-colors"
+              >
+                {guide.title}
+                <ArrowRight className="text-muted-foreground size-4 shrink-0" aria-hidden />
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <Link
+          href="/guias"
+          className="text-primary self-center text-sm font-medium underline-offset-4 hover:underline"
+        >
+          {t("guidesAll")}
+        </Link>
+      </section>
+
       <section className="border-border flex flex-col items-center gap-4 rounded-xl border py-12 text-center">
         <h2 className="text-2xl font-semibold">{t("finalCtaTitle")}</h2>
         <Button size="lg" render={<Link href="/register" />} nativeButton={false}>
@@ -192,6 +218,9 @@ export async function LandingPage() {
 
       <footer className="text-muted-foreground flex flex-col items-center gap-2 text-center text-xs">
         <div className="flex gap-4">
+          <Link href="/guias" className="hover:text-foreground underline underline-offset-4">
+            {t("guidesLink")}
+          </Link>
           <Link href="/privacy" className="hover:text-foreground underline underline-offset-4">
             {tPrivacy("title")}
           </Link>

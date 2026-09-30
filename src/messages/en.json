@@ -72,6 +72,9 @@
         "a": "We only store what the app needs to work: there are no ads and we don't sell your data. You can delete your account and all its content at any time from Settings."
       }
     },
+    "guidesTitle": "Practice guides (in Spanish)",
+    "guidesAll": "See all guides",
+    "guidesLink": "Guides",
     "finalCtaTitle": "Your next practice session, better organized",
     "features": {
       "sessions": {
