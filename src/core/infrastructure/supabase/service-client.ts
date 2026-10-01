@@ -1,6 +1,7 @@
 import "server-only";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/core/infrastructure/supabase/database.types";
+import { fetchWithClockSkewRetry } from "@/core/infrastructure/supabase/fetch-with-clock-skew-retry";
 
 /**
  * Cliente con la clave secreta (bypassa RLS): solo para trabajos de
@@ -17,5 +18,10 @@ export function createServiceClient() {
   }
   return createSupabaseClient<Database>(url, key, {
     auth: { autoRefreshToken: false, persistSession: false },
+    // Con las claves nuevas (sb_secret_…) la pasarela de Supabase convierte
+    // la clave en un JWT con su propio reloj, así que este cliente también
+    // puede chocar con "JWT issued at future" (visto en /register el
+    // 1/10/2026). Mismo reintento que server.ts y client.ts.
+    global: { fetch: fetchWithClockSkewRetry },
   });
 }
