@@ -19,6 +19,9 @@ const NETWORK_PATTERNS = [
   /^Load failed$/i,
   /network connection was lost/i,
   /Internet connection appears to be offline/i,
+  // DOMException "NetworkError" de Chrome (sin traza): una petición nativa
+  // —service worker, fuentes, beacons— que se queda sin red.
+  /^A network error occurred\.?$/i,
   /AbortError/,
   /The operation was aborted/i,
   /signal is aborted/i,
