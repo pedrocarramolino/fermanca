@@ -2,13 +2,16 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Bell, CheckCircle2, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { formatDurationShort } from "@/core/domain/duration";
+import { parseWeeklyGoalHours } from "@/core/domain/weekly-goal";
+import {
+  GoalTargetFields,
+  hoursToText,
+} from "@/features/weekly-goals/components/goal-target-fields";
 import {
   markGroupWeeklyGoalCompleted,
   sendTestGroupWeeklyGoalPush,
@@ -32,15 +35,18 @@ export function GroupWeeklyGoalCard({
   const router = useRouter();
   const [editing, setEditing] = useState(isOwner && !initialGoal);
   const [days, setDays] = useState(initialGoal?.targetDays ?? DEFAULT_TARGET_DAYS);
-  const [hours, setHours] = useState(
-    initialGoal ? initialGoal.targetSeconds / 3600 : DEFAULT_TARGET_HOURS,
+  const locale = useLocale();
+  const [hoursText, setHoursText] = useState(() =>
+    hoursToText(initialGoal ? initialGoal.targetSeconds / 3600 : DEFAULT_TARGET_HOURS, locale),
   );
+  const hours = parseWeeklyGoalHours(hoursText);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [isTesting, startTesting] = useTransition();
   const [testResult, setTestResult] = useState<"sent" | "error" | null>(null);
 
   function handleSave() {
+    if (hours === null) return;
     setError(null);
     startTransition(async () => {
       try {
@@ -84,35 +90,18 @@ export function GroupWeeklyGoalCard({
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
-          <div className="flex gap-3">
-            <div className="flex flex-1 flex-col gap-2">
-              <Label htmlFor="group-goal-days">{t("days")}</Label>
-              <Input
-                id="group-goal-days"
-                type="number"
-                min={1}
-                max={7}
-                value={days}
-                onChange={(event) =>
-                  setDays(Math.min(7, Math.max(1, Number(event.target.value) || 1)))
-                }
-              />
-            </div>
-            <div className="flex flex-1 flex-col gap-2">
-              <Label htmlFor="group-goal-hours">{t("hours")}</Label>
-              <Input
-                id="group-goal-hours"
-                type="number"
-                min={0.5}
-                step={0.5}
-                value={hours}
-                onChange={(event) => setHours(Math.max(0.5, Number(event.target.value) || 0.5))}
-              />
-            </div>
-          </div>
+          <GoalTargetFields
+            idPrefix="group-goal"
+            days={days}
+            onDaysChange={setDays}
+            hoursText={hoursText}
+            onHoursTextChange={setHoursText}
+            daysLabel={t("days")}
+            hoursLabel={t("hours")}
+          />
           {error && <p className="text-destructive text-sm">{error}</p>}
           <div className="flex gap-2">
-            <Button type="button" onClick={handleSave} disabled={isPending}>
+            <Button type="button" onClick={handleSave} disabled={isPending || hours === null}>
               {isPending ? t("saving") : t("save")}
             </Button>
             {initialGoal && (

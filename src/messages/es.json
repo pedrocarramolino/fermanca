@@ -230,8 +230,8 @@
     "form": {
       "days": "Días a la semana",
       "hours": "Horas a la semana",
-      "daysHint": "Entre 1 y 7 días",
-      "hoursHint": "Mínimo 0,5 horas",
+      "hoursHint": "Las que quieras: 3, 1,5…",
+      "hoursInvalid": "Escribe un número mayor que 0 y de 168 como mucho.",
       "save": "Guardar objetivo",
       "saving": "Guardando…",
       "cancel": "Cancelar",

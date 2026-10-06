@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/core/infrastructure/supabase/server";
 import { SupabaseWeeklyGoalRepository } from "@/core/infrastructure/supabase/repositories/weekly-goal-repository";
 import { UnauthorizedError } from "@/core/domain/errors";
-import { currentWeekStartKey } from "@/core/domain/weekly-goal";
+import { currentWeekStartKey, isValidWeeklyGoalTarget } from "@/core/domain/weekly-goal";
 import type { UserId, WeeklyGoalId } from "@/core/domain/ids";
 
 async function requireUserId() {
@@ -16,6 +16,9 @@ async function requireUserId() {
 }
 
 export async function saveWeeklyGoal(targetDays: number, targetHours: number) {
+  // El formulario ya no deja enviar valores fuera de rango: esto solo
+  // salta si alguien llama a la acción a mano.
+  if (!isValidWeeklyGoalTarget(targetDays, targetHours)) throw new Error("Invalid weekly goal");
   const { userId, client } = await requireUserId();
   const repo = new SupabaseWeeklyGoalRepository(client);
   const goal = await repo.upsert(userId, {

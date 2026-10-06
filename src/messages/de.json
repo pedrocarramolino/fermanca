@@ -230,8 +230,8 @@
     "form": {
       "days": "Tage pro Woche",
       "hours": "Stunden pro Woche",
-      "daysHint": "Zwischen 1 und 7 Tagen",
-      "hoursHint": "Mindestens 0,5 Stunden",
+      "hoursHint": "Beliebig viele: 3, 1,5 …",
+      "hoursInvalid": "Gib eine Zahl über 0 und höchstens 168 ein.",
       "save": "Ziel speichern",
       "saving": "Speichern…",
       "cancel": "Abbrechen",

@@ -230,8 +230,8 @@
     "form": {
       "days": "Days per week",
       "hours": "Hours per week",
-      "daysHint": "Between 1 and 7 days",
-      "hoursHint": "0.5 hours minimum",
+      "hoursHint": "Any amount: 3, 1.5…",
+      "hoursInvalid": "Enter a number above 0 and no more than 168.",
       "save": "Save goal",
       "saving": "Saving…",
       "cancel": "Cancel",
