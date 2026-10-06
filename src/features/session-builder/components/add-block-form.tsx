@@ -83,7 +83,11 @@ export function AddBlockForm({
     startDeleting(async () => {
       setDeleteError(null);
       try {
-        await deleteCustomCategory(deletedId);
+        const result = await deleteCustomCategory(deletedId);
+        if (!result.ok) {
+          setDeleteError(t("deleteInUse"));
+          return;
+        }
         onCategoryDeleted(deletedId);
         setDeletingCategory(null);
         if (categoryId === deletedId) {

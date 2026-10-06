@@ -346,7 +346,8 @@
     "deleteConfirmDescription": "This action can't be undone.",
     "deleteConfirmCta": "Delete",
     "deleting": "Deleting…",
-    "deleteError": "Couldn't delete the category. It may already be used in a session or template.",
+    "deleteError": "Couldn't delete the category. Please try again.",
+    "deleteInUse": "Can't delete it: this category is used in a saved template or in your session history.",
     "minutes": "Minutes",
     "add": "Add"
   },

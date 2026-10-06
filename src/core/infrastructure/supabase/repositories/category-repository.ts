@@ -5,6 +5,8 @@ import type { CategoryRepository } from "@/core/domain/repositories/category-rep
 import type { Database } from "@/core/infrastructure/supabase/database.types";
 import { assertUuid } from "@/lib/uuid";
 
+const FOREIGN_KEY_VIOLATION = "23503";
+
 type CategoryRow = Database["public"]["Tables"]["categories"]["Row"];
 
 function toDomain(row: CategoryRow): Category {
@@ -91,13 +93,16 @@ export class SupabaseCategoryRepository implements CategoryRepository {
     return toDomain(data) as CustomCategory;
   }
 
-  async deleteCustom(id: CategoryId, ownerId: UserId): Promise<void> {
+  async deleteCustom(id: CategoryId, ownerId: UserId): Promise<"deleted" | "inUse"> {
     const { error } = await this.client
       .from("categories")
       .delete()
       .eq("id", id)
       .eq("owner_id", ownerId);
 
+    // template_blocks y session_blocks la referencian con ON DELETE RESTRICT.
+    if (error?.code === FOREIGN_KEY_VIOLATION) return "inUse";
     if (error) throw error;
+    return "deleted";
   }
 }

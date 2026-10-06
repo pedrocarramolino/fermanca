@@ -346,7 +346,8 @@
     "deleteConfirmDescription": "Diese Aktion kann nicht rückgängig gemacht werden.",
     "deleteConfirmCta": "Löschen",
     "deleting": "Wird gelöscht…",
-    "deleteError": "Die Kategorie konnte nicht gelöscht werden. Sie wird möglicherweise bereits in einer Sitzung oder Vorlage verwendet.",
+    "deleteError": "Die Kategorie konnte nicht gelöscht werden. Bitte versuche es erneut.",
+    "deleteInUse": "Löschen nicht möglich: Diese Kategorie wird in einer gespeicherten Vorlage oder in deinem Sitzungsverlauf verwendet.",
     "minutes": "Minuten",
     "add": "Hinzufügen"
   },

@@ -346,7 +346,8 @@
     "deleteConfirmDescription": "Esta acción no se puede deshacer.",
     "deleteConfirmCta": "Borrar",
     "deleting": "Borrando…",
-    "deleteError": "No se pudo borrar la categoría. Puede que ya se haya usado en alguna sesión o plantilla.",
+    "deleteError": "No se pudo borrar la categoría. Inténtalo de nuevo.",
+    "deleteInUse": "No se puede borrar: esta categoría se usa en alguna plantilla guardada o en tu historial de sesiones.",
     "minutes": "Minutos",
     "add": "Añadir"
   },
