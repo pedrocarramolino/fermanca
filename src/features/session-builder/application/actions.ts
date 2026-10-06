@@ -48,11 +48,17 @@ export async function updateCustomCategory(
   return category;
 }
 
-export async function deleteCustomCategory(id: string) {
+/** Devuelve el resultado en vez de lanzar: que la categoría siga en uso es
+ * un caso esperado, y un error lanzado acabaría en el correo de errores. */
+export async function deleteCustomCategory(
+  id: string,
+): Promise<{ ok: true } | { ok: false; error: "inUse" }> {
   const { userId, client } = await requireUserId();
   const repo = new SupabaseCategoryRepository(client);
-  await repo.deleteCustom(id as CategoryId, userId);
+  const result = await repo.deleteCustom(id as CategoryId, userId);
+  if (result === "inUse") return { ok: false, error: "inUse" };
   revalidatePath("/");
+  return { ok: true };
 }
 
 export async function saveAsNewTemplate(name: string, blocks: DraftBlockInput[]) {

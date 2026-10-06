@@ -230,8 +230,8 @@
     "form": {
       "days": "Tage pro Woche",
       "hours": "Stunden pro Woche",
-      "daysHint": "Zwischen 1 und 7 Tagen",
-      "hoursHint": "Mindestens 0,5 Stunden",
+      "hoursHint": "Beliebig viele: 3, 1,5 …",
+      "hoursInvalid": "Gib eine Zahl über 0 und höchstens 168 ein.",
       "save": "Ziel speichern",
       "saving": "Speichern…",
       "cancel": "Abbrechen",
@@ -346,7 +346,8 @@
     "deleteConfirmDescription": "Diese Aktion kann nicht rückgängig gemacht werden.",
     "deleteConfirmCta": "Löschen",
     "deleting": "Wird gelöscht…",
-    "deleteError": "Die Kategorie konnte nicht gelöscht werden. Sie wird möglicherweise bereits in einer Sitzung oder Vorlage verwendet.",
+    "deleteError": "Die Kategorie konnte nicht gelöscht werden. Bitte versuche es erneut.",
+    "deleteInUse": "Löschen nicht möglich: Diese Kategorie wird in einer gespeicherten Vorlage oder in deinem Sitzungsverlauf verwendet.",
     "minutes": "Minuten",
     "add": "Hinzufügen"
   },

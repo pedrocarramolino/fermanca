@@ -230,8 +230,8 @@
     "form": {
       "days": "Días a la semana",
       "hours": "Horas a la semana",
-      "daysHint": "Entre 1 y 7 días",
-      "hoursHint": "Mínimo 0,5 horas",
+      "hoursHint": "Las que quieras: 3, 1,5…",
+      "hoursInvalid": "Escribe un número mayor que 0 y de 168 como mucho.",
       "save": "Guardar objetivo",
       "saving": "Guardando…",
       "cancel": "Cancelar",
@@ -346,7 +346,8 @@
     "deleteConfirmDescription": "Esta acción no se puede deshacer.",
     "deleteConfirmCta": "Borrar",
     "deleting": "Borrando…",
-    "deleteError": "No se pudo borrar la categoría. Puede que ya se haya usado en alguna sesión o plantilla.",
+    "deleteError": "No se pudo borrar la categoría. Inténtalo de nuevo.",
+    "deleteInUse": "No se puede borrar: esta categoría se usa en alguna plantilla guardada o en tu historial de sesiones.",
     "minutes": "Minutos",
     "add": "Añadir"
   },

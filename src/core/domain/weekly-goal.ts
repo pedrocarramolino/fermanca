@@ -21,6 +21,31 @@ export function currentWeekStartKey(today: Date): string {
   return dayKey(mondayOf(today));
 }
 
+/** Una semana tiene 168 horas: más que eso no se puede practicar. */
+export const MAX_WEEKLY_GOAL_HOURS = 168;
+
+/** Horas escritas a mano ("3", "1,5", "0.75") → número, o null si no es
+ * una cantidad válida (vacío, no numérico, 0 o más de una semana). */
+export function parseWeeklyGoalHours(text: string): number | null {
+  const normalized = text.trim().replace(",", ".");
+  if (!/^\d*\.?\d+$|^\d+\.$/.test(normalized)) return null;
+  const hours = Number(normalized);
+  if (!Number.isFinite(hours) || hours <= 0 || hours > MAX_WEEKLY_GOAL_HOURS) return null;
+  return hours;
+}
+
+/** Comprobación del servidor: lo que llega de una acción no es de fiar. */
+export function isValidWeeklyGoalTarget(targetDays: number, targetHours: number): boolean {
+  return (
+    Number.isInteger(targetDays) &&
+    targetDays >= 1 &&
+    targetDays <= 7 &&
+    Number.isFinite(targetHours) &&
+    targetHours > 0 &&
+    targetHours <= MAX_WEEKLY_GOAL_HOURS
+  );
+}
+
 export interface WeeklyGoalProgress {
   practicedDays: number;
   practicedSeconds: number;

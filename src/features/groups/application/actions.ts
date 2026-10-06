@@ -10,7 +10,12 @@ import { SupabaseSessionInviteRepository } from "@/core/infrastructure/supabase/
 import { sendPush } from "@/core/infrastructure/push/send-push";
 import { sendPushToMany } from "@/core/infrastructure/push/send-push-to-many";
 import { UnauthorizedError } from "@/core/domain/errors";
-import { currentWeekStartKey, weeklyGoalProgress, type WeeklyGoalProgress } from "@/core/domain/weekly-goal";
+import {
+  currentWeekStartKey,
+  isValidWeeklyGoalTarget,
+  weeklyGoalProgress,
+  type WeeklyGoalProgress,
+} from "@/core/domain/weekly-goal";
 import { mondayOf } from "@/core/domain/streaks";
 import { GROUP_ACTIVITY_PAGE_SIZE } from "@/features/groups/application/constants";
 import { getBlockedIdsFor } from "@/features/moderation/application/blocked-ids";
@@ -374,6 +379,7 @@ export async function loadMoreGroupActivity(
  * también por la política de escritura de group_weekly_goals en la
  * migración, esta comprobación es defensa en profundidad. */
 export async function setGroupWeeklyGoal(groupId: string, targetDays: number, targetHours: number) {
+  if (!isValidWeeklyGoalTarget(targetDays, targetHours)) throw new Error("Invalid weekly goal");
   const { userId, client } = await requireUserId();
   const { repo, group } = await requireMembership(groupId as GroupId, userId, client);
   if (group.kind !== "admin" || group.ownerId !== userId) throw new UnauthorizedError();

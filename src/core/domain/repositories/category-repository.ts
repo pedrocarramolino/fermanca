@@ -15,5 +15,7 @@ export interface CategoryRepository {
     ownerId: UserId,
     changes: Partial<Pick<CustomCategory, "name" | "color" | "isGhost">>,
   ): Promise<CustomCategory>;
-  deleteCustom(id: CategoryId, ownerId: UserId): Promise<void>;
+  /** "inUse": todavía la usa alguna plantilla o sesión del historial (las
+   * claves externas lo impiden), así que no se borra. */
+  deleteCustom(id: CategoryId, ownerId: UserId): Promise<"deleted" | "inUse">;
 }
