@@ -65,6 +65,10 @@ export function isNetworkError(value: unknown): boolean {
 }
 
 const EXTENSION_STACK = /(chrome|moz|safari(-web)?)-extension:\/\//;
+/** Rastreadores que ejecutan la página en Deno (no en un navegador): su
+ * traza pasa por "ext:core/01_core.js" y les faltan APIs del navegador,
+ * así que fallan en cosas que en un navegador real nunca fallan. */
+const NON_BROWSER_STACK = /\bext:(core|deno_)/;
 
 let reportsSent = 0;
 const alreadyReported = new Set<string>();
@@ -92,7 +96,8 @@ export function reportClientError(value: unknown, kind: ClientErrorKind): void {
   // navegador: instrumentation.ts ya lo avisó desde allí, con más detalle.
   if (error.digest) return;
   if (matchesAny(NOISE_PATTERNS, error)) return;
-  if (error.stack && EXTENSION_STACK.test(error.stack)) return;
+  if (error.stack && (EXTENSION_STACK.test(error.stack) || NON_BROWSER_STACK.test(error.stack)))
+    return;
 
   const key = `${error.name}|${error.message}`;
   if (alreadyReported.has(key) || reportsSent >= MAX_REPORTS_PER_PAGE) return;
