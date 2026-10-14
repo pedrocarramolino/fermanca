@@ -25,6 +25,7 @@ import {
 } from "@/features/settings/lib/accent-presets";
 import type { UserSettings } from "@/core/domain/user-settings";
 import { TIME_ZONE_COOKIE_SCRIPT } from "@/lib/time-zone";
+import { DOM_MUTATION_GUARD_SCRIPT } from "@/lib/dom-mutation-guard";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" });
@@ -175,6 +176,11 @@ export default async function RootLayout({
         <script
           suppressHydrationWarning
           dangerouslySetInnerHTML={{ __html: TIME_ZONE_COOKIE_SCRIPT }}
+        />
+        {/* Que el traductor del navegador no tumbe la app (ver el archivo). */}
+        <script
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{ __html: DOM_MUTATION_GUARD_SCRIPT }}
         />
         {settings && settings.accentColor && (
           <style
