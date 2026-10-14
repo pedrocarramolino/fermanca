@@ -64,7 +64,10 @@ export function isNetworkError(value: unknown): boolean {
   return matchesAny(NETWORK_PATTERNS, toError(value));
 }
 
-const EXTENSION_STACK = /(chrome|moz|safari(-web)?)-extension:\/\//;
+/** Código que no es nuestro: extensiones del navegador y los scripts que
+ * mete el navegador interno de Instagram/Facebook ("iabjs://…", p. ej. su
+ * medidor de rendimiento, que falla al hablar con la app nativa). */
+const EXTENSION_STACK = /(chrome|moz|safari(-web)?)-extension:\/\/|\biabjs:\/\//;
 /** Rastreadores que ejecutan la página en Deno (no en un navegador): su
  * traza pasa por "ext:core/01_core.js" y les faltan APIs del navegador,
  * así que fallan en cosas que en un navegador real nunca fallan. */
