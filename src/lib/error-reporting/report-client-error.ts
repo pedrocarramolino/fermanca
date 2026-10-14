@@ -34,10 +34,10 @@ const NETWORK_PATTERNS = [
  *    src/lib/app-version.ts);
  *  · extensiones del navegador y el aviso inofensivo de ResizeObserver;
  *  · "Script error.", que es un error de otro dominio sin ningún dato útil;
- *  · una transición de <ViewTransition> que Chrome cancela porque la
- *    pestaña pasó a segundo plano justo al empezar: rechaza una promesa
- *    interna de React, pero el cambio de pantalla se aplica igual, solo
- *    que sin animación.
+ *  · una transición de <ViewTransition> que Chrome cancela (la pestaña
+ *    pasó a segundo plano, o el cambio de pantalla tardó demasiado en un
+ *    móvil lento): rechaza una promesa interna de React, pero el cambio de
+ *    pantalla se aplica igual, solo que sin animación.
  */
 const NOISE_PATTERNS = [
   ...NETWORK_PATTERNS,
@@ -49,7 +49,7 @@ const NOISE_PATTERNS = [
   /UnrecognizedActionError/,
   /Server Action ".*" was not found on the server/,
   /Importing a module script failed/i,
-  /Transition was aborted because of invalid state/i,
+  /Transition was aborted because of/i,
 ];
 
 /** Se prueba contra el mensaje solo y contra "Tipo: mensaje": los patrones
