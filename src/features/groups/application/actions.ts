@@ -455,7 +455,9 @@ const GROUP_WEEKLY_GOAL_PUSH_IMAGE = "/icons/icon-512x512.png";
  * pide, a sus propias suscripciones — para poder ver cómo queda (incluida la
  * imagen) sin avisar de mentira al resto del grupo.
  */
-export async function sendTestGroupWeeklyGoalPush(groupId: string) {
+export async function sendTestGroupWeeklyGoalPush(
+  groupId: string,
+): Promise<{ ok: true } | { ok: false; error: "noSubscription" }> {
   const { userId, client } = await requireUserId();
   const { group } = await requireMembership(groupId as GroupId, userId, client);
 
@@ -466,9 +468,9 @@ export async function sendTestGroupWeeklyGoalPush(groupId: string) {
     .select("*")
     .eq("owner_id", userId);
   if (error) throw error;
-  if (subscriptions.length === 0) {
-    throw new Error("No tienes notificaciones activadas en este dispositivo.");
-  }
+  // Caso esperado (no ha activado las notificaciones): se devuelve en vez
+  // de lanzar, que un error lanzado acabaría en el correo de errores.
+  if (subscriptions.length === 0) return { ok: false, error: "noSubscription" };
 
   for (const sub of subscriptions) {
     await sendPush(
@@ -482,6 +484,7 @@ export async function sendTestGroupWeeklyGoalPush(groupId: string) {
       },
     );
   }
+  return { ok: true };
 }
 
 /**
