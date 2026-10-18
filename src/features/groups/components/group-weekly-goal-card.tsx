@@ -71,8 +71,8 @@ export function GroupWeeklyGoalCard({
     setTestResult(null);
     startTesting(async () => {
       try {
-        await sendTestGroupWeeklyGoalPush(groupId);
-        setTestResult("sent");
+        const result = await sendTestGroupWeeklyGoalPush(groupId);
+        setTestResult(result.ok ? "sent" : "error");
       } catch {
         setTestResult("error");
       }
