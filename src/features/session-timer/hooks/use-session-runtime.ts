@@ -225,8 +225,11 @@ export function useSessionRuntime({
     const completedAt = forcedCompletionAt ?? pausedAt ?? naturalEndAt;
     setForcedCompletionAt(null);
     setPausedAt(null);
-    const actualDurationSeconds = Math.round(
-      (completedAt.getTime() - activeBlockStartedAt.getTime()) / 1000,
+    // Nunca negativa: el inicio de la primera fase viene del reloj del
+    // servidor y el fin del de este móvil, que puede ir unos segundos atrás.
+    const actualDurationSeconds = Math.max(
+      0,
+      Math.round((completedAt.getTime() - activeBlockStartedAt.getTime()) / 1000),
     );
 
     setLastCompletedBlock(completedBlock);

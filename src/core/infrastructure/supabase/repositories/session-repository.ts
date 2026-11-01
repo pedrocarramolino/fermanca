@@ -61,6 +61,15 @@ function toDomain(row: SessionWithBlocksRow): Session {
 
 const SELECT_WITH_BLOCKS = "*, session_blocks(*)";
 
+/** La duración de un bloque se calcula restando dos instantes que no
+ * siempre vienen del mismo reloj: el inicio de la primera fase lo pone el
+ * servidor al crear la sesión, y el fin, el móvil. Con el reloj del móvil
+ * unos segundos atrasado, pasar de fase al instante daba un número negativo
+ * y la base de datos rechazaba la fila (check >= 0, visto el 1/11/2026). */
+function nonNegativeSeconds(seconds: number | undefined): number | undefined {
+  return seconds === undefined ? undefined : Math.max(0, Math.round(seconds));
+}
+
 export class SupabaseSessionRepository implements SessionRepository {
   constructor(private readonly client: SupabaseClient<Database>) {}
 
@@ -187,7 +196,7 @@ export class SupabaseSessionRepository implements SessionRepository {
       .from("session_blocks")
       .update({
         status: changes.status,
-        actual_duration_seconds: changes.actualDurationSeconds,
+        actual_duration_seconds: nonNegativeSeconds(changes.actualDurationSeconds),
         started_at: changes.startedAt?.toISOString(),
         ended_at: changes.endedAt?.toISOString(),
         note: changes.note,
@@ -213,7 +222,7 @@ export class SupabaseSessionRepository implements SessionRepository {
       .from("session_blocks")
       .update({
         status: changes.status,
-        actual_duration_seconds: changes.actualDurationSeconds,
+        actual_duration_seconds: nonNegativeSeconds(changes.actualDurationSeconds),
         started_at: changes.startedAt?.toISOString(),
         ended_at: changes.endedAt?.toISOString(),
         note: changes.note,
