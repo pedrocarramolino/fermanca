@@ -1,6 +1,5 @@
 import "server-only";
 import { Client } from "@upstash/qstash";
-import type { DayOfWeek } from "@/core/domain/reminder";
 
 let cachedClient: Client | null = null;
 
@@ -91,8 +90,10 @@ export async function cancelQstashMessage(messageId: string): Promise<void> {
 }
 
 /**
- * Identificador fijo de la programación de cada recordatorio y de cada aviso
- * de calendario, derivado de su id. Antes lo elegía QStash al azar y solo
+ * Identificador fijo que tenían los Schedules de QStash de cada recordatorio
+ * y aviso de calendario (hasta el 3/11/2026 —ahora los manda
+ * /api/cron/notifications—; se conserva para poder borrar los que queden).
+ * Derivado de su id. Antes lo elegía QStash al azar y solo
  * quedaba apuntado en la fila de la base de datos: si esa fila desaparecía
  * sin pasar por deleteReminder/deleteCalendarEvent (al borrar la cuenta se
  * van en cascada), la programación seguía disparando para siempre sin que
@@ -106,62 +107,6 @@ export function reminderScheduleId(reminderId: string): string {
 
 export function calendarEventScheduleId(eventId: string): string {
   return `calendar-event-${eventId}`;
-}
-
-/** QStash evalúa el cron en UTC salvo que se le indique otra zona con el
- * prefijo CRON_TZ dentro de la propia expresión (no es un parámetro aparte). */
-function reminderCron(timeOfDay: string, daysOfWeek: DayOfWeek[], timezone: string): string {
-  const [hour, minute] = timeOfDay.split(":");
-  return `CRON_TZ=${timezone} ${Number(minute)} ${Number(hour)} * * ${daysOfWeek.join(",")}`;
-}
-
-/** Un recordatorio sin días marcados no tiene una expresión cron válida que
- * lo represente — no crear schedule equivale a dejarlo sin disparo. */
-export async function createReminderSchedule(
-  reminderId: string,
-  timeOfDay: string,
-  daysOfWeek: DayOfWeek[],
-  timezone: string,
-): Promise<string | null> {
-  if (daysOfWeek.length === 0) return null;
-  const { scheduleId } = await getClient().schedules.create({
-    scheduleId: reminderScheduleId(reminderId),
-    destination: `${appUrl()}/api/qstash/reminder-alert`,
-    body: JSON.stringify({ reminderId }),
-    headers: { "Content-Type": "application/json" },
-    cron: reminderCron(timeOfDay, daysOfWeek, timezone),
-  });
-  return scheduleId;
-}
-
-/** minute hour day-of-month month * — un cron de un solo campo de año no
- * existe en el formato estándar de 5 campos, así que esta expresión en
- * realidad se repetiría cada año en esa fecha; calendar-event-alert borra el
- * Schedule nada más entregar el aviso para que se comporte como un disparo
- * único. Se calcula en UTC (sin prefijo CRON_TZ) porque `notifyAt` ya es un
- * instante absoluto resuelto en el navegador del usuario, no una hora local
- * que QStash tenga que reinterpretar. */
-function oneShotCron(notifyAt: Date): string {
-  return `${notifyAt.getUTCMinutes()} ${notifyAt.getUTCHours()} ${notifyAt.getUTCDate()} ${notifyAt.getUTCMonth() + 1} *`;
-}
-
-/** Aviso puntual para un evento de calendario, en un instante concreto que
- * puede estar a meses vista — un mensaje normal (`notBefore`/`delay`) no
- * sirve porque el plan de QStash limita esos plazos a 7 días; un Schedule
- * (cron) no tiene ese límite, así que se usa ese mecanismo aunque el aviso
- * no sea recurrente (ver oneShotCron). */
-export async function scheduleCalendarEventNotification(
-  eventId: string,
-  notifyAt: Date,
-): Promise<string> {
-  const { scheduleId } = await getClient().schedules.create({
-    scheduleId: calendarEventScheduleId(eventId),
-    destination: `${appUrl()}/api/qstash/calendar-event-alert`,
-    body: JSON.stringify({ eventId }),
-    headers: { "Content-Type": "application/json" },
-    cron: oneShotCron(notifyAt),
-  });
-  return scheduleId;
 }
 
 /**

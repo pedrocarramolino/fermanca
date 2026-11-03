@@ -8,7 +8,7 @@ import { SupabaseUserSettingsRepository } from "@/core/infrastructure/supabase/r
 import { UnauthorizedError } from "@/core/domain/errors";
 import type { DayOfWeek } from "@/core/domain/reminder";
 import type { ReminderId, UserId } from "@/core/domain/ids";
-import { createReminderSchedule, deleteQstashSchedule } from "@/core/infrastructure/qstash/client";
+import { deleteQstashSchedule } from "@/core/infrastructure/qstash/client";
 
 async function requireUserId() {
   const client = await createClient();
@@ -21,11 +21,10 @@ async function requireUserId() {
 export async function createReminder(timeOfDay: string, daysOfWeek: DayOfWeek[]) {
   const { userId, client } = await requireUserId();
   const repo = new SupabaseReminderRepository(client);
+  // Lo envía /api/cron/notifications cuando llega la hora (pg_cron, cada
+  // minuto) — ya no se crea un Schedule de QStash por recordatorio: el plan
+  // gratuito solo admite 10 para toda la app.
   const reminder = await repo.create(userId, { timeOfDay, daysOfWeek, enabled: true });
-
-  const timezone = (await new SupabaseUserSettingsRepository(client).get(userId)).timezone;
-  const scheduleId = await createReminderSchedule(reminder.id, timeOfDay, daysOfWeek, timezone);
-  if (scheduleId) await repo.setQstashScheduleId(reminder.id, userId, scheduleId);
 
   revalidatePath("/reminders");
   return reminder;
@@ -35,18 +34,12 @@ export async function setReminderEnabled(id: string, enabled: boolean) {
   const { userId, client } = await requireUserId();
   const repo = new SupabaseReminderRepository(client);
   const previousScheduleId = await repo.getQstashScheduleId(id as ReminderId, userId);
-  const reminder = await repo.update(id as ReminderId, userId, { enabled });
+  await repo.update(id as ReminderId, userId, { enabled });
 
-  if (enabled) {
-    const timezone = (await new SupabaseUserSettingsRepository(client).get(userId)).timezone;
-    const scheduleId = await createReminderSchedule(
-      reminder.id,
-      reminder.timeOfDay,
-      reminder.daysOfWeek,
-      timezone,
-    );
-    await repo.setQstashScheduleId(id as ReminderId, userId, scheduleId);
-  } else if (previousScheduleId) {
+  // Activar o desactivar basta con el campo `enabled` (ver
+  // claim_due_notifications); solo queda limpiar el Schedule de QStash que
+  // pudiera tener de antes del cambio de sistema.
+  if (previousScheduleId) {
     await deleteQstashSchedule(previousScheduleId);
     await repo.setQstashScheduleId(id as ReminderId, userId, null);
   }

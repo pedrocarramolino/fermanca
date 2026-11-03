@@ -95,6 +95,7 @@ export type Database = {
           created_at: string
           event_date: string
           id: string
+          notified_at: string | null
           notify_at: string | null
           owner_id: string
           qstash_schedule_id: string | null
@@ -104,6 +105,7 @@ export type Database = {
           created_at?: string
           event_date: string
           id?: string
+          notified_at?: string | null
           notify_at?: string | null
           owner_id: string
           qstash_schedule_id?: string | null
@@ -113,6 +115,7 @@ export type Database = {
           created_at?: string
           event_date?: string
           id?: string
+          notified_at?: string | null
           notify_at?: string | null
           owner_id?: string
           qstash_schedule_id?: string | null
@@ -369,6 +372,7 @@ export type Database = {
           days_of_week: number[]
           enabled: boolean
           id: string
+          last_fired_at: string | null
           owner_id: string
           qstash_schedule_id: string | null
           time_of_day: string
@@ -378,6 +382,7 @@ export type Database = {
           days_of_week?: number[]
           enabled?: boolean
           id?: string
+          last_fired_at?: string | null
           owner_id: string
           qstash_schedule_id?: string | null
           time_of_day: string
@@ -387,6 +392,7 @@ export type Database = {
           days_of_week?: number[]
           enabled?: boolean
           id?: string
+          last_fired_at?: string | null
           owner_id?: string
           qstash_schedule_id?: string | null
           time_of_day?: string
@@ -986,6 +992,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_due_notifications: {
+        Args: { p_now?: string }
+        Returns: {
+          id: string
+          kind: string
+          owner_id: string
+          title: string | null
+        }[]
+      }
+      verify_notifications_cron_secret: {
+        Args: { p_secret: string }
+        Returns: boolean
+      }
       email_registered: {
         Args: { check_email: string }
         Returns: boolean

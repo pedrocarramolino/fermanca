@@ -4,10 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/core/infrastructure/supabase/server";
 import { SupabaseCalendarEventRepository } from "@/core/infrastructure/supabase/repositories/calendar-event-repository";
 import { UnauthorizedError } from "@/core/domain/errors";
-import {
-  deleteQstashSchedule,
-  scheduleCalendarEventNotification,
-} from "@/core/infrastructure/qstash/client";
+import { deleteQstashSchedule } from "@/core/infrastructure/qstash/client";
 import type { CalendarEventId, UserId } from "@/core/domain/ids";
 
 async function requireUserId() {
@@ -19,9 +16,10 @@ async function requireUserId() {
 }
 
 /** `notifyAt` es opcional — sin él, el evento se guarda como una fecha
- * suelta sin ningún aviso programado. Cuando viene, tiene que caer en el
- * futuro: QStash no admite un Schedule para un instante ya pasado, y
- * avisar de algo que ya pasó no tendría sentido de todas formas. */
+ * suelta sin ningún aviso. Cuando viene, tiene que caer en el futuro:
+ * avisar de algo que ya pasó no tendría sentido. El aviso lo manda
+ * /api/cron/notifications al llegar ese instante (ver
+ * claim_due_notifications). */
 function parseNotifyAt(notifyAt: string | null): Date | null {
   const notifyAtDate = notifyAt ? new Date(notifyAt) : null;
   if (notifyAtDate && notifyAtDate.getTime() <= Date.now()) {
@@ -39,19 +37,12 @@ export async function createCalendarEvent(title: string, date: string, notifyAt:
   const repo = new SupabaseCalendarEventRepository(client);
   const event = await repo.create(userId, { title: trimmed, date, notifyAt: notifyAtDate });
 
-  if (notifyAtDate) {
-    const scheduleId = await scheduleCalendarEventNotification(event.id, notifyAtDate);
-    await repo.setQstashScheduleId(event.id, userId, scheduleId);
-  }
-
   revalidatePath("/reminders");
   return event;
 }
 
-/** Sustituye siempre el Schedule anterior por uno nuevo en vez de intentar
- * reutilizarlo cambiándole el cron — más simple y sin casos especiales
- * (aviso añadido, quitado, o solo con la hora cambiada, se tratan todos
- * igual: cancelar lo que hubiera, programar lo que toque ahora). */
+/** Cambiar la hora del aviso lo vuelve a dejar pendiente (un trigger pone
+ * notified_at a null, ver 20261103120000_notifications_dispatcher.sql). */
 export async function updateCalendarEvent(
   id: string,
   title: string,
@@ -72,11 +63,9 @@ export async function updateCalendarEvent(
     notifyAt: notifyAtDate,
   });
 
-  if (previousScheduleId) await deleteQstashSchedule(previousScheduleId);
-  if (notifyAtDate) {
-    const scheduleId = await scheduleCalendarEventNotification(event.id, notifyAtDate);
-    await repo.setQstashScheduleId(event.id, userId, scheduleId);
-  } else {
+  // Schedule de QStash de antes del cambio de sistema, si lo tenía.
+  if (previousScheduleId) {
+    await deleteQstashSchedule(previousScheduleId);
     await repo.setQstashScheduleId(event.id, userId, null);
   }
 
