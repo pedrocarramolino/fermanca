@@ -1,68 +1,19 @@
 import { NextResponse } from "next/server";
-import { createServiceClient } from "@/core/infrastructure/supabase/service-client";
-import { SupabasePushSubscriptionRepository } from "@/core/infrastructure/supabase/repositories/push-subscription-repository";
-import { sendPush } from "@/core/infrastructure/push/send-push";
 import { verifyQstashSignature } from "@/core/infrastructure/qstash/verify";
-import {
-  calendarEventScheduleId,
-  deleteOrphanSchedule,
-  deleteQstashSchedule,
-} from "@/core/infrastructure/qstash/client";
+import { calendarEventScheduleId, deleteOrphanSchedule } from "@/core/infrastructure/qstash/client";
 
-/** QStash llama aquí en el instante exacto que se eligió al crear el evento
- * (ver scheduleCalendarEventNotification) — mismo patrón que reminder-alert,
- * pero el Schedule de un evento es de un solo disparo: como el cron no
- * puede fijar el año, se autoborra aquí nada más entregarse para no volver
- * a saltar el año que viene en la misma fecha. */
+/**
+ * Solo para los Schedules de QStash creados antes del 3/11/2026: los avisos
+ * de calendario los manda ahora /api/cron/notifications (pg_cron, cada
+ * minuto), así que si uno de estos salta, se borra a sí mismo sin enviar
+ * nada — si enviara, el aviso llegaría dos veces.
+ */
 export async function POST(request: Request) {
   const rawBody = await request.text();
   if (!(await verifyQstashSignature(request, rawBody))) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
-
   const { eventId } = JSON.parse(rawBody) as { eventId: string };
-  const supabase = createServiceClient();
-
-  const { data: event, error: eventError } = await supabase
-    .from("calendar_events")
-    .select("id, owner_id, title, qstash_schedule_id")
-    .eq("id", eventId)
-    .maybeSingle();
-  if (eventError) throw eventError;
-
-  // Puede haberse borrado entre que se programó el aviso y que QStash lo
-  // entrega — no es un error. Pero la programación se queda huérfana (al
-  // borrar la cuenta, por ejemplo) y, como el cron no fija el año, volvería
-  // a saltar cada año en la misma fecha: se borra aquí mismo.
-  if (!event) {
-    await deleteOrphanSchedule(request, calendarEventScheduleId(eventId));
-    return NextResponse.json({ sent: 0, skipped: true });
-  }
-
-  const { data: subscriptions, error: subscriptionsError } = await supabase
-    .from("push_subscriptions")
-    .select("*")
-    .eq("owner_id", event.owner_id);
-  if (subscriptionsError) throw subscriptionsError;
-
-  const pushRepo = new SupabasePushSubscriptionRepository(supabase);
-  let sent = 0;
-
-  for (const sub of subscriptions) {
-    const result = await sendPush(
-      { endpoint: sub.endpoint, p256dh: sub.p256dh, auth: sub.auth },
-      {
-        kind: "reminder",
-        title: event.title,
-        body: "El evento que marcaste se acerca.",
-        url: "/reminders",
-      },
-    );
-    if (result.ok) sent += 1;
-    if (result.expired) await pushRepo.deleteByEndpoint(sub.endpoint);
-  }
-
-  if (event.qstash_schedule_id) await deleteQstashSchedule(event.qstash_schedule_id);
-
-  return NextResponse.json({ sent });
+  await deleteOrphanSchedule(request, calendarEventScheduleId(eventId));
+  return NextResponse.json({ sent: 0, retired: true });
 }
