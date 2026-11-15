@@ -13,6 +13,23 @@ import { sendPush } from "@/core/infrastructure/push/send-push";
  * la misma sentencia, así que aunque esta ruta se llame dos veces seguidas
  * nadie recibe el mismo aviso dos veces.
  */
+/**
+ * Supabase a veces responde un 500 suelto ("Internal server error.", visto
+ * el 15/11/2026): se reintenta una vez antes de rendirse. Y si se rinde, se
+ * lanza un Error de verdad con el paso que falló — el error de Supabase es
+ * un objeto plano y el aviso por correo solo decía "[object Object]".
+ */
+async function withRetry<T>(
+  step: string,
+  run: () => PromiseLike<{ data: T; error: { message: string } | null }>,
+): Promise<NonNullable<T>> {
+  let result = await run();
+  if (result.error) result = await run();
+  if (result.error) throw new Error(`${step}: ${result.error.message}`);
+  if (result.data == null) throw new Error(`${step}: respuesta vacía`);
+  return result.data;
+}
+
 export async function POST(request: Request) {
   const supabase = createServiceClient();
 
@@ -20,23 +37,20 @@ export async function POST(request: Request) {
   // así no hay que copiarla a las variables de entorno de Vercel.
   const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ?? "";
   if (!token) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  const { data: valid, error: verifyError } = await supabase.rpc(
-    "verify_notifications_cron_secret",
-    { p_secret: token },
+  const valid = await withRetry("verify_notifications_cron_secret", () =>
+    supabase.rpc("verify_notifications_cron_secret", { p_secret: token }),
   );
-  if (verifyError) throw verifyError;
   if (!valid) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-  const { data: due, error: claimError } = await supabase.rpc("claim_due_notifications", {});
-  if (claimError) throw claimError;
+  const due = await withRetry("claim_due_notifications", () =>
+    supabase.rpc("claim_due_notifications", {}),
+  );
   if (due.length === 0) return NextResponse.json({ sent: 0 });
 
   const ownerIds = [...new Set(due.map((item) => item.owner_id))];
-  const { data: subscriptions, error: subscriptionsError } = await supabase
-    .from("push_subscriptions")
-    .select("*")
-    .in("owner_id", ownerIds);
-  if (subscriptionsError) throw subscriptionsError;
+  const subscriptions = await withRetry("push_subscriptions", () =>
+    supabase.from("push_subscriptions").select("*").in("owner_id", ownerIds),
+  );
 
   const pushRepo = new SupabasePushSubscriptionRepository(supabase);
   let sent = 0;
